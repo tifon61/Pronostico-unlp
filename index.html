@@ -3,223 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Meteorológico UNLP</title>
+    <title>METEO-DASHBOARD | UNLP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --azul-unlp: #0d47a1; --celeste: #64b5f6; --gris: #e0e0e0; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #333; color: white; }
-        
-        /* Navegación */
-        nav { background: #222; padding: 10px; text-align: center; border-bottom: 2px solid var(--azul-unlp); }
-        nav button { background: none; border: 1px solid white; color: white; padding: 10px 20px; cursor: pointer; margin: 0 5px; border-radius: 5px; }
-        nav button.active { background: var(--azul-unlp); border-color: var(--azul-unlp); }
-
-        .section { display: none; padding: 20px; animation: fadeIn 0.5s; }
-        .section.active { display: block; }
-
-        /* VISTA PÚBLICO: MAPA */
-        .public-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
-        .map-svg { width: 450px; fill: #555; stroke: #fff; stroke-width: 1; }
-        .city-node { cursor: pointer; transition: 0.3s; }
-        .city-node:hover { fill: var(--celeste); r: 12; }
-        
-        /* LA IMAGEN (CANVA CLONE) */
-        #canvas-area { 
-            width: 850px; background: var(--gris); padding: 20px; color: #333; 
-            margin: 0 auto; border-radius: 10px;
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
-        .header-image { background: var(--azul-unlp); color: white; padding: 15px; text-align: center; font-weight: bold; border-radius: 10px 10px 0 0; }
-        .sub-header { background: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 4px solid var(--azul-unlp); }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR TECNOLÓGICA */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo { font-weight: 900; letter-spacing: 2px; font-size: 1.5em; color: var(--primary); }
         
-        .grid-day { background: white; margin: 15px 0; border-radius: 10px; overflow: hidden; border: 1px solid #ccc; }
-        .grid-header { background: var(--celeste); color: white; padding: 8px; display: flex; justify-content: space-around; font-weight: bold; }
-        .grid-row { display: flex; border-top: 1px solid #eee; }
-        .grid-col { flex: 1; padding: 10px; text-align: center; border-right: 1px solid #eee; }
+        .nav-links button {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 20px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
 
-        /* EDITOR */
-        .editor-card { background: white; color: #333; padding: 20px; border-radius: 10px; max-width: 900px; margin: 0 auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        input { width: 90%; border: 1px solid #ccc; padding: 4px; border-radius: 3px; }
+        .nav-links button:hover {
+            background: var(--primary);
+            color: var(--dark);
+            box-shadow: 0 0 15px var(--primary);
+        }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* SECCIÓN PÚBLICO: GRILLA DE CIUDADES */
+        .dashboard {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .city-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+            position: relative;
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .city-card:hover { transform: translateY(-10px); border-color: var(--primary); }
+
+        .city-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        .city-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .city-name { font-size: 2em; font-weight: 900; text-transform: uppercase; margin: 0; }
+        .temp-main { font-size: 4em; font-weight: 300; margin: 10px 0; }
+        
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .data-item { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border); }
+        .data-label { font-size: 0.7em; color: var(--primary); font-weight: bold; text-transform: uppercase; }
+        .data-val { font-size: 1.1em; margin-top: 5px; }
+
+        /* EDITOR MODAL / OVERLAY */
+        #editor {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            padding: 50px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .editor-container {
+            background: #1e293b;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid var(--primary);
+        }
+
+        input {
+            background: #0f172a;
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn-action {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        /* OCULTAR ELEMENTOS PARA LA FOTO */
+        .no-export { display: none !important; }
     </style>
 </head>
 <body>
 
 <nav>
-    <button onclick="showSection('publico')" id="btn-publico" class="active">VISTA PÚBLICO (MAPA)</button>
-    <button onclick="showSection('editor')" id="btn-editor">MODO PRONOSTICADOR (EDICIÓN)</button>
+    <div class="logo">METEO<span style="color:white">UNLP</span></div>
+    <div class="nav-links">
+        <span id="last-update" style="margin-right: 20px; font-size: 0.8em; opacity: 0.7;"></span>
+        <button onclick="toggleEditor()">MODO PRONOSTICADOR</button>
+    </div>
 </nav>
 
-<div id="publico" class="section active">
-    <div class="public-container">
-        <div>
-            <h2 style="text-align: center;">Pronóstico Provincia de Bs. As.</h2>
-            <svg class="map-svg" viewBox="0 0 500 600">
-                <path d="M100,50 L400,50 L450,300 L380,550 L50,500 Z" fill="#444" />
-                <circle class="city-node" cx="350" cy="250" r="8" fill="red" onclick="cargarDatosCiudad('la-plata')"/>
-                <text x="365" y="255" fill="white" font-size="14">La Plata</text>
-                
-                <circle class="city-node" cx="380" cy="450" r="8" fill="red" onclick="cargarDatosCiudad('mar-del-plata')"/>
-                <text x="395" y="455" fill="white" font-size="14">Mar del Plata</text>
-
-                <circle class="city-node" cx="180" cy="180" r="8" fill="red" onclick="cargarDatosCiudad('junin')"/>
-                <text x="120" y="185" fill="white" font-size="14">Junín</text>
-            </svg>
-        </div>
-
-        <div id="info-display">
-            <p>Seleccioná una ciudad para ver el reporte...</p>
-        </div>
+<div class="dashboard" id="public-dashboard">
     </div>
-</div>
 
-<div id="editor" class="section">
-    <div class="editor-card">
-        <h2>Editor de Pronóstico: <span id="editing-city">La Plata</span></h2>
-        <select id="city-selector" onchange="changeEditingCity(this.value)">
+<div id="editor">
+    <div class="editor-container">
+        <div style="display:flex; justify-content: space-between; align-items:center;">
+            <h2>Panel de Control</h2>
+            <button onclick="toggleEditor()" style="background:none; border:none; color:white; font-size:2em; cursor:pointer;">&times;</button>
+        </div>
+        
+        <label>Seleccionar Ciudad a Editar:</label>
+        <select id="city-to-edit" onchange="renderEditorFields()" style="width:100%; padding:10px; margin-bottom:20px; border-radius:10px;">
             <option value="la-plata">La Plata</option>
             <option value="mar-del-plata">Mar del Plata</option>
             <option value="junin">Junín</option>
         </select>
-        <hr>
-        <table>
-            <thead>
-                <tr>
-                    <th>Día</th>
-                    <th>Min</th>
-                    <th>Max</th>
-                    <th>Mañana (T/V)</th>
-                    <th>Tarde (T/V)</th>
-                    <th>Noche (T/V)</th>
-                </tr>
-            </thead>
-            <tbody id="editor-body">
-                </tbody>
-        </table>
-        <div style="margin-top: 20px; text-align: center;">
-            <button onclick="saveToLocal()" style="background: green; color: white; padding: 10px 20px; border: none; cursor:pointer;">GUARDAR CAMBIOS</button>
-            <button onclick="generarImagen()" style="background: #e91e63; color: white; padding: 10px 20px; border: none; cursor:pointer;">DESCARGAR IMAGEN (.PNG)</button>
-        </div>
 
-        <h3 style="margin-top: 40px;">Vista Previa de la Imagen:</h3>
-        <div id="canvas-area">
-            <div class="header-image">PRONÓSTICO METEOROLÓGICO</div>
-            <div class="sub-header">
-                <div style="font-size: 0.8em;">FACULTAD DE CIENCIAS<br>ASTRONÓMICAS Y GEOFÍSICAS</div>
-                <div id="canvas-city-name" style="font-size: 2em; font-weight: 900;">LA PLATA</div>
-                <div style="font-size: 0.8em; text-align: right;">UNIVERSIDAD NACIONAL<br>DE LA PLATA</div>
-            </div>
-            <div id="preview-content"></div>
+        <div id="fields-container"></div>
+
+        <div style="margin-top: 30px;">
+            <button class="btn-action" onclick="saveChanges()">GUARDAR Y ACTUALIZAR</button>
+            <button class="btn-action" style="background: #e91e63; color: white;" onclick="exportarImagen()">DESCARGAR GRÁFICA (.PNG)</button>
         </div>
     </div>
 </div>
 
 <script>
-    // 1. DATOS INICIALES (Si no hay nada guardado)
-    let db = JSON.parse(localStorage.getItem('meteoDB')) || {
-        "la-plata": { min: "11°", max: "22°", m: "13°/Norte", t: "22°/Noreste", n: "16°/Noreste" },
-        "mar-del-plata": { min: "8°", max: "18°", m: "10°/Sudeste", t: "17°/Este", n: "12°/Sudeste" },
-        "junin": { min: "12°", max: "25°", m: "14°/Calma", t: "24°/Norte", n: "18°/Norte" }
+    // BASE DE DATOS LOCAL
+    let db = JSON.parse(localStorage.getItem('meteoDataPro')) || {
+        "la-plata": { min: "11", max: "22", m: "13°/Noroeste", t: "Despejado", v: "Noreste leve" },
+        "mar-del-plata": { min: "9", max: "19", m: "10°/Sur", t: "Algo nublado", v: "Sudeste moderado" },
+        "junin": { min: "12", max: "26", m: "14°/Calma", t: "Despejado", v: "Norte" }
     };
 
-    let currentCity = "la-plata";
-
-    function showSection(id) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('btn-' + id).classList.add('active');
-        if(id === 'editor') renderEditor();
+    function init() {
+        renderDashboard();
+        document.getElementById('last-update').innerText = "ACTUALIZADO: " + new Date().toLocaleTimeString();
     }
 
-    // 2. LÓGICA DEL EDITOR
-    function renderEditor() {
-        document.getElementById('editing-city').innerText = currentCity.replace('-', ' ').toUpperCase();
-        const data = db[currentCity];
-        const html = `
-            <tr>
-                <td>HOY</td>
-                <td><input id="edit-min" value="${data.min}"></td>
-                <td><input id="edit-max" value="${data.max}"></td>
-                <td><input id="edit-m" value="${data.m}"></td>
-                <td><input id="edit-t" value="${data.t}"></td>
-                <td><input id="edit-n" value="${data.n}"></td>
-            </tr>
-        `;
-        document.getElementById('editor-body').innerHTML = html;
-        updatePreview();
-    }
+    function renderDashboard() {
+        const container = document.getElementById('public-dashboard');
+        container.innerHTML = '';
 
-    function changeEditingCity(val) {
-        currentCity = val;
-        renderEditor();
-    }
-
-    function saveToLocal() {
-        db[currentCity] = {
-            min: document.getElementById('edit-min').value,
-            max: document.getElementById('edit-max').value,
-            m: document.getElementById('edit-m').value,
-            t: document.getElementById('edit-t').value,
-            n: document.getElementById('edit-n').value
-        };
-        localStorage.setItem('meteoDB', JSON.stringify(db));
-        alert("Datos guardados localmente para " + currentCity);
-        updatePreview();
-    }
-
-    // 3. ACTUALIZAR VISTA PREVIA (LA FOTO)
-    function updatePreview() {
-        const data = db[currentCity];
-        document.getElementById('canvas-city-name').innerText = currentCity.replace('-', ' ').toUpperCase();
-        document.getElementById('preview-content').innerHTML = `
-            <div class="grid-day">
-                <div class="grid-header"><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
-                <div class="grid-row">
-                    <div class="grid-col"><b style="color:red">${data.max}</b> / <b style="color:blue">${data.min}</b></div>
-                    <div class="grid-col">${data.m.split('/')[0]}</div>
-                    <div class="grid-col">${data.t.split('/')[0]}</div>
-                    <div class="grid-col">${data.n.split('/')[0]}</div>
+        for (const [id, data] of Object.entries(db)) {
+            const card = document.createElement('div');
+            card.className = 'city-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <div class="city-header">
+                    <h2 class="city-name">${id.replace('-', ' ')}</h2>
+                    <span style="font-size: 2em;">${getIcon(data.t)}</span>
                 </div>
-                <div class="grid-row" style="font-size: 0.8em; background: #f9f9f9;">
-                    <div class="grid-col">Viento</div>
-                    <div class="grid-col">${data.m.split('/')[1] || '--'}</div>
-                    <div class="grid-col">${data.t.split('/')[1] || '--'}</div>
-                    <div class="grid-col">${data.n.split('/')[1] || '--'}</div>
+                <div class="temp-main">${data.max}°</div>
+                <div style="color: var(--primary); font-weight: bold; margin-bottom: 20px;">${data.t}</div>
+                
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">Mínima</div>
+                        <div class="data-val">${data.min}°C</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Viento</div>
+                        <div class="data-val">${data.v}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Mañana</div>
+                        <div class="data-val">${data.m.split('/')[0]}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Estado</div>
+                        <div class="data-val" style="font-size:0.8em">OFICIAL UNLP</div>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+            container.appendChild(card);
+        }
     }
 
-    // 4. FUNCION PÚBLICA (MAPA)
-    function cargarDatosCiudad(city) {
+    function getIcon(desc) {
+        desc = desc.toLowerCase();
+        if(desc.includes('despejado')) return '☀️';
+        if(desc.includes('nublado')) return '☁️';
+        if(desc.includes('lluvia')) return '🌧️';
+        return '🌤️';
+    }
+
+    function toggleEditor() {
+        const el = document.getElementById('editor');
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+        if(el.style.display === 'block') renderEditorFields();
+    }
+
+    function renderEditorFields() {
+        const city = document.getElementById('city-to-edit').value;
         const data = db[city];
-        const display = document.getElementById('info-display');
-        display.innerHTML = `
-            <div style="background: white; color: #333; padding: 20px; border-radius: 10px; width: 300px;">
-                <h2 style="color: var(--azul-unlp); margin-top:0;">${city.toUpperCase().replace('-', ' ')}</h2>
-                <p><b>Temp Actual:</b> ${data.t.split('/')[0]}</p>
-                <p><b>Máxima prevista:</b> <span style="color:red">${data.max}</span></p>
-                <p><b>Mínima prevista:</b> <span style="color:blue">${data.min}</span></p>
-                <p><b>Viento:</b> ${data.t.split('/')[1] || 'Calma'}</p>
-                <button onclick="showSection('editor')" style="width:100%; padding: 10px; background: var(--celeste); border:none; cursor:pointer;">Ver Gráfica Completa</button>
-            </div>
+        const container = document.getElementById('fields-container');
+        container.innerHTML = `
+            <label>Temperatura Máxima:</label><input id="in-max" value="${data.max}">
+            <label>Temperatura Mínima:</label><input id="in-min" value="${data.min}">
+            <label>Descripción del Tiempo:</label><input id="in-t" value="${data.t}">
+            <label>Información de Viento:</label><input id="in-v" value="${data.v}">
+            <label>Dato Mañana (Temp/Viento):</label><input id="in-m" value="${data.m}">
         `;
     }
 
-    function generarImagen() {
-        html2canvas(document.getElementById("canvas-area")).then(canvas => {
+    function saveChanges() {
+        const city = document.getElementById('city-to-edit').value;
+        db[city] = {
+            max: document.getElementById('in-max').value,
+            min: document.getElementById('in-min').value,
+            t: document.getElementById('in-t').value,
+            v: document.getElementById('in-v').value,
+            m: document.getElementById('in-m').value
+        };
+        localStorage.setItem('meteoDataPro', JSON.stringify(db));
+        renderDashboard();
+        alert("¡Datos de " + city + " actualizados con éxito!");
+    }
+
+    async function exportarImagen() {
+        const city = document.getElementById('city-to-edit').value;
+        const card = document.getElementById(`card-${city}`);
+        
+        // Efecto visual para la captura
+        card.style.background = "#0f172a"; 
+        
+        html2canvas(card, {
+            backgroundColor: '#0f172a',
+            scale: 3, // Calidad Ultra HD para Instagram
+            borderRadius: 30
+        }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `pronostico_${currentCity}.png`;
+            link.download = `Pronostico_${city}_UNLP.png`;
             link.href = canvas.toDataURL();
             link.click();
+            card.style.background = "rgba(255, 255, 255, 0.1)"; // Restaurar
         });
     }
 
-    // Inicializar
-    updatePreview();
+    init();
 </script>
 
 </body>
