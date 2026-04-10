@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pronóstico Oficial UNLP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background: #f0f2f5; margin: 0; color: #00315a; }
+        header { background: #00315a; color: white; padding: 20px; text-align: center; }
+        .container { max-width: 1000px; margin: 40px auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0 20px; }
+        .city-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        .city-name { font-weight: 900; font-size: 1.2em; border-bottom: 2px solid #00315a; padding-bottom: 10px; margin-bottom: 15px; }
+        .temp { font-size: 3em; font-weight: 300; margin: 10px 0; }
+        .desc { font-size: 0.9em; font-weight: bold; color: #666; height: 40px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>PORTAL METEOROLÓGICO UNLP</h1>
+    <p>Datos oficiales generados por el Grupo de Pronóstico</p>
+</header>
+
+<div class="container" id="public-grid">
+    </div>
+
+<script>
+    function loadPublicData() {
+        const db = JSON.parse(localStorage.getItem('unlp_db'));
+        const container = document.getElementById('public-grid');
+        
+        if(!db) {
+            container.innerHTML = "<h3>No hay datos disponibles por el momento.</h3>";
+            return;
+        }
+
+        for (const [id, data] of Object.entries(db)) {
+            container.innerHTML += `
+                <div class="city-card">
+                    <div class="city-name">${id.replace('-', ' ').toUpperCase()}</div>
+                    <div class="temp">${data.max}</div>
+                    <div class="desc">${data.desc}</div>
+                    <div style="font-size: 0.7em; margin-top: 20px; opacity: 0.6;">Actualizado: ${data.updated || '--'}</div>
+                </div>
+            `;
+        }
+    }
+    window.onload = loadPublicData;
+</script>
+</body>
+</html>
