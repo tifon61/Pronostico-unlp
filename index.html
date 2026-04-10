@@ -1,187 +1,161 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Meteorológico | UNLP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --unlp-blue: #00315a;
-            --unlp-accent: #0079c1;
-            --bg: #f8f9fa;
-            --text: #333;
-        }
+<style>
+    /* ... (Mantener estilos de sidebar anteriores) ... */
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* HEADER INSTITUCIONAL */
-        header {
-            background-color: white;
-            padding: 20px 10%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 5px solid var(--unlp-blue);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .logo-area { display: flex; align-items: center; gap: 15px; }
-        .logo-area img { height: 50px; }
-        .header-titles h1 { margin: 0; font-size: 1.2em; color: var(--unlp-blue); font-weight: 900; line-height: 1; }
-        .header-titles p { margin: 5px 0 0; font-size: 0.8em; font-weight: bold; color: #666; }
-
-        /* CONTENIDO PRINCIPAL */
-        main {
-            flex-grow: 1;
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .welcome-msg { text-align: center; margin-bottom: 40px; }
-        .welcome-msg h2 { font-weight: 300; font-size: 2em; color: var(--unlp-blue); }
-
-        /* GRILLA DE CIUDADES */
-        .forecast-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .city-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-            border: 1px solid #eee;
-        }
-
-        .city-card:hover { transform: translateY(-5px); border-color: var(--unlp-accent); }
-
-        .city-name { font-weight: 900; font-size: 1.5em; text-transform: uppercase; color: var(--unlp-blue); margin-bottom: 5px; }
-        .update-time { font-size: 0.7em; color: #999; margin-bottom: 20px; display: block; }
-        
-        .temp-display { font-size: 3.5em; font-weight: 300; color: #d68d1e; margin: 10px 0; }
-        .weather-desc { font-weight: bold; color: #555; margin-bottom: 20px; min-height: 40px; }
-
-        .details-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-            font-size: 0.85em;
-        }
-
-        .detail { display: flex; flex-direction: column; gap: 5px; }
-        .detail b { color: var(--unlp-blue); font-size: 0.75em; text-transform: uppercase; }
-
-        /* FOOTER CON BOTÓN SECRETO */
-        footer {
-            background: #eee;
-            padding: 40px 20px;
-            text-align: center;
-            margin-top: 50px;
-            border-top: 1px solid #ddd;
-        }
-
-        .footer-logo { height: 40px; opacity: 0.6; margin-bottom: 10px; }
-        .copyright { font-size: 0.8em; color: #777; margin: 0; }
-
-        /* EL BOTÓN SECRETO */
-        .admin-link {
-            display: inline-block;
-            margin-top: 20px;
-            font-size: 0.7em;
-            color: #ccc; /* Muy clarito para que pase desapercibido */
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .admin-link:hover { color: var(--unlp-blue); }
-
-    </style>
-</head>
-<body>
-
-<header>
-    <div class="logo-area">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png" alt="FCAG Logo">
-        <div class="header-titles">
-            <h1>GRUPO DE PRONÓSTICO</h1>
-            <p>FACULTAD DE CIENCIAS ASTRONÓMICAS Y GEOFÍSICAS</p>
-        </div>
-    </div>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png" alt="UNLP Logo">
-</header>
-
-<main>
-    <div class="welcome-msg">
-        <h2>Estado del Tiempo en la Región</h2>
-    </div>
-
-    <div class="forecast-grid" id="public-grid">
-        </div>
-</main>
-
-<footer>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png" class="footer-logo">
-    <p class="copyright">© 2026 Facultad de Ciencias Astronómicas y Geofísicas - UNLP</p>
-    
-    <a href="admin.html" class="admin-link">Panel de Control Pronosticadores</a>
-</footer>
-
-<script>
-    function loadData() {
-        const db = JSON.parse(localStorage.getItem('unlp_db'));
-        const container = document.getElementById('public-grid');
-        
-        if(!db) {
-            container.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Esperando actualización de datos oficiales...</p>";
-            return;
-        }
-
-        container.innerHTML = ''; // Limpiar
-
-        for (const [id, data] of Object.entries(db)) {
-            container.innerHTML += `
-                <div class="city-card">
-                    <span class="update-time">Actualizado: ${data.updated || '--'}</span>
-                    <div class="city-name">${id.replace('-', ' ')}</div>
-                    <div class="temp-display">${data.max}</div>
-                    <div class="weather-desc">${data.desc}</div>
-                    
-                    <div class="details-box">
-                        <div class="detail">
-                            <b>Mínima</b>
-                            <span>${data.min}</span>
-                        </div>
-                        <div class="detail">
-                            <b>Viento</b>
-                            <span>${data.wind}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+    /* Estilos Globales de la Placa */
+    #viewer { 
+        flex-grow: 1; padding: 40px; display: flex; 
+        justify-content: center; align-items: flex-start; 
+        background-color: #333; /* Fondo oscuro para que resalte la placa */
     }
 
-    // Cargar datos al iniciar
-    window.onload = loadData;
-</script>
+    #capture-area {
+        width: 1000px; /* Ancho para coincidir con la placa original */
+        background-color: #e6e7e8; /* Gris de fondo exacto */
+        padding: 30px;
+        border-radius: 10px;
+        color: #00315a; /* Azul UNLP */
+        font-family: 'Montserrat', sans-serif;
+    }
 
-</body>
-</html>
+    /* Header Institucional */
+    .header-placa {
+        background-color: white;
+        padding: 15px 30px;
+        display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 5px solid #00315a;
+        border-radius: 30px 30px 0 0;
+        margin-bottom: 20px;
+    }
+    .header-placa img { height: 60px; }
+    .header-placa h1 { font-weight: 900; font-size: 3em; margin: 0; letter-spacing: -2px; }
+    .pronostico-tag { 
+        background: #00315a; color: white; 
+        padding: 2px 20px; border-radius: 20px; 
+        font-size: 0.8em; font-weight: bold; 
+    }
+
+    /* Estructura de Grilla Avanzada (Viernes) */
+    .grid-day-block {
+        background: #00315a; /* Fondo azul oscuro */
+        border-radius: 20px;
+        overflow: hidden;
+        color: white;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header del bloque (Día y Fecha) */
+    .block-header {
+        background: rgba(255,255,255,0.1); /* Brillo suave */
+        padding: 10px 30px;
+        display: flex; justify-content: space-between; align-items: center;
+        text-transform: uppercase; font-weight: 800; font-size: 1.1em;
+    }
+
+    /* Contenedor principal de la grilla (sin bordes) */
+    .grid-main {
+        display: grid;
+        grid-template-columns: 180px repeat(3, 1fr); /* 1 columna labels + 3 columnas tiempo */
+        grid-template-rows: repeat(4, auto); /* 4 filas principales */
+    }
+
+    /* Celda base */
+    .grid-cell {
+        padding: 15px;
+        text-align: center;
+        border: 0.5px solid rgba(255,255,255,0.08); /* Bordes casi invisibles */
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+
+    /* Celdas de Labels (columna izquierda) */
+    .label-cell {
+        background: rgba(0,0,0,0.15); /* Fondo oscuro */
+        font-weight: bold; text-transform: uppercase;
+        align-items: flex-start; padding-left: 25px;
+    }
+
+    /* Celdas de Tiempos (columna 2,3,4) */
+    .time-cell {
+        font-weight: bold; text-transform: uppercase;
+        font-size: 0.9em;
+    }
+
+    /* Fila 2: TEMPERATURA */
+    .temp-cell { font-size: 3em; font-weight: 300; } /* Delgado y grande */
+
+    /* Fila 3: VIENTOS */
+    .wind-cell { font-size: 0.85em; font-weight: normal; }
+
+    /* Fila 4: TIEMPO (Icono + Texto) */
+    .weather-cell-content { display: flex; align-items: center; gap: 10px; text-align: left; }
+    .weather-icon { font-size: 2em; }
+    .weather-text { font-size: 0.85em; }
+
+    /* Bloque de Temperatura Min/Max (Izquierda de Fila 2) */
+    .minmax-block {
+        display: flex; align-items: center; gap: 10px;
+        justify-content: flex-start;
+        border-right: none;
+    }
+    .minmax-values { text-align: left; font-size: 1.1em; }
+    .minmax-values div { display: flex; align-items: center; gap: 5px; }
+
+</style>
+
+<div id="viewer">
+    <div id="capture-area">
+        <div class="header-placa">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
+            <div style="text-align: center; flex-grow: 1;">
+                <span class="pronostico-tag">PRONÓSTICO METEOROLÓGICO</span>
+                <h1 id="out-city">LA PLATA</h1>
+            </div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png">
+        </div>
+
+        <div class="grid-day-block">
+            <div class="block-header">
+                <span id="day-0-name">VIERNES</span>
+                <span style="font-size: 0.9em; opacity: 0.9;" id="date-0">10/ABR/26</span>
+            </div>
+            
+            <div class="grid-main">
+                <div class="grid-cell label-cell"></div> <div class="grid-cell time-cell">MAÑANA</div>
+                <div class="grid-cell time-cell">TARDE</div>
+                <div class="grid-cell time-cell">NOCHE</div>
+
+                <div class="grid-cell label-cell minmax-block">
+                    <span style="font-size: 2.5em;">🌡️</span>
+                    <div class="minmax-values">
+                        <div style="color: #ffeb3b;">MAX: <span id="out-max">22°</span></div>
+                        <div style="color: #81d4fa;">MIN: <span id="out-min">11°</span></div>
+                    </div>
+                </div>
+                <div class="grid-cell temp-cell">13°</div>
+                <div class="grid-cell temp-cell" style="color: #ffeb3b;">22°</div>
+                <div class="grid-cell temp-cell">16°</div>
+
+                <div class="grid-cell label-cell">VIENTOS</div>
+                <div class="grid-cell wind-cell">Leves del<br>noroeste</div>
+                <div class="grid-cell wind-cell" id="out-wind">Leves del<br>noreste</div>
+                <div class="grid-cell wind-cell">Leves del<br>noreste</div>
+
+                <div class="grid-cell label-cell">TIEMPO</div>
+                <div class="grid-cell weather-cell-content">
+                    <span class="weather-icon">☀️</span>
+                    <span class="weather-text">Despejado</span>
+                </div>
+                <div class="grid-cell weather-cell-content">
+                    <span class="weather-icon">⛅</span>
+                    <span class="weather-text" id="out-desc">Algo<br>nublado</span>
+                </div>
+                <div class="grid-cell weather-cell-content">
+                    <span class="weather-icon">🌙</span>
+                    <span class="weather-text">Ligeramente<br>nublado</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="footer-note">* GRUPO DE PRONÓSTICO UNLP - FACULTAD DE CIENCIAS ASTRONÓMICAS Y GEOFÍSICAS</p>
+    </div>
+</div>
