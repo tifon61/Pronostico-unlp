@@ -2,195 +2,137 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Pronóstico UNLP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <title>Panel de Pronóstico UNLP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root {
-            --unlp-blue-dark: #00315a;
-            --unlp-blue-light: #0079c1;
-            --unlp-blue-extra: #5899d2;
-            --bg-gray: #e6e7e8;
-            --white: #ffffff;
+        :root { --unlp-blue: #00315a; --bg: #f4f4f4; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #222; }
+        
+        /* Panel de Control Lateral */
+        #sidebar { 
+            width: 320px; background: white; height: 100vh; 
+            padding: 20px; box-sizing: border-box; overflow-y: auto;
+            border-right: 5px solid var(--unlp-blue);
         }
+        
+        /* Area de Visualización */
+        #viewer { flex-grow: 1; padding: 40px; display: flex; justify-content: center; align-items: flex-start; }
 
-        body { font-family: 'Montserrat', sans-serif; margin: 0; background-color: #333; color: var(--unlp-blue-dark); }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.8em; color: var(--unlp-blue); }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .btn-save { background: #28a745; color: white; border: none; padding: 12px; width: 100%; margin-top: 20px; cursor: pointer; font-weight: bold; }
+        .btn-download { background: var(--unlp-blue); color: white; border: none; padding: 12px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; }
 
-        /* HEADER INSTITUCIONAL */
-        .header-container {
-            background: var(--white);
-            padding: 10px 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 5px solid var(--unlp-blue-dark);
-            border-radius: 40px 40px 0 0;
-        }
-        .header-container img { height: 60px; }
-        .title-main { text-align: center; flex-grow: 1; }
-        .title-main h1 { font-weight: 900; font-size: 2.8em; margin: 0; color: var(--unlp-blue-dark); letter-spacing: -1px; }
-        .tagline { background: var(--unlp-blue-dark); color: white; padding: 2px 20px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
-
-        /* AREA DE CAPTURA (FOTO) */
-        #capture-area {
-            width: 1000px; background: var(--bg-gray); padding: 30px; 
-            margin: 20px auto; display: flex; flex-direction: column; gap: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        /* DISEÑO TIPO TABLA (VIERNES/SABADO) */
-        .grid-day-box { background: var(--unlp-blue-dark); border-radius: 20px; overflow: hidden; color: white; }
-        .grid-header { 
-            background: rgba(255,255,255,0.1); padding: 10px 30px; 
-            display: flex; justify-content: space-between; align-items: center;
-            font-weight: 800; text-transform: uppercase;
-        }
-        .grid-content { display: grid; grid-template-columns: 160px repeat(3, 1fr); background: var(--unlp-blue-dark); }
-        .grid-row { display: contents; }
-        .grid-cell { 
-            padding: 15px; text-align: center; border: 0.5px solid rgba(255,255,255,0.1); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .cell-label { background: rgba(0,0,0,0.2); font-weight: bold; text-align: left; padding-left: 20px; }
-        .temp-val { font-size: 1.8em; font-weight: 800; }
-        .icon-weather { font-size: 2.5em; margin: 5px 0; }
-
-        /* TARJETAS VERTICALES (DOMINGO/LUNES) */
-        .cards-container { display: flex; gap: 20px; }
-        .v-card { 
-            flex: 1; border-radius: 40px; padding: 30px; text-align: center; color: white;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-        .v-card.blue-light { background: var(--unlp-blue-extra); }
-        .v-card.blue-dark { background: var(--unlp-blue-dark); }
-        .v-card h2 { font-weight: 900; font-size: 2.2em; margin: 0; }
-        .v-card .date { font-weight: bold; opacity: 0.9; }
-        .v-card .desc { font-size: 1em; font-weight: 500; line-height: 1.4; }
-
-        /* EDITOR FLOTANTE */
-        #admin-panel {
-            position: fixed; top: 20px; left: 20px; width: 300px;
-            background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            z-index: 1000; color: #333;
-        }
-        #admin-panel input, select { width: 100%; margin: 10px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-        .btn-gen { background: var(--unlp-blue-dark); color: white; border: none; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 5px; }
-
-        .footer-note { text-align: center; font-size: 0.8em; font-weight: bold; margin-top: 10px; }
+        /* Estilos de la Placa (Igual a la anterior) */
+        #capture-area { width: 900px; background: #e6e7e8; padding: 25px; border-radius: 10px; color: var(--unlp-blue); }
+        .header-placa { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid var(--unlp-blue); border-radius: 30px 30px 0 0; }
+        .grid-day { background: var(--unlp-blue); color: white; border-radius: 15px; margin-top: 15px; overflow: hidden; }
+        .grid-row { display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
+        .grid-cell { flex: 1; padding: 12px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div id="admin-panel">
-    <h3>⚙️ Panel UNLP</h3>
-    <label>Ciudad:</label>
-    <select id="city-select" onchange="updateCity(this.value)">
-        <option value="LA PLATA">La Plata</option>
-        <option value="MAR DEL PLATA">Mar del Plata</option>
-        <option value="JUNIN">Junín</option>
-    </select>
-    <label>T. Máxima Hoy:</label>
-    <input type="text" id="in-max" value="22°C" oninput="document.getElementById('out-max').innerText = this.value">
-    <label>Estado Hoy:</label>
-    <input type="text" id="in-desc" value="Algo Nublado" oninput="document.getElementById('out-desc').innerText = this.value">
+<div id="sidebar">
+    <h2 style="color: var(--unlp-blue); border-bottom: 2px solid;">⚙️ Editor UNLP</h2>
     
-    <button class="btn-gen" onclick="downloadImage()">⬇ DESCARGAR PLACA</button>
+    <label>Ciudad Activa:</label>
+    <select id="city-select" onchange="loadCityData(this.value)">
+        <option value="la-plata">La Plata</option>
+        <option value="mar-del-plata">Mar del Plata</option>
+        <option value="junin">Junín</option>
+    </select>
+
+    <label>Máxima Hoy:</label>
+    <input type="text" id="in-max" oninput="sync()">
+    
+    <label>Mínima Hoy:</label>
+    <input type="text" id="in-min" oninput="sync()">
+
+    <label>Estado del Tiempo:</label>
+    <textarea id="in-desc" oninput="sync()"></textarea>
+
+    <label>Viento:</label>
+    <input type="text" id="in-wind" oninput="sync()">
+
+    <button class="btn-save" onclick="saveToDB()">💾 GUARDAR PARA LA WEB</button>
+    <button class="btn-download" onclick="downloadPlaca()">⬇ DESCARGAR PLACA (PNG)</button>
 </div>
 
-<div id="capture-area">
-    <div class="header-container">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/1200px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
-        <div class="title-main">
-            <div class="tagline">PRONÓSTICO METEOROLÓGICO</div>
-            <h1 id="city-title">LA PLATA</h1>
+<div id="viewer">
+    <div id="capture-area">
+        <div class="header-placa">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
+            <div style="text-align: center;">
+                <span style="background: var(--unlp-blue); color:white; padding: 2px 15px; border-radius: 10px; font-size: 0.7em;">PRONÓSTICO</span>
+                <h1 id="out-city" style="margin:5px 0; font-size: 2.5em; font-weight: 900;">LA PLATA</h1>
+            </div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png">
         </div>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/1200px-UNLP_Logo_2016.svg.png">
+
+        <div class="grid-day">
+            <div style="padding: 10px 20px; font-weight: bold; background: rgba(255,255,255,0.1);" id="out-date">--</div>
+            <div class="grid-row">
+                <div class="grid-cell" style="background: rgba(0,0,0,0.2); font-weight: bold;">TEMP. MÁX</div>
+                <div class="grid-cell" id="out-max" style="font-size: 1.5em; font-weight: 900; color: #ffeb3b;">--</div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell" style="background: rgba(0,0,0,0.2); font-weight: bold;">TIEMPO</div>
+                <div class="grid-cell" id="out-desc">--</div>
+            </div>
+        </div>
+        <p style="text-align: center; font-size: 0.7em; font-weight: bold;">* GRUPO DE PRONÓSTICO UNLP</p>
     </div>
-
-    <div class="grid-day-box">
-        <div class="grid-header">
-            <span id="day-0-name">VIERNES</span>
-            <span style="font-size: 0.8em; opacity: 0.8;" id="date-0">10/ABR/26</span>
-        </div>
-        <div class="grid-content">
-            <div class="grid-cell cell-label">TEMPERATURA<br><small>MIN / MAX</small></div>
-            <div class="grid-cell">MAÑANA<div class="temp-val">13°C</div></div>
-            <div class="grid-cell">TARDE<div class="temp-val" id="out-max">22°C</div></div>
-            <div class="grid-cell">NOCHE<div class="temp-val">16°C</div></div>
-            
-            <div class="grid-cell cell-label">VIENTOS</div>
-            <div class="grid-cell"><small>Leves del noroeste</small></div>
-            <div class="grid-cell"><small>Leves del noreste</small></div>
-            <div class="grid-cell"><small>Leves del noreste</small></div>
-
-            <div class="grid-cell cell-label">TIEMPO</div>
-            <div class="grid-cell">☀️</div>
-            <div class="grid-cell">⛅</div>
-            <div class="grid-cell">🌙</div>
-        </div>
-    </div>
-
-    <div class="cards-container">
-        <div class="v-card blue-light">
-            <h2 id="day-2-name">DOMINGO</h2>
-            <div class="date" id="date-2">12/ABR/26</div>
-            <div style="font-size: 4em;">🌧️</div>
-            <div class="desc" id="out-desc">Cielo parcialmente nublado con baja probabilidad de lluvias por la madrugada.</div>
-            <div style="font-weight: 800; font-size: 1.2em;">🌡️ 17°C / 24°C</div>
-        </div>
-
-        <div class="v-card blue-dark">
-            <h2 id="day-3-name">LUNES</h2>
-            <div class="date" id="date-3">13/ABR/26</div>
-            <div style="font-size: 4em;">🌫️</div>
-            <div class="desc">Cielo ligeramente nublado con probabilidad de nieblas matinales.</div>
-            <div style="font-weight: 800; font-size: 1.2em;">🌡️ 14°C / 25°C</div>
-        </div>
-    </div>
-
-    <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
 </div>
 
 <script>
-    function setupDates() {
-        const days = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        const months = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-        const today = new Date();
+    let db = JSON.parse(localStorage.getItem('unlp_db')) || {
+        "la-plata": { max: "22°C", min: "11°C", desc: "Algo nublado", wind: "NE 10km/h" },
+        "mar-del-plata": { max: "18°C", min: "9°C", desc: "Despejado", wind: "E 15km/h" },
+        "junin": { max: "25°C", min: "12°C", desc: "Cielo cubierto", wind: "N 5km/h" }
+    };
 
-        for (let i = 0; i < 4; i++) {
-            let d = new Date();
-            d.setDate(today.getDate() + i);
-            let dateStr = `${d.getDate()}/${months[d.getMonth()]}/${d.getFullYear().toString().slice(-2)}`;
-            
-            if(i === 0) {
-                document.getElementById('day-0-name').innerText = days[d.getDay()];
-                document.getElementById('date-0').innerText = dateStr;
-            }
-            if(i === 2) {
-                document.getElementById('day-2-name').innerText = days[d.getDay()];
-                document.getElementById('date-2').innerText = dateStr;
-            }
-            if(i === 3) {
-                document.getElementById('day-3-name').innerText = days[d.getDay()];
-                document.getElementById('date-3').innerText = dateStr;
-            }
-        }
+    function loadCityData(city) {
+        const data = db[city];
+        document.getElementById('out-city').innerText = city.replace('-', ' ').toUpperCase();
+        document.getElementById('in-max').value = data.max;
+        document.getElementById('in-min').value = data.min;
+        document.getElementById('in-desc').value = data.desc;
+        document.getElementById('in-wind').value = data.wind;
+        sync();
     }
 
-    function updateCity(name) {
-        document.getElementById('city-title').innerText = name;
+    function sync() {
+        document.getElementById('out-max').innerText = document.getElementById('in-max').value;
+        document.getElementById('out-desc').innerText = document.getElementById('in-desc').value;
     }
 
-    function downloadImage() {
-        const area = document.getElementById('capture-area');
-        html2canvas(area, { scale: 2 }).then(canvas => {
+    function saveToDB() {
+        const city = document.getElementById('city-select').value;
+        db[city] = {
+            max: document.getElementById('in-max').value,
+            min: document.getElementById('in-min').value,
+            desc: document.getElementById('in-desc').value,
+            wind: document.getElementById('in-wind').value,
+            updated: new Date().toLocaleTimeString()
+        };
+        localStorage.setItem('unlp_db', JSON.stringify(db));
+        alert("✅ Datos actualizados para la Web Pública");
+    }
+
+    function downloadPlaca() {
+        html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Pronostico_UNLP_${new Date().toISOString().slice(0,10)}.png`;
+            link.download = `Pronostico_${document.getElementById('city-select').value}.png`;
             link.href = canvas.toDataURL();
             link.click();
         });
     }
 
-    window.onload = setupDates;
+    document.getElementById('out-date').innerText = new Date().toLocaleDateString();
+    loadCityData('la-plata');
 </script>
 </body>
 </html>
