@@ -3,151 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Pronóstico - La Plata</title>
+    <title>Sistema Meteorológico UNLP</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root {
-            --azul-oscuro: #0d47a1;
-            --azul-claro: #1e88e5;
-            --verde-sabado: #00796b;
-        }
+        :root { --azul-unlp: #0d47a1; --celeste: #64b5f6; --gris: #e0e0e0; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #333; color: white; }
+        
+        /* Navegación */
+        nav { background: #222; padding: 10px; text-align: center; border-bottom: 2px solid var(--azul-unlp); }
+        nav button { background: none; border: 1px solid white; color: white; padding: 10px 20px; cursor: pointer; margin: 0 5px; border-radius: 5px; }
+        nav button.active { background: var(--azul-unlp); border-color: var(--azul-unlp); }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .section { display: none; padding: 20px; animation: fadeIn 0.5s; }
+        .section.active { display: block; }
 
-        /* CONTENEDOR PRINCIPAL (Lo que se convierte en foto) */
+        /* VISTA PÚBLICO: MAPA */
+        .public-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
+        .map-svg { width: 450px; fill: #555; stroke: #fff; stroke-width: 1; }
+        .city-node { cursor: pointer; transition: 0.3s; }
+        .city-node:hover { fill: var(--celeste); r: 12; }
+        
+        /* LA IMAGEN (CANVA CLONE) */
         #canvas-area { 
-            width: 900px; 
-            background-color: #e0e0e0; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px;
+            width: 850px; background: var(--gris); padding: 20px; color: #333; 
+            margin: 0 auto; border-radius: 10px;
         }
-
-        .header-main { background-color: var(--azul-oscuro); color: white; padding: 10px; text-align: center; font-size: 1.5em; font-weight: bold; border-radius: 30px 30px 0 0; }
+        .header-image { background: var(--azul-unlp); color: white; padding: 15px; text-align: center; font-weight: bold; border-radius: 10px 10px 0 0; }
+        .sub-header { background: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 4px solid var(--azul-unlp); }
         
-        .header-sub { 
-            background-color: white; color: var(--azul-oscuro); 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 30px; border-bottom: 5px solid var(--azul-oscuro);
-        }
+        .grid-day { background: white; margin: 15px 0; border-radius: 10px; overflow: hidden; border: 1px solid #ccc; }
+        .grid-header { background: var(--celeste); color: white; padding: 8px; display: flex; justify-content: space-around; font-weight: bold; }
+        .grid-row { display: flex; border-top: 1px solid #eee; }
+        .grid-col { flex: 1; padding: 10px; text-align: center; border-right: 1px solid #eee; }
 
-        .logo-box { display: flex; align-items: center; gap: 10px; font-size: 0.7em; font-weight: bold; text-transform: uppercase; }
-        .logo-box img { height: 50px; }
+        /* EDITOR */
+        .editor-card { background: white; color: #333; padding: 20px; border-radius: 10px; max-width: 900px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        input { width: 90%; border: 1px solid #ccc; padding: 4px; border-radius: 3px; }
 
-        /* DISEÑO DE TABLAS (Viernes/Sábado) */
-        .grid-container { display: flex; flex-direction: column; gap: 10px; }
-        .day-block { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
-        .day-header { 
-            background: var(--azul-claro); color: white; padding: 8px 20px; 
-            display: flex; justify-content: space-between; font-weight: bold; 
-        }
-        .day-block.sabado .day-header { background: var(--verde-sabado); }
-
-        .forecast-row { display: flex; border-bottom: 1px solid #eee; }
-        .col-label { width: 120px; padding: 10px; font-weight: bold; background: #f9f9f9; display: flex; align-items: center; }
-        .col-data { flex: 1; text-align: center; padding: 10px; border-left: 1px solid #eee; }
-        
-        .temp-main { font-size: 1.4em; font-weight: bold; }
-        .icon-weather { height: 40px; vertical-align: middle; }
-
-        /* DISEÑO DE TARJETAS (Domingo/Lunes) */
-        .cards-row { display: flex; gap: 15px; }
-        .weather-card { 
-            flex: 1; background: var(--azul-claro); color: white; 
-            border-radius: 20px; padding: 15px; text-align: center; 
-        }
-        .weather-card:last-child { background: var(--azul-oscuro); }
-
-        /* PANEL DE CONTROL (No sale en la foto) */
-        #admin-panel { 
-            margin-top: 30px; background: white; padding: 20px; 
-            border-radius: 10px; width: 900px; 
-        }
-        table.edit-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        table.edit-table th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        input { width: 90%; padding: 5px; border: none; background: #f0f0f0; text-align: center; }
-        
-        .btn-download { 
-            background: #ff5722; color: white; padding: 15px 30px; 
-            border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="canvas-area">
-        <div class="header-main">PRONÓSTICO METEOROLÓGICO</div>
-        
-        <div class="header-sub">
-            <div class="logo-box">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/1200px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
-                <div>Facultad de Ciencias<br>Astronómicas y Geofísicas</div>
-            </div>
-            <div style="font-size: 2.5em; font-weight: 900;">LA PLATA</div>
-            <div class="logo-box" style="text-align: right;">
-                <div>Universidad Nacional<br>de La Plata</div>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/1200px-UNLP_Logo_2016.svg.png">
-            </div>
+<nav>
+    <button onclick="showSection('publico')" id="btn-publico" class="active">VISTA PÚBLICO (MAPA)</button>
+    <button onclick="showSection('editor')" id="btn-editor">MODO PRONOSTICADOR (EDICIÓN)</button>
+</nav>
+
+<div id="publico" class="section active">
+    <div class="public-container">
+        <div>
+            <h2 style="text-align: center;">Pronóstico Provincia de Bs. As.</h2>
+            <svg class="map-svg" viewBox="0 0 500 600">
+                <path d="M100,50 L400,50 L450,300 L380,550 L50,500 Z" fill="#444" />
+                <circle class="city-node" cx="350" cy="250" r="8" fill="red" onclick="cargarDatosCiudad('la-plata')"/>
+                <text x="365" y="255" fill="white" font-size="14">La Plata</text>
+                
+                <circle class="city-node" cx="380" cy="450" r="8" fill="red" onclick="cargarDatosCiudad('mar-del-plata')"/>
+                <text x="395" y="455" fill="white" font-size="14">Mar del Plata</text>
+
+                <circle class="city-node" cx="180" cy="180" r="8" fill="red" onclick="cargarDatosCiudad('junin')"/>
+                <text x="120" y="185" fill="white" font-size="14">Junín</text>
+            </svg>
         </div>
 
-        <div id="date-label" style="text-align: center; font-weight: bold; margin-top: -10px;"></div>
-
-        <div class="day-block">
-            <div class="day-header"><span class="name-day">DÍA 1</span> <span>MAÑANA</span> <span>TARDE</span> <span>NOCHE</span></div>
-            <div class="forecast-row">
-                <div class="col-label">Temp. <br><small>Min/Max</small></div>
-                <div class="col-data" style="background: #fff5f5;"><span id="v-max" style="color:red">--</span> / <span id="v-min" style="color:blue">--</span></div>
-                <div class="col-data" id="v-m-t">13°C</div>
-                <div class="col-data" id="v-t-t">22°C</div>
-                <div class="col-data" id="v-n-t">16°C</div>
-            </div>
-            <div class="forecast-row">
-                <div class="col-label">Viento</div>
-                <div class="col-data">--</div>
-                <div class="col-data" id="v-m-v">Norte</div>
-                <div class="col-data" id="v-t-v">Noreste</div>
-                <div class="col-data" id="v-n-v">Noreste</div>
-            </div>
+        <div id="info-display">
+            <p>Seleccioná una ciudad para ver el reporte...</p>
         </div>
-
-        <div class="day-block sabado">
-            <div class="day-header"><span class="name-day">DÍA 2</span> <span>MADRUGADA</span> <span>MAÑANA</span> <span>TARDE</span></div>
-            <div class="forecast-row">
-                <div class="col-label">Temp.</div>
-                <div class="col-data" style="background: #f0fdfa;"><span id="s-max" style="color:red">--</span> / <span id="s-min" style="color:blue">--</span></div>
-                <div class="col-data" id="s-m-t">14°C</div>
-                <div class="col-data" id="s-ma-t">17°C</div>
-                <div class="col-data" id="s-t-t">22°C</div>
-            </div>
-        </div>
-
-        <div class="cards-row">
-            <div class="weather-card">
-                <div class="name-day" style="font-size: 1.5em; font-weight: bold;">DÍA 3</div>
-                <div class="date-card">--/--</div>
-                <div style="font-size: 2em; margin: 10px 0;">☁️</div>
-                <div id="c1-desc">Parcialmente nublado</div>
-                <hr>
-                <div id="c1-viento">Viento Sudeste</div>
-            </div>
-            <div class="weather-card">
-                <div class="name-day" style="font-size: 1.5em; font-weight: bold;">DÍA 4</div>
-                <div class="date-card">--/--</div>
-                <div style="font-size: 2em; margin: 10px 0;">☀️</div>
-                <div id="c2-desc">Despejado</div>
-                <hr>
-                <div id="c2-viento">Viento Este</div>
-            </div>
-        </div>
-        
-        <div style="text-align: center; font-size: 0.8em; color: #666;">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
+</div>
 
-    <div id="admin-panel">
-        <h3>✎ Editor de Datos (Hoja de Cálculo)</h3>
-        <table class="edit-table">
+<div id="editor" class="section">
+    <div class="editor-card">
+        <h2>Editor de Pronóstico: <span id="editing-city">La Plata</span></h2>
+        <select id="city-selector" onchange="changeEditingCity(this.value)">
+            <option value="la-plata">La Plata</option>
+            <option value="mar-del-plata">Mar del Plata</option>
+            <option value="junin">Junín</option>
+        </select>
+        <hr>
+        <table>
             <thead>
                 <tr>
                     <th>Día</th>
@@ -158,86 +95,132 @@
                     <th>Noche (T/V)</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td id="row1-name">Hoy</td>
-                    <td><input type="text" value="11°" oninput="updateText('v-min', this.value)"></td>
-                    <td><input type="text" value="22°" oninput="updateText('v-max', this.value)"></td>
-                    <td><input type="text" value="13°/Noroeste" oninput="splitUpdate(['v-m-t','v-m-v'], this.value)"></td>
-                    <td><input type="text" value="22°/Noreste" oninput="splitUpdate(['v-t-t','v-t-v'], this.value)"></td>
-                    <td><input type="text" value="16°/Noreste" oninput="splitUpdate(['v-n-t','v-n-v'], this.value)"></td>
-                </tr>
-                <tr>
-                    <td id="row2-name">Mañana</td>
-                    <td><input type="text" value="14°" oninput="updateText('s-min', this.value)"></td>
-                    <td><input type="text" value="22°" oninput="updateText('s-max', this.value)"></td>
-                    <td><input type="text" value="14°" oninput="updateText('s-m-t', this.value)"></td>
-                    <td><input type="text" value="17°" oninput="updateText('s-ma-t', this.value)"></td>
-                    <td><input type="text" value="22°" oninput="updateText('s-t-t', this.value)"></td>
-                </tr>
-            </tbody>
+            <tbody id="editor-body">
+                </tbody>
         </table>
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="saveToLocal()" style="background: green; color: white; padding: 10px 20px; border: none; cursor:pointer;">GUARDAR CAMBIOS</button>
+            <button onclick="generarImagen()" style="background: #e91e63; color: white; padding: 10px 20px; border: none; cursor:pointer;">DESCARGAR IMAGEN (.PNG)</button>
+        </div>
 
-        <div style="display: flex; gap: 20px; align-items: center; justify-content: center;">
-            <button class="btn-download" onclick="descargarImagen()">⬇ DESCARGAR IMAGEN PARA REDES</button>
+        <h3 style="margin-top: 40px;">Vista Previa de la Imagen:</h3>
+        <div id="canvas-area">
+            <div class="header-image">PRONÓSTICO METEOROLÓGICO</div>
+            <div class="sub-header">
+                <div style="font-size: 0.8em;">FACULTAD DE CIENCIAS<br>ASTRONÓMICAS Y GEOFÍSICAS</div>
+                <div id="canvas-city-name" style="font-size: 2em; font-weight: 900;">LA PLATA</div>
+                <div style="font-size: 0.8em; text-align: right;">UNIVERSIDAD NACIONAL<br>DE LA PLATA</div>
+            </div>
+            <div id="preview-content"></div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Lógica de fechas automáticas
-        function inicializarFechas() {
-            const nombresDias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-            const hoy = new Date();
-            const labels = document.querySelectorAll('.name-day');
-            const dateCards = document.querySelectorAll('.date-card');
-            
-            // Fecha de emisión
-            document.getElementById('date-label').innerText = `Emisión: ${hoy.toLocaleDateString()} - 08:00hs`;
+<script>
+    // 1. DATOS INICIALES (Si no hay nada guardado)
+    let db = JSON.parse(localStorage.getItem('meteoDB')) || {
+        "la-plata": { min: "11°", max: "22°", m: "13°/Norte", t: "22°/Noreste", n: "16°/Noreste" },
+        "mar-del-plata": { min: "8°", max: "18°", m: "10°/Sudeste", t: "17°/Este", n: "12°/Sudeste" },
+        "junin": { min: "12°", max: "25°", m: "14°/Calma", t: "24°/Norte", n: "18°/Norte" }
+    };
 
-            for (let i = 0; i < 4; i++) {
-                let d = new Date();
-                d.setDate(hoy.getDate() + i);
-                
-                // Actualizar nombres en la imagen
-                labels[i].innerText = nombresDias[d.getDay()];
-                
-                // Actualizar nombres en la tabla de edición
-                if(i === 0) document.getElementById('row1-name').innerText = nombresDias[d.getDay()];
-                if(i === 1) document.getElementById('row2-name').innerText = nombresDias[d.getDay()];
+    let currentCity = "la-plata";
 
-                // Actualizar fechas cortas en las tarjetas
-                if (i >= 2) {
-                    dateCards[i-2].innerText = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear().toString().slice(-2)}`;
-                }
-            }
-        }
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('btn-' + id).classList.add('active');
+        if(id === 'editor') renderEditor();
+    }
 
-        // Funciones de edición en tiempo real
-        function updateText(id, val) {
-            document.getElementById(id).innerText = val;
-        }
+    // 2. LÓGICA DEL EDITOR
+    function renderEditor() {
+        document.getElementById('editing-city').innerText = currentCity.replace('-', ' ').toUpperCase();
+        const data = db[currentCity];
+        const html = `
+            <tr>
+                <td>HOY</td>
+                <td><input id="edit-min" value="${data.min}"></td>
+                <td><input id="edit-max" value="${data.max}"></td>
+                <td><input id="edit-m" value="${data.m}"></td>
+                <td><input id="edit-t" value="${data.t}"></td>
+                <td><input id="edit-n" value="${data.n}"></td>
+            </tr>
+        `;
+        document.getElementById('editor-body').innerHTML = html;
+        updatePreview();
+    }
 
-        function splitUpdate(ids, val) {
-            const parts = val.split('/');
-            if(parts[0]) document.getElementById(ids[0]).innerText = parts[0];
-            if(parts[1]) document.getElementById(ids[1]).innerText = parts[1];
-        }
+    function changeEditingCity(val) {
+        currentCity = val;
+        renderEditor();
+    }
 
-        // Función de descarga
-        function descargarImagen() {
-            const container = document.getElementById("canvas-area");
-            html2canvas(container, {
-                scale: 2, // Doble resolución para que no se vea pixelado
-                backgroundColor: "#e0e0e0"
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `Pronostico_LaPlata_${new Date().toISOString().slice(0,10)}.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            });
-        }
+    function saveToLocal() {
+        db[currentCity] = {
+            min: document.getElementById('edit-min').value,
+            max: document.getElementById('edit-max').value,
+            m: document.getElementById('edit-m').value,
+            t: document.getElementById('edit-t').value,
+            n: document.getElementById('edit-n').value
+        };
+        localStorage.setItem('meteoDB', JSON.stringify(db));
+        alert("Datos guardados localmente para " + currentCity);
+        updatePreview();
+    }
 
-        window.onload = inicializarFechas;
-    </script>
+    // 3. ACTUALIZAR VISTA PREVIA (LA FOTO)
+    function updatePreview() {
+        const data = db[currentCity];
+        document.getElementById('canvas-city-name').innerText = currentCity.replace('-', ' ').toUpperCase();
+        document.getElementById('preview-content').innerHTML = `
+            <div class="grid-day">
+                <div class="grid-header"><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+                <div class="grid-row">
+                    <div class="grid-col"><b style="color:red">${data.max}</b> / <b style="color:blue">${data.min}</b></div>
+                    <div class="grid-col">${data.m.split('/')[0]}</div>
+                    <div class="grid-col">${data.t.split('/')[0]}</div>
+                    <div class="grid-col">${data.n.split('/')[0]}</div>
+                </div>
+                <div class="grid-row" style="font-size: 0.8em; background: #f9f9f9;">
+                    <div class="grid-col">Viento</div>
+                    <div class="grid-col">${data.m.split('/')[1] || '--'}</div>
+                    <div class="grid-col">${data.t.split('/')[1] || '--'}</div>
+                    <div class="grid-col">${data.n.split('/')[1] || '--'}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 4. FUNCION PÚBLICA (MAPA)
+    function cargarDatosCiudad(city) {
+        const data = db[city];
+        const display = document.getElementById('info-display');
+        display.innerHTML = `
+            <div style="background: white; color: #333; padding: 20px; border-radius: 10px; width: 300px;">
+                <h2 style="color: var(--azul-unlp); margin-top:0;">${city.toUpperCase().replace('-', ' ')}</h2>
+                <p><b>Temp Actual:</b> ${data.t.split('/')[0]}</p>
+                <p><b>Máxima prevista:</b> <span style="color:red">${data.max}</span></p>
+                <p><b>Mínima prevista:</b> <span style="color:blue">${data.min}</span></p>
+                <p><b>Viento:</b> ${data.t.split('/')[1] || 'Calma'}</p>
+                <button onclick="showSection('editor')" style="width:100%; padding: 10px; background: var(--celeste); border:none; cursor:pointer;">Ver Gráfica Completa</button>
+            </div>
+        `;
+    }
+
+    function generarImagen() {
+        html2canvas(document.getElementById("canvas-area")).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `pronostico_${currentCity}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+
+    // Inicializar
+    updatePreview();
+</script>
+
 </body>
 </html>
