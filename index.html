@@ -2,50 +2,186 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pronóstico Oficial UNLP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Meteorológico | UNLP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat', sans-serif; background: #f0f2f5; margin: 0; color: #00315a; }
-        header { background: #00315a; color: white; padding: 20px; text-align: center; }
-        .container { max-width: 1000px; margin: 40px auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0 20px; }
-        .city-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-        .city-name { font-weight: 900; font-size: 1.2em; border-bottom: 2px solid #00315a; padding-bottom: 10px; margin-bottom: 15px; }
-        .temp { font-size: 3em; font-weight: 300; margin: 10px 0; }
-        .desc { font-size: 0.9em; font-weight: bold; color: #666; height: 40px; }
+        :root {
+            --unlp-blue: #00315a;
+            --unlp-accent: #0079c1;
+            --bg: #f8f9fa;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER INSTITUCIONAL */
+        header {
+            background-color: white;
+            padding: 20px 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid var(--unlp-blue);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-area img { height: 50px; }
+        .header-titles h1 { margin: 0; font-size: 1.2em; color: var(--unlp-blue); font-weight: 900; line-height: 1; }
+        .header-titles p { margin: 5px 0 0; font-size: 0.8em; font-weight: bold; color: #666; }
+
+        /* CONTENIDO PRINCIPAL */
+        main {
+            flex-grow: 1;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .welcome-msg { text-align: center; margin-bottom: 40px; }
+        .welcome-msg h2 { font-weight: 300; font-size: 2em; color: var(--unlp-blue); }
+
+        /* GRILLA DE CIUDADES */
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .city-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .city-card:hover { transform: translateY(-5px); border-color: var(--unlp-accent); }
+
+        .city-name { font-weight: 900; font-size: 1.5em; text-transform: uppercase; color: var(--unlp-blue); margin-bottom: 5px; }
+        .update-time { font-size: 0.7em; color: #999; margin-bottom: 20px; display: block; }
+        
+        .temp-display { font-size: 3.5em; font-weight: 300; color: #d68d1e; margin: 10px 0; }
+        .weather-desc { font-weight: bold; color: #555; margin-bottom: 20px; min-height: 40px; }
+
+        .details-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            font-size: 0.85em;
+        }
+
+        .detail { display: flex; flex-direction: column; gap: 5px; }
+        .detail b { color: var(--unlp-blue); font-size: 0.75em; text-transform: uppercase; }
+
+        /* FOOTER CON BOTÓN SECRETO */
+        footer {
+            background: #eee;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 50px;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-logo { height: 40px; opacity: 0.6; margin-bottom: 10px; }
+        .copyright { font-size: 0.8em; color: #777; margin: 0; }
+
+        /* EL BOTÓN SECRETO */
+        .admin-link {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 0.7em;
+            color: #ccc; /* Muy clarito para que pase desapercibido */
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .admin-link:hover { color: var(--unlp-blue); }
+
     </style>
 </head>
 <body>
 
 <header>
-    <h1>PORTAL METEOROLÓGICO UNLP</h1>
-    <p>Datos oficiales generados por el Grupo de Pronóstico</p>
+    <div class="logo-area">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png" alt="FCAG Logo">
+        <div class="header-titles">
+            <h1>GRUPO DE PRONÓSTICO</h1>
+            <p>FACULTAD DE CIENCIAS ASTRONÓMICAS Y GEOFÍSICAS</p>
+        </div>
+    </div>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png" alt="UNLP Logo">
 </header>
 
-<div class="container" id="public-grid">
+<main>
+    <div class="welcome-msg">
+        <h2>Estado del Tiempo en la Región</h2>
     </div>
 
+    <div class="forecast-grid" id="public-grid">
+        </div>
+</main>
+
+<footer>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png" class="footer-logo">
+    <p class="copyright">© 2026 Facultad de Ciencias Astronómicas y Geofísicas - UNLP</p>
+    
+    <a href="admin.html" class="admin-link">Panel de Control Pronosticadores</a>
+</footer>
+
 <script>
-    function loadPublicData() {
+    function loadData() {
         const db = JSON.parse(localStorage.getItem('unlp_db'));
         const container = document.getElementById('public-grid');
         
         if(!db) {
-            container.innerHTML = "<h3>No hay datos disponibles por el momento.</h3>";
+            container.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Esperando actualización de datos oficiales...</p>";
             return;
         }
+
+        container.innerHTML = ''; // Limpiar
 
         for (const [id, data] of Object.entries(db)) {
             container.innerHTML += `
                 <div class="city-card">
-                    <div class="city-name">${id.replace('-', ' ').toUpperCase()}</div>
-                    <div class="temp">${data.max}</div>
-                    <div class="desc">${data.desc}</div>
-                    <div style="font-size: 0.7em; margin-top: 20px; opacity: 0.6;">Actualizado: ${data.updated || '--'}</div>
+                    <span class="update-time">Actualizado: ${data.updated || '--'}</span>
+                    <div class="city-name">${id.replace('-', ' ')}</div>
+                    <div class="temp-display">${data.max}</div>
+                    <div class="weather-desc">${data.desc}</div>
+                    
+                    <div class="details-box">
+                        <div class="detail">
+                            <b>Mínima</b>
+                            <span>${data.min}</span>
+                        </div>
+                        <div class="detail">
+                            <b>Viento</b>
+                            <span>${data.wind}</span>
+                        </div>
+                    </div>
                 </div>
             `;
         }
     }
-    window.onload = loadPublicData;
+
+    // Cargar datos al iniciar
+    window.onload = loadData;
 </script>
+
 </body>
 </html>
