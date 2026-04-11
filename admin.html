@@ -2,51 +2,54 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Pronosticador UNLP</title>
+    <title>Panel Pronosticador UNLP | Doble Bloque</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --unlp-blue: #00315a; --bg-admin: #2c3e50; }
+        :root { --unlp-blue: #00315a; --unlp-green: #00796b; --bg-admin: #2c3e50; }
         body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: var(--bg-admin); color: white; }
         
-        /* Sidebar de Edición */
         #sidebar { 
-            width: 350px; background: white; height: 100vh; 
+            width: 380px; background: white; height: 100vh; 
             padding: 20px; box-sizing: border-box; overflow-y: auto;
             border-right: 5px solid var(--unlp-blue); color: #333;
         }
         
-        #viewer { flex-grow: 1; padding: 20px; display: flex; justify-content: center; align-items: center; overflow: auto; }
+        #viewer { flex-grow: 1; padding: 20px; display: flex; justify-content: center; align-items: flex-start; overflow: auto; }
 
-        h2 { color: var(--unlp-blue); border-bottom: 2px solid; padding-bottom: 5px; margin-top: 0; }
-        h4 { margin: 15px 0 5px 0; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.8em; }
+        h2 { color: var(--unlp-blue); border-bottom: 2px solid; padding-bottom: 5px; margin: 0 0 10px 0; }
+        .section-title { background: #eee; padding: 5px 10px; margin-top: 20px; font-weight: 900; font-size: 0.75em; border-left: 4px solid var(--unlp-blue); }
+        h4 { margin: 10px 0 5px 0; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.7em; }
         
-        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: sans-serif; }
+        input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.85em; }
         .row { display: flex; gap: 5px; }
         
         .btn-save { background: #28a745; color: white; border: none; padding: 12px; width: 100%; margin-top: 20px; cursor: pointer; font-weight: bold; border-radius: 5px; }
         .btn-download { background: var(--unlp-blue); color: white; border: none; padding: 12px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; border-radius: 5px; }
 
-        /* Estilos de la Placa (Capture Area) */
+        /* PLACA */
         #capture-area {
             width: 1000px; background-color: #e6e7e8; padding: 30px; 
-            border-radius: 10px; color: #00315a; box-sizing: border-box;
+            color: #00315a; box-sizing: border-box;
         }
         .header-placa {
             background-color: white; padding: 15px 30px; display: flex; 
             justify-content: space-between; align-items: center; 
-            border-bottom: 5px solid #00315a; border-radius: 30px 30px 0 0; margin-bottom: 20px;
+            border-bottom: 5px solid #00315a; border-radius: 30px 30px 0 0; margin-bottom: 15px;
         }
         .header-placa img { height: 60px; }
-        .grid-day-block { background: #00315a; border-radius: 20px; overflow: hidden; color: white; }
-        .block-header { background: rgba(255,255,255,0.1); padding: 10px 30px; display: flex; justify-content: space-between; font-weight: 800; }
+        
+        .grid-day-block { background: #00315a; border-radius: 20px; overflow: hidden; color: white; margin-bottom: 15px; }
+        .grid-day-block.mañana { background: var(--unlp-green); } /* Estética del sábado en la imagen original */
+
+        .block-header { background: rgba(255,255,255,0.1); padding: 8px 30px; display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9em; }
         
         .grid-main { display: grid; grid-template-columns: 180px repeat(3, 1fr); }
-        .grid-cell { padding: 15px; text-align: center; border: 0.5px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: bold; align-items: flex-start; padding-left: 20px; font-size: 0.8em; }
-        .temp-cell { font-size: 2.8em; font-weight: 300; }
-        .wind-cell { font-size: 0.8em; }
-        .weather-text { font-size: 0.8em; margin-top: 5px; }
+        .grid-cell { padding: 12px; text-align: center; border: 0.5px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .label-cell { background: rgba(0,0,0,0.15); font-weight: bold; align-items: flex-start; padding-left: 20px; font-size: 0.75em; }
+        .temp-cell { font-size: 2.5em; font-weight: 300; }
+        .wind-cell { font-size: 0.75em; line-height: 1.2; }
+        .weather-text { font-size: 0.75em; margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -55,34 +58,41 @@
     <h2>⚙️ Editor UNLP</h2>
     
     <label><h4>Ciudad</h4></label>
-    <select id="city-select" onchange="document.getElementById('out-city').innerText = this.value">
+    <select id="city-select" style="width:100%; padding:8px;" onchange="update('out-city', this.value)">
         <option value="LA PLATA">La Plata</option>
         <option value="MAR DEL PLATA">Mar del Plata</option>
         <option value="JUNÍN">Junín</option>
     </select>
 
-    <h4>Temperaturas Generales</h4>
+    <div class="section-title">DATOS DE HOY</div>
+    <h4>Temperaturas Mín/Máx</h4>
     <div class="row">
-        <input type="text" id="in-min" placeholder="Mín" oninput="update('out-min', this.value)">
-        <input type="text" id="in-max" placeholder="Máx" oninput="update('out-max', this.value)">
+        <input type="text" placeholder="Mín" oninput="update('h-min', this.value)">
+        <input type="text" placeholder="Máx" oninput="update('h-max', this.value)">
     </div>
-
-    <h4>Temperaturas por tramo</h4>
+    <h4>Temperaturas (M/T/N)</h4>
     <div class="row">
-        <input type="text" placeholder="Mañana" oninput="update('t-m', this.value)">
-        <input type="text" placeholder="Tarde" oninput="update('t-t', this.value)">
-        <input type="text" placeholder="Noche" oninput="update('t-n', this.value)">
+        <input type="text" placeholder="Mañana" oninput="update('h-t-m', this.value)">
+        <input type="text" placeholder="Tarde" oninput="update('h-t-t', this.value)">
+        <input type="text" placeholder="Noche" oninput="update('h-t-n', this.value)">
     </div>
-
     <h4>Vientos</h4>
-    <input type="text" placeholder="Mañana" oninput="update('v-m', this.value)">
-    <input type="text" placeholder="Tarde" oninput="update('v-t', this.value)">
-    <input type="text" placeholder="Noche" oninput="update('v-n', this.value)">
+    <div class="row"><input type="text" placeholder="M" oninput="update('h-v-m', this.value)"><input type="text" placeholder="T" oninput="update('h-v-t', this.value)"><input type="text" placeholder="N" oninput="update('h-v-n', this.value)"></div>
 
-    <h4>Estado del Tiempo</h4>
-    <input type="text" placeholder="Mañana" oninput="update('w-m', this.value)">
-    <input type="text" placeholder="Tarde" oninput="update('w-t', this.value)">
-    <input type="text" placeholder="Noche" oninput="update('w-n', this.value)">
+    <div class="section-title">DATOS DE MAÑANA</div>
+    <h4>Temperaturas Mín/Máx</h4>
+    <div class="row">
+        <input type="text" placeholder="Mín" oninput="update('m-min', this.value)">
+        <input type="text" placeholder="Máx" oninput="update('m-max', this.value)">
+    </div>
+    <h4>Temperaturas (M/T/N)</h4>
+    <div class="row">
+        <input type="text" placeholder="Mañana" oninput="update('m-t-m', this.value)">
+        <input type="text" placeholder="Tarde" oninput="update('m-t-t', this.value)">
+        <input type="text" placeholder="Noche" oninput="update('m-t-n', this.value)">
+    </div>
+    <h4>Vientos</h4>
+    <div class="row"><input type="text" placeholder="M" oninput="update('m-v-m', this.value)"><input type="text" placeholder="T" oninput="update('m-v-t', this.value)"><input type="text" placeholder="N" oninput="update('m-v-n', this.value)"></div>
 
     <button class="btn-save" onclick="saveToWeb()">💾 GUARDAR PARA LA WEB</button>
     <button class="btn-download" onclick="downloadImage()">⬇ DESCARGAR PLACA (.PNG)</button>
@@ -93,63 +103,61 @@
         <div class="header-placa">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
             <div style="text-align: center;">
-                <h1 id="out-city" style="margin:0; font-weight:900; font-size:3em;">LA PLATA</h1>
+                <h1 id="out-city" style="margin:0; font-weight:900; font-size:2.8em;">LA PLATA</h1>
             </div>
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png">
         </div>
 
         <div class="grid-day-block">
-            <div class="block-header">
-                <span>HOY</span>
-                <span id="out-date">10/ABR/26</span>
-            </div>
+            <div class="block-header"><span id="name-hoy">VIERNES</span><span id="date-hoy">--</span></div>
             <div class="grid-main">
-                <div class="grid-cell label-cell"></div>
-                <div class="grid-cell">MAÑANA</div><div class="grid-cell">TARDE</div><div class="grid-cell">NOCHE</div>
-
-                <div class="grid-cell label-cell">
-                    <div style="color:#ffeb3b">MAX: <span id="out-max">--</span></div>
-                    <div style="color:#81d4fa">MIN: <span id="out-min">--</span></div>
-                </div>
-                <div class="grid-cell temp-cell" id="t-m">--</div>
-                <div class="grid-cell temp-cell" id="t-t" style="color:#ffeb3b">--</div>
-                <div class="grid-cell temp-cell" id="t-n">--</div>
-
-                <div class="grid-cell label-cell">VIENTOS</div>
-                <div class="grid-cell wind-cell" id="v-m">--</div>
-                <div class="grid-cell wind-cell" id="v-t">--</div>
-                <div class="grid-cell wind-cell" id="v-n">--</div>
-
-                <div class="grid-cell label-cell">TIEMPO</div>
-                <div class="grid-cell"><span id="w-m">--</span></div>
-                <div class="grid-cell"><span id="w-t">--</span></div>
-                <div class="grid-cell"><span id="w-n">--</span></div>
+                <div class="grid-cell label-cell"></div><div class="grid-cell">MAÑANA</div><div class="grid-cell">TARDE</div><div class="grid-cell">NOCHE</div>
+                <div class="grid-cell label-cell"><div style="color:#ffeb3b">MAX: <span id="h-max">--</span></div><div style="color:#81d4fa">MIN: <span id="h-min">--</span></div></div>
+                <div class="grid-cell temp-cell" id="h-t-m">--</div><div class="grid-cell temp-cell" id="h-t-t" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="h-t-n">--</div>
+                <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell wind-cell" id="h-v-m">--</div><div class="grid-cell wind-cell" id="h-v-t">--</div><div class="grid-cell wind-cell" id="h-v-n">--</div>
             </div>
         </div>
+
+        <div class="grid-day-block mañana">
+            <div class="block-header"><span id="name-mañana">SÁBADO</span><span id="date-mañana">--</span></div>
+            <div class="grid-main">
+                <div class="grid-cell label-cell"></div><div class="grid-cell">MAÑANA</div><div class="grid-cell">TARDE</div><div class="grid-cell">NOCHE</div>
+                <div class="grid-cell label-cell"><div style="color:#ffeb3b">MAX: <span id="m-max">--</span></div><div style="color:#81d4fa">MIN: <span id="m-min">--</span></div></div>
+                <div class="grid-cell temp-cell" id="m-t-m">--</div><div class="grid-cell temp-cell" id="m-t-t" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="m-t-n">--</div>
+                <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell wind-cell" id="m-v-m">--</div><div class="grid-cell wind-cell" id="m-v-t">--</div><div class="grid-cell wind-cell" id="m-v-n">--</div>
+            </div>
+        </div>
+
+        <p style="text-align: center; font-size: 0.7em; font-weight: bold; margin-top: 10px;">* GRUPO DE PRONÓSTICO UNLP - FACULTAD DE CIENCIAS ASTRONÓMICAS Y GEOFÍSICAS</p>
     </div>
 </div>
 
 <script>
-    // Función mágica que actualiza la placa mientras escribes
-    function update(id, value) {
-        document.getElementById(id).innerText = value || '--';
-    }
-
-    function saveToWeb() {
-        // Aquí iría la lógica para guardar en localStorage y que index.html lo lea
-        alert("Datos guardados. Ahora index.html mostrará estos valores.");
-    }
+    function update(id, value) { document.getElementById(id).innerText = value || '--'; }
 
     function downloadImage() {
         html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Pronostico_UNLP.png`;
+            link.download = `Pronostico_Doble_${new Date().toISOString().slice(0,10)}.png`;
             link.href = canvas.toDataURL();
             link.click();
         });
     }
 
-    document.getElementById('out-date').innerText = new Date().toLocaleDateString();
+    // Configuración automática de fechas
+    const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+    const hoy = new Date();
+    const mañana = new Date(); mañana.setDate(hoy.getDate() + 1);
+
+    document.getElementById('name-hoy').innerText = dias[hoy.getDay()];
+    document.getElementById('date-hoy').innerText = hoy.toLocaleDateString();
+    document.getElementById('name-mañana').innerText = dias[mañana.getDay()];
+    document.getElementById('date-mañana').innerText = mañana.toLocaleDateString();
+
+    function saveToWeb() {
+        // Aquí puedes guardar los datos en localStorage si quieres conectar con index.html
+        alert("Datos de Hoy y Mañana guardados exitosamente.");
+    }
 </script>
 </body>
 </html>
