@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,19 +26,8 @@
         #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; gap: 40px; }
         .placa-box { width: 950px; background-color: var(--bg-canvas); padding: 35px; color: var(--unlp-blue); border-radius: 5px; box-sizing: border-box; }
 
-        /* HEADER DE PLACA CORREGIDO */
-        .header-placa { 
-            background-color: white; 
-            padding: 15px 35px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 6px solid var(--unlp-blue); 
-            border-radius: 40px 40px 0 0; 
-            margin-bottom: 15px; 
-        }
-        .header-placa .logo-facultad { height: 60px; width: auto; }
-        .header-placa .logo-unlp { height: 65px; width: auto; }
+        .header-placa { background-color: white; padding: 12px 35px; display: flex; justify-content: space-between; align-items: center; border-bottom: 6px solid var(--unlp-blue); border-radius: 40px 40px 0 0; margin-bottom: 15px; }
+        .header-placa img { height: 60px; width: auto; object-fit: contain; }
         .header-placa h1 { margin: 0; font-weight: 900; font-size: 3.2em; letter-spacing: -2px; }
 
         .grid-day-block { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 15px; }
@@ -52,15 +42,7 @@
         .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; align-items: flex-start; padding-left: 25px; font-size: 0.7em; text-transform: uppercase; border-right: 2px solid rgba(255,255,255,0.1); }
         .icon-cell { font-size: 3.5em; min-height: 90px; }
         .temp-cell { font-size: 2.5em; font-weight: 400; line-height: 1; }
-        .data-text { font-size: 0.8em; font-weight: 600; line-height: 1.1; }
 
-        /* TARJETAS */
-        .cards-container { display: flex; gap: 20px; }
-        .v-card { flex: 1; border-radius: 45px; padding: 35px; text-align: center; color: white; display: flex; flex-direction: column; gap: 12px; }
-        .v-card.celeste { background: var(--unlp-light); }
-        .v-card.oscuro { background: var(--unlp-blue); }
-        .v-card h2 { font-weight: 900; font-size: 2.5em; margin: 0; }
-        .v-card .temp-footer { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 15px; }
         .footer-note { text-align: center; font-size: 0.85em; font-weight: 800; margin-top: 20px; }
     </style>
 </head>
@@ -90,23 +72,16 @@
     </div>
     <input type="text" placeholder="Temps M, T, N" oninput="upMulti(['h-t1','h-t2','h-t3'], this.value)">
     <input type="text" placeholder="Iconos M, T, N" oninput="upMulti(['h-i1','h-i2','h-i3'], this.value)">
-    <input type="text" placeholder="Vientos M, T, N" oninput="upMulti(['h-v1','h-v2','h-v3'], this.value)">
-    <input type="text" placeholder="Tiempo M, T, N" oninput="upMulti(['h-w1','h-w2','h-w3'], this.value)">
-
-    <div class="section-title">DÍA 2 (MAÑANA)</div>
-    <div class="row">
-        <input type="text" placeholder="Min Urb/Sub" oninput="up('m-min', this.value.split('/')[0]); up('m-min-sub', this.value.split('/')[1])">
-        <input type="text" placeholder="Max Urb/Sub" oninput="up('m-max', this.value.split('/')[0]); up('m-max-sub', this.value.split('/')[1])">
-    </div>
-    <input type="text" placeholder="Temps Mad, M, T, N" oninput="upMulti(['m-t1','m-t2','m-t3','m-t4'], this.value)">
 </div>
 
 <div id="viewer">
     <div id="placa-1" class="placa-box">
         <div class="header-placa">
-            <img class="logo-facultad" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
+            
             <div style="text-align: center; flex-grow: 1;"><h1 class="city-label">LA PLATA</h1></div>
-            <img class="logo-unlp" src="Logo unlp.png">
+            
+            <img src="images/Logo unlp.png" onerror="this.src='https://unlp.edu.ar/wp-content/uploads/2022/07/logo-unlp.png'">
         </div>
 
         <div style="background: white; border-radius: 15px; margin-bottom: 10px; padding: 5px 20px; display: flex; justify-content: space-between; font-weight: 900; font-size: 0.8em;">
@@ -126,8 +101,6 @@
                 <div class="grid-cell icon-cell" id="h-i1">☀️</div><div class="grid-cell icon-cell" id="h-i2">⛅</div><div class="grid-cell icon-cell" id="h-i3">🌙</div>
                 <div class="grid-cell label-cell" style="background:transparent; border:none"></div>
                 <div class="grid-cell temp-cell" id="h-t1">--</div><div class="grid-cell temp-cell" id="h-t2" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="h-t3">--</div>
-                <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell data-text" id="h-v1">--</div><div class="grid-cell data-text" id="h-v2">--</div><div class="grid-cell data-text" id="h-v3">--</div>
-                <div class="grid-cell label-cell">TIEMPO</div><div class="grid-cell data-text" id="h-w1">--</div><div class="grid-cell data-text" id="h-w2">--</div><div class="grid-cell data-text" id="h-w3">--</div>
             </div>
         </div>
         <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
@@ -135,7 +108,6 @@
 </div>
 
 <script>
-    // FUNCIONES DE ACTUALIZACIÓN
     function up(id, v) { 
         let val = v ? v.trim() : '--';
         if(id.includes('min') || id.includes('max') || id.includes('t')) val += '°';
@@ -155,11 +127,11 @@
             hora_emision: document.getElementById('out-hora').innerText
         };
         localStorage.setItem('unlp_db', JSON.stringify({[city]: data}));
-        alert("✅ Sincronizado.");
+        alert("✅ Datos sincronizados.");
     }
 
     function download(id, name) {
-        html2canvas(document.getElementById(id), { scale: 3 }).then(canvas => {
+        html2canvas(document.getElementById(id), { scale: 3, useCORS: true }).then(canvas => {
             const link = document.createElement('a');
             link.download = `UNLP_${name}.png`;
             link.href = canvas.toDataURL();
@@ -167,7 +139,6 @@
         });
     }
 
-    // Fechas automáticas
     const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
     const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
     const hoy = new Date();
