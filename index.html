@@ -9,7 +9,6 @@
         :root { --unlp-blue: #00315a; --unlp-green: #00796b; --unlp-light: #5899d2; --bg-canvas: #e6e7e8; }
         body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: white; height: 100vh; overflow: hidden; }
         
-        /* SIDEBAR */
         #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); color: #333; }
         .section-title { background: var(--unlp-blue); color: white; padding: 8px 12px; margin: 15px 0 10px; font-weight: 900; font-size: 0.75em; border-radius: 4px; text-transform: uppercase; }
         h4 { margin: 10px 0 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.65em; letter-spacing: 1px; }
@@ -57,7 +56,7 @@
         .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 10px; }
         .card-split div { font-size: 0.65em; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
         .card-split img { height: 60px; margin: 5px 0; }
-        .card-split .temp-sub { font-size: 1.2em; font-weight: 900; }
+        .card-split .wind-sub { font-size: 0.9em; opacity: 0.8; font-weight: 600; }
 
         .v-card .temp-footer { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 15px; margin-top: 5px; }
         .footer-note { text-align: center; font-size: 0.85em; font-weight: 800; margin-top: 20px; }
@@ -88,10 +87,16 @@
         <input type="text" placeholder="Max Urb/Sub" oninput="up('h-max', this.value.split('/')[0]); up('h-max-sub', this.value.split('/')[1])">
     </div>
     <input type="text" placeholder="Temps M, T, N" oninput="upMulti(['h-t1','h-t2','h-t3'], this.value)">
+    
+    <h4>Viento M - T - N</h4>
+    <div class="row"><select id="h-v-i1" onchange="updateWind('h',1)"><option value="">Intens. M</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option></select><select id="h-v-d1" onchange="updateWind('h',1)"><option value="">Dir. M</option><option value="del norte">N</option><option value="del sur">S</option><option value="del este">E</option><option value="del oeste">O</option></select></div>
+    <div class="row"><select id="h-v-i2" onchange="updateWind('h',2)"><option value="">Intens. T</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option></select><select id="h-v-d2" onchange="updateWind('h',2)"><option value="">Dir. T</option><option value="del norte">N</option><option value="del sur">S</option><option value="del este">E</option><option value="del oeste">O</option></select></div>
+    <div class="row"><select id="h-v-i3" onchange="updateWind('h',3)"><option value="">Intens. N</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option></select><select id="h-v-d3" onchange="updateWind('h',3)"><option value="">Dir. N</option><option value="del norte">N</option><option value="del sur">S</option><option value="del este">E</option><option value="del oeste">O</option></select></div>
+
     <h4>Tiempo e Iconos</h4>
-    <select onchange="updateWeather('h', 1, this.value)"><option value="">Mañana...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    <select onchange="updateWeather('h', 2, this.value)"><option value="">Tarde...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    <select onchange="updateWeather('h', 3, this.value)"><option value="">Noche...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
+    <select onchange="updateWeather('h', 1, this.value)"><option value="">Mañana...</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="lluvias y tormentas">Tormentas</option></select>
+    <select onchange="updateWeather('h', 2, this.value)"><option value="">Tarde...</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="lluvias y tormentas">Tormentas</option></select>
+    <select onchange="updateWeather('h', 3, this.value)"><option value="">Noche...</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="lluvias y tormentas">Tormentas</option></select>
 
     <div class="section-title">DÍA 2 (MAÑANA)</div>
     <div class="row">
@@ -99,30 +104,21 @@
         <input type="text" placeholder="Max Urb/Sub" oninput="up('m-max', this.value.split('/')[0]); up('m-max-sub', this.value.split('/')[1])">
     </div>
     <input type="text" placeholder="Temps Mad, M, T, N" oninput="upMulti(['m-t1','m-t2','m-t3','m-t4'], this.value)">
-    <h4>Tiempo e Iconos</h4>
-    <div class="row"><select onchange="updateWeather('m', 1, this.value)"><option value="">Mad...</option><option value="despejado">☀️</option><option value="algo nublado">⛅</option><option value="cubierto">☁️</option><option value="lluvias y tormentas">⛈️</option></select><select onchange="updateWeather('m', 2, this.value)"><option value="">Mañ...</option><option value="despejado">☀️</option><option value="algo nublado">⛅</option><option value="cubierto">☁️</option></select></div>
-    <div class="row"><select onchange="updateWeather('m', 3, this.value)"><option value="">Tarde...</option><option value="despejado">☀️</option><option value="algo nublado">⛅</option><option value="cubierto">☁️</option></select><select onchange="updateWeather('m', 4, this.value)"><option value="">Noche...</option><option value="despejado">☀️</option><option value="algo nublado">⛅</option><option value="cubierto">☁️</option></select></div>
+    
+    <h4>Viento Mad - M - T - N</h4>
+    <div class="row"><select id="m-v-i1" onchange="updateWind('m',1)"><option value="">Int. Mad</option><option value="leves">Leves</option></select><select id="m-v-d1" onchange="updateWind('m',1)"><option value="">Dir</option><option value="del norte">N</option></select></div>
+    <div class="row"><select id="m-v-i2" onchange="updateWind('m',2)"><option value="">Int. Mañ</option><option value="leves">Leves</option></select><select id="m-v-d2" onchange="updateWind('m',2)"><option value="">Dir</option><option value="del norte">N</option></select></div>
+    <div class="row"><select id="m-v-i3" onchange="updateWind('m',3)"><option value="">Int. Tar</option><option value="leves">Leves</option></select><select id="m-v-d3" onchange="updateWind('m',3)"><option value="">Dir</option><option value="del norte">N</option></select></div>
+    <div class="row"><select id="m-v-i4" onchange="updateWind('m',4)"><option value="">Int. Noc</option><option value="leves">Leves</option></select><select id="m-v-d4" onchange="updateWind('m',4)"><option value="">Dir</option><option value="del norte">N</option></select></div>
 
     <div class="section-title">EXTENDIDO (DÍAS 3 Y 4)</div>
-    <h4>Día 3</h4>
-    <div class="row">
-        <input type="text" placeholder="Min Urb/Sub" oninput="up('d3-min', this.value.split('/')[0]); up('d3-min-sub', this.value.split('/')[1])">
-        <input type="text" placeholder="Max Urb/Sub" oninput="up('d3-max', this.value.split('/')[0]); up('d3-max-sub', this.value.split('/')[1])">
-    </div>
-    <div class="row">
-        <select onchange="updateWeather('d3', 1, this.value)"><option value="">Tiempo Mad/Mañ</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias y tormentas">Tormentas</option></select>
-        <select onchange="updateWeather('d3', 2, this.value)"><option value="">Tiempo Tar/Noc</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias y tormentas">Tormentas</option></select>
-    </div>
-
-    <h4>Día 4</h4>
-    <div class="row">
-        <input type="text" placeholder="Min Urb/Sub" oninput="up('d4-min', this.value.split('/')[0]); up('d4-min-sub', this.value.split('/')[1])">
-        <input type="text" placeholder="Max Urb/Sub" oninput="up('d4-max', this.value.split('/')[0]); up('d4-max-sub', this.value.split('/')[1])">
-    </div>
-    <div class="row">
-        <select onchange="updateWeather('d4', 1, this.value)"><option value="">Tiempo Mad/Mañ</option><option value="despejado">☀️</option><option value="algo nublado">⛅</option><option value="lluvias y tormentas">⛈️</option></select>
-        <select onchange="updateWeather('d4', 2, this.value)"><option value="">Tiempo Tar/Noc</option><option value="despejado">☀️</option><option value="algo nublado">⛅</option><option value="lluvias y tormentas">⛈️</option></select>
-    </div>
+    <h4>Viento Día 3</h4>
+    <div class="row"><select id="d3-v-i1" onchange="updateWind('d3',1)"><option value="">Int. M</option><option value="leves">Leves</option></select><select id="d3-v-d1" onchange="updateWind('d3',1)"><option value="">Dir</option><option value="del sur">S</option></select></div>
+    <div class="row"><select id="d3-v-i2" onchange="updateWind('d3',2)"><option value="">Int. T</option><option value="moderados">Moderados</option></select><select id="d3-v-d2" onchange="updateWind('d3',2)"><option value="">Dir</option><option value="del este">E</option></select></div>
+    
+    <h4>Viento Día 4</h4>
+    <div class="row"><select id="d4-v-i1" onchange="updateWind('d4',1)"><option value="">Int. M</option><option value="fuertes">Fuertes</option></select><select id="d4-v-d1" onchange="updateWind('d4',1)"><option value="">Dir</option><option value="del oeste">O</option></select></div>
+    <div class="row"><select id="d4-v-i2" onchange="updateWind('d4',2)"><option value="">Int. T</option><option value="leves">Leves</option></select><select id="d4-v-d2" onchange="updateWind('d4',2)"><option value="">Dir</option><option value="del norte">N</option></select></div>
 </div>
 
 <div id="viewer">
@@ -137,21 +133,24 @@
         <div class="grid-day-block">
             <div class="block-header"><span class="n0">--</span><div class="row" style="gap:20px;"><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div></div>
             <div class="grid-main grid-3">
-                <div class="grid-cell label-cell"><div class="row" style="width:100%; justify-content: space-around;"><div>TEMP. MIN<br><span id="h-min">--</span><br><span id="h-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div><div>MAX.<br><span id="h-max">--</span><br><span id="h-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div></div></div>
+                <div class="grid-cell label-cell"><div class="row" style="width:100%; justify-content: space-around;"><div>MIN.<br><span id="h-min">--</span><br><span id="h-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div><div>MAX.<br><span id="h-max">--</span><br><span id="h-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div></div></div>
                 <div class="grid-cell icon-cell"><img id="h-icon-1" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="h-icon-2" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="h-icon-3" src="images/default.png"></div>
                 <div class="grid-cell label-cell" style="border:none"></div>
                 <div class="grid-cell temp-cell" id="h-t1">--</div><div class="grid-cell temp-cell" id="h-t2" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="h-t3">--</div>
+                <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell data-text" id="h-v1">--</div><div class="grid-cell data-text" id="h-v2">--</div><div class="grid-cell data-text" id="h-v3">--</div>
             </div>
         </div>
 
         <div class="grid-day-block verde">
             <div class="block-header"><span class="n1">--</span><div class="row" style="gap:15px; font-size: 0.8em;"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div></div>
             <div class="grid-main grid-4">
-                <div class="grid-cell label-cell"><div class="row" style="width:100%; justify-content: space-around;"><div>TEMP. MIN<br><span id="m-min">--</span><br><span id="m-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div><div>MAX.<br><span id="m-max">--</span><br><span id="m-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div></div></div>
+                <div class="grid-cell label-cell"><div class="row" style="width:100%; justify-content: space-around;"><div>MIN.<br><span id="m-min">--</span><br><span id="m-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div><div>MAX.<br><span id="m-max">--</span><br><span id="m-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div></div></div>
                 <div class="grid-cell icon-cell"><img id="m-icon-1" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="m-icon-2" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="m-icon-3" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="m-icon-4" src="images/default.png"></div>
+                <div class="grid-cell label-cell" style="border:none"></div>
+                <div class="grid-cell temp-cell" id="m-t1">--</div><div class="grid-cell temp-cell" id="m-t2">--</div><div class="grid-cell temp-cell" id="m-t3" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="m-t4">--</div>
+                <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell data-text" id="m-v1">--</div><div class="grid-cell data-text" id="m-v2">--</div><div class="grid-cell data-text" id="m-v3">--</div><div class="grid-cell data-text" id="m-v4">--</div>
             </div>
         </div>
-        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
 
     <div id="placa-2" class="placa-box">
@@ -164,58 +163,38 @@
             <div class="v-card celeste">
                 <h2 class="n2">--</h2><div class="date f2">--</div>
                 <div class="card-split">
-                    <div>Madrugada/Mañana<br><img id="d3-icon-1" src="images/default.png"></div>
-                    <div>Tarde/Noche<br><img id="d3-icon-2" src="images/default.png"></div>
+                    <div>M/M<br><img id="d3-icon-1" src="images/default.png"><br><span class="wind-sub" id="d3-v1">--</span></div>
+                    <div>T/N<br><img id="d3-icon-2" src="images/default.png"><br><span class="wind-sub" id="d3-v2">--</span></div>
                 </div>
-                <div class="temp-footer">
-                    <span id="d3-min">--</span> / <span id="d3-max">--</span><br>
-                    <span style="font-size:0.5em; opacity:0.8"><span id="d3-min-sub">--</span> / <span id="d3-max-sub">--</span>*</span>
-                </div>
+                <div class="temp-footer"><span id="d3-min">--</span> / <span id="d3-max">--</span></div>
             </div>
             <div class="v-card oscuro">
                 <h2 class="n3">--</h2><div class="date f3">--</div>
                 <div class="card-split">
-                    <div>Madrugada/Mañana<br><img id="d4-icon-1" src="images/default.png"></div>
-                    <div>Tarde/Noche<br><img id="d4-icon-2" src="images/default.png"></div>
+                    <div>M/M<br><img id="d4-icon-1" src="images/default.png"><br><span class="wind-sub" id="d4-v1">--</span></div>
+                    <div>T/N<br><img id="d4-icon-2" src="images/default.png"><br><span class="wind-sub" id="d4-v2">--</span></div>
                 </div>
-                <div class="temp-footer">
-                    <span id="d4-min">--</span> / <span id="d4-max">--</span><br>
-                    <span style="font-size:0.5em; opacity:0.8"><span id="d4-min-sub">--</span> / <span id="d4-max-sub">--</span>*</span>
-                </div>
+                <div class="temp-footer"><span id="d4-min">--</span> / <span id="d4-max">--</span></div>
             </div>
         </div>
-        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
 </div>
 
 <script>
-    const iconMap = {
-        "despejado": "soleado.png",
-        "ligeramente nublado": "ligeramente_nublado.png",
-        "algo nublado": "algo_nublado.png",
-        "parcialmente nublado": "parcialmente_nublado.png",
-        "cubierto": "cubierto.png",
-        "lluvias aisladas": "lluvias_aisladas.png",
-        "nieblas": "nieblas.png",
-        "lluvias y tormentas": "tormentas.png"
-    };
+    const iconMap = {"despejado": "soleado.png", "algo nublado": "algo_nublado.png", "cubierto": "cubierto.png", "lluvias aisladas": "lluvias_aisladas.png", "lluvias y tormentas": "tormentas.png"};
 
     function updateWeather(dia, tramo, valor) {
-        const imgElement = document.getElementById(`${dia}-icon-${tramo}`);
-        imgElement.src = iconMap[valor] ? `images/${iconMap[valor]}` : `images/default.png`;
+        document.getElementById(`${dia}-icon-${tramo}`).src = iconMap[valor] ? `images/${iconMap[valor]}` : `images/default.png`;
     }
 
-    function up(id, v) { 
-        let val = v ? v.trim() : '--';
-        if(id.includes('min') || id.includes('max') || id.includes('t')) val += '°';
-        document.getElementById(id).innerText = val; 
+    function updateWind(dia, tramo) {
+        const intens = document.getElementById(`${dia}-v-i${tramo}`).value;
+        const dir = document.getElementById(`${dia}-v-d${tramo}`).value;
+        document.getElementById(`${dia}-v${tramo}`).innerText = (intens && dir) ? `${intens} ${dir}` : "--";
     }
 
-    function upMulti(ids, v) { 
-        const p = v.split(','); 
-        ids.forEach((id, i) => { if(p[i]) up(id, p[i]); }); 
-    }
-
+    function up(id, v) { document.getElementById(id).innerText = (v ? v.trim() : '--') + (id.includes('min') || id.includes('max') || id.includes('t') ? '°' : ''); }
+    function upMulti(ids, v) { const p = v.split(','); ids.forEach((id, i) => { if(p[i]) up(id, p[i]); }); }
     function updateCity(v) { document.querySelectorAll('.city-label').forEach(el => el.innerText = v); }
 
     function download(id, name) {
@@ -227,7 +206,6 @@
         });
     }
 
-    // Fechas automáticas
     const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
     const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
     const hoy = new Date();
@@ -235,10 +213,6 @@
         let d = new Date(); d.setDate(hoy.getDate() + i);
         document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = dias[d.getDay()]);
         document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${d.getDate()}/${meses[d.getMonth()]}/${d.getFullYear().toString().slice(-2)}`);
-    }
-
-    function saveToWeb() {
-        alert("✅ Datos preparados para sincronización con el backend.");
     }
 </script>
 </body>
