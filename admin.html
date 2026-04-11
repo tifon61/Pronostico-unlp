@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -53,7 +52,8 @@
 
         /* SECCIÓN INFORMACIÓN */
         .info-card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .city-name { font-size: 2.8em; font-weight: 900; color: var(--unlp-blue); margin: 0 0 20px; text-transform: uppercase; border-bottom: 3px solid #f0f0f0; padding-bottom: 10px; }
+        .city-name { font-size: 2.8em; font-weight: 900; color: var(--unlp-blue); margin: 0 0 5px; text-transform: uppercase; }
+        .emision-tag { color: #666; font-size: 0.85em; font-weight: bold; margin-bottom: 20px; display: block; }
         
         .current-display { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -77,7 +77,6 @@
 
         footer { text-align: center; padding: 40px; color: #999; font-size: 0.8em; }
         .admin-secret { text-decoration: none; color: #eee; }
-        .admin-secret:hover { color: var(--unlp-blue); }
 
         @media (max-width: 950px) {
             main { grid-template-columns: 1fr; }
@@ -99,13 +98,10 @@
         <div class="map-frame">
             <svg viewBox="0 0 400 550" class="map-svg">
                 <path class="provincia-shape" d="M80,60 L320,60 L380,250 L310,480 L50,430 Z" />
-                
                 <circle cx="310" cy="230" r="9" class="city-dot" onclick="mostrarDatos('LA PLATA')"></circle>
                 <text x="235" y="235" class="city-label">La Plata</text>
-
                 <circle cx="330" cy="400" r="9" class="city-dot" onclick="mostrarDatos('MAR DEL PLATA')"></circle>
                 <text x="215" y="405" class="city-label">Mar del Plata</text>
-
                 <circle cx="150" cy="150" r="9" class="city-dot" onclick="mostrarDatos('JUNÍN')"></circle>
                 <text x="165" y="155" class="city-label">Junín</text>
             </svg>
@@ -115,6 +111,7 @@
 
     <section class="info-card">
         <h2 id="view-city" class="city-name">Seleccioná una ciudad</h2>
+        <span id="view-emision" class="emision-tag"></span>
         
         <div id="view-content" style="display:none;">
             <div class="current-display">
@@ -147,12 +144,12 @@
             </div>
             
             <p style="margin-top: 30px; font-size: 0.75em; color: #999; text-align: center;">
-                Fuente: Grupo de Pronóstico FCAG - UNLP. Actualizado: <span id="view-update">--:--</span>
+                Fuente: Grupo de Pronóstico FCAG - UNLP. <br>
+                Reporte generado por especialistas.
             </p>
         </div>
 
         <div id="view-placeholder" style="text-align: center; padding: 80px 20px; color: #bbb;">
-            <img src="https://cdn-icons-png.flaticon.com/512/1779/1779808.png" style="width: 80px; opacity: 0.2; margin-bottom: 20px;">
             <p>Seleccioná una ciudad en el mapa para ver el reporte detallado generado por nuestros pronosticadores.</p>
         </div>
     </section>
@@ -160,36 +157,34 @@
 
 <footer>
     <p>© 2026 Facultad de Ciencias Astronómicas y Geofísicas - Universidad Nacional de La Plata</p>
-    <a href="admin.html" class="admin-secret">Admin</a>
+    <a href="admin.html" class="admin-secret">Acceso Privado</a>
 </footer>
 
 <script>
     function mostrarDatos(ciudad) {
-        // Obtenemos la "base de datos" del localStorage
         const baseDeDatos = JSON.parse(localStorage.getItem('unlp_db')) || {};
         const datos = baseDeDatos[ciudad];
 
         if (!datos) {
-            alert("Todavía no se han cargado datos para " + ciudad + ". Por favor, hacelo desde el Panel de Admin.");
+            alert("No hay datos cargados para " + ciudad);
             return;
         }
 
-        // Cambiamos la visibilidad
         document.getElementById('view-placeholder').style.display = 'none';
         document.getElementById('view-content').style.display = 'block';
 
         // Llenamos la información principal
         document.getElementById('view-city').innerText = ciudad;
-        document.getElementById('view-max').innerText = datos.h_max + "°";
+        document.getElementById('view-emision').innerText = "Reporte de hoy - Emisión: " + (datos.hora_emision || "--:--hs");
+        document.getElementById('view-max').innerText = datos.h_max;
         document.getElementById('view-desc').innerText = datos.h_desc;
-        document.getElementById('view-update').innerText = datos.updated || "Reciente";
 
         // Llenamos el pronóstico extendido
-        document.getElementById('day-1-t').innerText = `${datos.m_min}° / ${datos.m_max}°`;
+        document.getElementById('day-1-t').innerText = `${datos.m_min} / ${datos.m_max}`;
         document.getElementById('day-2-t').innerText = datos.d3_t || "-- / --";
         document.getElementById('day-3-t').innerText = datos.d4_t || "-- / --";
 
-        // Calculamos los nombres de los días automáticamente
+        // Nombres de días automáticos
         const diasSemana = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
         const fechaActual = new Date();
         document.getElementById('day-1-name').innerText = diasSemana[(fechaActual.getDay() + 1) % 7];
@@ -197,7 +192,6 @@
         document.getElementById('day-3-name').innerText = diasSemana[(fechaActual.getDay() + 3) % 7];
     }
 
-    // Al cargar la página, si hay datos de La Plata, los mostramos por defecto
     window.onload = () => {
         const db = JSON.parse(localStorage.getItem('unlp_db'));
         if(db && db['LA PLATA']) mostrarDatos('LA PLATA');
