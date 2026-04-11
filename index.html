@@ -14,7 +14,7 @@
         .section-title { background: var(--unlp-blue); color: white; padding: 8px 12px; margin: 15px 0 10px; font-weight: 900; font-size: 0.75em; border-radius: 4px; text-transform: uppercase; }
         h4 { margin: 10px 0 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.65em; letter-spacing: 1px; }
         input, select, textarea { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.85em; margin-bottom: 5px; font-family: inherit; }
-        .row { display: flex; gap: 5px; }
+        .row { display: flex; gap: 5px; margin-bottom: 5px; }
 
         .btn { border: none; padding: 12px; cursor: pointer; font-weight: 900; border-radius: 8px; color: white; transition: 0.3s; width: 100%; margin-bottom: 10px; }
         .btn-save { background: #28a745; border-bottom: 4px solid #1e7e34; }
@@ -23,7 +23,7 @@
         #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; gap: 40px; }
         .placa-box { width: 950px; background-color: var(--bg-canvas); padding: 35px; color: var(--unlp-blue); border-radius: 5px; box-sizing: border-box; }
 
-        /* HEADER REORGANIZADO */
+        /* HEADER */
         .header-placa { background-color: white; padding: 15px 35px; display: flex; justify-content: space-between; align-items: center; border-bottom: 6px solid var(--unlp-blue); border-radius: 40px 40px 0 0; margin-bottom: 15px; }
         .logos-left { display: flex; align-items: center; gap: 15px; flex: 1; }
         .logos-right { display: flex; align-items: center; justify-content: flex-end; flex: 1; }
@@ -41,16 +41,11 @@
         .grid-cell { padding: 8px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 45px; }
         .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; align-items: flex-start; padding-left: 25px; font-size: 0.7em; text-transform: uppercase; border-right: 2px solid rgba(255,255,255,0.1); }
         
-        .icon-cell { min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        .icon-cell { min-height: 100px; }
         .icon-cell img { height: 85px; width: auto; }
 
         .temp-cell { font-size: 2.5em; font-weight: 400; line-height: 1; }
         .data-text { font-size: 0.8em; font-weight: 600; line-height: 1.1; }
-        .v-card { flex: 1; border-radius: 45px; padding: 35px; text-align: center; color: white; display: flex; flex-direction: column; gap: 12px; }
-        .v-card.celeste { background: var(--unlp-light); }
-        .v-card.oscuro { background: var(--unlp-blue); }
-        .v-card h2 { font-weight: 900; font-size: 2.5em; margin: 0; text-transform: uppercase; }
-        .v-card .temp-footer { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 15px; }
         .footer-note { text-align: center; font-size: 0.85em; font-weight: 800; margin-top: 20px; }
     </style>
 </head>
@@ -81,41 +76,30 @@
     <input type="text" placeholder="Temps M, T, N" oninput="upMulti(['h-t1','h-t2','h-t3'], this.value)">
     
     <h4>Tiempo (Día 1)</h4>
-    <select onchange="updateWeather('h', 1, this.value)"><option value="">Mañana...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    <select onchange="updateWeather('h', 2, this.value)"><option value="">Tarde...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    <select onchange="updateWeather('h', 3, this.value)"><option value="">Noche...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    
-    <input type="text" placeholder="Vientos M, T, N" oninput="upMulti(['h-v1','h-v2','h-v3'], this.value)">
+    <select id="h-sel-w1" onchange="updateWeather('h', 1, this.value)"><option value="">Mañana...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
+    <select id="h-sel-w2" onchange="updateWeather('h', 2, this.value)"><option value="">Tarde...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
+    <select id="h-sel-w3" onchange="updateWeather('h', 3, this.value)"><option value="">Noche...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
 
-    <div class="section-title">DÍA 2 (MAÑANA)</div>
+    <h4>Viento (Intensidad / Dirección)</h4>
     <div class="row">
-        <input type="text" placeholder="Min Urb/Sub" oninput="up('m-min', this.value.split('/')[0]); up('m-min-sub', this.value.split('/')[1])">
-        <input type="text" placeholder="Max Urb/Sub" oninput="up('m-max', this.value.split('/')[0]); up('m-max-sub', this.value.split('/')[1])">
+        <select id="h-v-i1" onchange="updateWind('h', 1)"><option value="">Intensidad M</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option><option value="fuertes">Fuertes</option></select>
+        <select id="h-v-d1" onchange="updateWind('h', 1)"><option value="">Dirección M</option><option value="norte">del norte</option><option value="sur">del sur</option><option value="este">del este</option><option value="oeste">del oeste</option><option value="noreste">del noreste</option><option value="noroeste">del noroeste</option><option value="sudeste">del sudeste</option><option value="sudoeste">del sudoeste</option></select>
     </div>
-    <input type="text" placeholder="Temps Mad, M, T, N" oninput="upMulti(['m-t1','m-t2','m-t3','m-t4'], this.value)">
-    
-    <h4>Tiempo (Día 2)</h4>
-    <select onchange="updateWeather('m', 1, this.value)"><option value="">Madrugada...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    <select onchange="updateWeather('m', 2, this.value)"><option value="">Mañana...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    <select onchange="updateWeather('m', 3, this.value)"><option value="">Tarde...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
-    <select onchange="updateWeather('m', 4, this.value)"><option value="">Noche...</option><option value="despejado">Despejado</option><option value="ligeramente nublado">Ligeramente nublado</option><option value="algo nublado">Algo nublado</option><option value="parcialmente nublado">Parcialmente nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="nieblas">Nieblas</option><option value="lluvias y tormentas">Lluvias y tormentas</option></select>
+    <div class="row">
+        <select id="h-v-i2" onchange="updateWind('h', 2)"><option value="">Intensidad T</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option><option value="fuertes">Fuertes</option></select>
+        <select id="h-v-d2" onchange="updateWind('h', 2)"><option value="">Dirección T</option><option value="norte">del norte</option><option value="sur">del sur</option><option value="este">del este</option><option value="oeste">del oeste</option><option value="noreste">del noreste</option><option value="noroeste">del noroeste</option><option value="sudeste">del sudeste</option><option value="sudoeste">del sudoeste</option></select>
+    </div>
+    <div class="row">
+        <select id="h-v-i3" onchange="updateWind('h', 3)"><option value="">Intensidad N</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option><option value="fuertes">Fuertes</option></select>
+        <select id="h-v-d3" onchange="updateWind('h', 3)"><option value="">Dirección N</option><option value="norte">del norte</option><option value="sur">del sur</option><option value="este">del este</option><option value="oeste">del oeste</option><option value="noreste">del noreste</option><option value="noroeste">del noroeste</option><option value="sudeste">del sudeste</option><option value="sudoeste">del sudoeste</option></select>
+    </div>
 
-    <input type="text" placeholder="Vientos Mad, M, T, N" oninput="upMulti(['m-v1','m-v2','m-v3','m-v4'], this.value)">
-
-    <div class="section-title">DÍAS 3 Y 4</div>
-    <input type="text" placeholder="T. Día 3 (Min / Max)" oninput="up('d3-t', this.value)">
-    <textarea placeholder="Desc. Día 3" oninput="up('d3-desc', this.value)"></textarea>
-    <input type="text" placeholder="T. Día 4 (Min / Max)" oninput="up('d4-t', this.value)">
-    <textarea placeholder="Desc. Día 4" oninput="up('d4-desc', this.value)"></textarea>
-</div>
+    </div>
 
 <div id="viewer">
     <div id="placa-1" class="placa-box">
         <div class="header-placa">
-            <div class="logos-left">
-                <img src="images/Logo astronomicas y geofisicas.png">
-                <img src="images/Logo pronounlp.jfif" style="height: 70px;">
-            </div>
+            <div class="logos-left"><img src="images/Logo astronomicas y geofisicas.png"><img src="images/Logo pronounlp.jfif" style="height: 70px;"></div>
             <h1 class="city-label">LA PLATA</h1>
             <div class="logos-right"><img src="images/Logo unlp.png"></div>
         </div>
@@ -127,39 +111,31 @@
         <div class="grid-day-block">
             <div class="block-header"><span class="n0">--</span><div class="row" style="gap:20px;"><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div></div>
             <div class="grid-main grid-3">
-                <div class="grid-cell label-cell"><div class="row" style="width:100%; justify-content: space-around;"><div>TEMP. MIN<br><span id="h-min">--</span><br><span id="h-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div><div>MAX.<br><span id="h-max">--</span><br><span id="h-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div></div></div>
-                <div class="grid-cell icon-cell"><img id="h-icon-1" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="h-icon-2" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="h-icon-3" src="images/default.png"></div>
+                <div class="grid-cell label-cell">
+                    <div class="row" style="width:100%; justify-content: space-around;">
+                        <div>TEMP. MIN<br><span id="h-min">--</span><br><span id="h-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div>
+                        <div>MAX.<br><span id="h-max">--</span><br><span id="h-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div>
+                    </div>
+                </div>
+                <div class="grid-cell icon-cell"><img id="h-icon-1" src="images/default.png"></div>
+                <div class="grid-cell icon-cell"><img id="h-icon-2" src="images/default.png"></div>
+                <div class="grid-cell icon-cell"><img id="h-icon-3" src="images/default.png"></div>
+
                 <div class="grid-cell label-cell" style="border:none"></div>
                 <div class="grid-cell temp-cell" id="h-t1">--</div><div class="grid-cell temp-cell" id="h-t2" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="h-t3">--</div>
-                <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell data-text" id="h-v1">--</div><div class="grid-cell data-text" id="h-v2">--</div><div class="grid-cell data-text" id="h-v3">--</div>
-                <div class="grid-cell label-cell">TIEMPO</div><div class="grid-cell data-text" id="h-w1">--</div><div class="grid-cell data-text" id="h-w2">--</div><div class="grid-cell data-text" id="h-w3">--</div>
-            </div>
-        </div>
+                
+                <div class="grid-cell label-cell">VIENTOS</div>
+                <div class="grid-cell data-text" id="h-v1">--</div>
+                <div class="grid-cell data-text" id="h-v2">--</div>
+                <div class="grid-cell data-text" id="h-v3">--</div>
 
-        <div class="grid-day-block verde">
-            <div class="block-header"><span class="n1">--</span><div class="row" style="gap:15px; font-size: 0.8em;"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div></div>
-            <div class="grid-main grid-4">
-                <div class="grid-cell label-cell"><div class="row" style="width:100%; justify-content: space-around;"><div>TEMP. MIN<br><span id="m-min">--</span><br><span id="m-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div><div>MAX.<br><span id="m-max">--</span><br><span id="m-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div></div></div>
-                <div class="grid-cell icon-cell"><img id="m-icon-1" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="m-icon-2" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="m-icon-3" src="images/default.png"></div><div class="grid-cell icon-cell"><img id="m-icon-4" src="images/default.png"></div>
-                <div class="grid-cell label-cell" style="border:none"></div>
-                <div class="grid-cell temp-cell" id="m-t1">--</div><div class="grid-cell temp-cell" id="m-t2">--</div><div class="grid-cell temp-cell" id="m-t3" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="m-t4">--</div>
-                <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell data-text" id="m-v1">--</div><div class="grid-cell data-text" id="m-v2">--</div><div class="grid-cell data-text" id="m-v3">--</div><div class="grid-cell data-text" id="m-v4">--</div>
-                <div class="grid-cell label-cell">TIEMPO</div><div class="grid-cell data-text" id="m-w1">--</div><div class="grid-cell data-text" id="m-w2">--</div><div class="grid-cell data-text" id="m-w3">--</div><div class="grid-cell data-text" id="m-w4">--</div>
+                <div class="grid-cell label-cell">TIEMPO</div>
+                <div class="grid-cell data-text" id="h-w1">--</div>
+                <div class="grid-cell data-text" id="h-w2">--</div>
+                <div class="grid-cell data-text" id="h-w3">--</div>
             </div>
         </div>
         <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
-    </div>
-    
-    <div id="placa-2" class="placa-box">
-        <div class="header-placa">
-            <div class="logos-left"><img src="images/Logo astronomicas y geofisicas.png"><img src="images/Logo pronounlp.jfif" style="height: 80px;"></div>
-            <h1 class="city-label">LA PLATA</h1>
-            <div class="logos-right"><img src="images/Logo unlp.png"></div>
-        </div>
-        <div class="cards-container">
-            <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div style="font-size:4em">🌦️</div><div class="desc-box" id="d3-desc">--</div><div class="temp-footer" id="d3-t">--</div></div>
-            <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div style="font-size:4em">☀️</div><div class="desc-box" id="d4-desc">--</div><div class="temp-footer" id="d4-t">--</div></div>
-        </div>
     </div>
 </div>
 
@@ -181,6 +157,15 @@
         imgElement.src = iconMap[valor] ? `images/${iconMap[valor]}` : `images/default.png`;
     }
 
+    // NUEVA FUNCIÓN PARA VIENTOS
+    function updateWind(dia, tramo) {
+        const intensidad = document.getElementById(`${dia}-v-i${tramo}`).value;
+        const direccion = document.getElementById(`${dia}-v-d${tramo}`).value;
+        
+        const output = (intensidad && direccion) ? `${intensidad} ${direccion}` : "--";
+        document.getElementById(`${dia}-v${tramo}`).innerText = output;
+    }
+
     function up(id, v) { 
         let val = v ? v.trim() : '--';
         if(id.includes('min') || id.includes('max') || id.includes('t')) val += '°';
@@ -199,7 +184,7 @@
         const data = {
             location: city,
             emission_time: document.getElementById('out-hora').innerText,
-            // Aquí se mapearía el resto de datos para el backend siguiendo la estructura del JSON
+            // Aquí se mapearían todos los datos capturados para el backend
         };
         localStorage.setItem('unlp_db', JSON.stringify(data));
         alert("✅ Sincronizado.");
@@ -214,6 +199,7 @@
         });
     }
 
+    // Fechas dinámicas
     const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
     const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
     const hoy = new Date();
