@@ -1,5 +1,4 @@
-
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -11,10 +10,8 @@
             --unlp-blue: #00315a; --unlp-accent: #0079c1; --unlp-green: #00796b;
             --unlp-light: #5899d2; --bg: #f4f7f9;
         }
-        
         body { font-family: 'Montserrat', sans-serif; margin: 0; background: var(--bg); color: #333; }
         
-        /* HEADER */
         header { 
             background: white; padding: 15px 5%; display: flex; 
             justify-content: space-between; align-items: center; 
@@ -24,61 +21,55 @@
         header img { height: 50px; }
         .header-title h1 { margin: 0; font-size: 1.2em; color: var(--unlp-blue); font-weight: 900; }
 
-        /* LAYOUT */
         main { 
-            max-width: 1300px; margin: 30px auto; 
-            display: grid; grid-template-columns: 400px 1fr; 
+            max-width: 1400px; margin: 30px auto; 
+            display: grid; grid-template-columns: 380px 1fr; 
             gap: 30px; padding: 0 20px; 
         }
 
-        /* MAPA */
-        .map-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); height: fit-content; text-align: center; }
-        .map-frame { background: #007bbd; border-radius: 15px; padding: 10px; margin-bottom: 10px; }
-        .map-svg { width: 100%; height: 450px; }
+        .map-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); height: fit-content; text-align: center; }
+        .map-frame { background: #007bbd; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
+        .map-svg { width: 100%; height: 400px; }
         .provincia-shape { fill: #0098da; stroke: white; stroke-width: 2; }
         .city-dot { fill: #ffeb3b; stroke: var(--unlp-blue); stroke-width: 2; cursor: pointer; transition: 0.3s; }
         .city-dot:hover { r: 12; fill: white; }
         .city-label { fill: white; font-weight: 900; font-size: 14px; pointer-events: none; text-shadow: 1px 1px 3px black; }
 
-        /* DETALLE DE INFORMACIÓN */
         .city-header { 
             background: white; padding: 20px 30px; border-radius: 20px; 
             margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .city-header h2 { margin: 0; font-size: 2.2em; font-weight: 900; color: var(--unlp-blue); }
-        .emision-badge { background: var(--unlp-blue); color: white; padding: 5px 15px; border-radius: 10px; font-size: 0.75em; font-weight: bold; }
+        .city-header h2 { margin: 0; font-size: 2.2em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
+        .emision-badge { background: var(--unlp-blue); color: white; padding: 8px 20px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
 
-        /* TABLAS WEB (ESTILO PLACA) */
         .web-grid {
-            background: var(--unlp-blue); border-radius: 20px; overflow: hidden; color: white; margin-bottom: 25px;
+            background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 25px;
             box-shadow: 0 10px 20px rgba(0,49,90,0.15);
         }
         .web-grid.verde { background: var(--unlp-green); }
-        .grid-header { background: rgba(255,255,255,0.12); padding: 10px 25px; display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9em; }
+        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 25px; display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9em; text-transform: uppercase; }
         
-        .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.08); }
+        .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
         .row-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .row-4 { grid-template-columns: 180px repeat(4, 1fr); }
 
-        .cell { padding: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; border-right: 1px solid rgba(255,255,255,0.05); }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.7em; text-transform: uppercase; align-items: flex-start; padding-left: 20px; }
+        .cell { padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; border-right: 1px solid rgba(255,255,255,0.05); }
+        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.75em; text-transform: uppercase; align-items: flex-start; padding-left: 25px; }
         
-        .temp-web { font-size: 2.2em; font-weight: 300; }
-        .data-web { font-size: 0.85em; font-weight: 600; line-height: 1.2; }
-        .title-tramo { font-weight: 800; font-size: 0.75em; opacity: 0.9; }
+        .temp-web { font-size: 2em; font-weight: 300; }
+        .data-web { font-size: 0.9em; font-weight: 600; line-height: 1.2; }
+        .title-tramo { font-weight: 800; font-size: 0.85em; opacity: 0.9; letter-spacing: 0.5px; }
 
-        /* EXTENDIDO */
         .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .web-card { border-radius: 25px; padding: 25px; color: white; }
+        .web-card { border-radius: 35px; padding: 30px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .web-card.celeste { background: var(--unlp-light); }
         .web-card.oscuro { background: var(--unlp-blue); }
-        .web-card h3 { margin: 0; font-size: 1.8em; font-weight: 900; }
-        .web-card .desc { font-size: 0.95em; min-height: 60px; line-height: 1.4; margin: 10px 0; }
-        .web-card .temp-foot { font-weight: 900; font-size: 1.5em; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; }
+        .web-card h3 { margin: 0; font-size: 1.8em; font-weight: 900; text-transform: uppercase; }
+        .web-card .desc { font-size: 1em; min-height: 60px; line-height: 1.4; margin: 15px 0; font-weight: 500; }
+        .web-card .temp-foot { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 15px; }
 
-        #view-placeholder { background: white; border-radius: 20px; padding: 80px; text-align: center; color: #bbb; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-
+        #view-placeholder { background: white; border-radius: 25px; padding: 100px; text-align: center; color: #bbb; box-shadow: 0 10px 25px rgba(0,0,0,0.05); font-weight: 700; }
         @media (max-width: 950px) { main { grid-template-columns: 1fr; } .extended-row { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -103,7 +94,7 @@
                 <text x="165" y="155" class="city-label">Junín</text>
             </svg>
         </div>
-        <p style="font-size:0.8em; font-weight:700; color:var(--unlp-blue);">Seleccioná una ciudad en el mapa</p>
+        <p style="font-size:0.9em; font-weight:700; color:var(--unlp-blue);">Seleccioná una ciudad en el mapa</p>
     </section>
 
     <section id="info-detalle">
@@ -140,6 +131,12 @@
                     
                     <div class="cell label-cell">Temp.</div>
                     <div class="cell temp-web" id="web-m-t1">--</div><div class="cell temp-web" id="web-m-t2">--</div><div class="cell temp-web" id="web-m-t3" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-m-t4">--</div>
+                    
+                    <div class="cell label-cell">Viento</div>
+                    <div class="cell data-web" id="web-m-v1">--</div><div class="cell data-web" id="web-m-v2">--</div><div class="cell data-web" id="web-m-v3">--</div><div class="cell data-web" id="web-m-v4">--</div>
+                    
+                    <div class="cell label-cell">Tiempo</div>
+                    <div class="cell data-web" id="web-m-w1">--</div><div class="cell data-web" id="web-m-w2">--</div><div class="cell data-web" id="web-m-w3">--</div><div class="cell data-web" id="web-m-w4">--</div>
                 </div>
             </div>
 
@@ -171,27 +168,33 @@
         document.getElementById('view-placeholder').style.display = 'none';
         document.getElementById('full-report').style.display = 'block';
 
-        // Header
         document.getElementById('out-city').innerText = ciudad;
         document.getElementById('out-hora').innerText = data.hora_emision || '--:--hs';
         
-        // Datos Hoy (Día 1)
-        // Nota: Asegurate que en admin.html guardes h_v1, h_v2, h_w1, etc.
+        // Hoy
         document.getElementById('web-h-t1').innerText = data.h_t1 || '--';
         document.getElementById('web-h-t2').innerText = data.h_t2 || '--';
         document.getElementById('web-h-t3').innerText = data.h_t3 || '--';
-        document.getElementById('web-h-v1').innerText = data.h_v1 || 'Leves';
-        document.getElementById('web-h-v2').innerText = data.h_v2 || 'Leves';
-        document.getElementById('web-h-v3').innerText = data.h_v3 || 'Leves';
-        document.getElementById('web-h-w1').innerText = data.h_w1 || 'Despejado';
-        document.getElementById('web-h-w2').innerText = data.h_w2 || 'Algo nublado';
-        document.getElementById('web-h-w3').innerText = data.h_w3 || 'Despejado';
+        document.getElementById('web-h-v1').innerText = data.h_v1 || '--';
+        document.getElementById('web-h-v2').innerText = data.h_v2 || '--';
+        document.getElementById('web-h-v3').innerText = data.h_v3 || '--';
+        document.getElementById('web-h-w1').innerText = data.h_w1 || '--';
+        document.getElementById('web-h-w2').innerText = data.h_w2 || '--';
+        document.getElementById('web-h-w3').innerText = data.h_w3 || '--';
 
-        // Datos Día 2
+        // Día 2 (Cargando datos completos)
         document.getElementById('web-m-t1').innerText = data.m_t1 || '--';
         document.getElementById('web-m-t2').innerText = data.m_t2 || '--';
         document.getElementById('web-m-t3').innerText = data.m_t3 || '--';
         document.getElementById('web-m-t4').innerText = data.m_t4 || '--';
+        document.getElementById('web-m-v1').innerText = data.m_v1 || '--';
+        document.getElementById('web-m-v2').innerText = data.m_v2 || '--';
+        document.getElementById('web-m-v3').innerText = data.m_v3 || '--';
+        document.getElementById('web-m-v4').innerText = data.m_v4 || '--';
+        document.getElementById('web-m-w1').innerText = data.m_w1 || '--';
+        document.getElementById('web-m-w2').innerText = data.m_w2 || '--';
+        document.getElementById('web-m-w3').innerText = data.m_w3 || '--';
+        document.getElementById('web-m-w4').innerText = data.m_w4 || '--';
 
         // Extendido
         document.getElementById('web-d3-desc').innerText = data.d3_desc || '--';
@@ -199,7 +202,6 @@
         document.getElementById('web-d4-desc').innerText = data.d4_desc || '--';
         document.getElementById('web-d4-t').innerText = data.d4_t || '--';
 
-        // Fechas dinámicas
         const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
         const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
         const hoy = new Date();
@@ -210,7 +212,6 @@
             document.getElementById(`web-f${i}`).innerText = `${d.getDate()} / ${meses[d.getMonth()]}`;
         }
     }
-
     window.onload = () => { if(localStorage.getItem('unlp_db')) cargarFull('LA PLATA'); };
 </script>
 </body>
