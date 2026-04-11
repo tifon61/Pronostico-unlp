@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Pronóstico UNLP | Multi-Placa</title>
+    <title>Panel de Pronóstico UNLP | Edición Avanzada</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -18,14 +18,15 @@
         
         /* PANEL DE CONTROL */
         #sidebar { 
-            width: 380px; background: white; height: 100vh; 
+            width: 420px; background: white; height: 100vh; 
             padding: 20px; box-sizing: border-box; overflow-y: auto;
             border-right: 5px solid var(--unlp-blue); color: #333;
         }
         
         .section-title { background: var(--unlp-blue); color: white; padding: 8px 12px; margin: 20px 0 10px; font-weight: 900; font-size: 0.75em; border-radius: 4px; text-transform: uppercase; }
-        h4 { margin: 10px 0 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.7em; letter-spacing: 1px; }
+        h4 { margin: 12px 0 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.7em; letter-spacing: 1px; border-bottom: 1px solid #ddd; }
         input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.85em; margin-bottom: 5px; font-family: inherit; }
+        textarea { height: 45px; resize: none; }
         .row { display: flex; gap: 5px; }
         
         .btn-download { border: none; padding: 12px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: 900; border-radius: 8px; font-size: 0.9em; transition: 0.3s; color: white; }
@@ -36,47 +37,51 @@
         /* VISOR DE PLACA */
         #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow: auto; gap: 40px; }
 
-        /* Estenedor de Placa */
         .placa-box { 
-            width: 1000px; background-color: var(--bg-canvas); padding: 35px; 
+            width: 1100px; background-color: var(--bg-canvas); padding: 35px; 
             color: var(--unlp-blue); box-sizing: border-box; border-radius: 10px;
         }
 
-        /* HEADER COMÚN */
+        /* HEADER */
         .header-placa { 
             background-color: white; padding: 15px 40px; display: flex; 
             justify-content: space-between; align-items: center; 
             border-bottom: 6px solid var(--unlp-blue); border-radius: 40px 40px 0 0; margin-bottom: 20px;
         }
-        .header-placa img { height: 60px; }
-        .header-placa h1 { margin: 0; font-weight: 900; font-size: 3em; letter-spacing: -2px; }
+        .header-placa img { height: 65px; }
+        .header-placa h1 { margin: 0; font-weight: 900; font-size: 3.5em; letter-spacing: -2px; }
 
-        /* BLOQUES HORIZONTALES */
+        /* GRILLAS HOY/MAÑANA */
         .grid-day-block { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 20px; }
         .grid-day-block.verde { background: var(--unlp-green); }
         .block-header { background: rgba(255,255,255,0.1); padding: 10px 30px; display: flex; justify-content: space-between; font-weight: 800; }
+        
         .grid-main { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
         .grid-3 { grid-template-columns: 200px repeat(3, 1fr); }
         .grid-4 { grid-template-columns: 200px repeat(4, 1fr); }
-        .grid-cell { padding: 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; align-items: flex-start; padding-left: 25px; font-size: 0.75em; text-transform: uppercase; }
-        .temp-cell { font-size: 2.8em; font-weight: 300; }
 
-        /* TARJETAS VERTICALES */
+        .grid-cell { padding: 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; align-items: flex-start; padding-left: 25px; font-size: 0.75em; text-transform: uppercase; border-right: 3px solid rgba(255,255,255,0.2); }
+        
+        .temp-cell { font-size: 2.8em; font-weight: 300; }
+        .wind-cell, .weather-cell { font-size: 0.8em; line-height: 1.2; font-weight: 500; }
+        .weather-cell { font-weight: 700; text-transform: capitalize; }
+
+        /* TARJETAS DÍA 3/4 */
         .cards-container { display: flex; gap: 20px; }
         .v-card { flex: 1; border-radius: 45px; padding: 35px; text-align: center; color: white; display: flex; flex-direction: column; gap: 15px; }
         .v-card.celeste { background: var(--unlp-light); }
         .v-card.oscuro { background: var(--unlp-blue); }
-        .v-card h2 { font-weight: 900; font-size: 2.2em; margin: 0; }
-        .v-card .temp-footer { font-weight: 900; font-size: 1.5em; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 15px; }
+        .v-card h2 { font-weight: 900; font-size: 2.5em; margin: 0; }
+        .v-card .temp-footer { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 15px; }
 
-        .footer-note { text-align: center; font-size: 0.85em; font-weight: 800; margin-top: 25px; }
+        .footer-note { text-align: center; font-size: 0.9em; font-weight: 800; margin-top: 25px; }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <h2>⚙️ EDITOR UNLP</h2>
+    <h2 style="font-size: 1.2em;">⚙️ PANEL DE CONTROL UNLP</h2>
     
     <label><h4>Ciudad</h4></label>
     <select id="city-select" onchange="updateCity(this.value)">
@@ -86,22 +91,29 @@
     </select>
 
     <div class="section-title">DESCARGAS</div>
-    <button class="btn-download btn-p1" onclick="download('placa-1', 'Corto_Plazo')">⬇ DESCARGAR HOY/MAÑANA</button>
+    <button class="btn-download btn-p1" onclick="download('placa-1', 'CortoPlazo')">⬇ DESCARGAR HOY/MAÑANA</button>
     <button class="btn-download btn-p2" onclick="download('placa-2', 'Extendido')">⬇ DESCARGAR DÍA 3/4</button>
 
-    <div class="section-title">DATOS DE TEMPERATURA</div>
-    <h4>Hoy</h4>
+    <div class="section-title">DÍA 1 (HOY)</div>
     <div class="row"><input type="text" placeholder="Min" oninput="update('h-min', this.value)"><input type="text" placeholder="Max" oninput="update('h-max', this.value)"></div>
-    <h4>Mañana</h4>
-    <div class="row"><input type="text" placeholder="Min" oninput="update('m-min', this.value)"><input type="text" placeholder="Max" oninput="update('m-max', this.value)"></div>
+    <h4>Vientos (Mañana / Tarde / Noche)</h4>
+    <input type="text" placeholder="Mañana" oninput="update('h-v-m', this.value)">
+    <input type="text" placeholder="Tarde" oninput="update('h-v-t', this.value)">
+    <input type="text" placeholder="Noche" oninput="update('h-v-n', this.value)">
+    <h4>Tiempo (Mañana / Tarde / Noche)</h4>
+    <input type="text" placeholder="Mañana" oninput="update('h-w-m', this.value)">
+    <input type="text" placeholder="Tarde" oninput="update('h-w-t', this.value)">
+    <input type="text" placeholder="Noche" oninput="update('h-w-n', this.value)">
 
-    <div class="section-title">PRONÓSTICO EXTENDIDO</div>
-    <h4>Día 3</h4>
-    <input type="text" placeholder="Temp Min/Max" oninput="update('d3-t', this.value)">
-    <textarea placeholder="Texto descriptivo..." oninput="update('d3-desc', this.value)"></textarea>
-    <h4>Día 4</h4>
-    <input type="text" placeholder="Temp Min/Max" oninput="update('d4-t', this.value)">
-    <textarea placeholder="Texto descriptivo..." oninput="update('d4-desc', this.value)"></textarea>
+    <div class="section-title">DÍA 2 (MAÑANA)</div>
+    <div class="row"><input type="text" placeholder="Min" oninput="update('m-min', this.value)"><input type="text" placeholder="Max" oninput="update('m-max', this.value)"></div>
+    <h4>Vientos (Madru / Maña / Tard / Noch)</h4>
+    <div class="row"><input type="text" placeholder="Mad" oninput="update('m-v-mad', this.value)"><input type="text" placeholder="Mañ" oninput="update('m-v-m', this.value)"></div>
+    <div class="row"><input type="text" placeholder="Tar" oninput="update('m-v-t', this.value)"><input type="text" placeholder="Noc" oninput="update('m-v-n', this.value)"></div>
+    <h4>Tiempo (Madru / Maña / Tard / Noch)</h4>
+    <div class="row"><input type="text" placeholder="Mad" oninput="update('m-w-mad', this.value)"><input type="text" placeholder="Mañ" oninput="update('m-w-m', this.value)"></div>
+    <div class="row"><input type="text" placeholder="Tar" oninput="update('m-w-t', this.value)"><input type="text" placeholder="Noc" oninput="update('m-w-n', this.value)"></div>
+
 </div>
 
 <div id="viewer">
@@ -110,7 +122,7 @@
         <div class="header-placa">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
             <div style="text-align: center;">
-                <span style="background:var(--unlp-blue); color:white; padding:2px 15px; border-radius:15px; font-size:0.7em; font-weight:bold;">PRONÓSTICO METEOROLÓGICO</span>
+                <span style="background:var(--unlp-blue); color:white; padding:2px 20px; border-radius:15px; font-size:0.75em; font-weight:900; letter-spacing:1px;">PRONÓSTICO METEOROLÓGICO</span>
                 <h1 class="out-city-label">LA PLATA</h1>
             </div>
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png">
@@ -121,7 +133,11 @@
             <div class="grid-main grid-3">
                 <div class="grid-cell label-cell"></div><div class="grid-cell">MAÑANA</div><div class="grid-cell">TARDE</div><div class="grid-cell">NOCHE</div>
                 <div class="grid-cell label-cell"><div style="color:#ffeb3b">MAX: <span id="h-max">--</span></div><div style="color:#81d4fa">MIN: <span id="h-min">--</span></div></div>
-                <div class="grid-cell temp-cell">13°</div><div class="grid-cell temp-cell" style="color:#ffeb3b">22°</div><div class="grid-cell temp-cell">16°</div>
+                <div class="grid-cell temp-cell">--</div><div class="grid-cell temp-cell" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell">--</div>
+                <div class="grid-cell label-cell">VIENTOS</div>
+                <div class="grid-cell wind-cell" id="h-v-m">--</div><div class="grid-cell wind-cell" id="h-v-t">--</div><div class="grid-cell wind-cell" id="h-v-n">--</div>
+                <div class="grid-cell label-cell">TIEMPO</div>
+                <div class="grid-cell weather-cell" id="h-w-m">--</div><div class="grid-cell weather-cell" id="h-w-t">--</div><div class="grid-cell weather-cell" id="h-w-n">--</div>
             </div>
         </div>
 
@@ -130,63 +146,39 @@
             <div class="grid-main grid-4">
                 <div class="grid-cell label-cell"></div><div class="grid-cell">MADRUGADA</div><div class="grid-cell">MAÑANA</div><div class="grid-cell">TARDE</div><div class="grid-cell">NOCHE</div>
                 <div class="grid-cell label-cell"><div style="color:#ffeb3b">MAX: <span id="m-max">--</span></div><div style="color:#81d4fa">MIN: <span id="m-min">--</span></div></div>
-                <div class="grid-cell temp-cell">14°</div><div class="grid-cell temp-cell">17°</div><div class="grid-cell temp-cell" style="color:#ffeb3b">22°</div><div class="grid-cell temp-cell">19°</div>
+                <div class="grid-cell temp-cell">--</div><div class="grid-cell temp-cell">--</div><div class="grid-cell temp-cell" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell">--</div>
+                <div class="grid-cell label-cell">VIENTOS</div>
+                <div class="grid-cell wind-cell" id="m-v-mad">--</div><div class="grid-cell wind-cell" id="m-v-m">--</div><div class="grid-cell wind-cell" id="m-v-t">--</div><div class="grid-cell wind-cell" id="m-v-n">--</div>
+                <div class="grid-cell label-cell">TIEMPO</div>
+                <div class="grid-cell weather-cell" id="m-w-mad">--</div><div class="grid-cell weather-cell" id="m-w-m">--</div><div class="grid-cell weather-cell" id="m-w-t">--</div><div class="grid-cell weather-cell" id="m-w-n">--</div>
             </div>
         </div>
         <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
 
     <div id="placa-2" class="placa-box">
-        <div class="header-placa">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
-            <div style="text-align: center;">
-                <span style="background:var(--unlp-blue); color:white; padding:2px 15px; border-radius:15px; font-size:0.7em; font-weight:bold;">PRONÓSTICO METEOROLÓGICO</span>
-                <h1 class="out-city-label">LA PLATA</h1>
-            </div>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png">
         </div>
-
-        <div class="cards-container">
-            <div class="v-card celeste">
-                <h2 class="n2">--</h2><div class="date f2">--</div>
-                <div style="font-size:3.5em; margin:10px 0;">🌦️</div>
-                <div class="desc-box" id="d3-desc">--</div>
-                <div class="temp-footer" id="d3-t">--</div>
-            </div>
-            <div class="v-card oscuro">
-                <h2 class="n3">--</h2><div class="date f3">--</div>
-                <div style="font-size:3.5em; margin:10px 0;">☀️</div>
-                <div class="desc-box" id="d4-desc">--</div>
-                <div class="temp-footer" id="d4-t">--</div>
-            </div>
-        </div>
-        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
-    </div>
 
 </div>
 
 <script>
     function update(id, val) { document.getElementById(id).innerText = val || '--'; }
-    
-    function updateCity(val) {
-        document.querySelectorAll('.out-city-label').forEach(el => el.innerText = val);
-    }
+    function updateCity(val) { document.querySelectorAll('.out-city-label').forEach(el => el.innerText = val); }
 
     function download(id, name) {
         const area = document.getElementById(id);
         html2canvas(area, { scale: 3, backgroundColor: '#e6e7e8' }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `UNLP_${name}_${new Date().toLocaleDateString()}.png`;
+            link.download = `UNLP_${name}_${new Date().toISOString().slice(0,10)}.png`;
             link.href = canvas.toDataURL();
             link.click();
         });
     }
 
-    // Lógica de fechas
+    // Fechas
     const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
     const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
     const hoy = new Date();
-
     for(let i=0; i<4; i++) {
         let d = new Date(); d.setDate(hoy.getDate() + i);
         document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = dias[d.getDay()]);
