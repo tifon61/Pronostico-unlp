@@ -1,250 +1,206 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Meteorológico | UNLP</title>
+    <title>Portal Meteorológico | FCAG - UNLP</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --unlp-blue: #00315a;
-            --unlp-accent: #0079c1;
-            --smn-orange: #d68d1e;
-            --bg: #f8f9fa;
+        :root { 
+            --unlp-blue: #00315a; 
+            --unlp-accent: #0079c1; 
+            --smn-orange: #d68d1e; 
+            --map-water: #007bbd;
+            --map-land: #0098da;
         }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            background-color: var(--bg);
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* HEADER */
-        header {
-            background: white;
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        
+        body { font-family: 'Montserrat', sans-serif; margin: 0; background: #f4f7f9; color: #333; }
+        
+        /* HEADER INSTITUCIONAL */
+        header { 
+            background: white; padding: 15px 5%; display: flex; 
+            justify-content: space-between; align-items: center; 
             border-bottom: 5px solid var(--unlp-blue);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         header img { height: 50px; }
         .header-title h1 { margin: 0; font-size: 1.2em; color: var(--unlp-blue); font-weight: 900; }
 
-        /* CONTENIDO */
-        main {
-            max-width: 1200px;
-            margin: 30px auto;
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 30px;
-            padding: 0 20px;
-            flex-grow: 1;
+        /* LAYOUT PRINCIPAL */
+        main { 
+            max-width: 1250px; margin: 30px auto; 
+            display: grid; grid-template-columns: 480px 1fr; 
+            gap: 30px; padding: 0 20px; 
         }
 
-        /* SECCIÓN IZQUIERDA: MAPA */
-        .map-container {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            text-align: center;
+        /* SECCIÓN MAPA ESTILO SMN */
+        .map-card { 
+            background: white; border-radius: 20px; padding: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center;
         }
-        .map-svg {
-            width: 100%;
-            height: auto;
-            fill: var(--unlp-accent);
-            stroke: white;
-            stroke-width: 2;
+        .map-frame { 
+            background: var(--map-water); border-radius: 15px; 
+            padding: 10px; position: relative; overflow: hidden;
+            border: 1px solid #ddd;
         }
-        .city-marker {
-            cursor: pointer;
-            fill: #ffeb3b;
-            stroke: var(--unlp-blue);
-            transition: 0.3s;
-        }
-        .city-marker:hover { r: 12; fill: var(--smn-orange); }
+        .map-svg { width: 100%; height: 550px; }
+        
+        .provincia-shape { fill: var(--map-land); stroke: white; stroke-width: 2; }
+        .city-dot { fill: #ffeb3b; stroke: var(--unlp-blue); stroke-width: 2; cursor: pointer; transition: 0.3s; }
+        .city-dot:hover { r: 12; fill: white; filter: drop-shadow(0 0 8px white); }
+        .city-label { fill: white; font-weight: 900; font-size: 15px; pointer-events: none; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
 
-        /* SECCIÓN DERECHA: INFO */
-        .info-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        /* SECCIÓN INFORMACIÓN */
+        .info-card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .city-name { font-size: 2.8em; font-weight: 900; color: var(--unlp-blue); margin: 0 0 20px; text-transform: uppercase; border-bottom: 3px solid #f0f0f0; padding-bottom: 10px; }
+        
+        .current-display { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: linear-gradient(135deg, #f0f7ff 0%, #e1f0ff 100%); 
+            padding: 30px; border-radius: 20px; margin-bottom: 35px;
+            border-left: 8px solid var(--unlp-accent);
         }
-
-        .city-header {
-            border-bottom: 2px solid #eee;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-        .city-header h2 { margin: 0; font-size: 2.5em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
-
-        .current-weather {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f0f7ff;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
-        .temp-large { font-size: 5em; font-weight: 300; color: var(--smn-orange); margin: 0; }
-        .desc-text { font-size: 1.2em; font-weight: bold; color: #555; }
-
+        .temp-val { font-size: 5.5em; font-weight: 300; color: var(--smn-orange); margin: 0; line-height: 1; }
+        .weather-desc { font-size: 1.3em; font-weight: 700; color: #555; margin-top: 5px; }
+        
         /* PRONÓSTICO EXTENDIDO */
-        .extended-title { 
-            border-left: 5px solid var(--unlp-accent); 
-            padding-left: 15px; 
-            margin-bottom: 20px; 
-            font-weight: 900;
-            color: var(--unlp-blue);
-        }
-        .extended-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-        .day-card {
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-        }
-        .day-card h4 { margin: 0 0 10px; font-size: 0.8em; color: var(--unlp-blue); }
-        .day-card .icon { font-size: 2.5em; margin-bottom: 10px; }
-        .day-card .temps { font-weight: 900; font-size: 1.1em; }
+        .extendido-header { font-weight: 900; color: var(--unlp-blue); margin-bottom: 20px; font-size: 1.1em; display: flex; align-items: center; gap: 10px; }
+        .extendido-header::before { content: ''; display: block; width: 5px; height: 25px; background: var(--unlp-accent); }
+        
+        .extended-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .day-box { background: #fff; border: 1px solid #eee; border-radius: 18px; padding: 20px; text-align: center; transition: 0.3s; }
+        .day-box:hover { border-color: var(--unlp-accent); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .day-box h5 { margin: 0 0 10px; font-size: 0.85em; color: var(--unlp-blue); letter-spacing: 1px; }
+        .day-box .icon { font-size: 2.8em; margin: 10px 0; }
+        .day-box .temp-range { font-weight: 900; font-size: 1.2em; color: var(--unlp-blue); }
 
-        footer {
-            background: #f1f1f1;
-            padding: 30px;
-            text-align: center;
-            font-size: 0.8em;
-            color: #777;
-        }
-        .admin-link { text-decoration: none; color: #ddd; transition: 0.3s; }
-        .admin-link:hover { color: var(--unlp-blue); }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.8em; }
+        .admin-secret { text-decoration: none; color: #eee; }
+        .admin-secret:hover { color: var(--unlp-blue); }
 
-        @media (max-width: 900px) {
+        @media (max-width: 950px) {
             main { grid-template-columns: 1fr; }
+            .map-svg { height: 400px; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-logo">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
-    </div>
-    <div class="header-title">
-        <h1>PORTAL METEOROLÓGICO UNLP</h1>
-    </div>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
+    <div class="header-title"><h1>PORTAL METEOROLÓGICO UNLP</h1></div>
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png">
 </header>
 
 <main>
-    <section class="map-container">
-        <h3 style="color: var(--unlp-blue);">Seleccioná una ciudad</h3>
-        <svg viewBox="0 0 400 500" class="map-svg">
-            <path d="M100,50 L300,50 L380,250 L320,450 L50,400 Z" /> <circle cx="320" cy="220" r="10" class="city-marker" onclick="cargarCiudad('LA PLATA')"></circle>
-            <text x="335" y="225" fill="var(--unlp-blue)" font-weight="900" font-size="14">La Plata</text>
-            
-            <circle cx="340" cy="380" r="10" class="city-marker" onclick="cargarCiudad('MAR DEL PLATA')"></circle>
-            <text x="220" y="385" fill="var(--unlp-blue)" font-weight="900" font-size="14">Mar del Plata</text>
+    <section class="map-card">
+        <h3 style="color: var(--unlp-blue); margin-top: 0;">Seleccioná tu Ciudad</h3>
+        <div class="map-frame">
+            <svg viewBox="0 0 400 550" class="map-svg">
+                <path class="provincia-shape" d="M80,60 L320,60 L380,250 L310,480 L50,430 Z" />
+                
+                <circle cx="310" cy="230" r="9" class="city-dot" onclick="mostrarDatos('LA PLATA')"></circle>
+                <text x="235" y="235" class="city-label">La Plata</text>
 
-            <circle cx="150" cy="150" r="10" class="city-marker" onclick="cargarCiudad('JUNÍN')"></circle>
-            <text x="165" y="155" fill="var(--unlp-blue)" font-weight="900" font-size="14">Junín</text>
-        </svg>
+                <circle cx="330" cy="400" r="9" class="city-dot" onclick="mostrarDatos('MAR DEL PLATA')"></circle>
+                <text x="215" y="405" class="city-label">Mar del Plata</text>
+
+                <circle cx="150" cy="150" r="9" class="city-dot" onclick="mostrarDatos('JUNÍN')"></circle>
+                <text x="165" y="155" class="city-label">Junín</text>
+            </svg>
+        </div>
+        <p style="font-size: 0.8em; color: #888; margin-top: 15px;">Hacé clic en los puntos amarillos</p>
     </section>
 
-    <section class="info-container" id="datos-ciudad">
-        <div class="city-header">
-            <h2 id="view-city">Seleccioná del mapa</h2>
-        </div>
-
-        <div id="pantalla-vacia" style="text-align: center; padding: 50px; opacity: 0.5;">
-            <p>Hacé clic en los puntos amarillos del mapa para ver el reporte oficial del Grupo de Pronóstico.</p>
-        </div>
-
-        <div id="contenido-clima" style="display: none;">
-            <div class="current-weather">
+    <section class="info-card">
+        <h2 id="view-city" class="city-name">Seleccioná una ciudad</h2>
+        
+        <div id="view-content" style="display:none;">
+            <div class="current-display">
                 <div>
-                    <p style="margin: 0; font-weight: bold; color: var(--unlp-blue);">TEMPERATURA MÁXIMA HOY</p>
-                    <h2 class="temp-large" id="view-max">--°</h2>
-                    <div class="desc-text" id="view-desc">--</div>
+                    <p style="margin:0; font-weight:800; color:var(--unlp-blue); font-size:0.9em;">MÁXIMA PREVISTA HOY</p>
+                    <h1 class="temp-val" id="view-max">--°</h1>
+                    <div class="weather-desc" id="view-desc">--</div>
                 </div>
-                <div id="view-icon" style="font-size: 6em;">☀️</div>
+                <div id="view-icon-main" style="font-size: 6em;">☀️</div>
             </div>
-
-            <h3 class="extended-title">PRONÓSTICO EXTENDIDO</h3>
+            
+            <div class="extendido-header">PRONÓSTICO PARA LOS PRÓXIMOS DÍAS</div>
+            
             <div class="extended-grid">
-                <div class="day-card">
-                    <h4 id="name-d1">SÁBADO</h4>
+                <div class="day-box">
+                    <h5 id="day-1-name">---</h5>
                     <div class="icon">⛅</div>
-                    <div class="temps" id="temp-d1">--° / --°</div>
+                    <div class="temp-range" id="day-1-t">-- / --</div>
                 </div>
-                <div class="day-card">
-                    <h4 id="name-d2">DOMINGO</h4>
+                <div class="day-box">
+                    <h5 id="day-2-name">---</h5>
                     <div class="icon">🌦️</div>
-                    <div class="temps" id="temp-d2">--° / --°</div>
+                    <div class="temp-range" id="day-2-t">-- / --</div>
                 </div>
-                <div class="day-card">
-                    <h4 id="name-d3">LUNES</h4>
+                <div class="day-box">
+                    <h5 id="day-3-name">---</h5>
                     <div class="icon">☀️</div>
-                    <div class="temps" id="temp-d3">--° / --°</div>
+                    <div class="temp-range" id="day-3-t">-- / --</div>
                 </div>
             </div>
+            
+            <p style="margin-top: 30px; font-size: 0.75em; color: #999; text-align: center;">
+                Fuente: Grupo de Pronóstico FCAG - UNLP. Actualizado: <span id="view-update">--:--</span>
+            </p>
+        </div>
+
+        <div id="view-placeholder" style="text-align: center; padding: 80px 20px; color: #bbb;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1779/1779808.png" style="width: 80px; opacity: 0.2; margin-bottom: 20px;">
+            <p>Seleccioná una ciudad en el mapa para ver el reporte detallado generado por nuestros pronosticadores.</p>
         </div>
     </section>
 </main>
 
 <footer>
-    <p>© 2026 Facultad de Ciencias Astronómicas y Geofísicas - UNLP</p>
-    <a href="admin.html" class="admin-link">Acceso Pronosticadores</a>
+    <p>© 2026 Facultad de Ciencias Astronómicas y Geofísicas - Universidad Nacional de La Plata</p>
+    <a href="admin.html" class="admin-secret">Admin</a>
 </footer>
 
 <script>
-    function cargarCiudad(nombreCiudad) {
-        // Leemos el localStorage
+    function mostrarDatos(ciudad) {
+        // Obtenemos la "base de datos" del localStorage
         const baseDeDatos = JSON.parse(localStorage.getItem('unlp_db')) || {};
-        const data = baseDeDatos[nombreCiudad];
+        const datos = baseDeDatos[ciudad];
 
-        if (!data) {
-            alert("Aún no hay datos cargados para " + nombreCiudad);
+        if (!datos) {
+            alert("Todavía no se han cargado datos para " + ciudad + ". Por favor, hacelo desde el Panel de Admin.");
             return;
         }
 
-        // Mostrar el contenido
-        document.getElementById('pantalla-vacia').style.display = 'none';
-        document.getElementById('contenido-clima').style.display = 'block';
+        // Cambiamos la visibilidad
+        document.getElementById('view-placeholder').style.display = 'none';
+        document.getElementById('view-content').style.display = 'block';
 
-        // Llenar datos
-        document.getElementById('view-city').innerText = nombreCiudad;
-        document.getElementById('view-max').innerText = data.h_max + "°";
-        document.getElementById('view-desc').innerText = data.h_desc;
-        
-        // Datos del extendido (Días 3 y 4 que guardaste)
-        document.getElementById('temp-d1').innerText = data.m_min + "° / " + data.m_max + "°";
-        document.getElementById('temp-d2').innerText = data.d3_t || "-- / --";
-        document.getElementById('temp-d3').innerText = data.d4_t || "-- / --";
+        // Llenamos la información principal
+        document.getElementById('view-city').innerText = ciudad;
+        document.getElementById('view-max').innerText = datos.h_max + "°";
+        document.getElementById('view-desc').innerText = datos.h_desc;
+        document.getElementById('view-update').innerText = datos.updated || "Reciente";
 
-        // Actualizar nombres de días
+        // Llenamos el pronóstico extendido
+        document.getElementById('day-1-t').innerText = `${datos.m_min}° / ${datos.m_max}°`;
+        document.getElementById('day-2-t').innerText = datos.d3_t || "-- / --";
+        document.getElementById('day-3-t').innerText = datos.d4_t || "-- / --";
+
+        // Calculamos los nombres de los días automáticamente
         const diasSemana = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        const d = new Date();
-        document.getElementById('name-d1').innerText = diasSemana[(d.getDay() + 1) % 7];
-        document.getElementById('name-d2').innerText = diasSemana[(d.getDay() + 2) % 7];
-        document.getElementById('name-d3').innerText = diasSemana[(d.getDay() + 3) % 7];
+        const fechaActual = new Date();
+        document.getElementById('day-1-name').innerText = diasSemana[(fechaActual.getDay() + 1) % 7];
+        document.getElementById('day-2-name').innerText = diasSemana[(fechaActual.getDay() + 2) % 7];
+        document.getElementById('day-3-name').innerText = diasSemana[(fechaActual.getDay() + 3) % 7];
     }
 
-    // Si ya hay datos de La Plata al abrir, los mostramos
+    // Al cargar la página, si hay datos de La Plata, los mostramos por defecto
     window.onload = () => {
-        if(localStorage.getItem('unlp_db')) cargarCiudad('LA PLATA');
+        const db = JSON.parse(localStorage.getItem('unlp_db'));
+        if(db && db['LA PLATA']) mostrarDatos('LA PLATA');
     };
 </script>
 
