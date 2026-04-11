@@ -25,7 +25,7 @@
         #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; gap: 40px; }
         .placa-box { width: 950px; background-color: var(--bg-canvas); padding: 35px; color: var(--unlp-blue); border-radius: 5px; box-sizing: border-box; }
 
-        /* HEADER DE PLACA CON LOGOS */
+        /* HEADER DE PLACA CORREGIDO */
         .header-placa { 
             background-color: white; 
             padding: 15px 35px; 
@@ -36,8 +36,8 @@
             border-radius: 40px 40px 0 0; 
             margin-bottom: 15px; 
         }
-        .header-placa .logos-left { display: flex; align-items: center; gap: 15px; }
-        .header-placa img { height: 55px; width: auto; }
+        .header-placa .logo-facultad { height: 60px; width: auto; }
+        .header-placa .logo-unlp { height: 65px; width: auto; }
         .header-placa h1 { margin: 0; font-weight: 900; font-size: 3.2em; letter-spacing: -2px; }
 
         .grid-day-block { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 15px; }
@@ -67,7 +67,7 @@
 <body>
 
 <div id="sidebar">
-    <h2 style="font-size: 1.1em; color: var(--unlp-blue);">SISTEMA DE PRENSA UNLP</h2>
+    <h2 style="font-size: 1.1em; color: var(--unlp-blue);">ADMIN PRONÓSTICO UNLP</h2>
     
     <label><h4>Ciudad / Emisión</h4></label>
     <div class="row">
@@ -99,24 +99,14 @@
         <input type="text" placeholder="Max Urb/Sub" oninput="up('m-max', this.value.split('/')[0]); up('m-max-sub', this.value.split('/')[1])">
     </div>
     <input type="text" placeholder="Temps Mad, M, T, N" oninput="upMulti(['m-t1','m-t2','m-t3','m-t4'], this.value)">
-    <input type="text" placeholder="Vientos Mad, M, T, N" oninput="upMulti(['m-v1','m-v2','m-v3','m-v4'], this.value)">
-    <input type="text" placeholder="Iconos Mad, M, T, N" oninput="upMulti(['m-i1','m-i2','m-i3','m-i4'], this.value)">
-
-    <div class="section-title">DÍAS 3 Y 4</div>
-    <input type="text" placeholder="T. Día 3 (Min / Max)" oninput="up('d3-t', this.value)">
-    <textarea placeholder="Desc. Día 3" oninput="up('d3-desc', this.value)"></textarea>
-    <input type="text" placeholder="T. Día 4 (Min / Max)" oninput="up('d4-t', this.value)">
-    <textarea placeholder="Desc. Día 4" oninput="up('d4-desc', this.value)"></textarea>
 </div>
 
 <div id="viewer">
     <div id="placa-1" class="placa-box">
         <div class="header-placa">
-            <div class="logos-left">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
-            </div>
+            <img class="logo-facultad" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
             <div style="text-align: center; flex-grow: 1;"><h1 class="city-label">LA PLATA</h1></div>
-            <img src="Logo unlp.png">
+            <img class="logo-unlp" src="Logo unlp.png">
         </div>
 
         <div style="background: white; border-radius: 15px; margin-bottom: 10px; padding: 5px 20px; display: flex; justify-content: space-between; font-weight: 900; font-size: 0.8em;">
@@ -140,40 +130,12 @@
                 <div class="grid-cell label-cell">TIEMPO</div><div class="grid-cell data-text" id="h-w1">--</div><div class="grid-cell data-text" id="h-w2">--</div><div class="grid-cell data-text" id="h-w3">--</div>
             </div>
         </div>
-
-        <div class="grid-day-block verde">
-            <div class="block-header"><span class="n1">SÁBADO</span><div class="row" style="gap:15px; font-size: 0.8em;"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div></div>
-            <div class="grid-main grid-4">
-                <div class="grid-cell label-cell">
-                    <div class="row" style="width:100%; justify-content: space-around;">
-                        <div>TEMP. MIN<br><span id="m-min">--</span><br><span id="m-min-sub" style="font-size:0.8em; opacity:0.7">--*</span></div>
-                        <div>MAX.<br><span id="m-max">--</span><br><span id="m-max-sub" style="font-size:0.8em; opacity:0.7">--*</span></div>
-                    </div>
-                </div>
-                <div class="grid-cell icon-cell" id="m-i1">🌙</div><div class="grid-cell icon-cell" id="m-i2">☀️</div><div class="grid-cell icon-cell" id="m-i3">⛅</div><div class="grid-cell icon-cell" id="m-i4">☁️</div>
-                <div class="grid-cell label-cell" style="background:transparent; border:none"></div>
-                <div class="grid-cell temp-cell" id="m-t1">--</div><div class="grid-cell temp-cell" id="m-t2">--</div><div class="grid-cell temp-cell" id="m-t3" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="m-t4">--</div>
-            </div>
-        </div>
         <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
-    </div>
-
-    <div id="placa-2" class="placa-box">
-        <div class="header-placa">
-             <div class="logos-left">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
-            </div>
-            <div style="text-align: center; flex-grow: 1;"><h1 class="city-label">LA PLATA</h1></div>
-            <img src="Logo unlp.png">
-        </div>
-        <div class="cards-container">
-            <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div style="font-size:4em">🌦️</div><div class="desc-box" id="d3-desc">--</div><div class="temp-footer" id="d3-t">--</div></div>
-            <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div style="font-size:4em">☀️</div><div class="desc-box" id="d4-desc">--</div><div class="temp-footer" id="d4-t">--</div></div>
-        </div>
     </div>
 </div>
 
 <script>
+    // FUNCIONES DE ACTUALIZACIÓN
     function up(id, v) { 
         let val = v ? v.trim() : '--';
         if(id.includes('min') || id.includes('max') || id.includes('t')) val += '°';
@@ -190,25 +152,14 @@
         const data = {
             h_max: document.getElementById('h-max').innerText,
             h_min: document.getElementById('h-min').innerText,
-            h_desc: document.getElementById('h-w2').innerText,
-            m_max: document.getElementById('m-max').innerText,
-            m_min: document.getElementById('m-min').innerText,
-            d3_t: document.getElementById('d3-t').innerText,
-            d4_t: document.getElementById('d4-t').innerText,
             hora_emision: document.getElementById('out-hora').innerText
         };
-        let db = JSON.parse(localStorage.getItem('unlp_db')) || {};
-        db[city] = data;
-        localStorage.setItem('unlp_db', JSON.stringify(db));
-        alert("✅ Sincronizado para el Index.");
+        localStorage.setItem('unlp_db', JSON.stringify({[city]: data}));
+        alert("✅ Sincronizado.");
     }
 
     function download(id, name) {
-        html2canvas(document.getElementById(id), { 
-            scale: 3,
-            useCORS: true,
-            allowTaint: true
-        }).then(canvas => {
+        html2canvas(document.getElementById(id), { scale: 3 }).then(canvas => {
             const link = document.createElement('a');
             link.download = `UNLP_${name}.png`;
             link.href = canvas.toDataURL();
@@ -216,6 +167,7 @@
         });
     }
 
+    // Fechas automáticas
     const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
     const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
     const hoy = new Date();
