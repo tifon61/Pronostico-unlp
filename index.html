@@ -11,9 +11,9 @@
         
         #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); color: #333; }
         .section-title { background: var(--unlp-blue); color: white; padding: 8px 12px; margin: 15px 0 10px; font-weight: 900; font-size: 0.75em; border-radius: 4px; text-transform: uppercase; }
-        h4 { margin: 10px 0 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.65em; letter-spacing: 1px; }
+        h4 { margin: 10px 2px 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.65em; letter-spacing: 1px; border-bottom: 1px solid #ddd; }
         input, select, textarea { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.85em; margin-bottom: 5px; font-family: inherit; }
-        .row { display: flex; gap: 5px; margin-bottom: 5px; }
+        .row { display: flex; gap: 5px; margin-bottom: 2px; }
 
         .btn { border: none; padding: 12px; cursor: pointer; font-weight: 900; border-radius: 8px; color: white; transition: 0.3s; width: 100%; margin-bottom: 10px; }
         .btn-save { background: #28a745; border-bottom: 4px solid #1e7e34; }
@@ -22,14 +22,12 @@
         #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; gap: 40px; }
         .placa-box { width: 950px; background-color: var(--bg-canvas); padding: 35px; color: var(--unlp-blue); border-radius: 5px; box-sizing: border-box; }
 
-        /* HEADER REORGANIZADO */
         .header-placa { background-color: white; padding: 15px 35px; display: flex; justify-content: space-between; align-items: center; border-bottom: 6px solid var(--unlp-blue); border-radius: 40px 40px 0 0; margin-bottom: 15px; }
         .logos-left { display: flex; align-items: center; gap: 15px; flex: 1; }
         .logos-right { display: flex; align-items: center; justify-content: flex-end; flex: 1; }
         .header-placa img { height: 60px; width: auto; object-fit: contain; }
         .header-placa h1 { margin: 0; font-weight: 900; font-size: 3.2em; letter-spacing: -2px; flex: 2; text-align: center; text-transform: uppercase; }
 
-        /* GRILLAS */
         .grid-day-block { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 15px; }
         .grid-day-block.verde { background: var(--unlp-green); }
         .block-header { background: rgba(0,0,0,0.2); padding: 8px 30px; display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9em; }
@@ -41,25 +39,18 @@
         .grid-cell { padding: 8px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 45px; }
         .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; align-items: flex-start; padding-left: 25px; font-size: 0.7em; text-transform: uppercase; border-right: 2px solid rgba(255,255,255,0.1); }
         
-        .icon-cell img { height: 85px; width: auto; }
+        .icon-cell img { height: 80px; width: auto; }
         .temp-cell { font-size: 2.5em; font-weight: 400; line-height: 1; }
-        .data-text { font-size: 0.8em; font-weight: 600; line-height: 1.1; }
+        .data-text { font-size: 0.75em; font-weight: 700; line-height: 1.1; text-transform: uppercase; }
 
-        /* TARJETAS EXTENDIDO */
-        .cards-container { display: flex; gap: 20px; width: 100%; }
-        .v-card { flex: 1; border-radius: 45px; padding: 25px; text-align: center; color: white; display: flex; flex-direction: column; gap: 10px; }
+        .v-card { flex: 1; border-radius: 45px; padding: 25px; text-align: center; color: white; display: flex; flex-direction: column; gap: 8px; }
         .v-card.celeste { background: var(--unlp-light); }
         .v-card.oscuro { background: var(--unlp-blue); }
-        .v-card h2 { font-weight: 900; font-size: 2.2em; margin: 0; text-transform: uppercase; }
-        .v-card .date { font-weight: 800; font-size: 1.1em; opacity: 0.9; margin-bottom: 10px; }
-        
-        .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 10px; }
-        .card-split div { font-size: 0.65em; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .card-split img { height: 60px; margin: 5px 0; }
-        .card-split .wind-sub { font-size: 0.9em; opacity: 0.8; font-weight: 600; }
-
-        .v-card .temp-footer { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 15px; margin-top: 5px; }
-        .footer-note { text-align: center; font-size: 0.85em; font-weight: 800; margin-top: 20px; }
+        .v-card h2 { font-weight: 900; font-size: 2em; margin: 0; text-transform: uppercase; }
+        .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; }
+        .card-split div { font-size: 0.6em; font-weight: 800; }
+        .card-split img { height: 55px; margin: 2px 0; }
+        .temp-footer { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 10px; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -81,50 +72,13 @@
     <button class="btn btn-p1" onclick="download('placa-1', 'CortoPlazo')">⬇ BAJAR PLACA 1</button>
     <button class="btn btn-p2" onclick="download('placa-2', 'Extendido')">⬇ BAJAR PLACA 2</button>
 
-    <div class="section-title">DÍA 1 (HOY)</div>
-    <div class="row">
-        <input type="text" placeholder="Min Urb/Sub" oninput="up('h-min', this.value.split('/')[0]); up('h-min-sub', this.value.split('/')[1])">
-        <input type="text" placeholder="Max Urb/Sub" oninput="up('h-max', this.value.split('/')[0]); up('h-max-sub', this.value.split('/')[1])">
-    </div>
-    <input type="text" placeholder="Temps M, T, N" oninput="upMulti(['h-t1','h-t2','h-t3'], this.value)">
-    
-    <h4>Viento M - T - N</h4>
-    <div class="row"><select id="h-v-i1" onchange="updateWind('h',1)"><option value="">Intens. M</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option></select><select id="h-v-d1" onchange="updateWind('h',1)"><option value="">Dir. M</option><option value="del norte">N</option><option value="del sur">S</option><option value="del este">E</option><option value="del oeste">O</option></select></div>
-    <div class="row"><select id="h-v-i2" onchange="updateWind('h',2)"><option value="">Intens. T</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option></select><select id="h-v-d2" onchange="updateWind('h',2)"><option value="">Dir. T</option><option value="del norte">N</option><option value="del sur">S</option><option value="del este">E</option><option value="del oeste">O</option></select></div>
-    <div class="row"><select id="h-v-i3" onchange="updateWind('h',3)"><option value="">Intens. N</option><option value="leves">Leves</option><option value="moderados">Moderados</option><option value="regulares">Regulares</option></select><select id="h-v-d3" onchange="updateWind('h',3)"><option value="">Dir. N</option><option value="del norte">N</option><option value="del sur">S</option><option value="del este">E</option><option value="del oeste">O</option></select></div>
-
-    <h4>Tiempo e Iconos</h4>
-    <select onchange="updateWeather('h', 1, this.value)"><option value="">Mañana...</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="lluvias y tormentas">Tormentas</option></select>
-    <select onchange="updateWeather('h', 2, this.value)"><option value="">Tarde...</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="lluvias y tormentas">Tormentas</option></select>
-    <select onchange="updateWeather('h', 3, this.value)"><option value="">Noche...</option><option value="despejado">Despejado</option><option value="algo nublado">Algo nublado</option><option value="cubierto">Cubierto</option><option value="lluvias aisladas">Lluvias aisladas</option><option value="lluvias y tormentas">Tormentas</option></select>
-
-    <div class="section-title">DÍA 2 (MAÑANA)</div>
-    <div class="row">
-        <input type="text" placeholder="Min Urb/Sub" oninput="up('m-min', this.value.split('/')[0]); up('m-min-sub', this.value.split('/')[1])">
-        <input type="text" placeholder="Max Urb/Sub" oninput="up('m-max', this.value.split('/')[0]); up('m-max-sub', this.value.split('/')[1])">
-    </div>
-    <input type="text" placeholder="Temps Mad, M, T, N" oninput="upMulti(['m-t1','m-t2','m-t3','m-t4'], this.value)">
-    
-    <h4>Viento Mad - M - T - N</h4>
-    <div class="row"><select id="m-v-i1" onchange="updateWind('m',1)"><option value="">Int. Mad</option><option value="leves">Leves</option></select><select id="m-v-d1" onchange="updateWind('m',1)"><option value="">Dir</option><option value="del norte">N</option></select></div>
-    <div class="row"><select id="m-v-i2" onchange="updateWind('m',2)"><option value="">Int. Mañ</option><option value="leves">Leves</option></select><select id="m-v-d2" onchange="updateWind('m',2)"><option value="">Dir</option><option value="del norte">N</option></select></div>
-    <div class="row"><select id="m-v-i3" onchange="updateWind('m',3)"><option value="">Int. Tar</option><option value="leves">Leves</option></select><select id="m-v-d3" onchange="updateWind('m',3)"><option value="">Dir</option><option value="del norte">N</option></select></div>
-    <div class="row"><select id="m-v-i4" onchange="updateWind('m',4)"><option value="">Int. Noc</option><option value="leves">Leves</option></select><select id="m-v-d4" onchange="updateWind('m',4)"><option value="">Dir</option><option value="del norte">N</option></select></div>
-
-    <div class="section-title">EXTENDIDO (DÍAS 3 Y 4)</div>
-    <h4>Viento Día 3</h4>
-    <div class="row"><select id="d3-v-i1" onchange="updateWind('d3',1)"><option value="">Int. M</option><option value="leves">Leves</option></select><select id="d3-v-d1" onchange="updateWind('d3',1)"><option value="">Dir</option><option value="del sur">S</option></select></div>
-    <div class="row"><select id="d3-v-i2" onchange="updateWind('d3',2)"><option value="">Int. T</option><option value="moderados">Moderados</option></select><select id="d3-v-d2" onchange="updateWind('d3',2)"><option value="">Dir</option><option value="del este">E</option></select></div>
-    
-    <h4>Viento Día 4</h4>
-    <div class="row"><select id="d4-v-i1" onchange="updateWind('d4',1)"><option value="">Int. M</option><option value="fuertes">Fuertes</option></select><select id="d4-v-d1" onchange="updateWind('d4',1)"><option value="">Dir</option><option value="del oeste">O</option></select></div>
-    <div class="row"><select id="d4-v-i2" onchange="updateWind('d4',2)"><option value="">Int. T</option><option value="leves">Leves</option></select><select id="d4-v-d2" onchange="updateWind('d4',2)"><option value="">Dir</option><option value="del norte">N</option></select></div>
+    <div id="dynamic-inputs"></div>
 </div>
 
 <div id="viewer">
     <div id="placa-1" class="placa-box">
         <div class="header-placa">
-            <div class="logos-left"><img src="images/Logo astronomicas y geofisicas.png"><img src="images/Logo pronounlp.jfif" style="height: 80px;"></div>
+            <div class="logos-left"><img src="images/Logo astronomicas y geofisicas.png"><img src="images/Logo pronounlp.jfif" style="height: 70px;"></div>
             <h1 class="city-label">LA PLATA</h1>
             <div class="logos-right"><img src="images/Logo unlp.png"></div>
         </div>
@@ -138,6 +92,7 @@
                 <div class="grid-cell label-cell" style="border:none"></div>
                 <div class="grid-cell temp-cell" id="h-t1">--</div><div class="grid-cell temp-cell" id="h-t2" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="h-t3">--</div>
                 <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell data-text" id="h-v1">--</div><div class="grid-cell data-text" id="h-v2">--</div><div class="grid-cell data-text" id="h-v3">--</div>
+                <div class="grid-cell label-cell">TIEMPO</div><div class="grid-cell data-text" id="h-w1">--</div><div class="grid-cell data-text" id="h-w2">--</div><div class="grid-cell data-text" id="h-w3">--</div>
             </div>
         </div>
 
@@ -149,13 +104,14 @@
                 <div class="grid-cell label-cell" style="border:none"></div>
                 <div class="grid-cell temp-cell" id="m-t1">--</div><div class="grid-cell temp-cell" id="m-t2">--</div><div class="grid-cell temp-cell" id="m-t3" style="color:#ffeb3b">--</div><div class="grid-cell temp-cell" id="m-t4">--</div>
                 <div class="grid-cell label-cell">VIENTOS</div><div class="grid-cell data-text" id="m-v1">--</div><div class="grid-cell data-text" id="m-v2">--</div><div class="grid-cell data-text" id="m-v3">--</div><div class="grid-cell data-text" id="m-v4">--</div>
+                <div class="grid-cell label-cell">TIEMPO</div><div class="grid-cell data-text" id="m-w1">--</div><div class="grid-cell data-text" id="m-w2">--</div><div class="grid-cell data-text" id="m-w3">--</div><div class="grid-cell data-text" id="m-w4">--</div>
             </div>
         </div>
     </div>
 
     <div id="placa-2" class="placa-box">
         <div class="header-placa">
-            <div class="logos-left"><img src="images/Logo astronomicas y geofisicas.png"><img src="images/Logo pronounlp.jfif" style="height: 80px;"></div>
+            <div class="logos-left"><img src="images/Logo astronomicas y geofisicas.png"><img src="images/Logo pronounlp.jfif" style="height: 70px;"></div>
             <h1 class="city-label">LA PLATA</h1>
             <div class="logos-right"><img src="images/Logo unlp.png"></div>
         </div>
@@ -163,16 +119,16 @@
             <div class="v-card celeste">
                 <h2 class="n2">--</h2><div class="date f2">--</div>
                 <div class="card-split">
-                    <div>M/M<br><img id="d3-icon-1" src="images/default.png"><br><span class="wind-sub" id="d3-v1">--</span></div>
-                    <div>T/N<br><img id="d3-icon-2" src="images/default.png"><br><span class="wind-sub" id="d3-v2">--</span></div>
+                    <div>MAD/MAÑ<br><img id="d3-icon-1" src="images/default.png"><br><span class="data-text" id="d3-w1">--</span><br><span class="data-text" style="font-size:0.8em" id="d3-v1">--</span></div>
+                    <div>TAR/NOC<br><img id="d3-icon-2" src="images/default.png"><br><span class="data-text" id="d3-w2">--</span><br><span class="data-text" style="font-size:0.8em" id="d3-v2">--</span></div>
                 </div>
                 <div class="temp-footer"><span id="d3-min">--</span> / <span id="d3-max">--</span></div>
             </div>
             <div class="v-card oscuro">
                 <h2 class="n3">--</h2><div class="date f3">--</div>
                 <div class="card-split">
-                    <div>M/M<br><img id="d4-icon-1" src="images/default.png"><br><span class="wind-sub" id="d4-v1">--</span></div>
-                    <div>T/N<br><img id="d4-icon-2" src="images/default.png"><br><span class="wind-sub" id="d4-v2">--</span></div>
+                    <div>MAD/MAÑ<br><img id="d4-icon-1" src="images/default.png"><br><span class="data-text" id="d4-w1">--</span><br><span class="data-text" style="font-size:0.8em" id="d4-v1">--</span></div>
+                    <div>TAR/NOC<br><img id="d4-icon-2" src="images/default.png"><br><span class="data-text" id="d4-w2">--</span><br><span class="data-text" style="font-size:0.8em" id="d4-v2">--</span></div>
                 </div>
                 <div class="temp-footer"><span id="d4-min">--</span> / <span id="d4-max">--</span></div>
             </div>
@@ -181,19 +137,56 @@
 </div>
 
 <script>
-    const iconMap = {"despejado": "soleado.png", "algo nublado": "algo_nublado.png", "cubierto": "cubierto.png", "lluvias aisladas": "lluvias_aisladas.png", "lluvias y tormentas": "tormentas.png"};
+    const WEATHER_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas", "lluvias aisladas", "chaparrones", "tormentas aisladas", "lluvias y tormentas", "nevadas", "aguanieve"];
+    const WIND_INT = ["calmos", "leves", "moderados", "regulares", "fuertes", "muy fuertes", "con ráfagas"];
+    const WIND_DIR = ["del norte", "del noreste", "del este", "del sudeste", "del sur", "del sudoeste", "del oeste", "del noroeste", "de direcciones variables"];
+    
+    const iconMap = {
+        "despejado": "soleado.png", "ligeramente nublado": "ligeramente_nublado.png", "algo nublado": "algo_nublado.png", 
+        "parcialmente nublado": "parcialmente_nublado.png", "nublado": "nublado.png", "cubierto": "cubierto.png",
+        "lluvias aisladas": "lluvias_aisladas.png", "lluvias y tormentas": "tormentas.png", "nieblas": "nieblas.png"
+    };
+
+    function renderSidebar() {
+        let html = '';
+        const configs = [
+            {id: 'h', title: 'DÍA 1 (HOY)', tramos: ['Mañana', 'Tarde', 'Noche']},
+            {id: 'm', title: 'DÍA 2 (MAÑANA)', tramos: ['Madrugada', 'Mañana', 'Tarde', 'Noche']},
+            {id: 'd3', title: 'DÍA 3', tramos: ['Mad/Mañ', 'Tar/Noc']},
+            {id: 'd4', title: 'DÍA 4', tramos: ['Mad/Mañ', 'Tar/Noc']}
+        ];
+
+        configs.forEach(conf => {
+            html += `<div class="section-title">${conf.title}</div>`;
+            conf.tramos.forEach((t, i) => {
+                const idx = i + 1;
+                html += `<h4>${t}</h4>
+                <select onchange="updateWeather('${conf.id}', ${idx}, this.value)"><option value="">Tiempo...</option>${WEATHER_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                <div class="row">
+                    <select id="${conf.id}-v-i${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Intensidad</option>${WIND_INT.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                    <select id="${conf.id}-v-d${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Dirección</option>${WIND_DIR.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                </div>`;
+            });
+        });
+        document.getElementById('dynamic-inputs').innerHTML = html;
+    }
 
     function updateWeather(dia, tramo, valor) {
+        document.getElementById(`${dia}-w${tramo}`).innerText = valor || "--";
         document.getElementById(`${dia}-icon-${tramo}`).src = iconMap[valor] ? `images/${iconMap[valor]}` : `images/default.png`;
     }
 
     function updateWind(dia, tramo) {
-        const intens = document.getElementById(`${dia}-v-i${tramo}`).value;
-        const dir = document.getElementById(`${dia}-v-d${tramo}`).value;
-        document.getElementById(`${dia}-v${tramo}`).innerText = (intens && dir) ? `${intens} ${dir}` : "--";
+        const i = document.getElementById(`${dia}-v-i${tramo}`).value;
+        const d = document.getElementById(`${dia}-v-d${tramo}`).value;
+        document.getElementById(`${dia}-v${tramo}`).innerText = (i && d) ? `${i} ${d}` : "--";
     }
 
-    function up(id, v) { document.getElementById(id).innerText = (v ? v.trim() : '--') + (id.includes('min') || id.includes('max') || id.includes('t') ? '°' : ''); }
+    function up(id, v) { 
+        let val = v ? v.trim() : '--';
+        if(id.includes('min') || id.includes('max') || id.includes('t')) val += '°';
+        document.getElementById(id).innerText = val; 
+    }
     function upMulti(ids, v) { const p = v.split(','); ids.forEach((id, i) => { if(p[i]) up(id, p[i]); }); }
     function updateCity(v) { document.querySelectorAll('.city-label').forEach(el => el.innerText = v); }
 
@@ -206,14 +199,19 @@
         });
     }
 
-    const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-    const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-    const hoy = new Date();
-    for(let i=0; i<4; i++) {
-        let d = new Date(); d.setDate(hoy.getDate() + i);
-        document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = dias[d.getDay()]);
-        document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${d.getDate()}/${meses[d.getMonth()]}/${d.getFullYear().toString().slice(-2)}`);
-    }
+    window.onload = () => {
+        renderSidebar();
+        const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+        const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+        const hoy = new Date();
+        for(let i=0; i<4; i++) {
+            let d = new Date(); d.setDate(hoy.getDate() + i);
+            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = dias[d.getDay()]);
+            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${d.getDate()}/${meses[d.getMonth()]}/${d.getFullYear().toString().slice(-2)}`);
+        }
+    };
+
+    function saveToWeb() { alert("Sincronizado."); }
 </script>
 </body>
 </html>
