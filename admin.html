@@ -37,53 +37,53 @@
         .city-dot:hover { r: 12; fill: white; }
         .city-label { fill: white; font-weight: 900; font-size: 14px; pointer-events: none; text-shadow: 1px 1px 3px black; }
 
-        /* HEADER CIUDAD */
+        /* NUEVA SECCIÓN: TIEMPO REAL */
+        .real-time-card {
+            background: white; border-radius: 25px; padding: 25px 40px;
+            margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border-left: 8px solid var(--unlp-accent);
+        }
+        .rt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .rt-header h3 { margin: 0; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; font-size: 1.1em; }
+        .rt-header .live-dot { height: 10px; width: 10px; background: #ff5252; border-radius: 50%; display: inline-block; margin-right: 8px; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .rt-item { text-align: center; }
+        .rt-value { display: block; font-size: 1.8em; font-weight: 900; color: var(--unlp-blue); }
+        .rt-label { font-size: 0.7em; font-weight: 700; color: #777; text-transform: uppercase; }
+
+        /* REPORTE GENERAL */
         .city-header { 
             background: white; padding: 25px 40px; border-radius: 20px; 
             margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .city-header h2 { margin: 0; font-size: 2.8em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -1px; }
-        .emision-badge { background: var(--unlp-blue); color: white; padding: 10px 25px; border-radius: 12px; font-size: 0.9em; font-weight: 800; }
+        .city-header h2 { margin: 0; font-size: 2.8em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
 
-        /* GRILLAS DÍAS 1 Y 2 */
-        .web-grid { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,49,90,0.15); }
+        /* GRILLAS */
+        .web-grid { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 25px; }
         .web-grid.verde { background: var(--unlp-green); }
-        
-        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; font-size: 0.95em; text-align: center; }
+        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; text-align: center; }
         .header-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .header-4 { grid-template-columns: 180px repeat(4, 1fr); }
-
         .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
         .row-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .row-4 { grid-template-columns: 180px repeat(4, 1fr); }
-
         .cell { padding: 15px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.75em; text-transform: uppercase; align-items: flex-start; padding-left: 30px; }
-        .icon-cell img { height: 60px; }
-        .temp-web { font-size: 2.2em; font-weight: 300; }
-        .data-web { font-size: 0.85em; font-weight: 700; line-height: 1.2; text-transform: uppercase; }
-
-        /* EXTENDIDO VERTICAL (DÍAS 3 Y 4) */
+        
+        /* EXTENDIDO */
         .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        .web-card { border-radius: 45px; padding: 35px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .web-card { border-radius: 45px; padding: 35px; color: white; text-align: center; display: flex; flex-direction: column; align-items: center; }
         .web-card.celeste { background: var(--unlp-light); }
         .web-card.oscuro { background: var(--unlp-blue); }
-        .web-card h3 { margin: 0; font-size: 2.5em; font-weight: 900; text-transform: uppercase; }
-        .web-card .date-label { font-size: 1.2em; font-weight: 700; opacity: 0.9; margin-bottom: 20px; }
-
-        .card-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; gap: 10px; }
-        .card-split div { font-size: 0.65em; font-weight: 800; text-transform: uppercase; }
-        .card-split img { height: 80px; margin: 10px 0; }
-        .card-split .weather-desc { font-size: 1.1em; font-weight: 700; min-height: 40px; margin-bottom: 5px; }
-
-        .card-temps { display: flex; gap: 25px; margin: 20px 0; font-size: 1.8em; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; width: 100%; justify-content: center; }
-        .card-temps .sub { font-size: 0.55em; display: block; opacity: 0.8; margin-top: -5px; }
-
+        .card-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
         .full-desc-web { font-size: 1.1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: auto; }
 
-        #view-placeholder { background: white; border-radius: 25px; padding: 100px; text-align: center; color: #bbb; box-shadow: 0 10px 25px rgba(0,0,0,0.05); font-weight: 700; font-size: 1.2em; }
-        @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+        #view-placeholder { background: white; border-radius: 25px; padding: 100px; text-align: center; color: #bbb; font-weight: 700; }
+        @media (max-width: 1100px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
@@ -117,88 +117,66 @@
         <div id="view-placeholder">Seleccioná una ciudad para ver el pronóstico completo.</div>
 
         <div id="full-report" style="display:none;">
+            
+            <div class="real-time-card" id="rt-section" style="display: none;">
+                <div class="rt-header">
+                    <h3><span class="live-dot"></span>Estación Automática FCAG (En Vivo)</h3>
+                    <span id="rt-time" style="font-size: 0.8em; font-weight: 700; color: #999;">--:--</span>
+                </div>
+                <div class="rt-grid">
+                    <div class="rt-item"><span class="rt-value" id="rt-temp">--°</span><span class="rt-label">Temperatura</span></div>
+                    <div class="rt-item"><span class="rt-value" id="rt-hum">--%</span><span class="rt-label">Humedad</span></div>
+                    <div class="rt-item"><span class="rt-value" id="rt-pres">--</span><span class="rt-label">Presión (hPa)</span></div>
+                    <div class="rt-item"><span class="rt-value" id="rt-wind">--</span><span class="rt-label">Viento (km/h)</span></div>
+                </div>
+            </div>
+
             <div class="city-header">
                 <h2 id="out-city">--</h2>
-                <div class="emision-badge">EMISIÓN: <span id="out-hora">--:--</span></div>
+                <div class="emision-badge">PRONÓSTICO EMITIDO: <span id="out-hora">--:--</span></div>
             </div>
 
-            <div class="web-grid">
+            <div class="web-grid" id="grid-hoy">
                 <div class="grid-header header-3"><span id="web-d0-name" style="text-align: left; padding-left: 25px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row row-3">
-                    <div class="cell label-cell">Icono</div>
-                    <div class="cell icon-cell"><img id="web-h-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-h-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="web-h-icon-3" src="images/default.png"></div>
-                    <div class="cell label-cell">Temp.</div>
-                    <div class="cell temp-web" id="web-h-t1">--</div><div class="cell temp-web" id="web-h-t2" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-h-t3">--</div>
-                    <div class="cell label-cell">Viento</div>
-                    <div class="cell data-web" id="web-h-v1">--</div><div class="cell data-web" id="web-h-v2">--</div><div class="cell data-web" id="web-h-v3">--</div>
-                    <div class="cell label-cell">Tiempo</div>
-                    <div class="cell data-web" id="web-h-w1">--</div><div class="cell data-web" id="web-h-w2">--</div><div class="cell data-web" id="web-h-w3">--</div>
+                    <div class="cell label-cell">Icono</div><div class="cell icon-cell"><img id="web-h-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-h-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="web-h-icon-3" src="images/default.png"></div>
+                    <div class="cell label-cell">Temp.</div><div class="cell temp-web" id="web-h-t1">--</div><div class="cell temp-web" id="web-h-t2" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-h-t3">--</div>
+                    <div class="cell label-cell">Viento</div><div class="cell data-web" id="web-h-v1">--</div><div class="cell data-web" id="web-h-v2">--</div><div class="cell data-web" id="web-h-v3">--</div>
+                    <div class="cell label-cell">Tiempo</div><div class="cell data-web" id="web-h-w1">--</div><div class="cell data-web" id="web-h-w2">--</div><div class="cell data-web" id="web-h-w3">--</div>
                 </div>
             </div>
 
-            <div class="web-grid verde">
+            <div class="web-grid verde" id="grid-manana">
                 <div class="grid-header header-4"><span id="web-d1-name" style="text-align: left; padding-left: 25px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row row-4">
-                    <div class="cell label-cell">Icono</div>
-                    <div class="cell icon-cell"><img id="web-m-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-3" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-4" src="images/default.png"></div>
-                    <div class="cell label-cell">Temp.</div>
-                    <div class="cell temp-web" id="web-m-t1">--</div><div class="cell temp-web" id="web-m-t2">--</div><div class="cell temp-web" id="web-m-t3" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-m-t4">--</div>
-                    <div class="cell label-cell">Viento</div>
-                    <div class="cell data-web" id="web-m-v1">--</div><div class="cell data-web" id="web-m-v2">--</div><div class="cell data-web" id="web-m-v3">--</div><div class="cell data-web" id="web-m-v4">--</div>
+                    <div class="cell label-cell">Icono</div><div class="cell icon-cell"><img id="web-m-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-3" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-4" src="images/default.png"></div>
+                    <div class="cell label-cell">Temp.</div><div class="cell temp-web" id="web-m-t1">--</div><div class="cell temp-web" id="web-m-t2">--</div><div class="cell temp-web" id="web-m-t3" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-m-t4">--</div>
+                    <div class="cell label-cell">Viento</div><div class="cell data-web" id="web-m-v1">--</div><div class="cell data-web" id="web-m-v2">--</div><div class="cell data-web" id="web-m-v3">--</div><div class="cell data-web" id="web-m-v4">--</div>
                 </div>
             </div>
 
-            <div class="extended-row">
-                <div class="web-card celeste">
-                    <h3 id="web-d2-name">--</h3><div class="date-label" id="web-f2">--</div>
-                    <div class="card-split">
-                        <div>MAD/MAÑ<br><img id="web-d3-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d3-w1">--</div><div class="wind-sub" id="web-d3-v1">--</div></div>
-                        <div>TAR/NOC<br><img id="web-d3-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d3-w2">--</div><div class="wind-sub" id="web-d3-v2">--</div></div>
-                    </div>
-                    <div class="card-temps">
-                        <div><span style="font-size:0.6em; opacity:0.8;">MIN</span><br><span id="web-d3-min">--</span><span class="sub"><span id="web-d3-min-sub">--</span>*</span></div>
-                        <div><span style="font-size:0.6em; opacity:0.8;">MAX</span><br><span id="web-d3-max">--</span><span class="sub"><span id="web-d3-max-sub">--</span>*</span></div>
-                    </div>
-                    <div class="full-desc-web" id="web-d3-full-desc">--</div>
-                </div>
-                <div class="web-card oscuro">
-                    <h3 id="web-d3-name">--</h3><div class="date-label" id="web-f3">--</div>
-                    <div class="card-split">
-                        <div>MAD/MAÑ<br><img id="web-d4-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d4-w1">--</div><div class="wind-sub" id="web-d4-v1">--</div></div>
-                        <div>TAR/NOC<br><img id="web-d4-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d4-w2">--</div><div class="wind-sub" id="web-d4-v2">--</div></div>
-                    </div>
-                    <div class="card-temps">
-                        <div><span style="font-size:0.6em; opacity:0.8;">MIN</span><br><span id="web-d4-min">--</span><span class="sub"><span id="web-d4-min-sub">--</span>*</span></div>
-                        <div><span style="font-size:0.6em; opacity:0.8;">MAX</span><br><span id="web-d4-max">--</span><span class="sub"><span id="web-d4-max-sub">--</span>*</span></div>
-                    </div>
-                    <div class="full-desc-web" id="web-d4-full-desc">--</div>
-                </div>
+            <div class="extended-row" id="extendido">
+                <div class="web-card celeste"><h3 id="web-d2-name">--</h3><div class="date-label" id="web-f2">--</div><div class="card-split"><div>M/M<br><img id="web-d3-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d3-w1">--</div></div><div>T/N<br><img id="web-d3-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d3-w2">--</div></div></div><div class="full-desc-web" id="web-d3-full-desc">--</div></div>
+                <div class="web-card oscuro"><h3 id="web-d3-name">--</h3><div class="date-label" id="web-f3">--</div><div class="card-split"><div>M/M<br><img id="web-d4-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d4-w1">--</div></div><div>T/N<br><img id="web-d4-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d4-w2">--</div></div></div><div class="full-desc-web" id="web-d4-full-desc">--</div></div>
             </div>
         </div>
     </section>
 </main>
 
 <script>
+    // DATA DE EJEMPLO PARA LA DEMO
     const mockData = {
         "La Plata": {
             "emission_time": "08:00hs",
-            "h_min": "14", "h_max": "24", "h_min_sub": "12", "h_max_sub": "22",
-            "h_t1": "16", "h_t2": "23", "h_t3": "18",
-            "h_v1": "leves del este", "h_v2": "moderados del noreste", "h_v3": "leves del este",
+            "h_t1": "16", "h_t2": "23", "h_t3": "18", "h_v1": "leves del este", "h_v2": "moderados del NE", "h_v3": "leves del E",
             "h_w1": "algo nublado", "h_w2": "despejado", "h_w3": "ligeramente nublado",
             "h_icon1": "images/algo_nublado.png", "h_icon2": "images/soleado.png", "h_icon3": "images/ligeramente_nublado.png",
-            "m_min": "16", "m_max": "28", "m_min_sub": "14", "m_max_sub": "26",
-            "m_t1": "18", "m_t2": "22", "m_t3": "27", "m_t4": "20",
-            "m_v1": "calmos", "m_v2": "leves del norte", "m_v3": "moderados del norte", "m_v4": "leves del noreste",
+            "m_t1": "18", "m_t2": "22", "m_t3": "27", "m_t4": "20", "m_v1": "calmos", "m_v2": "leves del N", "m_v3": "moderados del N", "m_v4": "leves del NE",
             "m_icon1": "images/soleado.png", "m_icon2": "images/soleado.png", "m_icon3": "images/algo_nublado.png", "m_icon4": "images/cubierto.png",
-            "d3_min": "18", "d3_max": "25", "d3_min_sub": "16", "d3_max_sub": "23",
-            "d3_icon1": "images/ligeramente_nublado.png", "d3_icon2": "images/tormentas.png",
-            "d3_w1": "Algo nublado", "d3_w2": "Lluvias aisladas", "d3_v1": "leves del este", "d3_v2": "moderados del sudeste",
-            "d3_full_desc": "Cielo ligeramente a algo nublado con prob. de nieblas matinales. Desmejorando hacia la noche.",
-            "d4_min": "15", "d4_max": "20", "d4_min_sub": "13", "d4_max_sub": "18",
-            "d4_icon1": "images/tormentas.png", "d4_icon2": "images/nublado.png",
-            "d4_w1": "Tormentas", "d4_w2": "Nublado", "d4_v1": "regulares del sur", "d4_v2": "leves del sur",
-            "d4_full_desc": "Cielo algo nublado a cubierto con baja prob. de lluvias a la noche. Descenso de temperatura."
+            "d3_full_desc": "Cielo ligeramente a algo nublado. Probables nieblas matinales.", "d3_icon1": "images/ligeramente_nublado.png", "d3_icon2": "images/tormentas.png",
+            "d4_full_desc": "Cielo algo nublado a cubierto. Descenso de temperatura.", "d4_icon1": "images/tormentas.png", "d4_icon2": "images/nublado.png",
+            // DATOS REAL-TIME (Simulados de la estación FCAG)
+            "realtime": { "temp": "22.4", "hum": "65", "pres": "1013.2", "wind": "12.5", "time": "10:05 hs" }
         }
     };
 
@@ -206,17 +184,27 @@
         const db = JSON.parse(localStorage.getItem('unlp_db')) || {};
         let data = db[ciudad] || mockData[ciudad];
 
-        if(!data) { alert("Sin datos"); return; }
+        if(!data) return;
 
         document.getElementById('view-placeholder').style.display = 'none';
         document.getElementById('full-report').style.display = 'block';
         document.getElementById('out-city').innerText = ciudad;
         document.getElementById('out-hora').innerText = data.emission_time || '--:--';
 
-        const fill = (id, val) => { 
-            const el = document.getElementById(id);
-            if(el) el.innerText = (val && val !== '--') ? (id.includes('min') || id.includes('max') || id.includes('t') ? val + '°' : val) : '--';
-        };
+        // CARGAR SECCIÓN TIEMPO REAL (Solo si es La Plata)
+        if(ciudad === "La Plata" && (data.realtime || mockData["La Plata"].realtime)) {
+            const rt = data.realtime || mockData["La Plata"].realtime;
+            document.getElementById('rt-section').style.display = 'block';
+            document.getElementById('rt-temp').innerText = rt.temp + "°";
+            document.getElementById('rt-hum').innerText = rt.hum + "%";
+            document.getElementById('rt-pres').innerText = rt.pres;
+            document.getElementById('rt-wind').innerText = rt.wind;
+            document.getElementById('rt-time').innerText = "Actualizado: " + rt.time;
+        } else {
+            document.getElementById('rt-section').style.display = 'none';
+        }
+
+        const fill = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = (val && val !== '--') ? val : '--'; };
         const setIcon = (id, src) => { if(document.getElementById(id)) document.getElementById(id).src = src || 'images/default.png'; };
 
         // Hoy y Mañana
@@ -228,12 +216,9 @@
         }
         // Extendido
         ['d3', 'd4'].forEach(d => {
-            fill(`web-${d}-min`, data[`${d}_min`]); fill(`web-${d}-max`, data[`${d}_max`]);
-            fill(`web-${d}-min-sub`, data[`${d}_min_sub`]); fill(`web-${d}-max-sub`, data[`${d}_max_sub`]);
             fill(`web-${d}-full-desc`, data[`${d}_full_desc`]);
             setIcon(`web-${d}-icon-1`, data[`${d}_icon1`]); setIcon(`web-${d}-icon-2`, data[`${d}_icon2`]);
             fill(`web-${d}-w1`, data[`${d}_w1`]); fill(`web-${d}-w2`, data[`${d}_w2`]);
-            fill(`web-${d}-v1`, data[`${d}_v1`]); fill(`web-${d}-v2`, data[`${d}_v2`]);
         });
         updateFechas();
     }
