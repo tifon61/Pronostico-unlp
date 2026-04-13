@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Meteorológico | FCAG - UNLP</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <style>
         :root { 
             --unlp-blue: #00315a; --unlp-accent: #0079c1; --unlp-green: #00796b;
@@ -28,24 +31,11 @@
             gap: 25px; padding: 0 20px; 
         }
 
-        /* MAPA CON IMAGEN REAL */
-        .sidebar-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; text-align: center; position: sticky; top: 20px; }
-        .map-container {
-            position: relative; width: 100%; background: #007bbd; border-radius: 15px; padding: 5px; box-sizing: border-box; overflow: hidden;
-        }
-        .map-image { width: 100%; display: block; border-radius: 10px; }
-        
-        .city-marker { position: absolute; cursor: pointer; z-index: 10; transition: transform 0.2s; }
-        .city-marker:hover { transform: scale(1.3); }
-        .city-dot { width: 12px; height: 12px; background: #ffeb3b; border: 2px solid var(--unlp-blue); border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        .city-name { position: absolute; left: 15px; top: -5px; color: white; font-weight: 900; font-size: 11px; white-space: nowrap; text-shadow: 1px 1px 2px black; text-transform: uppercase; }
+        /* SIDEBAR / MAPA LEAFLET */
+        .sidebar-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; text-align: center; position: sticky; top: 20px; }
+        #map { height: 400px; width: 100%; border-radius: 15px; border: 3px solid #007bbd; margin-bottom: 15px; z-index: 1; }
 
-        /* COORDENADAS PARA imagen_2026-04-13_135012629.png */
-        #pos-junin { top: 25%; left: 28%; }
-        #pos-laplata { top: 31%; left: 66%; }
-        #pos-mardelplata { top: 64%; left: 70%; }
-
-        /* CONTENIDO */
+        /* CONTENIDO PRINCIPAL */
         .content-area { display: flex; flex-direction: column; gap: 20px; }
 
         /* TIEMPO REAL */
@@ -108,13 +98,8 @@
 
 <main>
     <section class="sidebar-card">
-        <div class="map-container">
-            <img src="images/imagen_2026-04-13_135012629.png" class="map-image" alt="Mapa Buenos Aires">
-            <div class="city-marker" id="pos-junin" onclick="cargarFull('Junín')"><div class="city-dot"></div><span class="city-name">Junín</span></div>
-            <div class="city-marker" id="pos-laplata" onclick="cargarFull('La Plata')"><div class="city-dot"></div><span class="city-name">La Plata</span></div>
-            <div class="city-marker" id="pos-mardelplata" onclick="cargarFull('Mar del Plata')"><div class="city-dot"></div><span class="city-name">Mar del Plata</span></div>
-        </div>
-        <p style="font-size:0.75em; font-weight:900; color:var(--unlp-blue); margin-top:15px;">SELECCIONÁ CIUDAD EN EL MAPA</p>
+        <div id="map"></div>
+        <p style="font-size:0.75em; font-weight:900; color:var(--unlp-blue);">MAPA INTERACTIVO</p>
     </section>
 
     <section class="content-area" id="main-content" style="display:none;">
@@ -177,12 +162,25 @@
     <div id="view-placeholder">Seleccioná una ciudad en el mapa para cargar el reporte.</div>
 </main>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    const map = L.map('map').setView([-36.5, -59.5], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const cities = [
+        { name: "La Plata", coords: [-34.921, -57.955] },
+        { name: "Junín", coords: [-34.585, -60.944] },
+        { name: "Mar del Plata", coords: [-38.005, -57.542] }
+    ];
+
+    cities.forEach(c => {
+        L.marker(c.coords).addTo(map).bindPopup(c.name).on('click', () => cargarFull(c.name));
+    });
+
     const PROXY = "https://api.allorigins.win/get?url=";
     const METEO_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
 
     async function fetchRealTimeData() {
-        const timeEl = document.getElementById('rt-time');
         try {
             const res = await fetch(`${PROXY}${METEO_URL}&rand=${Date.now()}`);
             const data = await res.json();
@@ -195,14 +193,13 @@
             if(h) document.getElementById('rt-hum').innerText = h[1] + "%";
             if(p) document.getElementById('rt-pres').innerText = p[1];
             if(w) document.getElementById('rt-wind').innerText = w[1];
-            timeEl.innerText = `Actualizado: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')} hs`;
-        } catch (e) { timeEl.innerText = "Estación fuera de línea"; }
+            document.getElementById('rt-time').innerText = `Actualizado: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')} hs`;
+        } catch (e) { document.getElementById('rt-time').innerText = "Estación fuera de línea"; }
     }
 
     function cargarFull(ciudad) {
         const db = JSON.parse(localStorage.getItem('unlp_db')) || {};
-        let data = db[ciudad];
-        if(!data) { alert("Sin datos guardados para " + ciudad); return; }
+        let data = db[ciudad] || { emission_time: "08:00hs", h_t1: "16", h_t2: "23", h_t3: "18", d3_full_desc: "Sin datos", d4_full_desc: "Sin datos" };
 
         document.getElementById('view-placeholder').style.display = 'none';
         document.getElementById('main-content').style.display = 'flex';
@@ -240,8 +237,7 @@
             if(document.getElementById(`web-d${i}-name`)) document.getElementById(`web-d${i}-name`).innerText = nombre;
         }
     }
-
-    window.onload = () => { if(localStorage.getItem('unlp_db')) cargarFull('La Plata'); };
+    window.onload = () => { cargarFull('La Plata'); };
 </script>
 </body>
 </html>
