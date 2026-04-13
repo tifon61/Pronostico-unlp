@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Meteorológico | FCAG - UNLP</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
     <style>
         :root { 
             --unlp-blue: #00315a; --unlp-accent: #0079c1; --unlp-green: #00796b;
@@ -15,7 +13,7 @@
         }
         body { font-family: 'Montserrat', sans-serif; margin: 0; background: var(--bg); color: #333; overflow-x: hidden; }
         
-        /* HEADER RESPONSIVO CORREGIDO */
+        /* HEADER RESPONSIVO */
         header { 
             background: white; padding: 10px 5%; display: flex; 
             justify-content: space-between; align-items: center; 
@@ -25,9 +23,8 @@
         header img { height: 45px; width: auto; }
         .header-title { flex-grow: 1; text-align: center; }
         .header-title h1 { margin: 0; font-size: 1.1em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; }
-
         .logo-ast { order: 1; }
-        .logo-pro { order: 2; margin-right: 15px; }
+        .logo-pro { order: 2; }
         .header-title { order: 3; }
         .logo-unlp { order: 4; }
 
@@ -37,17 +34,15 @@
             gap: 20px; padding: 0 15px; 
         }
 
-        /* SIDEBAR / MAPA */
         .sidebar-card { 
             background: white; border-radius: 20px; padding: 15px; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; 
             text-align: center; position: sticky; top: 20px; 
         }
-        #map { height: 400px; width: 100%; border-radius: 15px; border: 3px solid #007bbd; margin-bottom: 10px; z-index: 1; }
+        #map { height: 350px; width: 100%; border-radius: 15px; border: 3px solid #007bbd; margin-bottom: 10px; z-index: 1; }
 
         .content-area { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
-        /* TIEMPO REAL */
         .rt-card {
             background: white; border-radius: 15px; padding: 15px 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 8px solid var(--unlp-accent);
@@ -67,7 +62,7 @@
         .city-bar h2 { margin: 0; font-size: 1.6em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
         .badge { background: var(--unlp-blue); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.7em; font-weight: 800; }
 
-        /* FORMATO DE GRILLAS (DÍAS 1 Y 2) */
+        /* TABLAS CON SCROLL */
         .table-wrapper { width: 100%; overflow-x: auto; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 10px; }
         .weather-grid { background: var(--unlp-blue); min-width: 600px; color: white; }
         .weather-grid.verde { background: var(--unlp-green); }
@@ -81,7 +76,7 @@
         .temp-val { font-size: 1.8em; font-weight: 300; }
         .data-val { font-size: 0.75em; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
 
-        /* FORMATO DE TARJETAS (DÍAS 3 Y 4) */
+        /* EXTENDIDO */
         .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .ex-card { border-radius: 30px; padding: 25px; color: white; text-align: center; display: flex; flex-direction: column; }
         .ex-card.celeste { background: var(--unlp-light); }
@@ -92,15 +87,14 @@
         .ex-split img { height: 70px; margin: 5px 0; }
         .ex-desc { font-size: 0.95em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin-top: auto; }
 
-        #view-placeholder { background: white; border-radius: 20px; padding: 80px; text-align: center; color: #ccc; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        #view-placeholder { background: white; border-radius: 20px; padding: 60px; text-align: center; color: #ccc; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
 
-        /* AJUSTES CELULAR */
         @media (max-width: 850px) {
             header img { height: 35px; }
             .logo-ast { order: 1; }
             .header-title { order: 2; flex-grow: 1; }
             .header-title h1 { font-size: 0.8em; }
-            .logo-pro { order: 3; margin-right: 0; } 
+            .logo-pro { order: 3; } 
             .logo-unlp { display: none; } 
             main { grid-template-columns: 1fr; margin: 10px auto; }
             .sidebar-card { position: relative; top: 0; margin-bottom: 20px; }
@@ -123,14 +117,14 @@
 <main>
     <section class="sidebar-card">
         <div id="map"></div>
-        <p style="font-size:0.75em; font-weight:900; color:var(--unlp-blue);">MAPA INTERACTIVO</p>
+        <p style="font-size:0.75em; font-weight:900; color:var(--unlp-blue);">TOCÁ UN MARCADOR</p>
     </section>
 
     <section class="content-area" id="main-content" style="display:none;">
         <div class="rt-card" id="rt-section">
             <div class="rt-header">
-                <h3><span class="live-dot"></span>Estación Automática FCAG (En Vivo)</h3>
-                <span id="rt-time" style="font-size: 0.65em; font-weight: 800; color: #bbb;">Conectando...</span>
+                <h3><span class="live-dot"></span>Estación Automática FCAG</h3>
+                <span id="rt-time" style="font-size: 0.65em; font-weight: 800; color: #bbb;">--:--</span>
             </div>
             <div class="rt-grid">
                 <div class="rt-item"><span class="rt-value" id="rt-temp">--°</span><span class="rt-label">Temp.</span></div>
@@ -147,56 +141,81 @@
 
         <div class="table-wrapper">
             <div class="weather-grid">
-                <div class="grid-header cols-3"><span id="web-d0-name" style="text-align:left; padding-left:20px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+                <div class="grid-header cols-3"><span id="name-day-0" style="text-align:left; padding-left:20px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row cols-3">
-                    <div class="cell label-cell">Icono</div><div class="cell icon-cell"><img id="web-h-icon-1" src="images/soleado.png"></div><div class="cell icon-cell"><img id="web-h-icon-2" src="images/soleado.png"></div><div class="cell icon-cell"><img id="web-h-icon-3" src="images/soleado.png"></div>
-                    <div class="cell label-cell">Temp.</div><div class="cell temp-val" id="web-h-t1">--</div><div class="cell temp-val" id="web-h-t2" style="color:#ffeb3b">--</div><div class="cell temp-val" id="web-h-t3">--</div>
-                    <div class="cell label-cell">Viento</div><div class="cell data-val" id="web-h-v1">--</div><div class="cell data-val" id="web-h-v2">--</div><div class="cell data-val" id="web-h-v3">--</div>
-                    <div class="cell label-cell">Tiempo</div><div class="cell data-val" id="web-h-w1">--</div><div class="cell data-val" id="web-h-w2">--</div><div class="cell data-val" id="web-h-w3">--</div>
+                    <div class="cell label-cell">Icono</div>
+                    <div class="cell icon-cell"><img id="h-icon-mañana" src="images/soleado.png"></div>
+                    <div class="cell icon-cell"><img id="h-icon-tarde" src="images/soleado.png"></div>
+                    <div class="cell icon-cell"><img id="h-icon-noche" src="images/soleado.png"></div>
+                    
+                    <div class="cell label-cell">Temp.</div>
+                    <div class="cell temp-val" id="h-temp-mañana">--</div>
+                    <div class="cell temp-val" id="h-temp-tarde" style="color:#ffeb3b">--</div>
+                    <div class="cell temp-val" id="h-temp-noche">--</div>
+                    
+                    <div class="cell label-cell">Viento</div>
+                    <div class="cell data-val" id="h-wind-mañana">--</div>
+                    <div class="cell data-val" id="h-wind-tarde">--</div>
+                    <div class="cell data-val" id="h-wind-noche">--</div>
+                    
+                    <div class="cell label-cell">Tiempo</div>
+                    <div class="cell data-val" id="h-sky-mañana">--</div>
+                    <div class="cell data-val" id="h-sky-tarde">--</div>
+                    <div class="cell data-val" id="h-sky-noche">--</div>
                 </div>
             </div>
         </div>
 
         <div class="table-wrapper">
             <div class="weather-grid verde">
-                <div class="grid-header cols-4"><span id="web-d1-name" style="text-align:left; padding-left:20px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+                <div class="grid-header cols-4"><span id="name-day-1" style="text-align:left; padding-left:20px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row cols-4">
-                    <div class="cell label-cell">Icono</div><div class="cell icon-cell"><img id="web-m-icon-1" src="images/soleado.png"></div><div class="cell icon-cell"><img id="web-m-icon-2" src="images/soleado.png"></div><div class="cell icon-cell"><img id="web-m-icon-3" src="images/soleado.png"></div><div class="cell icon-cell"><img id="web-m-icon-4" src="images/soleado.png"></div>
-                    <div class="cell label-cell">Temp.</div><div class="cell temp-val" id="web-m-t1">--</div><div class="cell temp-val" id="web-m-t2">--</div><div class="cell temp-val" id="web-m-t3" style="color:#ffeb3b">--</div><div class="cell temp-val" id="web-m-t4">--</div>
-                    <div class="cell label-cell">Viento</div><div class="cell data-val" id="web-m-v1">--</div><div class="cell data-val" id="web-m-v2">--</div><div class="cell data-val" id="web-m-v3">--</div><div class="cell data-val" id="web-m-v4">--</div>
+                    <div class="cell label-cell">Icono</div>
+                    <div class="cell icon-cell"><img id="m-icon-madrugada" src="images/soleado.png"></div>
+                    <div class="cell icon-cell"><img id="m-icon-mañana" src="images/soleado.png"></div>
+                    <div class="cell icon-cell"><img id="m-icon-tarde" src="images/soleado.png"></div>
+                    <div class="cell icon-cell"><img id="m-icon-noche" src="images/soleado.png"></div>
+                    
+                    <div class="cell label-cell">Temp.</div>
+                    <div class="cell temp-val" id="m-temp-madrugada">--</div>
+                    <div class="cell temp-val" id="m-temp-mañana">--</div>
+                    <div class="cell temp-val" id="m-temp-tarde" style="color:#ffeb3b">--</div>
+                    <div class="cell temp-val" id="m-temp-noche">--</div>
+
+                    <div class="cell label-cell">Viento</div>
+                    <div class="cell data-val" id="m-wind-madrugada">--</div>
+                    <div class="cell data-val" id="m-wind-mañana">--</div>
+                    <div class="cell data-val" id="m-wind-tarde">--</div>
+                    <div class="cell data-val" id="m-wind-noche">--</div>
                 </div>
             </div>
         </div>
 
-        <div class="extended-row">
+        <div class="extended-row" id="extended-section">
             <div class="ex-card celeste">
-                <h3 id="web-d2-name">--</h3>
+                <h3 id="name-day-2">MIÉRCOLES</h3>
                 <div class="ex-split">
-                    <div>MAD/MAÑ<br><img id="web-d3-icon-1" src="images/soleado.png"><br><span id="web-d3-w1">--</span></div>
-                    <div>TAR/NOC<br><img id="web-d3-icon-2" src="images/soleado.png"><br><span id="web-d3-w2">--</span></div>
+                    <div>MÁX<br><span id="ex-max-2" style="font-size: 2em; font-weight: 300;">--</span></div>
+                    <div>MÍN<br><span id="ex-min-2" style="font-size: 2em; font-weight: 300;">--</span></div>
                 </div>
-                <div class="ex-desc" id="web-d3-full-desc">--</div>
+                <div class="ex-desc">Previsión diaria basada en modelos regionales.</div>
             </div>
             <div class="ex-card oscuro">
-                <h3 id="web-d3-name">--</h3>
+                <h3 id="name-day-3">JUEVES</h3>
                 <div class="ex-split">
-                    <div>MAD/MAÑ<br><img id="web-d4-icon-1" src="images/soleado.png"><br><span id="web-d4-w1">--</span></div>
-                    <div>TAR/NOC<br><img id="web-d4-icon-2" src="images/soleado.png"><br><span id="web-d4-w2">--</span></div>
+                    <div>MÁX<br><span id="ex-max-3" style="font-size: 2em; font-weight: 300;">--</span></div>
+                    <div>MÍN<br><span id="ex-min-3" style="font-size: 2em; font-weight: 300;">--</span></div>
                 </div>
-                <div class="ex-desc" id="web-d4-full-desc">--</div>
+                <div class="ex-desc">Previsión diaria basada en modelos regionales.</div>
             </div>
         </div>
     </section>
-    <div id="view-placeholder">Cargando pronósticos...</div>
+    <div id="view-placeholder">Cargando pronósticos de la red...</div>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts";
-    const FCAG_PROXY = "https://api.allorigins.win/get?url=";
-    const FCAG_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
-
-    // Mapa interactivo
     const map = L.map('map').setView([-36.5, -59.5], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -210,86 +229,66 @@
         L.marker(c.coords).addTo(map).bindPopup(c.name).on('click', () => cargarFull(c.name));
     });
 
-    // Función para obtener datos reales de la estación FCAG (La Plata)
-    async function fetchRealTimeData() {
-        try {
-            const res = await fetch(`${FCAG_PROXY}${FCAG_URL}&rand=${Date.now()}`);
-            const data = await res.json();
-            const body = data.contents;
-            const t = body.match(/Temperat[^\d]+([\d.]+)/i);
-            const h = body.match(/Humedad[^\d]+([\d.]+)/i);
-            const p = body.match(/Presi[^\d]+([\d.]+)/i);
-            const w = body.match(/Viento[^\d]+([\d.]+)/i);
-            if(t) document.getElementById('rt-temp').innerText = t[1] + "°";
-            if(h) document.getElementById('rt-hum').innerText = h[1] + "%";
-            if(p) document.getElementById('rt-pres').innerText = p[1];
-            if(w) document.getElementById('rt-wind').innerText = w[1];
-            document.getElementById('rt-time').innerText = `Actualizado: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')} hs`;
-        } catch (e) { document.getElementById('rt-time').innerText = "Estación fuera de línea"; }
-    }
-
-    // Nueva función para cargar datos desde tu API
     async function cargarFull(ciudad) {
-        document.getElementById('view-placeholder').innerText = "Obteniendo datos de la red...";
-        
+        document.getElementById('view-placeholder').innerText = "Obteniendo datos...";
         try {
             const response = await fetch(API_URL);
-            const allForecasts = await response.json();
-            
-            // Buscamos la ciudad en el array que devuelve la API
-            const data = allForecasts.find(f => f.city_name === ciudad || f.city === ciudad);
+            const json = await response.json();
+            const cityData = json.data[ciudad];
 
-            if(!data) {
-                document.getElementById('view-placeholder').innerText = `No hay datos para ${ciudad} en el servidor.`;
+            if (!cityData) {
+                document.getElementById('view-placeholder').innerText = `No hay datos para ${ciudad}.`;
                 return;
             }
 
             document.getElementById('view-placeholder').style.display = 'none';
             document.getElementById('main-content').style.display = 'flex';
-            document.getElementById('out-city').innerText = ciudad;
-            document.getElementById('out-hora').innerText = data.emission_time || '--:--';
+            document.getElementById('out-city').innerText = cityData.location;
+            document.getElementById('out-hora').innerText = cityData.emission_time;
 
-            // Estación FCAG solo para La Plata
-            if(ciudad === "La Plata") {
-                document.getElementById('rt-section').style.display = 'block';
-                fetchRealTimeData();
-            } else {
-                document.getElementById('rt-section').style.display = 'none';
+            const forecasts = cityData.daily_forecasts;
+
+            // Función auxiliar para llenar datos por periodo
+            const fillPeriod = (dayIndex, prefix) => {
+                const day = forecasts[dayIndex];
+                if (!day) return;
+                
+                document.getElementById(`name-day-${dayIndex}`).innerText = day.day_name.toUpperCase();
+
+                day.period_forecasts.forEach(p => {
+                    const tempEl = document.getElementById(`${prefix}-temp-${p.period}`);
+                    const windEl = document.getElementById(`${prefix}-wind-${p.period}`);
+                    const skyEl = document.getElementById(`${prefix}-sky-${p.period}`);
+                    const iconEl = document.getElementById(`${prefix}-icon-${p.period}`);
+
+                    if (tempEl) tempEl.innerText = p.temperature ? p.temperature + "°" : "--";
+                    if (windEl) windEl.innerText = `${p.wind_intensity || ''} del ${p.wind_direction || ''}`;
+                    if (skyEl) skyEl.innerText = p.sky_condition || "--";
+                    if (iconEl) iconEl.src = `images/${p.weather_icon_code || 'soleado'}.png`;
+                });
+            };
+
+            // Llenar Día 1 (Hoy) y Día 2 (Mañana)
+            fillPeriod(0, 'h');
+            fillPeriod(1, 'm');
+
+            // Llenar Días 3 y 4 (Extendido)
+            for (let i = 2; i <= 3; i++) {
+                const day = forecasts[i];
+                if (day) {
+                    document.getElementById(`name-day-${i}`).innerText = day.day_name.toUpperCase();
+                    document.getElementById(`ex-max-${i}`).innerText = day.temp_max + "°";
+                    document.getElementById(`ex-min-${i}`).innerText = day.temp_min + "°";
+                }
             }
-
-            const fill = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = (val && val !== '--') ? (id.includes('-t') ? val + "°" : val) : '--'; };
-            const setIcon = (id, src) => { if(document.getElementById(id)) document.getElementById(id).src = src || 'images/soleado.png'; };
-
-            // Mapeo de datos (Asegúrate de que los nombres de los campos en tu API coincidan)
-            for(let i=1; i<=4; i++) {
-                fill(`web-h-t${i}`, data[`h_t${i}`]); fill(`web-h-v${i}`, data[`h_v${i}`]); fill(`web-h-w${i}`, data[`h_w${i}`]); setIcon(`web-h-icon-${i}`, data[`h_icon${i}`]);
-                fill(`web-m-t${i}`, data[`m_t${i}`]); fill(`web-m-v${i}`, data[`m_v${i}`]); fill(`web-m-w${i}`, data[`m_w${i}`]); setIcon(`web-m-icon-${i}`, data[`m_icon${i}`]);
-            }
-            ['d3', 'd4'].forEach(d => {
-                fill(`web-${d}-full-desc`, data[`${d}_full_desc`]);
-                setIcon(`web-${d}-icon-1`, data[`${d}_icon1`]); setIcon(`web-${d}-icon-2`, data[`${d}_icon2`]);
-                fill(`web-${d}-w1`, data[`${d}_w1`]); fill(`web-${d}-w2`, data[`${d}_w2`]);
-            });
-            updateFechas();
 
         } catch (error) {
-            console.error("Error al conectar con la API:", error);
-            document.getElementById('view-placeholder').innerText = "Error de conexión con el servidor de pronósticos.";
+            console.error(error);
+            document.getElementById('view-placeholder').innerText = "Error de conexión.";
         }
     }
 
-    function updateFechas() {
-        const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        const hoy = new Date();
-        for(let i=0; i<4; i++) {
-            let d = new Date(); d.setDate(hoy.getDate() + i);
-            let nombre = (i === 0) ? "HOY" : (i === 1) ? "MAÑANA" : dias[d.getDay()];
-            if(document.getElementById(`web-d${i}-name`)) document.getElementById(`web-d${i}-name`).innerText = nombre;
-        }
-    }
-
-    // Carga inicial
-    window.onload = () => { cargarFull('La Plata'); };
+    window.onload = () => cargarFull('La Plata');
 </script>
 </body>
 </html>
