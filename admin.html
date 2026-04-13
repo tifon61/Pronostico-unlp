@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Meteorológico | FCAG - UNLP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root { 
             --unlp-blue: #00315a; --unlp-accent: #0079c1; --unlp-green: #00796b;
@@ -18,8 +18,9 @@
             border-bottom: 5px solid var(--unlp-blue);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        header img { height: 50px; }
-        .header-title h1 { margin: 0; font-size: 1.2em; color: var(--unlp-blue); font-weight: 900; }
+        header .logos-container { display: flex; align-items: center; gap: 20px; }
+        header img { height: 55px; width: auto; }
+        .header-title h1 { margin: 0; font-size: 1.4em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; }
 
         main { 
             max-width: 1400px; margin: 30px auto; 
@@ -27,6 +28,7 @@
             gap: 30px; padding: 0 20px; 
         }
 
+        /* SECCIÓN MAPA */
         .map-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); height: fit-content; text-align: center; }
         .map-frame { background: #007bbd; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
         .map-svg { width: 100%; height: 400px; }
@@ -35,50 +37,64 @@
         .city-dot:hover { r: 12; fill: white; }
         .city-label { fill: white; font-weight: 900; font-size: 14px; pointer-events: none; text-shadow: 1px 1px 3px black; }
 
+        /* HEADER CIUDAD */
         .city-header { 
-            background: white; padding: 20px 30px; border-radius: 20px; 
-            margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: white; padding: 25px 40px; border-radius: 20px; 
+            margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .city-header h2 { margin: 0; font-size: 2.2em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
-        .emision-badge { background: var(--unlp-blue); color: white; padding: 8px 20px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+        .city-header h2 { margin: 0; font-size: 2.8em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -1px; }
+        .emision-badge { background: var(--unlp-blue); color: white; padding: 10px 25px; border-radius: 12px; font-size: 0.9em; font-weight: 800; }
 
-        .web-grid {
-            background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 25px;
-            box-shadow: 0 10px 20px rgba(0,49,90,0.15);
-        }
+        /* GRILLAS DE PRONÓSTICO (DÍAS 1 Y 2) */
+        .web-grid { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,49,90,0.15); }
         .web-grid.verde { background: var(--unlp-green); }
-        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 25px; display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9em; text-transform: uppercase; }
         
+        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; font-size: 0.95em; text-align: center; }
+        .header-3 { grid-template-columns: 180px repeat(3, 1fr); }
+        .header-4 { grid-template-columns: 180px repeat(4, 1fr); }
+
         .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
         .row-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .row-4 { grid-template-columns: 180px repeat(4, 1fr); }
 
-        .cell { padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; border-right: 1px solid rgba(255,255,255,0.05); }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.75em; text-transform: uppercase; align-items: flex-start; padding-left: 25px; }
-        
-        .temp-web { font-size: 2em; font-weight: 300; }
-        .data-web { font-size: 0.9em; font-weight: 600; line-height: 1.2; }
-        .title-tramo { font-weight: 800; font-size: 0.85em; opacity: 0.9; letter-spacing: 0.5px; }
+        .cell { padding: 15px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.75em; text-transform: uppercase; align-items: flex-start; padding-left: 30px; }
+        .icon-cell img { height: 60px; }
+        .temp-web { font-size: 2.2em; font-weight: 300; }
+        .data-web { font-size: 0.85em; font-weight: 700; line-height: 1.2; text-transform: uppercase; }
 
-        .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .web-card { border-radius: 35px; padding: 30px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        /* EXTENDIDO VERTICAL (DÍAS 3 Y 4) */
+        .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .web-card { border-radius: 45px; padding: 35px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; display: flex; flex-direction: column; align-items: center; }
         .web-card.celeste { background: var(--unlp-light); }
         .web-card.oscuro { background: var(--unlp-blue); }
-        .web-card h3 { margin: 0; font-size: 1.8em; font-weight: 900; text-transform: uppercase; }
-        .web-card .desc { font-size: 1em; min-height: 60px; line-height: 1.4; margin: 15px 0; font-weight: 500; }
-        .web-card .temp-foot { font-weight: 900; font-size: 1.6em; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 15px; }
+        .web-card h3 { margin: 0; font-size: 2.5em; font-weight: 900; text-transform: uppercase; }
+        .web-card .date-label { font-size: 1.2em; font-weight: 700; opacity: 0.9; margin-bottom: 20px; }
 
-        #view-placeholder { background: white; border-radius: 25px; padding: 100px; text-align: center; color: #bbb; box-shadow: 0 10px 25px rgba(0,0,0,0.05); font-weight: 700; }
-        @media (max-width: 950px) { main { grid-template-columns: 1fr; } .extended-row { grid-template-columns: 1fr; } }
+        .card-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; gap: 10px; }
+        .card-split div { font-size: 0.65em; font-weight: 800; text-transform: uppercase; }
+        .card-split img { height: 80px; margin: 10px 0; }
+        .card-split .desc-text { font-size: 1.1em; font-weight: 700; min-height: 40px; margin-bottom: 5px; }
+
+        .card-temps { display: flex; gap: 25px; margin: 20px 0; font-size: 1.8em; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; width: 100%; justify-content: center; }
+        .card-temps .sub { font-size: 0.55em; display: block; opacity: 0.8; margin-top: -5px; }
+
+        .full-desc-web { font-size: 1.1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: auto; }
+
+        #view-placeholder { background: white; border-radius: 25px; padding: 100px; text-align: center; color: #bbb; box-shadow: 0 10px 25px rgba(0,0,0,0.05); font-weight: 700; font-size: 1.2em; }
+        @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg/100px-Facultad_de_Ciencias_Astron%C3%B3micas_y_Geof%C3%ADsicas.svg.png">
-    <div class="header-title"><h1>PORTAL METEOROLÓGICO UNLP</h1></div>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UNLP_Logo_2016.svg/100px-UNLP_Logo_2016.svg.png">
+    <div class="logos-container">
+        <img src="images/Logo astronomicas y geofisicas.png">
+        <img src="images/Logo pronounlp.jfif" style="height: 60px; border-radius: 50%;">
+    </div>
+    <div class="header-title"><h1>Portal Meteorológico UNLP</h1></div>
+    <img src="images/Logo unlp.png">
 </header>
 
 <main>
@@ -86,15 +102,15 @@
         <div class="map-frame">
             <svg viewBox="0 0 400 500" class="map-svg">
                 <path class="provincia-shape" d="M80,60 L320,60 L380,250 L310,480 L50,430 Z" />
-                <circle cx="310" cy="230" r="10" class="city-dot" onclick="cargarFull('LA PLATA')"></circle>
+                <circle cx="310" cy="230" r="10" class="city-dot" onclick="cargarFull('La Plata')"></circle>
                 <text x="235" y="235" class="city-label">La Plata</text>
-                <circle cx="330" cy="400" r="10" class="city-dot" onclick="cargarFull('MAR DEL PLATA')"></circle>
+                <circle cx="330" cy="400" r="10" class="city-dot" onclick="cargarFull('Mar del Plata')"></circle>
                 <text x="215" y="405" class="city-label">Mar del Plata</text>
-                <circle cx="150" cy="150" r="10" class="city-dot" onclick="cargarFull('JUNÍN')"></circle>
+                <circle cx="150" cy="150" r="10" class="city-dot" onclick="cargarFull('Junín')"></circle>
                 <text x="165" y="155" class="city-label">Junín</text>
             </svg>
         </div>
-        <p style="font-size:0.9em; font-weight:700; color:var(--unlp-blue);">Seleccioná una ciudad en el mapa</p>
+        <p style="font-size:0.95em; font-weight:800; color:var(--unlp-blue);">Seleccioná una ciudad en el mapa</p>
     </section>
 
     <section id="info-detalle">
@@ -107,10 +123,10 @@
             </div>
 
             <div class="web-grid">
-                <div class="grid-header"><span id="web-d0-name">HOY</span> <span id="web-f0">--</span></div>
+                <div class="grid-header header-3"><span id="web-d0-name" style="text-align: left; padding-left: 25px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row row-3">
-                    <div class="cell label-cell">Tramo</div>
-                    <div class="cell title-tramo">MAÑANA</div><div class="cell title-tramo">TARDE</div><div class="cell title-tramo">NOCHE</div>
+                    <div class="cell label-cell">Icono</div>
+                    <div class="cell icon-cell"><img id="web-h-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-h-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="h-icon-3" src="images/default.png"></div>
                     
                     <div class="cell label-cell">Temp.</div>
                     <div class="cell temp-web" id="web-h-t1">--</div><div class="cell temp-web" id="web-h-t2" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-h-t3">--</div>
@@ -124,34 +140,46 @@
             </div>
 
             <div class="web-grid verde">
-                <div class="grid-header"><span id="web-d1-name">MAÑANA</span> <span id="web-f1">--</span></div>
+                <div class="grid-header header-4"><span id="web-d1-name" style="text-align: left; padding-left: 25px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row row-4">
-                    <div class="cell label-cell">Tramo</div>
-                    <div class="cell title-tramo">MADRUGADA</div><div class="cell title-tramo">MAÑANA</div><div class="cell title-tramo">TARDE</div><div class="cell title-tramo">NOCHE</div>
+                    <div class="cell label-cell">Icono</div>
+                    <div class="cell icon-cell"><img id="web-m-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-3" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-4" src="images/default.png"></div>
                     
                     <div class="cell label-cell">Temp.</div>
                     <div class="cell temp-web" id="web-m-t1">--</div><div class="cell temp-web" id="web-m-t2">--</div><div class="cell temp-web" id="web-m-t3" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-m-t4">--</div>
                     
                     <div class="cell label-cell">Viento</div>
                     <div class="cell data-web" id="web-m-v1">--</div><div class="cell data-web" id="web-m-v2">--</div><div class="cell data-web" id="web-m-v3">--</div><div class="cell data-web" id="web-m-v4">--</div>
-                    
-                    <div class="cell label-cell">Tiempo</div>
-                    <div class="cell data-web" id="web-m-w1">--</div><div class="cell data-web" id="web-m-w2">--</div><div class="cell data-web" id="web-m-w3">--</div><div class="cell data-web" id="web-m-w4">--</div>
                 </div>
             </div>
 
             <div class="extended-row">
                 <div class="web-card celeste">
-                    <h3 id="web-d2-name">--</h3>
-                    <div id="web-f2" style="font-weight:700; opacity:0.8;">--</div>
-                    <div class="desc" id="web-d3-desc">--</div>
-                    <div class="temp-foot" id="web-d3-t">--</div>
+                    <h3 id="web-d2-name">DOMINGO</h3>
+                    <div class="date-label" id="web-f2">--</div>
+                    <div class="card-split">
+                        <div>MAD/MAÑ<br><img id="web-d3-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d3-w1">--</div><div class="wind-sub" id="web-d3-v1">--</div></div>
+                        <div>TAR/NOC<br><img id="web-d3-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d3-w2">--</div><div class="wind-sub" id="web-d3-v2">--</div></div>
+                    </div>
+                    <div class="card-temps">
+                        <div><span style="font-size:0.6em; opacity:0.8;">MIN</span><br><span id="web-d3-min">--</span><span class="sub"><span id="web-d3-min-sub">--</span>*</span></div>
+                        <div><span style="font-size:0.6em; opacity:0.8;">MAX</span><br><span id="web-d3-max">--</span><span class="sub"><span id="web-d3-max-sub">--</span>*</span></div>
+                    </div>
+                    <div class="full-desc-web" id="web-d3-full-desc">--</div>
                 </div>
+
                 <div class="web-card oscuro">
-                    <h3 id="web-d3-name">--</h3>
-                    <div id="web-f3" style="font-weight:700; opacity:0.8;">--</div>
-                    <div class="desc" id="web-d4-desc">--</div>
-                    <div class="temp-foot" id="web-d4-t">--</div>
+                    <h3 id="web-d3-name">LUNES</h3>
+                    <div class="date-label" id="web-f3">--</div>
+                    <div class="card-split">
+                        <div>MAD/MAÑ<br><img id="web-d4-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d4-w1">--</div><div class="wind-sub" id="web-d4-v1">--</div></div>
+                        <div>TAR/NOC<br><img id="web-d4-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d4-w2">--</div><div class="wind-sub" id="web-d4-v2">--</div></div>
+                    </div>
+                    <div class="card-temps">
+                        <div><span style="font-size:0.6em; opacity:0.8;">MIN</span><br><span id="web-d4-min">--</span><span class="sub"><span id="web-d4-min-sub">--</span>*</span></div>
+                        <div><span style="font-size:0.6em; opacity:0.8;">MAX</span><br><span id="web-d4-max">--</span><span class="sub"><span id="web-d4-max-sub">--</span>*</span></div>
+                    </div>
+                    <div class="full-desc-web" id="web-d4-full-desc">--</div>
                 </div>
             </div>
         </div>
@@ -169,50 +197,62 @@
         document.getElementById('full-report').style.display = 'block';
 
         document.getElementById('out-city').innerText = ciudad;
-        document.getElementById('out-hora').innerText = data.hora_emision || '--:--hs';
+        document.getElementById('out-hora').innerText = data.emission_time || '--:--';
+
+        // Mapeo Hoy (H)
+        mapFields('h', data, 3);
+        // Mapeo Mañana (M)
+        mapFields('m', data, 4);
+        // Mapeo Extendido (D3 y D4)
+        mapExtended('d3', data);
+        mapExtended('d4', data);
+
+        updateFechas();
+    }
+
+    function mapFields(prefix, data, tramos) {
+        for(let i=1; i<=tramos; i++) {
+            safeSet(`web-${prefix}-t${i}`, data[`${prefix}_t${i}`]);
+            safeSet(`web-${prefix}-v${i}`, data[`${prefix}_v${i}`]);
+            safeSet(`web-${prefix}-w${i}`, data[`${prefix}_w${i}`]);
+            const img = document.getElementById(`web-${prefix}-icon-${i}`);
+            if(img && data[`${prefix}_icon${i}`]) img.src = data[`${prefix}_icon${i}`];
+        }
+    }
+
+    function mapExtended(id, data) {
+        safeSet(`web-${id}-min`, data[`${id}_min`]);
+        safeSet(`web-${id}-max`, data[`${id}_max`]);
+        safeSet(`web-${id}-min-sub`, data[`${id}_min_sub`]);
+        safeSet(`web-${id}-max-sub`, data[`${id}_max_sub`]);
+        safeSet(`web-${id}-full-desc`, data[`${id}_full_desc`]);
         
-        // Hoy
-        document.getElementById('web-h-t1').innerText = data.h_t1 || '--';
-        document.getElementById('web-h-t2').innerText = data.h_t2 || '--';
-        document.getElementById('web-h-t3').innerText = data.h_t3 || '--';
-        document.getElementById('web-h-v1').innerText = data.h_v1 || '--';
-        document.getElementById('web-h-v2').innerText = data.h_v2 || '--';
-        document.getElementById('web-h-v3').innerText = data.h_v3 || '--';
-        document.getElementById('web-h-w1').innerText = data.h_w1 || '--';
-        document.getElementById('web-h-w2').innerText = data.h_w2 || '--';
-        document.getElementById('web-h-w3').innerText = data.h_w3 || '--';
+        for(let i=1; i<=2; i++) {
+            safeSet(`web-${id}-w${i}`, data[`${id}_w${i}`]);
+            safeSet(`web-${id}-v${i}`, data[`${id}_v${i}`]);
+            const img = document.getElementById(`web-${id}-icon-${i}`);
+            if(img && data[`${id}_icon${i}`]) img.src = data[`${id}_icon${i}`];
+        }
+    }
 
-        // Día 2 (Cargando datos completos)
-        document.getElementById('web-m-t1').innerText = data.m_t1 || '--';
-        document.getElementById('web-m-t2').innerText = data.m_t2 || '--';
-        document.getElementById('web-m-t3').innerText = data.m_t3 || '--';
-        document.getElementById('web-m-t4').innerText = data.m_t4 || '--';
-        document.getElementById('web-m-v1').innerText = data.m_v1 || '--';
-        document.getElementById('web-m-v2').innerText = data.m_v2 || '--';
-        document.getElementById('web-m-v3').innerText = data.m_v3 || '--';
-        document.getElementById('web-m-v4').innerText = data.m_v4 || '--';
-        document.getElementById('web-m-w1').innerText = data.m_w1 || '--';
-        document.getElementById('web-m-w2').innerText = data.m_w2 || '--';
-        document.getElementById('web-m-w3').innerText = data.m_w3 || '--';
-        document.getElementById('web-m-w4').innerText = data.m_w4 || '--';
+    function safeSet(id, val) {
+        const el = document.getElementById(id);
+        if(el) el.innerText = val || '--';
+    }
 
-        // Extendido
-        document.getElementById('web-d3-desc').innerText = data.d3_desc || '--';
-        document.getElementById('web-d3-t').innerText = data.d3_t || '--';
-        document.getElementById('web-d4-desc').innerText = data.d4_desc || '--';
-        document.getElementById('web-d4-t').innerText = data.d4_t || '--';
-
+    function updateFechas() {
         const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
         const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
         const hoy = new Date();
         for(let i=0; i<4; i++) {
             let d = new Date(); d.setDate(hoy.getDate() + i);
             let nombre = (i === 0) ? "HOY" : (i === 1) ? "MAÑANA" : dias[d.getDay()];
-            document.getElementById(`web-d${i}-name`).innerText = nombre;
-            document.getElementById(`web-f${i}`).innerText = `${d.getDate()} / ${meses[d.getMonth()]}`;
+            if(document.getElementById(`web-d${i}-name`)) document.getElementById(`web-d${i}-name`).innerText = nombre;
+            if(document.getElementById(`web-f${i}`)) document.getElementById(`web-f${i}`).innerText = `${d.getDate()} / ${meses[d.getMonth()]}`;
         }
     }
-    window.onload = () => { if(localStorage.getItem('unlp_db')) cargarFull('LA PLATA'); };
+
+    window.onload = () => { if(localStorage.getItem('unlp_db')) cargarFull('La Plata'); };
 </script>
 </body>
 </html>
