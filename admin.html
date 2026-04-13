@@ -131,7 +131,7 @@
             <div class="real-time-card" id="rt-section">
                 <div class="rt-header">
                     <h3><span class="live-dot"></span>Estación Automática FCAG (En Vivo)</h3>
-                    <span id="rt-time" style="font-size: 0.7em; font-weight: 800; color: #aaa;">--:--</span>
+                    <span id="rt-time" style="font-size: 0.7em; font-weight: 800; color: #aaa;">Conectando...</span>
                 </div>
                 <div class="rt-grid">
                     <div class="rt-item"><span class="rt-value" id="rt-temp">--°</span><span class="rt-label">Temperatura</span></div>
@@ -153,12 +153,10 @@
                     <div class="cell icon-cell"><img id="web-h-icon-1" src="images/default.png"></div>
                     <div class="cell icon-cell"><img id="web-h-icon-2" src="images/default.png"></div>
                     <div class="cell icon-cell"><img id="web-h-icon-3" src="images/default.png"></div>
-                    
                     <div class="cell label-cell">Temp.</div>
                     <div class="cell temp-web" id="web-h-t1">--</div>
                     <div class="cell temp-web" id="web-h-t2" style="color:#ffeb3b">--</div>
                     <div class="cell temp-web" id="web-h-t3">--</div>
-                    
                     <div class="cell label-cell">Viento</div>
                     <div class="cell data-web" id="web-h-v1">--</div>
                     <div class="cell data-web" id="web-h-v2">--</div>
@@ -174,7 +172,6 @@
                     <div class="cell icon-cell"><img id="web-m-icon-2" src="images/default.png"></div>
                     <div class="cell icon-cell"><img id="web-m-icon-3" src="images/default.png"></div>
                     <div class="cell icon-cell"><img id="web-m-icon-4" src="images/default.png"></div>
-                    
                     <div class="cell label-cell">Temp.</div>
                     <div class="cell temp-web" id="web-m-t1">--</div>
                     <div class="cell temp-web" id="web-m-t2">--</div>
@@ -206,6 +203,38 @@
 </main>
 
 <script>
+    // Configuración Proxy para Datos Reales de la Facultad
+    const PROXY = "https://api.allorigins.win/get?url=";
+    const METEO_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
+
+    async function fetchRealTimeData() {
+        const timeEl = document.getElementById('rt-time');
+        try {
+            const res = await fetch(`${PROXY}${METEO_URL}`);
+            const data = await res.json();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data.contents, 'text/html');
+            const bodyText = doc.body.innerText;
+
+            // Buscamos los valores con expresiones regulares (Regex)
+            const temp = bodyText.match(/Temperatura:\s*([\d.]+)/);
+            const hum = bodyText.match(/Humedad:\s*([\d.]+)/);
+            const pres = bodyText.match(/Presión:\s*([\d.]+)/);
+            const wind = bodyText.match(/Viento:\s*([\d.]+)/);
+
+            if (temp) document.getElementById('rt-temp').innerText = temp[1] + "°";
+            if (hum) document.getElementById('rt-hum').innerText = hum[1] + "%";
+            if (pres) document.getElementById('rt-pres').innerText = pres[1];
+            if (wind) document.getElementById('rt-wind').innerText = wind[1];
+            
+            const ahora = new Date();
+            timeEl.innerText = `Actualizado: ${ahora.getHours()}:${ahora.getMinutes().toString().padStart(2, '0')} hs`;
+        } catch (e) {
+            timeEl.innerText = "Estación temporalmente fuera de línea";
+            console.error(e);
+        }
+    }
+
     const mockData = {
         "La Plata": {
             "emission_time": "08:00hs",
@@ -215,8 +244,7 @@
             "m_t1": "18°", "m_t2": "22°", "m_t3": "27°", "m_t4": "20°",
             "m_icon1": "images/soleado.png", "m_icon2": "images/soleado.png", "m_icon3": "images/algo_nublado.png", "m_icon4": "images/cubierto.png",
             "d3_full_desc": "Cielo ligeramente nublado desmejorando hacia la noche.", "d3_icon1": "images/soleado.png", "d3_icon2": "images/nublado.png",
-            "d4_full_desc": "Probabilidad de chaparrones aislados por la tarde.", "d4_icon1": "images/cubierto.png", "d4_icon2": "images/lluvias_aisladas.png",
-            "realtime": { "temp": "22.4", "hum": "65", "pres": "1013.2", "wind": "12.5", "time": "10:15 hs" }
+            "d4_full_desc": "Probabilidad de chaparrones aislados por la tarde.", "d4_icon1": "images/cubierto.png", "d4_icon2": "images/lluvias_aisladas.png"
         }
     };
 
@@ -231,14 +259,10 @@
         document.getElementById('out-city').innerText = ciudad;
         document.getElementById('out-hora').innerText = data.emission_time || '--:--';
 
-        if(ciudad === "La Plata" && (data.realtime || mockData["La Plata"].realtime)) {
-            const rt = data.realtime || mockData["La Plata"].realtime;
+        // Lógica Tiempo Real
+        if(ciudad === "La Plata") {
             document.getElementById('rt-section').style.display = 'block';
-            document.getElementById('rt-temp').innerText = rt.temp + "°";
-            document.getElementById('rt-hum').innerText = rt.hum + "%";
-            document.getElementById('rt-pres').innerText = rt.pres;
-            document.getElementById('rt-wind').innerText = rt.wind;
-            document.getElementById('rt-time').innerText = "Actualización: " + rt.time;
+            fetchRealTimeData();
         } else {
             document.getElementById('rt-section').style.display = 'none';
         }
