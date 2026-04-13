@@ -20,7 +20,7 @@
             position: sticky; top: 0; z-index: 1000;
         }
         .logos-container { display: flex; align-items: center; gap: 15px; }
-        header img { height: 50px; width: auto; object-fit: contain; }
+        header img { height: 50px; width: auto; }
         .header-title h1 { margin: 0; font-size: 1.2em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; }
 
         main { 
@@ -29,10 +29,10 @@
             gap: 25px; padding: 0 20px; 
         }
 
-        /* SECCIÓN MAPA */
+        /* MAPA */
         .map-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 90px; }
         .map-frame { background: #007bbd; border-radius: 20px; padding: 10px; margin-bottom: 15px; }
-        .map-svg { width: 100%; height: auto; max-height: 450px; }
+        .map-svg { width: 100%; height: auto; }
         .provincia-shape { fill: #0098da; stroke: white; stroke-width: 2; }
         .city-dot { fill: #ffeb3b; stroke: var(--unlp-blue); stroke-width: 2; cursor: pointer; transition: 0.3s; }
         .city-dot:hover { r: 12; fill: white; }
@@ -61,40 +61,34 @@
             margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .city-header h2 { margin: 0; font-size: 2.4em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
+        .city-header h2 { margin: 0; font-size: 2.2em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
         .emision-badge { background: var(--unlp-blue); color: white; padding: 8px 18px; border-radius: 10px; font-size: 0.8em; font-weight: 800; }
 
-        /* GRILLAS PRONÓSTICO */
+        /* GRILLAS */
         .web-grid { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 20px; box-shadow: 0 8px 15px rgba(0,49,90,0.1); }
         .web-grid.verde { background: var(--unlp-green); }
-        
         .grid-header { background: rgba(0,0,0,0.2); padding: 10px 0; display: grid; font-weight: 800; font-size: 0.85em; text-align: center; }
         .header-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .header-4 { grid-template-columns: 180px repeat(4, 1fr); }
-
         .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
         .row-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .row-4 { grid-template-columns: 180px repeat(4, 1fr); }
-
         .cell { padding: 12px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 50px; }
         .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.7em; text-transform: uppercase; align-items: flex-start; padding-left: 25px; border-right: 1px solid rgba(255,255,255,0.1); }
-        .icon-cell img { height: 55px; width: auto; }
-        .temp-web { font-size: 2em; font-weight: 400; }
-        .data-web { font-size: 0.8em; font-weight: 700; line-height: 1.2; text-transform: uppercase; }
+        .icon-cell img { height: 50px; width: auto; }
+        .temp-web { font-size: 1.8em; font-weight: 400; }
+        .data-web { font-size: 0.75em; font-weight: 700; text-transform: uppercase; }
 
         /* EXTENDIDO */
         .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .web-card { border-radius: 40px; padding: 30px; color: white; box-shadow: 0 8px 15px rgba(0,0,0,0.1); text-align: center; }
+        .web-card { border-radius: 40px; padding: 25px; color: white; text-align: center; }
         .web-card.celeste { background: var(--unlp-light); }
         .web-card.oscuro { background: var(--unlp-blue); }
-        .web-card h3 { margin: 0; font-size: 2.2em; font-weight: 900; text-transform: uppercase; }
-        .card-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin: 15px 0; gap: 10px; }
-        .card-split div { font-size: 0.6em; font-weight: 800; text-transform: uppercase; }
-        .card-split img { height: 75px; margin: 8px 0; }
+        .card-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin: 15px 0; }
         .full-desc-web { font-size: 1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; }
 
-        #view-placeholder { background: white; border-radius: 25px; padding: 80px; text-align: center; color: #aaa; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; } .rt-item { border: none; } }
+        #view-placeholder { background: white; border-radius: 25px; padding: 80px; text-align: center; color: #aaa; font-weight: 700; }
+        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
@@ -102,7 +96,7 @@
 <header>
     <div class="logos-container">
         <img src="images/Logo astronomicas y geofisicas.png">
-        <img src="images/Logo pronounlp.jfif" style="height: 55px; border-radius: 50%;">
+        <img src="images/Logo pronounlp.jfif" style="height: 50px; border-radius: 50%;">
     </div>
     <div class="header-title"><h1>Portal Meteorológico UNLP</h1></div>
     <img src="images/Logo unlp.png">
@@ -121,11 +115,11 @@
                 <text x="165" y="155" class="city-label">Junín</text>
             </svg>
         </div>
-        <p style="font-size:0.85em; font-weight:800; color:var(--unlp-blue); margin-top:10px;">SELECCIONÁ UNA CIUDAD</p>
+        <p style="font-size:0.8em; font-weight:800; color:var(--unlp-blue); margin-top:10px;">SELECCIONÁ CIUDAD</p>
     </section>
 
     <section id="info-detalle">
-        <div id="view-placeholder">Seleccioná una ciudad para ver el pronóstico completo.</div>
+        <div id="view-placeholder">Seleccioná una ciudad para ver el pronóstico.</div>
 
         <div id="full-report" style="display:none;">
             <div class="real-time-card" id="rt-section">
@@ -203,35 +197,33 @@
 </main>
 
 <script>
-    // Configuración Proxy para Datos Reales de la Facultad
     const PROXY = "https://api.allorigins.win/get?url=";
     const METEO_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
 
     async function fetchRealTimeData() {
         const timeEl = document.getElementById('rt-time');
         try {
-            const res = await fetch(`${PROXY}${METEO_URL}`);
+            // Agregamos un timestamp para evitar que el proxy cachee datos viejos
+            const res = await fetch(`${PROXY}${METEO_URL}&rand=${Date.now()}`);
             const data = await res.json();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(data.contents, 'text/html');
-            const bodyText = doc.body.innerText;
+            const bodyText = data.contents;
 
-            // Buscamos los valores con expresiones regulares (Regex)
-            const temp = bodyText.match(/Temperatura:\s*([\d.]+)/);
-            const hum = bodyText.match(/Humedad:\s*([\d.]+)/);
-            const pres = bodyText.match(/Presión:\s*([\d.]+)/);
-            const wind = bodyText.match(/Viento:\s*([\d.]+)/);
+            // Buscadores más flexibles (ignoran mayúsculas/minúsculas y espacios extra)
+            const tempMatch = bodyText.match(/Temperat[^\d]+([\d.]+)/i);
+            const humMatch = bodyText.match(/Humedad[^\d]+([\d.]+)/i);
+            const presMatch = bodyText.match(/Presi[^\d]+([\d.]+)/i);
+            const windMatch = bodyText.match(/Viento[^\d]+([\d.]+)/i);
 
-            if (temp) document.getElementById('rt-temp').innerText = temp[1] + "°";
-            if (hum) document.getElementById('rt-hum').innerText = hum[1] + "%";
-            if (pres) document.getElementById('rt-pres').innerText = pres[1];
-            if (wind) document.getElementById('rt-wind').innerText = wind[1];
+            if (tempMatch) document.getElementById('rt-temp').innerText = tempMatch[1] + "°";
+            if (humMatch) document.getElementById('rt-hum').innerText = humMatch[1] + "%";
+            if (presMatch) document.getElementById('rt-pres').innerText = presMatch[1];
+            if (windMatch) document.getElementById('rt-wind').innerText = windMatch[1];
             
             const ahora = new Date();
             timeEl.innerText = `Actualizado: ${ahora.getHours()}:${ahora.getMinutes().toString().padStart(2, '0')} hs`;
         } catch (e) {
-            timeEl.innerText = "Estación temporalmente fuera de línea";
-            console.error(e);
+            timeEl.innerText = "Estación fuera de línea";
+            console.error("Error capturando datos:", e);
         }
     }
 
@@ -240,11 +232,13 @@
             "emission_time": "08:00hs",
             "h_t1": "16°", "h_t2": "23°", "h_t3": "18°",
             "h_v1": "leves del este", "h_v2": "moderados del NE", "h_v3": "leves del este",
+            "h_w1": "algo nublado", "h_w2": "despejado", "h_w3": "algo nublado",
             "h_icon1": "images/soleado.png", "h_icon2": "images/algo_nublado.png", "h_icon3": "images/soleado.png",
             "m_t1": "18°", "m_t2": "22°", "m_t3": "27°", "m_t4": "20°",
+            "m_v1": "calmos", "m_v2": "leves", "m_v3": "moderados", "m_v4": "leves",
             "m_icon1": "images/soleado.png", "m_icon2": "images/soleado.png", "m_icon3": "images/algo_nublado.png", "m_icon4": "images/cubierto.png",
-            "d3_full_desc": "Cielo ligeramente nublado desmejorando hacia la noche.", "d3_icon1": "images/soleado.png", "d3_icon2": "images/nublado.png",
-            "d4_full_desc": "Probabilidad de chaparrones aislados por la tarde.", "d4_icon1": "images/cubierto.png", "d4_icon2": "images/lluvias_aisladas.png"
+            "d3_full_desc": "Cielo ligeramente nublado. Nieblas matinales.", "d3_icon1": "images/soleado.png", "d3_icon2": "images/nublado.png",
+            "d4_full_desc": "Probabilidad de chaparrones aislados.", "d4_icon1": "images/cubierto.png", "d4_icon2": "images/lluvias_aisladas.png"
         }
     };
 
@@ -259,7 +253,6 @@
         document.getElementById('out-city').innerText = ciudad;
         document.getElementById('out-hora').innerText = data.emission_time || '--:--';
 
-        // Lógica Tiempo Real
         if(ciudad === "La Plata") {
             document.getElementById('rt-section').style.display = 'block';
             fetchRealTimeData();
@@ -270,15 +263,23 @@
         const fill = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val || '--'; };
         const setIcon = (id, src) => { if(document.getElementById(id)) document.getElementById(id).src = src || 'images/default.png'; };
 
+        // Hoy y Mañana (H y M)
         for(let i=1; i<=4; i++) {
-            fill(`web-h-t${i}`, data[`h_t${i}`]); fill(`web-h-v${i}`, data[`h_v${i}`]);
+            fill(`web-h-t${i}`, data[`h_t${i}`]); 
+            fill(`web-h-v${i}`, data[`h_v${i}`]); 
+            fill(`web-h-w${i}`, data[`h_w${i}`]);
             setIcon(`web-h-icon-${i}`, data[`h_icon${i}`]);
+
             fill(`web-m-t${i}`, data[`m_t${i}`]); 
+            fill(`web-m-v${i}`, data[`m_v${i}`]); 
+            fill(`web-m-w${i}`, data[`m_w${i}`]);
             setIcon(`web-m-icon-${i}`, data[`m_icon${i}`]);
         }
+        // Extendido
         ['d3', 'd4'].forEach(d => {
             fill(`web-${d}-full-desc`, data[`${d}_full_desc`]);
-            setIcon(`web-${d}-icon-1`, data[`${d}_icon1`]); setIcon(`web-${d}-icon-2`, data[`${d}_icon2`]);
+            setIcon(`web-${d}-icon-1`, data[`${d}_icon1`]); 
+            setIcon(`web-${d}-icon-2`, data[`${d}_icon2`]);
         });
         updateFechas();
     }
