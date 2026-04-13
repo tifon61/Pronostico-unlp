@@ -15,17 +15,24 @@
         }
         body { font-family: 'Montserrat', sans-serif; margin: 0; background: var(--bg); color: #333; overflow-x: hidden; }
         
-        /* HEADER RESPONSIVO */
+        /* HEADER REESTRUCTURADO */
         header { 
             background: white; padding: 10px 5%; display: flex; 
             justify-content: space-between; align-items: center; 
             border-bottom: 5px solid var(--unlp-blue);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex-wrap: wrap; gap: 10px;
+            gap: 10px;
         }
-        .logos-container { display: flex; align-items: center; gap: 10px; }
-        header img { height: 40px; width: auto; max-width: 100%; }
-        .header-title h1 { margin: 0; font-size: 1.1em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; text-align: center; }
+        
+        header img { height: 45px; width: auto; transition: 0.3s; }
+        .header-title { flex-grow: 1; text-align: center; }
+        .header-title h1 { margin: 0; font-size: 1.1em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; }
+
+        /* Clases para identificar y ordenar logos */
+        .logo-ast { order: 1; }
+        .logo-pro { order: 2; margin-right: 15px; }
+        .header-title { order: 3; }
+        .logo-unlp { order: 4; }
 
         main { 
             max-width: 1400px; margin: 20px auto; 
@@ -64,9 +71,8 @@
         .city-bar h2 { margin: 0; font-size: 1.6em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
         .badge { background: var(--unlp-blue); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.7em; font-weight: 800; }
 
-        /* CONTENEDOR DE TABLAS CON SCROLL PARA MÓVIL */
+        /* TABLAS CON SCROLL */
         .table-wrapper { width: 100%; overflow-x: auto; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-
         .weather-grid { background: var(--unlp-blue); min-width: 600px; color: white; }
         .weather-grid.verde { background: var(--unlp-green); }
         .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; font-size: 0.8em; text-align: center; }
@@ -92,28 +98,38 @@
 
         #view-placeholder { background: white; border-radius: 20px; padding: 60px; text-align: center; color: #ccc; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
 
-        /* AJUSTES PARA CELULARES */
+        /* AJUSTES CELULAR (Mobile First) */
         @media (max-width: 850px) {
+            header { padding: 10px 15px; }
+            header img { height: 35px; }
+            
+            /* Lógica de logos en celular */
+            .logo-ast { order: 1; margin-right: 0; }
+            .header-title { order: 2; flex-grow: 1; }
+            .header-title h1 { font-size: 0.8em; }
+            .logo-pro { order: 3; margin-right: 0; } /* El de Pronóstico pasa a la derecha */
+            .logo-unlp { display: none; } /* Ocultamos el de UNLP para ganar espacio */
+
             main { grid-template-columns: 1fr; margin: 10px auto; }
             .sidebar-card { position: relative; top: 0; margin-bottom: 20px; }
             #map { height: 300px; }
             .rt-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .rt-item { border: none; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 10px; }
             .extended-row { grid-template-columns: 1fr; }
-            .header-title h1 { font-size: 0.9em; }
-            header { justify-content: center; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logos-container">
-        <img src="images/Logo astronomicas y geofisicas.png">
-        <img src="images/Logo pronounlp.jfif" style="height: 40px; border-radius: 50%;">
+    <img src="images/Logo astronomicas y geofisicas.png" class="logo-ast">
+    <img src="images/Logo pronounlp.jfif" class="logo-pro" style="border-radius: 50%;">
+    
+    <div class="header-title">
+        <h1>Portal Meteorológico UNLP</h1>
     </div>
-    <div class="header-title"><h1>Portal Meteorológico UNLP</h1></div>
-    <img src="images/Logo unlp.png">
+    
+    <img src="images/Logo unlp.png" class="logo-unlp">
 </header>
 
 <main>
@@ -188,7 +204,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Inicialización del mapa
+    // Mapa interactivo
     const map = L.map('map').setView([-36.5, -59.5], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
