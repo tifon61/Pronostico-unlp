@@ -256,7 +256,62 @@
         }
     };
 
-    function saveToWeb() { alert("Sincronizado."); }
+   function saveToWeb() {
+    const city = document.getElementById('city-selector').value;
+    
+    // Objeto para capturar TODO el reporte
+    const report = {
+        location: city,
+        emission_time: document.getElementById('out-hora').innerText,
+        // Datos de Hoy (H)
+        h_min: document.getElementById('h-min').innerText,
+        h_max: document.getElementById('h-max').innerText,
+        h_min_sub: document.getElementById('h-min-sub').innerText,
+        h_max_sub: document.getElementById('h-max-sub').innerText,
+        // Datos de Mañana (M)
+        m_min: document.getElementById('m-min').innerText,
+        m_max: document.getElementById('m-max').innerText,
+        m_min_sub: document.getElementById('m-min-sub').innerText,
+        m_max_sub: document.getElementById('m-max-sub').innerText,
+        // Extendido (D3 y D4)
+        d3_min: document.getElementById('d3-min').innerText,
+        d3_max: document.getElementById('d3-max').innerText,
+        d3_min_sub: document.getElementById('d3-min-sub').innerText,
+        d3_max_sub: document.getElementById('d3-max-sub').innerText,
+        d3_full_desc: document.getElementById('d3-full-desc').innerText,
+        d4_min: document.getElementById('d4-min').innerText,
+        d4_max: document.getElementById('d4-max').innerText,
+        d4_min_sub: document.getElementById('d4-min-sub').innerText,
+        d4_max_sub: document.getElementById('d4-max-sub').innerText,
+        d4_full_desc: document.getElementById('d4-full-desc').innerText
+    };
+
+    // Bucle para capturar tramos horarios (Iconos, Vientos, Tiempo)
+    // Hoy (3 tramos), Mañana (4 tramos), D3/D4 (2 tramos cada uno)
+    const tramosMap = { h: 3, m: 4, d3: 2, d4: 2 };
+    
+    for (const [prefix, count] of Object.entries(tramosMap)) {
+        for (let i = 1; i <= count; i++) {
+            // Guardar texto de temperatura (solo para H y M)
+            if (prefix === 'h' || prefix === 'm') {
+                report[`${prefix}_t${i}`] = document.getElementById(`${prefix}-t${i}`).innerText;
+            }
+            // Guardar Viento y Tiempo/Descripción
+            report[`${prefix}_v${i}`] = document.getElementById(`${prefix}-v${i}`) ? document.getElementById(`${prefix}-v${i}`).innerText : '';
+            report[`${prefix}_w${i}`] = document.getElementById(`${prefix}-w${i}`) ? document.getElementById(`${prefix}-w${i}`).innerText : '';
+            // Guardar la RUTA del icono (muy importante)
+            const img = document.getElementById(`${prefix}-icon-${i}`);
+            report[`${prefix}_icon${i}`] = img ? img.getAttribute('src') : 'images/default.png';
+        }
+    }
+
+    // Guardar en la base de datos local
+    let db = JSON.parse(localStorage.getItem('unlp_db')) || {};
+    db[city] = report;
+    localStorage.setItem('unlp_db', JSON.stringify(db));
+    
+    alert("✅ Datos de " + city + " sincronizados correctamente con el Portal.");
+}
 </script>
 </body>
 </html>
