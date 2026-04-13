@@ -33,8 +33,6 @@
         /* GRILLAS PLACA 1 */
         .grid-day-block { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 15px; }
         .grid-day-block.verde { background: var(--unlp-green); }
-        
-        /* Centrado de etiquetas en el header de la grilla */
         .block-header { background: rgba(0,0,0,0.2); padding: 8px 0; display: grid; font-weight: 800; font-size: 0.9em; text-align: center; }
         .header-3 { grid-template-columns: 190px repeat(3, 1fr); }
         .header-4 { grid-template-columns: 190px repeat(4, 1fr); }
@@ -63,7 +61,6 @@
         .card-split div { font-size: 0.65em; font-weight: 800; text-transform: uppercase; }
         .card-split img { height: 100px; margin: 10px 0; }
         .card-split .weather-desc { font-size: 1em; font-weight: 700; margin-bottom: 5px; min-height: 30px; }
-        .card-split .wind-sub { font-size: 0.9em; opacity: 0.8; font-weight: 800; }
 
         .card-temps { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
         .temp-item { display: flex; align-items: center; gap: 10px; font-size: 1.8em; font-weight: 700; }
@@ -88,7 +85,7 @@
         <input type="text" id="in-hora-emision" placeholder="08:00hs" oninput="up('out-hora', this.value)">
     </div>
 
-    <button class="btn btn-save" onclick="saveToWeb()">🌐 GUARDAR EN LA WEB</button>
+    <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
     <button class="btn btn-p1" onclick="download('placa-1', 'CortoPlazo')">⬇ BAJAR PLACA 1</button>
     <button class="btn btn-p2" onclick="download('placa-2', 'Extendido')">⬇ BAJAR PLACA 2</button>
 
@@ -140,24 +137,24 @@
             <div class="v-card celeste">
                 <h2 class="n2">--</h2><div class="date f2">--</div>
                 <div class="card-split">
-                    <div>MADRUGADA/MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div class="weather-desc" id="d3-w1">--</div><div class="wind-sub" id="d3-v1">--</div></div>
-                    <div>TARDE/NOCHE<br><img id="d3-icon-2" src="images/default.png"><br><div class="weather-desc" id="d3-w2">--</div><div class="wind-sub" id="d3-v2">--</div></div>
+                    <div>MADRUGADA/MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div class="weather-desc" id="d3-w1">--</div></div>
+                    <div>TARDE/NOCHE<br><img id="d3-icon-2" src="images/default.png"><br><div class="weather-desc" id="d3-w2">--</div></div>
                 </div>
                 <div class="card-temps">
-                    <div class="temp-item"><div style="color:#fff; font-size: 1.5em;">⬇</div><div><span id="d3-min">--</span><span class="sub-label"><span id="d3-min-sub">--</span>*</span></div></div>
-                    <div class="temp-item"><div style="color:#fff; font-size: 1.5em;">⬆</div><div><span id="d3-max">--</span><span class="sub-label"><span id="d3-max-sub">--</span>*</span></div></div>
+                    <div class="temp-item">⬇<div><span id="d3-min">--</span><span class="sub-label"><span id="d3-min-sub">--</span>*</span></div></div>
+                    <div class="temp-item">⬆<div><span id="d3-max">--</span><span class="sub-label"><span id="d3-max-sub">--</span>*</span></div></div>
                 </div>
                 <div class="full-desc" id="d3-full-desc">--</div>
             </div>
             <div class="v-card oscuro">
                 <h2 class="n3">--</h2><div class="date f3">--</div>
                 <div class="card-split">
-                    <div>MADRUGADA/MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div class="weather-desc" id="d4-w1">--</div><div class="wind-sub" id="d4-v1">--</div></div>
-                    <div>TARDE/NOCHE<br><img id="d4-icon-2" src="images/default.png"><br><div class="weather-desc" id="d4-w2">--</div><div class="wind-sub" id="d4-v2">--</div></div>
+                    <div>MADRUGADA/MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div class="weather-desc" id="d4-w1">--</div></div>
+                    <div>TARDE/NOCHE<br><img id="d4-icon-2" src="images/default.png"><br><div class="weather-desc" id="d4-w2">--</div></div>
                 </div>
                 <div class="card-temps">
-                    <div class="temp-item"><div style="color:#fff; font-size: 1.5em;">⬇</div><div><span id="d4-min">--</span><span class="sub-label"><span id="d4-min-sub">--</span>*</span></div></div>
-                    <div class="temp-item"><div style="color:#fff; font-size: 1.5em;">⬆</div><div><span id="d4-max">--</span><span class="sub-label"><span id="d4-max-sub">--</span>*</span></div></div>
+                    <div class="temp-item">⬇<div><span id="d4-min">--</span><span class="sub-label"><span id="d4-min-sub">--</span>*</span></div></div>
+                    <div class="temp-item">⬆<div><span id="d4-max">--</span><span class="sub-label"><span id="d4-max-sub">--</span>*</span></div></div>
                 </div>
                 <div class="full-desc" id="d4-full-desc">--</div>
             </div>
@@ -168,18 +165,18 @@
 
 <script>
     const WEATHER_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas", "lluvias aisladas", "chaparrones", "tormentas aisladas", "lluvias y tormentas"];
-    const WIND_INT = ["leves", "moderados", "regulares", "fuertes", "con ráfagas"];
-    const WIND_DIR = ["del norte", "del noreste", "del este", "del sudeste", "del sur", "del sudoeste", "del oeste", "del noroeste"];
+    const WIND_INT = ["calmo", "leves", "moderado", "fuerte", "muy fuerte"];
+    const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
     
     const iconMap = {"despejado": "soleado.png", "ligeramente nublado": "ligeramente_nublado.png", "algo nublado": "algo_nublado.png", "parcialmente nublado": "parcialmente_nublado.png", "nublado": "nublado.png", "cubierto": "cubierto.png", "lluvias aisladas": "lluvias_aisladas.png", "lluvias y tormentas": "tormentas.png", "nieblas": "nieblas.png"};
 
     function renderSidebar() {
         let html = '';
         const configs = [
-            {id: 'h', title: 'DÍA 1 (HOY)', tramos: ['Mañana', 'Tarde', 'Noche']},
-            {id: 'm', title: 'DÍA 2 (MAÑANA)', tramos: ['Madrugada', 'Mañana', 'Tarde', 'Noche']},
-            {id: 'd3', title: 'DÍA 3', tramos: ['Mad/Mañ', 'Tar/Noc']},
-            {id: 'd4', title: 'DÍA 4', tramos: ['Mad/Mañ', 'Tar/Noc']}
+            {id: 'h', title: 'DÍA 1 (HOY)', tramos: ['mañana', 'tarde', 'noche']},
+            {id: 'm', title: 'DÍA 2 (MAÑANA)', tramos: ['madrugada', 'mañana', 'tarde', 'noche']},
+            {id: 'd3', title: 'DÍA 3', tramos: ['mañana', 'tarde']},
+            {id: 'd4', title: 'DÍA 4', tramos: ['mañana', 'tarde']}
         ];
 
         configs.forEach(conf => {
@@ -194,7 +191,7 @@
             conf.tramos.forEach((t, i) => {
                 const idx = i + 1;
                 html += `<h4>${t}</h4>
-                <select onchange="updateWeather('${conf.id}', ${idx}, this.value)"><option value="">Tiempo...</option>${WEATHER_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                <select id="${conf.id}-weather-select-${idx}" onchange="updateWeather('${conf.id}', ${idx}, this.value)"><option value="">Tiempo...</option>${WEATHER_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
                 <div class="row">
                     <select id="${conf.id}-v-i${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Intensidad</option>${WIND_INT.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
                     <select id="${conf.id}-v-d${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Dirección</option>${WIND_DIR.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
@@ -222,7 +219,7 @@
         const i = document.getElementById(`${dia}-v-i${tramo}`).value;
         const d = document.getElementById(`${dia}-v-d${tramo}`).value;
         const target = document.getElementById(`${dia}-v${tramo}`);
-        if(target) target.innerText = (i && d) ? `${i} ${d}` : "--";
+        if(target) target.innerText = (i && d) ? `${i} del ${d}` : "--";
     }
 
     function up(id, v) { 
@@ -246,7 +243,7 @@
 
     window.onload = () => {
         renderSidebar();
-        const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+        const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
         const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
         const hoy = new Date();
         for(let i=0; i<4; i++) {
@@ -256,62 +253,88 @@
         }
     };
 
-   function saveToWeb() {
-    const city = document.getElementById('city-selector').value;
-    
-    // Objeto para capturar TODO el reporte
-    const report = {
-        location: city,
-        emission_time: document.getElementById('out-hora').innerText,
-        // Datos de Hoy (H)
-        h_min: document.getElementById('h-min').innerText,
-        h_max: document.getElementById('h-max').innerText,
-        h_min_sub: document.getElementById('h-min-sub').innerText,
-        h_max_sub: document.getElementById('h-max-sub').innerText,
-        // Datos de Mañana (M)
-        m_min: document.getElementById('m-min').innerText,
-        m_max: document.getElementById('m-max').innerText,
-        m_min_sub: document.getElementById('m-min-sub').innerText,
-        m_max_sub: document.getElementById('m-max-sub').innerText,
-        // Extendido (D3 y D4)
-        d3_min: document.getElementById('d3-min').innerText,
-        d3_max: document.getElementById('d3-max').innerText,
-        d3_min_sub: document.getElementById('d3-min-sub').innerText,
-        d3_max_sub: document.getElementById('d3-max-sub').innerText,
-        d3_full_desc: document.getElementById('d3-full-desc').innerText,
-        d4_min: document.getElementById('d4-min').innerText,
-        d4_max: document.getElementById('d4-max').innerText,
-        d4_min_sub: document.getElementById('d4-min-sub').innerText,
-        d4_max_sub: document.getElementById('d4-max-sub').innerText,
-        d4_full_desc: document.getElementById('d4-full-desc').innerText
-    };
+    async function saveToWeb() {
+        const city = document.getElementById('city-selector').value;
+        const emissionTimeRaw = document.getElementById('out-hora').innerText.replace('hs', '');
+        const today = new Date();
+        const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
-    // Bucle para capturar tramos horarios (Iconos, Vientos, Tiempo)
-    // Hoy (3 tramos), Mañana (4 tramos), D3/D4 (2 tramos cada uno)
-    const tramosMap = { h: 3, m: 4, d3: 2, d4: 2 };
-    
-    for (const [prefix, count] of Object.entries(tramosMap)) {
-        for (let i = 1; i <= count; i++) {
-            // Guardar texto de temperatura (solo para H y M)
-            if (prefix === 'h' || prefix === 'm') {
-                report[`${prefix}_t${i}`] = document.getElementById(`${prefix}-t${i}`).innerText;
+        // Objeto Raíz: Forecast
+        const forecastPayload = {
+            location: city,
+            forecast_date: today.toISOString().split('T')[0],
+            emission_time: emissionTimeRaw + ":00",
+            daily_forecasts: []
+        };
+
+        const dayConfigs = [
+            {id: 'h', tramos: ['mañana', 'tarde', 'noche']},
+            {id: 'm', tramos: ['madrugada', 'mañana', 'tarde', 'noche']},
+            {id: 'd3', tramos: ['mañana', 'tarde']},
+            {id: 'd4', tramos: ['mañana', 'tarde']}
+        ];
+
+        for (let i = 0; i < dayConfigs.length; i++) {
+            const conf = dayConfigs[i];
+            const dateObj = new Date();
+            dateObj.setDate(today.getDate() + i);
+
+            // Objeto: DailyForecast
+            const dailyForecast = {
+                date: dateObj.toISOString().split('T')[0],
+                day_name: dayNames[dateObj.getDay()],
+                temp_min: parseFloat(document.getElementById(`${conf.id}-min`).innerText) || 0,
+                temp_max: parseFloat(document.getElementById(`${conf.id}-max`).innerText) || 0,
+                period_forecasts: []
+            };
+
+            conf.tramos.forEach((periodValue, index) => {
+                const tramoIdx = index + 1;
+                const skyCond = document.getElementById(`${conf.id}-weather-select-${tramoIdx}`).value;
+                const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
+                const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
+
+                let temp = null;
+                if (conf.id === 'h' || conf.id === 'm') {
+                    temp = parseFloat(document.getElementById(`${conf.id}-t${tramoIdx}`).innerText) || null;
+                }
+
+                const img = document.getElementById(`${conf.id}-icon-${tramoIdx}`);
+                const iconCode = img ? img.getAttribute('src').split('/').pop().replace('.png', '') : 'default';
+
+                // Objeto: PeriodForecast
+                dailyForecast.period_forecasts.push({
+                    period: periodValue,
+                    temperature: temp,
+                    sky_condition: skyCond || null,
+                    precipitation_description: skyCond || null,
+                    wind_direction: windDir || null,
+                    wind_intensity: windInt || null,
+                    weather_icon_code: iconCode
+                });
+            });
+
+            forecastPayload.daily_forecasts.push(dailyForecast);
+        }
+
+        try {
+            const response = await fetch('https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(forecastPayload)
+            });
+
+            if (response.ok) {
+                alert("✅ ¡Pronóstico creado y publicado en la API con éxito!");
+            } else {
+                const err = await response.json();
+                alert("❌ Error del servidor: " + (err.message || response.statusText));
             }
-            // Guardar Viento y Tiempo/Descripción
-            report[`${prefix}_v${i}`] = document.getElementById(`${prefix}-v${i}`) ? document.getElementById(`${prefix}-v${i}`).innerText : '';
-            report[`${prefix}_w${i}`] = document.getElementById(`${prefix}-w${i}`) ? document.getElementById(`${prefix}-w${i}`).innerText : '';
-            // Guardar la RUTA del icono (muy importante)
-            const img = document.getElementById(`${prefix}-icon-${i}`);
-            report[`${prefix}_icon${i}`] = img ? img.getAttribute('src') : 'images/default.png';
+        } catch (e) {
+            alert("❌ Error de red: No se pudo contactar con la API.");
+            console.error(e);
         }
     }
-
-    // Guardar en la base de datos local
-    let db = JSON.parse(localStorage.getItem('unlp_db')) || {};
-    db[city] = report;
-    localStorage.setItem('unlp_db', JSON.stringify(db));
-    
-    alert("✅ Datos de " + city + " sincronizados correctamente con el Portal.");
-}
 </script>
 </body>
 </html>
