@@ -24,76 +24,77 @@
         .header-title h1 { margin: 0; font-size: 1.1em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
 
         main { 
-            max-width: 1300px; margin: 25px auto; 
-            display: grid; grid-template-columns: 320px 1fr; 
+            max-width: 1400px; margin: 25px auto; 
+            display: grid; grid-template-columns: 350px 1fr; 
             gap: 25px; padding: 0 20px; 
         }
 
-        /* SIDEBAR / MAPA */
-        .sidebar-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; text-align: center; }
-        .map-frame { background: #007bbd; border-radius: 15px; padding: 10px; margin-bottom: 15px; }
-        .map-svg { width: 100%; height: auto; max-width: 250px; }
-        .provincia-shape { fill: #0098da; stroke: white; stroke-width: 2; }
+        /* SIDEBAR / MAPA GEOGRÁFICO */
+        .sidebar-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; text-align: center; position: sticky; top: 20px; }
+        .map-frame { background: #007bbd; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: center; }
+        .map-svg { width: 100%; height: auto; max-width: 280px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2)); }
+        
+        .provincia-shape { fill: #0098da; stroke: white; stroke-width: 1.5; }
         .city-dot { fill: #ffeb3b; stroke: var(--unlp-blue); stroke-width: 2; cursor: pointer; transition: 0.3s; }
         .city-dot:hover { r: 10; fill: white; }
-        .city-label { fill: white; font-weight: 900; font-size: 12px; pointer-events: none; text-shadow: 1px 1px 2px black; }
+        .city-label { fill: white; font-weight: 900; font-size: 11px; pointer-events: none; text-shadow: 1px 1px 2px black; text-transform: uppercase; }
 
-        /* CONTENIDO PRINCIPAL */
+        /* CONTENIDO */
         .content-area { display: flex; flex-direction: column; gap: 20px; }
 
-        /* TIEMPO REAL */
+        /* DASHBOARD TIEMPO REAL */
         .rt-card {
             background: white; border-radius: 15px; padding: 20px 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 6px solid var(--unlp-accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 8px solid var(--unlp-accent);
         }
         .rt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .rt-header h3 { margin: 0; font-weight: 900; color: var(--unlp-blue); font-size: 0.85em; text-transform: uppercase; }
-        .live-dot { height: 8px; width: 8px; background: #ff5252; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 1.5s infinite; }
+        .live-dot { height: 10px; width: 10px; background: #ff5252; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         .rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
         .rt-item { border-right: 1px solid #eee; }
         .rt-item:last-child { border: none; }
-        .rt-value { display: block; font-size: 1.6em; font-weight: 900; color: var(--unlp-blue); }
-        .rt-label { font-size: 0.6em; font-weight: 800; color: #999; text-transform: uppercase; }
+        .rt-value { display: block; font-size: 1.8em; font-weight: 900; color: var(--unlp-blue); }
+        .rt-label { font-size: 0.65em; font-weight: 800; color: #999; text-transform: uppercase; }
 
-        /* CIUDAD HEADER */
+        /* CIUDAD BAR */
         .city-bar { 
-            background: white; padding: 15px 30px; border-radius: 15px; 
+            background: white; padding: 15px 35px; border-radius: 15px; 
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        .city-bar h2 { margin: 0; font-size: 1.8em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
-        .badge { background: var(--unlp-blue); color: white; padding: 6px 15px; border-radius: 8px; font-size: 0.75em; font-weight: 800; }
+        .city-bar h2 { margin: 0; font-size: 2.2em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
+        .badge { background: var(--unlp-blue); color: white; padding: 8px 18px; border-radius: 10px; font-size: 0.8em; font-weight: 800; }
 
         /* GRILLAS PRONÓSTICO */
         .weather-grid { background: var(--unlp-blue); border-radius: 20px; overflow: hidden; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .weather-grid.verde { background: var(--unlp-green); }
         
-        .grid-header { background: rgba(0,0,0,0.2); padding: 10px 0; display: grid; font-weight: 800; font-size: 0.8em; text-align: center; }
-        .cols-3 { grid-template-columns: 160px repeat(3, 1fr); }
-        .cols-4 { grid-template-columns: 160px repeat(4, 1fr); }
+        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; font-size: 0.85em; text-align: center; }
+        .cols-3 { grid-template-columns: 180px repeat(3, 1fr); }
+        .cols-4 { grid-template-columns: 180px repeat(4, 1fr); }
 
         .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
-        .cell { padding: 15px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.65em; text-transform: uppercase; align-items: flex-start; padding-left: 20px; border-right: 1px solid rgba(255,255,255,0.1); }
+        .cell { padding: 15px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60px; }
+        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.7em; text-transform: uppercase; align-items: flex-start; padding-left: 25px; border-right: 1px solid rgba(255,255,255,0.1); }
         
-        .icon-cell img { height: 50px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-        .temp-val { font-size: 1.8em; font-weight: 300; }
-        .data-val { font-size: 0.75em; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
+        .icon-cell img { height: 60px; width: auto; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); }
+        .temp-val { font-size: 2.2em; font-weight: 300; }
+        .data-val { font-size: 0.85em; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
 
         /* EXTENDIDO */
         .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .ex-card { border-radius: 30px; padding: 25px; color: white; text-align: center; }
+        .ex-card { border-radius: 35px; padding: 30px; color: white; text-align: center; display: flex; flex-direction: column; align-items: center; }
         .ex-card.celeste { background: var(--unlp-light); }
         .ex-card.oscuro { background: var(--unlp-blue); }
-        .ex-card h3 { margin: 0; font-size: 2em; font-weight: 900; text-transform: uppercase; }
-        .ex-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin-top: 15px; gap: 10px; }
-        .ex-split div { font-size: 0.55em; font-weight: 800; text-transform: uppercase; }
-        .ex-split img { height: 70px; margin: 5px 0; }
-        .ex-desc { font-size: 0.95em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin-top: 10px; }
+        .ex-card h3 { margin: 0; font-size: 2.5em; font-weight: 900; text-transform: uppercase; }
+        .ex-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: 20px; width: 100%; }
+        .ex-split div { font-size: 0.6em; font-weight: 800; text-transform: uppercase; }
+        .ex-split img { height: 90px; margin: 10px 0; }
+        .ex-desc { font-size: 1.1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: auto; }
 
-        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; gap: 10px; } .rt-item { border: none; } .extended-row { grid-template-columns: 1fr; } }
+        @media (max-width: 1100px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; gap: 15px; } .rt-item { border: none; } .extended-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -101,7 +102,7 @@
 <header>
     <div class="logos-container">
         <img src="images/Logo astronomicas y geofisicas.png">
-        <img src="images/Logo pronounlp.jfif" style="height: 45px; border-radius: 50%;">
+        <img src="images/Logo pronounlp.jfif" style="height: 50px; border-radius: 50%;">
     </div>
     <div class="header-title"><h1>Portal Meteorológico UNLP</h1></div>
     <img src="images/Logo unlp.png">
@@ -110,17 +111,20 @@
 <main>
     <section class="sidebar-card">
         <div class="map-frame">
-            <svg viewBox="0 0 400 500" class="map-svg">
-                <path class="provincia-shape" d="M80,60 L320,60 L380,250 L310,480 L50,430 Z" />
-                <circle cx="310" cy="230" r="8" class="city-dot" onclick="cargarFull('La Plata')"></circle>
-                <text x="235" y="235" class="city-label">La Plata</text>
-                <circle cx="330" cy="400" r="8" class="city-dot" onclick="cargarFull('Mar del Plata')"></circle>
-                <text x="215" y="405" class="city-label">Mar del Plata</text>
-                <circle cx="150" cy="150" r="8" class="city-dot" onclick="cargarFull('Junín')"></circle>
-                <text x="165" y="155" class="city-label">Junín</text>
+            <svg viewBox="0 0 400 500" class="map-svg" xmlns="http://www.w3.org/2000/svg">
+                <path class="provincia-shape" d="M125.4,32.2l-14.7,11.5l-2.4,18.7l-26.6,18.5l-19,39l-22,17l-15,48l18,74l28,88l118,103l110-38l68-144l-12-118l-54-106l-85-45L125.4,32.2z"/>
+                
+                <circle cx="120" cy="110" r="7" class="city-dot" onclick="cargarFull('Junín')"></circle>
+                <text x="75" y="115" class="city-label">Junín</text>
+
+                <circle cx="285" cy="135" r="7" class="city-dot" onclick="cargarFull('La Plata')"></circle>
+                <text x="210" y="140" class="city-label">La Plata</text>
+
+                <circle cx="310" cy="360" r="7" class="city-dot" onclick="cargarFull('Mar del Plata')"></circle>
+                <text x="200" y="365" class="city-label">Mar del Plata</text>
             </svg>
         </div>
-        <p style="font-size:0.7em; font-weight:800; color:var(--unlp-blue); letter-spacing: 1px;">SELECCIONÁ UNA CIUDAD</p>
+        <p style="font-size:0.75em; font-weight:900; color:var(--unlp-blue); letter-spacing: 1px;">SELECCIONÁ CIUDAD EN EL MAPA</p>
     </section>
 
     <section class="content-area" id="main-content" style="display:none;">
@@ -128,7 +132,7 @@
         <div class="rt-card" id="rt-section">
             <div class="rt-header">
                 <h3><span class="live-dot"></span>Estación Automática FCAG (En Vivo)</h3>
-                <span id="rt-time" style="font-size: 0.65em; font-weight: 800; color: #bbb;">--:--</span>
+                <span id="rt-time" style="font-size: 0.7em; font-weight: 800; color: #aaa;">Conectando...</span>
             </div>
             <div class="rt-grid">
                 <div class="rt-item"><span class="rt-value" id="rt-temp">--°</span><span class="rt-label">Temperatura</span></div>
@@ -143,8 +147,8 @@
             <div class="badge">EMISIÓN: <span id="out-hora">--:--</span></div>
         </div>
 
-        <div class="weather-grid">
-            <div class="grid-header cols-3"><span id="web-d0-name" style="text-align:left; padding-left:20px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+        <div class="weather-grid" id="grid-hoy">
+            <div class="grid-header cols-3"><span id="web-d0-name" style="text-align:left; padding-left:25px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             <div class="grid-row cols-3">
                 <div class="cell label-cell">Icono</div>
                 <div class="cell icon-cell"><img id="web-h-icon-1" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
@@ -159,8 +163,8 @@
             </div>
         </div>
 
-        <div class="weather-grid verde">
-            <div class="grid-header cols-4"><span id="web-d1-name" style="text-align:left; padding-left:20px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+        <div class="weather-grid verde" id="grid-manana">
+            <div class="grid-header cols-4"><span id="web-d1-name" style="text-align:left; padding-left:25px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             <div class="grid-row cols-4">
                 <div class="cell label-cell">Icono</div>
                 <div class="cell icon-cell"><img id="web-m-icon-1" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
@@ -194,8 +198,8 @@
         </div>
     </section>
     
-    <div id="view-placeholder" style="background:white; border-radius:20px; padding:60px; text-align:center; color:#ccc; box-shadow:0 5px 15px rgba(0,0,0,0.05);">
-        Seleccioná una ciudad en el mapa para cargar el reporte.
+    <div id="view-placeholder" style="background:white; border-radius:20px; padding:80px; text-align:center; color:#ccc; box-shadow:0 5px 15px rgba(0,0,0,0.05); font-weight:700;">
+        Seleccioná una ciudad en el mapa para cargar el pronóstico.
     </div>
 </main>
 
@@ -206,14 +210,15 @@
     async function fetchRealTimeData() {
         const timeEl = document.getElementById('rt-time');
         try {
-            const res = await fetch(`${PROXY}${METEO_URL}&cache=${Date.now()}`);
+            const res = await fetch(`${PROXY}${METEO_URL}&rand=${Date.now()}`);
             const data = await res.json();
-            const body = data.contents;
+            const bodyText = data.contents;
 
-            const t = body.match(/Temperat[^\d]+([\d.]+)/i);
-            const h = body.match(/Humedad[^\d]+([\d.]+)/i);
-            const p = body.match(/Presi[^\d]+([\d.]+)/i);
-            const w = body.match(/Viento[^\d]+([\d.]+)/i);
+            // Regex mejorado para capturar los datos reales de la estación
+            const t = bodyText.match(/Temperat[^\d]+([\d.]+)/i);
+            const h = bodyText.match(/Humedad[^\d]+([\d.]+)/i);
+            const p = bodyText.match(/Presi[^\d]+([\d.]+)/i);
+            const w = bodyText.match(/Viento[^\d]+([\d.]+)/i);
 
             if(t) document.getElementById('rt-temp').innerText = t[1] + "°";
             if(h) document.getElementById('rt-hum').innerText = h[1] + "%";
@@ -233,8 +238,8 @@
             "h_t1": "16", "h_t2": "23", "h_t3": "18", "h_v1": "leves", "h_v2": "moderados", "h_v3": "leves",
             "h_w1": "algo nublado", "h_w2": "despejado", "h_w3": "algo nublado",
             "m_t1": "18", "m_t2": "22", "m_t3": "27", "m_t4": "20",
-            "d3_full_desc": "Cielo ligeramente nublado. Desmejorando hacia la noche.",
-            "d4_full_desc": "Nubosidad variable con descenso de temperatura."
+            "d3_full_desc": "Cielo ligeramente nublado. Probabilidad de nieblas.",
+            "d4_full_desc": "Nubosidad variable. Descenso de temperatura."
         }
     };
 
