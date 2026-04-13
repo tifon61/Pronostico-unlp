@@ -28,7 +28,7 @@
             gap: 25px; padding: 0 20px; 
         }
 
-        /* MAPA CON IMAGEN REAL */
+        /* SIDEBAR / MAPA CON IMAGEN ESPECÍFICA */
         .sidebar-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; text-align: center; position: sticky; top: 20px; }
         .map-container {
             position: relative; width: 100%; background: #007bbd; border-radius: 15px; padding: 5px; box-sizing: border-box; overflow: hidden;
@@ -36,14 +36,14 @@
         .map-image { width: 100%; display: block; border-radius: 10px; }
         
         .city-marker { position: absolute; cursor: pointer; z-index: 10; transition: transform 0.2s; }
-        .city-marker:hover { transform: scale(1.2); }
-        .city-dot { width: 10px; height: 10px; background: #ffeb3b; border: 2px solid var(--unlp-blue); border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        .city-name { position: absolute; left: 12px; top: -5px; color: white; font-weight: 900; font-size: 10px; white-space: nowrap; text-shadow: 1px 1px 2px black; text-transform: uppercase; }
+        .city-marker:hover { transform: scale(1.3); }
+        .city-dot { width: 12px; height: 12px; background: #ffeb3b; border: 2px solid var(--unlp-blue); border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .city-name { position: absolute; left: 15px; top: -5px; color: white; font-weight: 900; font-size: 11px; white-space: nowrap; text-shadow: 1px 1px 2px black; text-transform: uppercase; }
 
-        /* Coordenadas para imagen_2026-04-13_135012629.png */
+        /* COORDENADAS AJUSTADAS PARA imagen_2026-04-13_135012629.png */
         #pos-junin { top: 25%; left: 28%; }
-        #pos-laplata { top: 38%; left: 72%; }
-        #pos-mardelplata { top: 75%; left: 80%; }
+        #pos-laplata { top: 31%; left: 66%; } /* Corregido: más arriba y a la izquierda del estuario */
+        #pos-mardelplata { top: 64%; left: 70%; } /* Corregido: centrado en la saliente atlántica */
 
         /* CONTENIDO PRINCIPAL */
         .content-area { display: flex; flex-direction: column; gap: 20px; }
@@ -60,38 +60,39 @@
         .rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
         .rt-item { border-right: 1px solid #eee; }
         .rt-item:last-child { border: none; }
-        .rt-value { display: block; font-size: 1.6em; font-weight: 900; color: var(--unlp-blue); }
-        .rt-label { font-size: 0.6em; font-weight: 800; color: #999; text-transform: uppercase; }
+        .rt-value { display: block; font-size: 1.8em; font-weight: 900; color: var(--unlp-blue); }
+        .rt-label { font-size: 0.65em; font-weight: 800; color: #999; text-transform: uppercase; }
 
-        .city-bar { background: white; padding: 15px 30px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .city-bar h2 { margin: 0; font-size: 1.8em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
+        .city-bar { background: white; padding: 15px 35px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .city-bar h2 { margin: 0; font-size: 2.2em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
+        .badge { background: var(--unlp-blue); color: white; padding: 8px 18px; border-radius: 10px; font-size: 0.8em; font-weight: 800; }
 
-        /* GRILLAS */
+        /* GRILLAS PRONÓSTICO */
         .weather-grid { background: var(--unlp-blue); border-radius: 20px; overflow: hidden; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .weather-grid.verde { background: var(--unlp-green); }
-        .grid-header { background: rgba(0,0,0,0.2); padding: 10px 0; display: grid; font-weight: 800; font-size: 0.8em; text-align: center; }
-        .cols-3 { grid-template-columns: 160px repeat(3, 1fr); }
-        .cols-4 { grid-template-columns: 160px repeat(4, 1fr); }
+        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; font-size: 0.85em; text-align: center; }
+        .cols-3 { grid-template-columns: 180px repeat(3, 1fr); }
+        .cols-4 { grid-template-columns: 180px repeat(4, 1fr); }
         .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
-        .cell { padding: 12px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 55px; }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.65em; text-transform: uppercase; align-items: flex-start; padding-left: 20px; border-right: 1px solid rgba(255,255,255,0.1); }
-        .icon-cell img { height: 45px; width: auto; }
-        .temp-val { font-size: 1.6em; font-weight: 300; }
-        .data-val { font-size: 0.75em; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
+        .cell { padding: 15px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60px; }
+        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.7em; text-transform: uppercase; align-items: flex-start; padding-left: 25px; border-right: 1px solid rgba(255,255,255,0.1); }
+        .icon-cell img { height: 55px; width: auto; }
+        .temp-val { font-size: 2em; font-weight: 300; }
+        .data-val { font-size: 0.85em; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
 
-        /* EXTENDIDO (Días 3 y 4) */
+        /* PRONÓSTICO EXTENDIDO */
         .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .ex-card { border-radius: 30px; padding: 25px; color: white; text-align: center; display: flex; flex-direction: column; }
+        .ex-card { border-radius: 35px; padding: 30px; color: white; text-align: center; display: flex; flex-direction: column; }
         .ex-card.celeste { background: var(--unlp-light); }
         .ex-card.oscuro { background: var(--unlp-blue); }
-        .ex-card h3 { margin: 0; font-size: 2em; font-weight: 900; text-transform: uppercase; }
-        .ex-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin-top: 15px; }
-        .ex-split div { font-size: 0.55em; font-weight: 800; text-transform: uppercase; }
-        .ex-split img { height: 60px; margin: 5px 0; }
-        .ex-desc { font-size: 0.95em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin-top: auto; }
+        .ex-card h3 { margin: 0; font-size: 2.2em; font-weight: 900; text-transform: uppercase; }
+        .ex-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: 20px; }
+        .ex-split div { font-size: 0.6em; font-weight: 800; text-transform: uppercase; }
+        .ex-split img { height: 80px; margin: 10px 0; }
+        .ex-desc { font-size: 1.1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: auto; }
 
-        #view-placeholder { background: white; border-radius: 20px; padding: 80px; text-align: center; color: #ccc; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; gap: 10px; } .rt-item { border: none; } .extended-row { grid-template-columns: 1fr; } }
+        #view-placeholder { background: white; border-radius: 20px; padding: 100px; text-align: center; color: #ccc; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .extended-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -120,7 +121,7 @@
                 <div class="city-dot"></div><span class="city-name">Mar del Plata</span>
             </div>
         </div>
-        <p style="font-size:0.7em; font-weight:800; color:var(--unlp-blue); letter-spacing: 1px; margin-top:10px;">SELECCIONÁ CIUDAD EN EL MAPA</p>
+        <p style="font-size:0.75em; font-weight:900; color:var(--unlp-blue); margin-top:15px;">SELECCIONÁ CIUDAD EN EL MAPA</p>
     </section>
 
     <section class="content-area" id="main-content" style="display:none;">
@@ -128,7 +129,7 @@
         <div class="rt-card" id="rt-section">
             <div class="rt-header">
                 <h3><span class="live-dot"></span>Estación Automática FCAG (En Vivo)</h3>
-                <span id="rt-time" style="font-size: 0.65em; font-weight: 800; color: #bbb;">--:--</span>
+                <span id="rt-time" style="font-size: 0.7em; font-weight: 800; color: #aaa;">Conectando...</span>
             </div>
             <div class="rt-grid">
                 <div class="rt-item"><span class="rt-value" id="rt-temp">--°</span><span class="rt-label">Temperatura</span></div>
@@ -144,12 +145,12 @@
         </div>
 
         <div class="weather-grid">
-            <div class="grid-header cols-3"><span id="web-d0-name" style="text-align:left; padding-left:20px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+            <div class="grid-header cols-3"><span id="web-d0-name" style="text-align:left; padding-left:25px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             <div class="grid-row cols-3">
                 <div class="cell label-cell">Icono</div>
-                <div class="cell icon-cell"><img id="web-h-icon-1" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
-                <div class="cell icon-cell"><img id="web-h-icon-2" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
-                <div class="cell icon-cell"><img id="web-h-icon-3" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
+                <div class="cell icon-cell"><img id="web-h-icon-1" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
+                <div class="cell icon-cell"><img id="web-h-icon-2" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
+                <div class="cell icon-cell"><img id="web-h-icon-3" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
                 <div class="cell label-cell">Temp.</div>
                 <div class="cell temp-val" id="web-h-t1">--</div><div class="cell temp-val" id="web-h-t2" style="color:#ffeb3b">--</div><div class="cell temp-val" id="web-h-t3">--</div>
                 <div class="cell label-cell">Viento</div>
@@ -160,13 +161,13 @@
         </div>
 
         <div class="weather-grid verde">
-            <div class="grid-header cols-4"><span id="web-d1-name" style="text-align:left; padding-left:20px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+            <div class="grid-header cols-4"><span id="web-d1-name" style="text-align:left; padding-left:25px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             <div class="grid-row cols-4">
                 <div class="cell label-cell">Icono</div>
-                <div class="cell icon-cell"><img id="web-m-icon-1" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
-                <div class="cell icon-cell"><img id="web-m-icon-2" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
-                <div class="cell icon-cell"><img id="web-m-icon-3" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
-                <div class="cell icon-cell"><img id="web-m-icon-4" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
+                <div class="cell icon-cell"><img id="web-m-icon-1" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
+                <div class="cell icon-cell"><img id="web-m-icon-2" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
+                <div class="cell icon-cell"><img id="web-m-icon-3" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
+                <div class="cell icon-cell"><img id="web-m-icon-4" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"></div>
                 <div class="cell label-cell">Temp.</div>
                 <div class="cell temp-val" id="web-m-t1">--</div><div class="cell temp-val" id="web-m-t2">--</div><div class="cell temp-val" id="web-m-t3" style="color:#ffeb3b">--</div><div class="cell temp-val" id="web-m-t4">--</div>
                 <div class="cell label-cell">Viento</div>
@@ -178,16 +179,16 @@
             <div class="ex-card celeste">
                 <h3 id="web-d2-name">--</h3>
                 <div class="ex-split">
-                    <div>MAD/MAÑ<br><img id="web-d3-icon-1" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d3-w1">--</span></div>
-                    <div>TAR/NOC<br><img id="web-d3-icon-2" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d3-w2">--</span></div>
+                    <div>MAD/MAÑ<br><img id="web-d3-icon-1" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d3-w1">--</span></div>
+                    <div>TAR/NOC<br><img id="web-d3-icon-2" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d3-w2">--</span></div>
                 </div>
                 <div class="ex-desc" id="web-d3-full-desc">--</div>
             </div>
             <div class="ex-card oscuro">
                 <h3 id="web-d3-name">--</h3>
                 <div class="ex-split">
-                    <div>MAD/MAÑ<br><img id="web-d4-icon-1" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d4-w1">--</span></div>
-                    <div>TAR/NOC<br><img id="web-d4-icon-2" src="images/soleado.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d4-w2">--</span></div>
+                    <div>MAD/MAÑ<br><img id="web-d4-icon-1" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d4-w1">--</span></div>
+                    <div>TAR/NOC<br><img id="web-d4-icon-2" src="images/default.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/869/869869.png'"><br><span id="web-d4-w2">--</span></div>
                 </div>
                 <div class="ex-desc" id="web-d4-full-desc">--</div>
             </div>
@@ -204,7 +205,7 @@
     async function fetchRealTimeData() {
         const timeEl = document.getElementById('rt-time');
         try {
-            const res = await fetch(`${PROXY}${METEO_URL}&cache=${Date.now()}`);
+            const res = await fetch(`${PROXY}${METEO_URL}&rand=${Date.now()}`);
             const data = await res.json();
             const body = data.contents;
             const t = body.match(/Temperat[^\d]+([\d.]+)/i);
@@ -216,7 +217,7 @@
             if(p) document.getElementById('rt-pres').innerText = p[1];
             if(w) document.getElementById('rt-wind').innerText = w[1];
             timeEl.innerText = `Actualizado: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')} hs`;
-        } catch (e) { timeEl.innerText = "Estación en mantenimiento"; }
+        } catch (e) { timeEl.innerText = "Estación fuera de línea"; }
     }
 
     const mockData = {
@@ -248,7 +249,7 @@
         }
 
         const fill = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = (val && val !== '--') ? (id.includes('-t') ? val + "°" : val) : '--'; };
-        const setIcon = (id, src) => { if(document.getElementById(id)) document.getElementById(id).src = src || 'images/soleado.png'; };
+        const setIcon = (id, src) => { if(document.getElementById(id)) document.getElementById(id).src = src || 'images/default.png'; };
 
         for(let i=1; i<=4; i++) {
             fill(`web-h-t${i}`, data[`h_t${i}`]); fill(`web-h-v${i}`, data[`h_v${i}`]); fill(`web-h-w${i}`, data[`h_w${i}`]); setIcon(`web-h-icon-${i}`, data[`h_icon${i}`]);
