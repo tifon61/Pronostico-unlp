@@ -10,80 +10,91 @@
             --unlp-blue: #00315a; --unlp-accent: #0079c1; --unlp-green: #00796b;
             --unlp-light: #5899d2; --bg: #f4f7f9;
         }
-        body { font-family: 'Montserrat', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; background: var(--bg); color: #333; overflow-x: hidden; }
         
         header { 
-            background: white; padding: 15px 5%; display: flex; 
+            background: white; padding: 10px 5%; display: flex; 
             justify-content: space-between; align-items: center; 
             border-bottom: 5px solid var(--unlp-blue);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky; top: 0; z-index: 1000;
         }
-        header .logos-container { display: flex; align-items: center; gap: 20px; }
-        header img { height: 55px; width: auto; }
-        .header-title h1 { margin: 0; font-size: 1.4em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; }
+        .logos-container { display: flex; align-items: center; gap: 15px; }
+        header img { height: 50px; width: auto; object-fit: contain; }
+        .header-title h1 { margin: 0; font-size: 1.2em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; }
 
         main { 
-            max-width: 1400px; margin: 30px auto; 
-            display: grid; grid-template-columns: 380px 1fr; 
-            gap: 30px; padding: 0 20px; 
+            max-width: 1400px; margin: 20px auto; 
+            display: grid; grid-template-columns: 350px 1fr; 
+            gap: 25px; padding: 0 20px; 
         }
 
         /* SECCIÓN MAPA */
-        .map-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); height: fit-content; text-align: center; }
-        .map-frame { background: #007bbd; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
-        .map-svg { width: 100%; height: 400px; }
+        .map-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 90px; }
+        .map-frame { background: #007bbd; border-radius: 20px; padding: 10px; margin-bottom: 15px; }
+        .map-svg { width: 100%; height: auto; max-height: 450px; }
         .provincia-shape { fill: #0098da; stroke: white; stroke-width: 2; }
         .city-dot { fill: #ffeb3b; stroke: var(--unlp-blue); stroke-width: 2; cursor: pointer; transition: 0.3s; }
         .city-dot:hover { r: 12; fill: white; }
         .city-label { fill: white; font-weight: 900; font-size: 14px; pointer-events: none; text-shadow: 1px 1px 3px black; }
 
-        /* NUEVA SECCIÓN: TIEMPO REAL */
+        /* DASHBOARD TIEMPO REAL */
         .real-time-card {
-            background: white; border-radius: 25px; padding: 25px 40px;
-            margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            background: white; border-radius: 20px; padding: 20px 30px;
+            margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             border-left: 8px solid var(--unlp-accent);
         }
-        .rt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .rt-header h3 { margin: 0; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; font-size: 1.1em; }
-        .rt-header .live-dot { height: 10px; width: 10px; background: #ff5252; border-radius: 50%; display: inline-block; margin-right: 8px; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .rt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .rt-header h3 { margin: 0; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+        .live-dot { height: 8px; width: 8px; background: #ff5252; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        .rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .rt-item { text-align: center; }
-        .rt-value { display: block; font-size: 1.8em; font-weight: 900; color: var(--unlp-blue); }
-        .rt-label { font-size: 0.7em; font-weight: 700; color: #777; text-transform: uppercase; }
+        .rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .rt-item { text-align: center; border-right: 1px solid #eee; }
+        .rt-item:last-child { border: none; }
+        .rt-value { display: block; font-size: 1.6em; font-weight: 900; color: var(--unlp-blue); }
+        .rt-label { font-size: 0.65em; font-weight: 700; color: #888; text-transform: uppercase; }
 
-        /* REPORTE GENERAL */
+        /* CIUDAD HEADER */
         .city-header { 
-            background: white; padding: 25px 40px; border-radius: 20px; 
-            margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: white; padding: 20px 35px; border-radius: 20px; 
+            margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .city-header h2 { margin: 0; font-size: 2.8em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
+        .city-header h2 { margin: 0; font-size: 2.4em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
+        .emision-badge { background: var(--unlp-blue); color: white; padding: 8px 18px; border-radius: 10px; font-size: 0.8em; font-weight: 800; }
 
-        /* GRILLAS */
-        .web-grid { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 25px; }
+        /* GRILLAS PRONÓSTICO */
+        .web-grid { background: var(--unlp-blue); border-radius: 25px; overflow: hidden; color: white; margin-bottom: 20px; box-shadow: 0 8px 15px rgba(0,49,90,0.1); }
         .web-grid.verde { background: var(--unlp-green); }
-        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; text-align: center; }
+        
+        .grid-header { background: rgba(0,0,0,0.2); padding: 10px 0; display: grid; font-weight: 800; font-size: 0.85em; text-align: center; }
         .header-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .header-4 { grid-template-columns: 180px repeat(4, 1fr); }
+
         .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
         .row-3 { grid-template-columns: 180px repeat(3, 1fr); }
         .row-4 { grid-template-columns: 180px repeat(4, 1fr); }
-        .cell { padding: 15px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.75em; text-transform: uppercase; align-items: flex-start; padding-left: 30px; }
-        
+
+        .cell { padding: 12px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 50px; }
+        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.7em; text-transform: uppercase; align-items: flex-start; padding-left: 25px; border-right: 1px solid rgba(255,255,255,0.1); }
+        .icon-cell img { height: 55px; width: auto; }
+        .temp-web { font-size: 2em; font-weight: 400; }
+        .data-web { font-size: 0.8em; font-weight: 700; line-height: 1.2; text-transform: uppercase; }
+
         /* EXTENDIDO */
-        .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        .web-card { border-radius: 45px; padding: 35px; color: white; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .web-card { border-radius: 40px; padding: 30px; color: white; box-shadow: 0 8px 15px rgba(0,0,0,0.1); text-align: center; }
         .web-card.celeste { background: var(--unlp-light); }
         .web-card.oscuro { background: var(--unlp-blue); }
-        .card-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
-        .full-desc-web { font-size: 1.1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: auto; }
+        .web-card h3 { margin: 0; font-size: 2.2em; font-weight: 900; text-transform: uppercase; }
+        .card-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin: 15px 0; gap: 10px; }
+        .card-split div { font-size: 0.6em; font-weight: 800; text-transform: uppercase; }
+        .card-split img { height: 75px; margin: 8px 0; }
+        .full-desc-web { font-size: 1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; }
 
-        #view-placeholder { background: white; border-radius: 25px; padding: 100px; text-align: center; color: #bbb; font-weight: 700; }
-        @media (max-width: 1100px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; } }
+        #view-placeholder { background: white; border-radius: 25px; padding: 80px; text-align: center; color: #aaa; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .rt-grid { grid-template-columns: 1fr 1fr; } .rt-item { border: none; } }
     </style>
 </head>
 <body>
@@ -91,7 +102,7 @@
 <header>
     <div class="logos-container">
         <img src="images/Logo astronomicas y geofisicas.png">
-        <img src="images/Logo pronounlp.jfif" style="height: 60px; border-radius: 50%;">
+        <img src="images/Logo pronounlp.jfif" style="height: 55px; border-radius: 50%;">
     </div>
     <div class="header-title"><h1>Portal Meteorológico UNLP</h1></div>
     <img src="images/Logo unlp.png">
@@ -110,18 +121,17 @@
                 <text x="165" y="155" class="city-label">Junín</text>
             </svg>
         </div>
-        <p style="font-size:0.95em; font-weight:800; color:var(--unlp-blue);">Seleccioná una ciudad en el mapa</p>
+        <p style="font-size:0.85em; font-weight:800; color:var(--unlp-blue); margin-top:10px;">SELECCIONÁ UNA CIUDAD</p>
     </section>
 
     <section id="info-detalle">
         <div id="view-placeholder">Seleccioná una ciudad para ver el pronóstico completo.</div>
 
         <div id="full-report" style="display:none;">
-            
-            <div class="real-time-card" id="rt-section" style="display: none;">
+            <div class="real-time-card" id="rt-section">
                 <div class="rt-header">
                     <h3><span class="live-dot"></span>Estación Automática FCAG (En Vivo)</h3>
-                    <span id="rt-time" style="font-size: 0.8em; font-weight: 700; color: #999;">--:--</span>
+                    <span id="rt-time" style="font-size: 0.7em; font-weight: 800; color: #aaa;">--:--</span>
                 </div>
                 <div class="rt-grid">
                     <div class="rt-item"><span class="rt-value" id="rt-temp">--°</span><span class="rt-label">Temperatura</span></div>
@@ -133,50 +143,80 @@
 
             <div class="city-header">
                 <h2 id="out-city">--</h2>
-                <div class="emision-badge">PRONÓSTICO EMITIDO: <span id="out-hora">--:--</span></div>
+                <div class="emision-badge">EMISIÓN: <span id="out-hora">--:--</span></div>
             </div>
 
-            <div class="web-grid" id="grid-hoy">
+            <div class="web-grid">
                 <div class="grid-header header-3"><span id="web-d0-name" style="text-align: left; padding-left: 25px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row row-3">
-                    <div class="cell label-cell">Icono</div><div class="cell icon-cell"><img id="web-h-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-h-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="web-h-icon-3" src="images/default.png"></div>
-                    <div class="cell label-cell">Temp.</div><div class="cell temp-web" id="web-h-t1">--</div><div class="cell temp-web" id="web-h-t2" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-h-t3">--</div>
-                    <div class="cell label-cell">Viento</div><div class="cell data-web" id="web-h-v1">--</div><div class="cell data-web" id="web-h-v2">--</div><div class="cell data-web" id="web-h-v3">--</div>
-                    <div class="cell label-cell">Tiempo</div><div class="cell data-web" id="web-h-w1">--</div><div class="cell data-web" id="web-h-w2">--</div><div class="cell data-web" id="web-h-w3">--</div>
+                    <div class="cell label-cell">Icono</div>
+                    <div class="cell icon-cell"><img id="web-h-icon-1" src="images/default.png"></div>
+                    <div class="cell icon-cell"><img id="web-h-icon-2" src="images/default.png"></div>
+                    <div class="cell icon-cell"><img id="web-h-icon-3" src="images/default.png"></div>
+                    
+                    <div class="cell label-cell">Temp.</div>
+                    <div class="cell temp-web" id="web-h-t1">--</div>
+                    <div class="cell temp-web" id="web-h-t2" style="color:#ffeb3b">--</div>
+                    <div class="cell temp-web" id="web-h-t3">--</div>
+                    
+                    <div class="cell label-cell">Viento</div>
+                    <div class="cell data-web" id="web-h-v1">--</div>
+                    <div class="cell data-web" id="web-h-v2">--</div>
+                    <div class="cell data-web" id="web-h-v3">--</div>
                 </div>
             </div>
 
-            <div class="web-grid verde" id="grid-manana">
+            <div class="web-grid verde">
                 <div class="grid-header header-4"><span id="web-d1-name" style="text-align: left; padding-left: 25px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 <div class="grid-row row-4">
-                    <div class="cell label-cell">Icono</div><div class="cell icon-cell"><img id="web-m-icon-1" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-2" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-3" src="images/default.png"></div><div class="cell icon-cell"><img id="web-m-icon-4" src="images/default.png"></div>
-                    <div class="cell label-cell">Temp.</div><div class="cell temp-web" id="web-m-t1">--</div><div class="cell temp-web" id="web-m-t2">--</div><div class="cell temp-web" id="web-m-t3" style="color:#ffeb3b">--</div><div class="cell temp-web" id="web-m-t4">--</div>
-                    <div class="cell label-cell">Viento</div><div class="cell data-web" id="web-m-v1">--</div><div class="cell data-web" id="web-m-v2">--</div><div class="cell data-web" id="web-m-v3">--</div><div class="cell data-web" id="web-m-v4">--</div>
+                    <div class="cell label-cell">Icono</div>
+                    <div class="cell icon-cell"><img id="web-m-icon-1" src="images/default.png"></div>
+                    <div class="cell icon-cell"><img id="web-m-icon-2" src="images/default.png"></div>
+                    <div class="cell icon-cell"><img id="web-m-icon-3" src="images/default.png"></div>
+                    <div class="cell icon-cell"><img id="web-m-icon-4" src="images/default.png"></div>
+                    
+                    <div class="cell label-cell">Temp.</div>
+                    <div class="cell temp-web" id="web-m-t1">--</div>
+                    <div class="cell temp-web" id="web-m-t2">--</div>
+                    <div class="cell temp-web" id="web-m-t3" style="color:#ffeb3b">--</div>
+                    <div class="cell temp-web" id="web-m-t4">--</div>
                 </div>
             </div>
 
-            <div class="extended-row" id="extendido">
-                <div class="web-card celeste"><h3 id="web-d2-name">--</h3><div class="date-label" id="web-f2">--</div><div class="card-split"><div>M/M<br><img id="web-d3-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d3-w1">--</div></div><div>T/N<br><img id="web-d3-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d3-w2">--</div></div></div><div class="full-desc-web" id="web-d3-full-desc">--</div></div>
-                <div class="web-card oscuro"><h3 id="web-d3-name">--</h3><div class="date-label" id="web-f3">--</div><div class="card-split"><div>M/M<br><img id="web-d4-icon-1" src="images/default.png"><br><div class="weather-desc" id="web-d4-w1">--</div></div><div>T/N<br><img id="web-d4-icon-2" src="images/default.png"><br><div class="weather-desc" id="web-d4-w2">--</div></div></div><div class="full-desc-web" id="web-d4-full-desc">--</div></div>
+            <div class="extended-row">
+                <div class="web-card celeste">
+                    <h3 id="web-d2-name">--</h3>
+                    <div class="card-split">
+                        <div>MAD/MAÑ<br><img id="web-d3-icon-1" src="images/default.png"></div>
+                        <div>TAR/NOC<br><img id="web-d3-icon-2" src="images/default.png"></div>
+                    </div>
+                    <div class="full-desc-web" id="web-d3-full-desc">--</div>
+                </div>
+                <div class="web-card oscuro">
+                    <h3 id="web-d3-name">--</h3>
+                    <div class="card-split">
+                        <div>MAD/MAÑ<br><img id="web-d4-icon-1" src="images/default.png"></div>
+                        <div>TAR/NOC<br><img id="web-d4-icon-2" src="images/default.png"></div>
+                    </div>
+                    <div class="full-desc-web" id="web-d4-full-desc">--</div>
+                </div>
             </div>
         </div>
     </section>
 </main>
 
 <script>
-    // DATA DE EJEMPLO PARA LA DEMO
     const mockData = {
         "La Plata": {
             "emission_time": "08:00hs",
-            "h_t1": "16", "h_t2": "23", "h_t3": "18", "h_v1": "leves del este", "h_v2": "moderados del NE", "h_v3": "leves del E",
-            "h_w1": "algo nublado", "h_w2": "despejado", "h_w3": "ligeramente nublado",
-            "h_icon1": "images/algo_nublado.png", "h_icon2": "images/soleado.png", "h_icon3": "images/ligeramente_nublado.png",
-            "m_t1": "18", "m_t2": "22", "m_t3": "27", "m_t4": "20", "m_v1": "calmos", "m_v2": "leves del N", "m_v3": "moderados del N", "m_v4": "leves del NE",
+            "h_t1": "16°", "h_t2": "23°", "h_t3": "18°",
+            "h_v1": "leves del este", "h_v2": "moderados del NE", "h_v3": "leves del este",
+            "h_icon1": "images/soleado.png", "h_icon2": "images/algo_nublado.png", "h_icon3": "images/soleado.png",
+            "m_t1": "18°", "m_t2": "22°", "m_t3": "27°", "m_t4": "20°",
             "m_icon1": "images/soleado.png", "m_icon2": "images/soleado.png", "m_icon3": "images/algo_nublado.png", "m_icon4": "images/cubierto.png",
-            "d3_full_desc": "Cielo ligeramente a algo nublado. Probables nieblas matinales.", "d3_icon1": "images/ligeramente_nublado.png", "d3_icon2": "images/tormentas.png",
-            "d4_full_desc": "Cielo algo nublado a cubierto. Descenso de temperatura.", "d4_icon1": "images/tormentas.png", "d4_icon2": "images/nublado.png",
-            // DATOS REAL-TIME (Simulados de la estación FCAG)
-            "realtime": { "temp": "22.4", "hum": "65", "pres": "1013.2", "wind": "12.5", "time": "10:05 hs" }
+            "d3_full_desc": "Cielo ligeramente nublado desmejorando hacia la noche.", "d3_icon1": "images/soleado.png", "d3_icon2": "images/nublado.png",
+            "d4_full_desc": "Probabilidad de chaparrones aislados por la tarde.", "d4_icon1": "images/cubierto.png", "d4_icon2": "images/lluvias_aisladas.png",
+            "realtime": { "temp": "22.4", "hum": "65", "pres": "1013.2", "wind": "12.5", "time": "10:15 hs" }
         }
     };
 
@@ -191,7 +231,6 @@
         document.getElementById('out-city').innerText = ciudad;
         document.getElementById('out-hora').innerText = data.emission_time || '--:--';
 
-        // CARGAR SECCIÓN TIEMPO REAL (Solo si es La Plata)
         if(ciudad === "La Plata" && (data.realtime || mockData["La Plata"].realtime)) {
             const rt = data.realtime || mockData["La Plata"].realtime;
             document.getElementById('rt-section').style.display = 'block';
@@ -199,39 +238,34 @@
             document.getElementById('rt-hum').innerText = rt.hum + "%";
             document.getElementById('rt-pres').innerText = rt.pres;
             document.getElementById('rt-wind').innerText = rt.wind;
-            document.getElementById('rt-time').innerText = "Actualizado: " + rt.time;
+            document.getElementById('rt-time').innerText = "Actualización: " + rt.time;
         } else {
             document.getElementById('rt-section').style.display = 'none';
         }
 
-        const fill = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = (val && val !== '--') ? val : '--'; };
+        const fill = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val || '--'; };
         const setIcon = (id, src) => { if(document.getElementById(id)) document.getElementById(id).src = src || 'images/default.png'; };
 
-        // Hoy y Mañana
         for(let i=1; i<=4; i++) {
-            fill(`web-h-t${i}`, data[`h_t${i}`]); fill(`web-h-v${i}`, data[`h_v${i}`]); fill(`web-h-w${i}`, data[`h_w${i}`]);
+            fill(`web-h-t${i}`, data[`h_t${i}`]); fill(`web-h-v${i}`, data[`h_v${i}`]);
             setIcon(`web-h-icon-${i}`, data[`h_icon${i}`]);
-            fill(`web-m-t${i}`, data[`m_t${i}`]); fill(`web-m-v${i}`, data[`m_v${i}`]); fill(`web-m-w${i}`, data[`m_w${i}`]);
+            fill(`web-m-t${i}`, data[`m_t${i}`]); 
             setIcon(`web-m-icon-${i}`, data[`m_icon${i}`]);
         }
-        // Extendido
         ['d3', 'd4'].forEach(d => {
             fill(`web-${d}-full-desc`, data[`${d}_full_desc`]);
             setIcon(`web-${d}-icon-1`, data[`${d}_icon1`]); setIcon(`web-${d}-icon-2`, data[`${d}_icon2`]);
-            fill(`web-${d}-w1`, data[`${d}_w1`]); fill(`web-${d}-w2`, data[`${d}_w2`]);
         });
         updateFechas();
     }
 
     function updateFechas() {
         const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        const meses = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
         const hoy = new Date();
         for(let i=0; i<4; i++) {
             let d = new Date(); d.setDate(hoy.getDate() + i);
             let nombre = (i === 0) ? "HOY" : (i === 1) ? "MAÑANA" : dias[d.getDay()];
             if(document.getElementById(`web-d${i}-name`)) document.getElementById(`web-d${i}-name`).innerText = nombre;
-            if(document.getElementById(`web-f${i}`)) document.getElementById(`web-f${i}`).innerText = `${d.getDate()} / ${meses[d.getMonth()]}`;
         }
     }
 
