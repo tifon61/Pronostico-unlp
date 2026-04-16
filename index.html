@@ -222,9 +222,11 @@
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Para testear localmente -->
+<!-- const API_URL = "http://127.0.0.1:5000/api/v1/forecasts/latest"; -->
 <script>
-    const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts";
-    const PROXY = "https://api.allorigins.win/get?url=";
+    const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
     const FCAG_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
 
     // Inicializar Mapa
@@ -263,9 +265,8 @@
         placeholder.innerText = "Obteniendo datos de la red...";
         
         try {
-            const response = await fetch(`${PROXY}${encodeURIComponent(API_URL)}&rand=${Date.now()}`);
-            const resJson = await response.json();
-            const json = JSON.parse(resJson.contents);
+            const response = await fetch(`${API_URL}?rand=${Date.now()}`);
+            const json = await response.json();
 
             // Buscar ciudad en el objeto 'data' de tu JSON
             const cityKey = Object.keys(json.data).find(k => k.toLowerCase() === ciudad.toLowerCase());
