@@ -14,7 +14,45 @@
         .section-title { background: var(--unlp-blue); color: white; padding: 8px 12px; margin: 15px 0 10px; font-weight: 900; font-size: 0.75em; border-radius: 4px; text-transform: uppercase; }
         h4 { margin: 10px 2px 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.65em; letter-spacing: 1px; border-bottom: 1px solid #ddd; }
         input, select, textarea { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.85em; margin-bottom: 5px; font-family: inherit; }
-        .row { display: flex; gap: 5px; margin-bottom: 2px; }
+        .row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .label { 
+            font-size: 0.75em; 
+            font-weight: 700; 
+            color: var(--unlp-light); 
+            text-transform: capitalize; 
+            letter-spacing: 0.5px;
+            margin: 12px 0 6px 0;
+            padding-left: 8px;
+        }
+        .field-group {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+        .field-group h4 {
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid var(--unlp-blue);
+            padding-bottom: 5px;
+            font-size: 0.7em;
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 0.85em; 
+            margin-bottom: 8px; 
+            font-family: inherit; 
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--unlp-blue);
+            box-shadow: 0 0 0 2px rgba(0, 49, 90, 0.1);
+        }
 
         .btn { border: none; padding: 12px; cursor: pointer; font-weight: 900; border-radius: 8px; color: white; transition: 0.3s; width: 100%; margin-bottom: 10px; }
         .btn-save { background: #28a745; border-bottom: 4px solid #1e7e34; }
@@ -75,14 +113,16 @@
 <div id="sidebar">
     <h2 style="font-size: 1.1em; color: var(--unlp-blue);">ADMIN PRONÓSTICO UNLP</h2>
     
-    <label><h4>Ciudad / Emisión</h4></label>
-    <div class="row">
-        <select id="city-selector" onchange="updateCity(this.value)">
-            <option value="La Plata">La Plata</option>
-            <option value="Mar del Plata">Mar del Plata</option>
-            <option value="Junín">Junín</option>
-        </select>
-        <input type="text" id="in-hora-emision" placeholder="08:00hs" oninput="up('out-hora', this.value)">
+    <div class="field-group">
+        <h4>Información General</h4>
+        <div class="row">
+            <select id="city-selector" onchange="updateCity(this.value)">
+                <option value="La Plata">La Plata</option>
+                <option value="Mar del Plata">Mar del Plata</option>
+                <option value="Junín">Junín</option>
+            </select>
+            <input type="text" id="in-hora-emision" placeholder="Hora de Emisión (ej: 08:00)" oninput="up('out-hora', this.value)">
+        </div>
     </div>
 
     <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
@@ -164,7 +204,8 @@
 </div>
 
 <script>
-    const WEATHER_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas", "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
+    const SKY_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas"];
+    const RAIN_OPTS = ["", "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
     const WIND_INT = ["calmo", "leves", "moderado", "fuerte", "muy fuerte"];
     const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
     
@@ -181,38 +222,60 @@
 
         configs.forEach(conf => {
             html += `<div class="section-title">${conf.title}</div>
-            <div class="row">
-                <input type="text" placeholder="Min Urb/Sub" oninput="handleDualTemp('${conf.id}', 'min', this.value)">
-                <input type="text" placeholder="Max Urb/Sub" oninput="handleDualTemp('${conf.id}', 'max', this.value)">
+            <div class="field-group">
+                <h4>Temperaturas</h4>
+                <div class="row">
+                    <input type="text" id="${conf.id}-min-urb" placeholder="Temperatura Mínima" oninput="updateTempField('${conf.id}', 'min')">
+                    <input type="text" id="${conf.id}-max-urb" placeholder="Temperatura Máxima" oninput="updateTempField('${conf.id}', 'max')">
+                </div>
             </div>`;
-            if(conf.id === 'h' || conf.id === 'm') {
-                html += `<input type="text" placeholder="Temps tramos (Ej: 13, 22, 16)" oninput="upMulti(['${conf.id}-t1','${conf.id}-t2','${conf.id}-t3','${conf.id}-t4'], this.value)">`;
-            }
+            html += '<div class="field-group"><h4>Períodos del Día</h4>';
             conf.tramos.forEach((t, i) => {
                 const idx = i + 1;
-                html += `<h4>${t}</h4>
-                <select id="${conf.id}-weather-select-${idx}" onchange="updateWeather('${conf.id}', ${idx}, this.value)"><option value="">Tiempo...</option>${WEATHER_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                html += `<div style="margin-bottom: 15px;">
+                    <h5 style="margin: 0 0 8px 0; color: var(--unlp-green); font-size: 0.8em; font-weight: 700;">${t.toUpperCase()}</h5>`;
+                if(conf.id === 'h' || conf.id === 'm') {
+                    html += `<div class="row">
+                        <input type="number" id="${conf.id}-temp-${idx}" placeholder="Temperatura" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${idx})">
+                    </div>`;
+                }
+                html += `<div class="row">
+                    <select id="${conf.id}-sky-select-${idx}" onchange="updateSky('${conf.id}', ${idx}, this.value)"><option value="">Cielo...</option>${SKY_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                    <select id="${conf.id}-rain-select-${idx}" onchange="updateRain('${conf.id}', ${idx}, this.value)"><option value="">Lluvias...</option>${RAIN_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                </div>
+                <div class="label">Viento</div>
                 <div class="row">
                     <select id="${conf.id}-v-i${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Intensidad</option>${WIND_INT.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
                     <select id="${conf.id}-v-d${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Dirección</option>${WIND_DIR.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                </div>
                 </div>`;
             });
+            html += '</div>';
             if(conf.id.startsWith('d')) html += `<textarea placeholder="Descripción general..." oninput="up('${conf.id}-full-desc', this.value)"></textarea>`;
         });
         document.getElementById('dynamic-inputs').innerHTML = html;
     }
 
-    function handleDualTemp(dia, tipo, val) {
-        const p = val.split('/');
-        up(`${dia}-${tipo}`, p[0]);
-        if(p[1]) up(`${dia}-${tipo}-sub`, p[1]);
+    function updateTempField(dia, tipo) {
+        const urbValue = document.getElementById(`${dia}-${tipo}-urb`).value;
+        const displayValue = urbValue;
+        up(`${dia}-${tipo}`, displayValue);
     }
 
-    function updateWeather(dia, tramo, valor) {
+    function updatePeriodTemp(dia, idx) {
+        const tempValue = document.getElementById(`${dia}-temp-${idx}`).value;
+        up(`${dia}-t${idx}`, tempValue);
+    }
+
+    function updateSky(dia, tramo, valor) {
         const textEl = document.getElementById(`${dia}-w${tramo}`);
         if(textEl) textEl.innerText = valor || "--";
         const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
         if(imgEl) imgEl.src = iconMap[valor] ? `images/${iconMap[valor]}` : `images/default.png`;
+    }
+
+    function updateRain(dia, tramo, valor) {
+        // Actualizar el campo de lluvias (puede actualizar display si es necesario)
     }
 
     function updateWind(dia, tramo) {
@@ -290,13 +353,14 @@
 
             conf.tramos.forEach((periodValue, index) => {
                 const tramoIdx = index + 1;
-                const skyCond = document.getElementById(`${conf.id}-weather-select-${tramoIdx}`).value;
+                const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`).value;
+                const rainCond = document.getElementById(`${conf.id}-rain-select-${tramoIdx}`).value;
                 const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
 
                 let temp = null;
                 if (conf.id === 'h' || conf.id === 'm') {
-                    temp = parseFloat(document.getElementById(`${conf.id}-t${tramoIdx}`).innerText) || null;
+                    temp = parseFloat(document.getElementById(`${conf.id}-temp-${tramoIdx}`).value) || null;
                 }
 
                 const img = document.getElementById(`${conf.id}-icon-${tramoIdx}`);
@@ -305,7 +369,7 @@
                 // Objeto: PeriodForecast sin IDs (los genera la API)
                 dailyForecast.period_forecasts.push({
                     period: periodValue,
-                    precipitation_description: skyCond || "",
+                    precipitation_description: rainCond || "",
                     sky_condition: skyCond || null,
                     temperature: temp,
                     weather_icon_code: iconCode,
