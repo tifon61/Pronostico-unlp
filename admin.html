@@ -164,7 +164,7 @@
 </div>
 
 <script>
-    const WEATHER_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas", "lluvias aisladas", "chaparrones", "tormentas aisladas", "lluvias y tormentas"];
+    const WEATHER_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas", "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
     const WIND_INT = ["calmo", "leves", "moderado", "fuerte", "muy fuerte"];
     const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
     
@@ -259,9 +259,9 @@
         const today = new Date();
         const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
-        // Objeto Raíz: Forecast
+        // Objeto Raíz: Forecast sin wrapper data (sin IDs, los genera la API)
         const forecastPayload = {
-            location: city,
+            city: city,
             forecast_date: today.toISOString().split('T')[0],
             emission_time: emissionTimeRaw + ":00",
             daily_forecasts: []
@@ -279,7 +279,7 @@
             const dateObj = new Date();
             dateObj.setDate(today.getDate() + i);
 
-            // Objeto: DailyForecast
+            // Objeto: DailyForecast sin IDs (los genera la API)
             const dailyForecast = {
                 date: dateObj.toISOString().split('T')[0],
                 day_name: dayNames[dateObj.getDay()],
@@ -302,15 +302,15 @@
                 const img = document.getElementById(`${conf.id}-icon-${tramoIdx}`);
                 const iconCode = img ? img.getAttribute('src').split('/').pop().replace('.png', '') : 'default';
 
-                // Objeto: PeriodForecast
+                // Objeto: PeriodForecast sin IDs (los genera la API)
                 dailyForecast.period_forecasts.push({
                     period: periodValue,
-                    temperature: temp,
+                    precipitation_description: skyCond || "",
                     sky_condition: skyCond || null,
-                    precipitation_description: skyCond || null,
+                    temperature: temp,
+                    weather_icon_code: iconCode,
                     wind_direction: windDir || null,
-                    wind_intensity: windInt || null,
-                    weather_icon_code: iconCode
+                    wind_intensity: windInt || null
                 });
             });
 
@@ -318,7 +318,7 @@
         }
 
         try {
-            const response = await fetch('https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts', {
+            const response = await fetch('http://127.0.0.1:5000/api/v1/forecasts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(forecastPayload)
