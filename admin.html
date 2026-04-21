@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Meteorológico UNLP | IG Vertical Pro</title>
+    <title>Panel Meteorológico UNLP | IG Vertical Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -17,7 +17,7 @@
         }
         body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; }
         
-        /* SIDEBAR */
+        /* SIDEBAR ADMIN */
         #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
@@ -33,14 +33,13 @@
         .placa-box { 
             width: 1080px; height: 1350px; background: white; padding: 20px 40px; 
             position: relative; display: flex; flex-direction: column; box-sizing: border-box;
-            transform: scale(0.48); transform-origin: top center;
-            overflow: visible; /* Crucial para que los globos superpuestos no se corten */
+            transform: scale(0.48); transform-origin: top center; overflow: visible;
         }
 
-        /* HEADER INSTITUCIONAL UNIFICADO */
-        .header-container { position: relative; margin-top: 55px; margin-bottom: 45px; width: 100%; z-index: 10; }
+        /* HEADER INSTITUCIONAL */
+        .header-container { position: relative; margin-top: 55px; margin-bottom: 45px; width: 100%; border-top: 5px solid var(--unlp-blue); }
         .header-capsule { 
-            border: 5px solid var(--unlp-blue); border-radius: 100px; 
+            border: 5px solid var(--unlp-blue); border-top: none; border-radius: 0 0 100px 100px; 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 15px 60px; background: white; position: relative;
         }
@@ -48,79 +47,73 @@
         .header-capsule img { height: 85px; }
         .city-box { display: flex; align-items: center; gap: 20px; }
 
-        /* CAPSULA TITULO: CABALGA LA LINEA SUPERIOR AL 50% */
         .title-pill { 
-            background: var(--unlp-blue); color: white; padding: 6px 50px; 
+            background: var(--unlp-blue); color: white; padding: 6px 40px; 
             border-radius: 30px; font-weight: 800; font-size: 18px; 
             position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); 
             text-transform: uppercase; z-index: 100; white-space: nowrap;
         }
 
-        /* CAPSULA FECHA Y EMISIÓN: ALINEADA CON LA GRILLA DE DATOS */
+        /* CAPSULA FECHA Y EMISIÓN: FINA, CENTRADA Y AJUSTADA AL TEXTO */
         .date-emission-pill { 
-            background: var(--unlp-bg-pill); border-radius: 60px; padding: 5px 0; 
-            width: 700px; /* Ancho exacto de la columna de períodos/datos */
-            position: absolute; top: 0; left: 690px; /* Centrado sobre los 3/4 períodos */
+            background: var(--unlp-bg-pill); border-radius: 50px; 
+            padding: 4px 25px; /* Muy fina y sin espacio de sobra */
+            position: absolute; top: 0; left: 650px; /* Centrada sobre la zona de datos */
             transform: translate(-50%, -50%); 
-            display: flex; align-items: center; justify-content: center; gap: 60px; color: var(--unlp-blue); 
-            z-index: 500; border: 3px solid white;
+            display: flex; align-items: center; gap: 30px; color: var(--unlp-blue); 
+            z-index: 500; border: 3px solid white; width: fit-content;
         }
-        .date-val { font-size: 26px; font-weight: 900; }
+        .date-val { font-size: 24px; font-weight: 900; }
         .issuance-block { display: flex; flex-direction: column; align-items: center; line-height: 1; text-transform: uppercase; }
-        .issuance-label { font-size: 16px; font-weight: 800; }
-        .issuance-time { font-size: 16px; font-weight: 900; }
+        .issuance-label { font-size: 14px; font-weight: 800; }
+        .issuance-time { font-size: 14px; font-weight: 900; }
 
-        /* BLOQUES DE DÍAS (MÁXIMA VERTICAL) */
-        .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; overflow: visible; }
-        .day-1 { background: var(--unlp-blue); margin-top: 50px; }
+        /* BLOQUES DIARIOS */
+        .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; border-top: 5px solid transparent; }
+        .day-1 { background: var(--unlp-blue); margin-top: 50px; border-top-color: var(--unlp-blue); }
         .day-2 { background: var(--unlp-accent-blue); }
 
-        /* Wrap para permitir overflow visible de los globos pero bordes redondeados en el contenido */
         .day-content-wrap { border-radius: 50px; overflow: hidden; display: flex; flex-direction: column; flex-grow: 1; }
+        .day-header { display: flex; align-items: center; padding: 35px 50px 10px; color: white; }
+        .day-header h2 { font-size: 34px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 250px; }
+        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; flex-grow: 1; justify-content: space-around; padding: 12px 0; font-weight: 800; font-size: 23px; }
 
-        .day-header { display: flex; align-items: center; padding: 40px 50px 10px; color: white; }
-        .day-header h2 { font-size: 34px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 300px; }
-        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; flex-grow: 1; justify-content: space-around; padding: 12px 0; font-weight: 800; font-size: 23px; width: 700px; }
+        .day-main-grid { display: grid; grid-template-columns: 250px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; }
+        .day-main-grid-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
 
-        /* GRILLA DE CONTENIDO */
-        .day-main-grid { display: grid; grid-template-columns: 300px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; }
-        .day-main-grid-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
-
-        /* TEMPERATURA VERTICAL */
-        .temp-side-col { padding: 10px 30px; display: flex; align-items: center; justify-content: center; height: 100%; }
-        .temp-v-box { background: rgba(255,255,255,0.3); border-radius: 40px; padding: 25px; width: 100%; text-align: center; }
-        .temp-v-box h4 { margin: 0 0 10px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
+        .temp-side-col { padding: 10px 20px; display: flex; align-items: center; justify-content: center; height: 100%; }
+        .temp-v-box { background: rgba(255,255,255,0.3); border-radius: 40px; padding: 20px; width: 100%; text-align: center; }
+        .temp-v-box h4 { margin: 0 0 10px; font-size: 18px; font-weight: 900; text-transform: uppercase; }
         .temp-vals { display: flex; justify-content: space-around; font-size: 20px; font-weight: 700; }
         .temp-sub { font-size: 14px; font-weight: 800; display: block; opacity: 0.8; margin-top: -3px; }
 
         .forecast-item { text-align: center; }
-        .forecast-item img { height: 170px; margin-bottom: 2px; }
+        .forecast-item img { height: 160px; margin-bottom: 2px; }
         .forecast-temp { font-size: 17.5px; font-weight: 700; }
 
-        /* FRANJAS (EXTENDIDAS BORDE A BORDE) */
-        .stripe { display: grid; align-items: center; width: 100%; height: 110px; }
-        .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 300px 1fr 1fr 1fr; }
-        .stripe-wind-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
-        .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 300px 1fr 1fr 1fr; }
-        .stripe-time-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
+        .stripe { display: grid; align-items: center; width: 100%; height: 105px; }
+        .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 250px 1fr 1fr 1fr; }
+        .stripe-wind-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
+        .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 250px 1fr 1fr 1fr; }
+        .stripe-time-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
 
-        .stripe-label { font-size: 34px; font-weight: 900; padding-left: 60px; }
-        .stripe-data { font-size: 29px; font-weight: 800; text-align: center; text-transform: uppercase; padding: 0 20px; line-height: 1.1; display: flex; align-items: center; justify-content: center; }
+        .stripe-label { font-size: 30px; font-weight: 900; padding-left: 50px; }
+        .stripe-data { font-size: 26px; font-weight: 800; text-align: center; text-transform: uppercase; padding: 0 15px; display: flex; align-items: center; justify-content: center; }
 
-        /* PLACA 2: TARJETAS EXTENDIDAS (D3-D4) */
-        .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 10px; margin-top: 10px; }
-        .v-card { width: 500px; border-radius: 60px; padding: 50px 30px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; flex: 1; }
+        /* PLACA 2: EXTENDIDO */
+        .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 20px; margin-top: 10px; }
+        .v-card { width: 480px; border-radius: 60px; padding: 45px 30px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; flex: 1; }
         .v-card.celeste { background: var(--unlp-light); }
         .v-card.oscuro { background: var(--unlp-blue); }
-        .v-card h2 { font-weight: 900; font-size: 4em; margin: 0; text-transform: uppercase; }
-        .v-card .date { font-weight: 600; font-size: 2em; margin-bottom: 25px; }
+        .v-card h2 { font-weight: 900; font-size: 3.5em; margin: 0; text-transform: uppercase; }
+        .v-card .date { font-weight: 600; font-size: 1.8em; margin-bottom: 20px; }
         .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 20px; width: 100%; }
-        .card-split img { height: 140px; margin: 10px 0; }
-        .card-temps { display: flex; justify-content: center; gap: 40px; margin: 30px 0; width: 100%; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 20px; }
-        .temp-item-2 { font-size: 2.2em; font-weight: 700; }
-        .v-card .full-desc { font-size: 1.4em; font-weight: 700; margin-top: auto; padding-top: 25px; border-top: 2px solid rgba(255,255,255,0.2); width: 100%; text-transform: uppercase; }
+        .card-split img { height: 130px; margin: 10px 0; }
+        .card-temps { display: flex; justify-content: center; gap: 35px; margin: 25px 0; width: 100%; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 20px; }
+        .temp-item-2 { font-size: 2em; font-weight: 700; }
+        .v-card .full-desc { font-size: 1.3em; font-weight: 700; margin-top: auto; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.2); width: 100%; text-transform: uppercase; }
         
-        .footer-note { text-align: center; font-size: 20px; font-weight: 800; color: var(--unlp-blue); padding: 15px 0; text-transform: uppercase; }
+        .footer-note { text-align: center; font-size: 18px; font-weight: 800; color: var(--unlp-blue); padding-bottom: 20px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -138,8 +131,8 @@
         </div>
     </div>
     <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
-    <button class="btn btn-p1" onclick="download('placa-1', 'CortoPlazo_IG')">⬇ PLACA 1 (D1-D2)</button>
-    <button class="btn btn-p2" onclick="download('placa-2', 'Extendido_IG')">⬇ PLACA 2 (D3-D4)</button>
+    <button class="btn btn-p1" onclick="download('placa-1', 'IG_D1D2')">⬇ PLACA 1 (D1-D2)</button>
+    <button class="btn btn-p2" onclick="download('placa-2', 'IG_D3D4')">⬇ PLACA 2 (D3-D4)</button>
     <div id="dynamic-inputs"></div>
 </div>
 
@@ -150,7 +143,7 @@
             <div class="header-capsule">
                 <img src="images/Logo astronomicas y geofisicas.png">
                 <div class="city-box">
-                    <img src="images/Logo pronounlp.jfif" style="height: 90px;">
+                    <img src="images/Logo pronounlp.jfif" style="height: 80px;">
                     <h1 class="city-label">LA PLATA</h1>
                 </div>
                 <img src="images/Logo unlp.png">
@@ -198,7 +191,7 @@
                 <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
             </div>
         </div>
-        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
+        <div class="footer-note">* PRONÓSTICO GENERADO POR EL GRUPO DE PRONÓSTICO FCAG - UNLP</div>
     </div>
 
     <div id="placa-2" class="placa-box">
@@ -207,7 +200,7 @@
             <div class="header-capsule">
                 <img src="images/Logo astronomicas y geofisicas.png">
                 <div class="city-box">
-                    <img src="images/Logo pronounlp.jfif" style="height: 90px;">
+                    <img src="images/Logo pronounlp.jfif" style="height: 80px;">
                     <h1 class="city-label">LA PLATA</h1>
                 </div>
                 <img src="images/Logo unlp.png">
@@ -217,7 +210,7 @@
             <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div class="card-split"><div>MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div id="d3-w1">--</div></div><div>TARDE<br><img id="d3-icon-2" src="images/default.png"><br><div id="d3-w2">--</div></div></div><div class="card-temps"><div class="temp-item-2">⬇ <span id="d3-min">--</span>°</div><div class="temp-item-2">⬆ <span id="d3-max">--</span>°</div></div><div class="full-desc" id="d3-full-desc">--</div></div>
             <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div class="card-split"><div>MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div id="d4-w1">--</div></div><div>TARDE<br><img id="d4-icon-2" src="images/default.png"><br><div id="d4-w2">--</div></div></div><div class="card-temps"><div class="temp-item-2">⬇ <span id="d4-min">--</span>°</div><div class="temp-item-2">⬆ <span id="d4-max">--</span>°</div></div><div class="full-desc" id="d4-full-desc">--</div></div>
         </div>
-        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
+        <div class="footer-note">* PRONÓSTICO GENERADO POR EL GRUPO DE PRONÓSTICO FCAG - UNLP</div>
     </div>
 </div>
 
@@ -287,7 +280,7 @@
         }
     };
 
-    function saveToWeb() { alert("Sincronizando con la API de Sebastian..."); }
+    async function saveToWeb() { alert("Publicando en la API..."); }
 </script>
 </body>
 </html>
