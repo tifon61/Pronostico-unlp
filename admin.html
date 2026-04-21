@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Control Meteorológico UNLP | IG Vertical 1080x1350</title>
+    <title>Panel Meteorológico UNLP | IG Vertical 1080x1350</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -14,15 +14,14 @@
             --unlp-row-time: #00315a;
             --unlp-light: #5899d2;
             --unlp-green: #00796b;
-            --bg-canvas: #e6e7e8; 
         }
-        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: white; height: 100vh; overflow: hidden; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; }
         
         /* SIDEBAR ADMIN */
-        #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); color: #333; }
-        .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0 10px; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
+        #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); }
+        .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.85em; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
         .btn { border: none; padding: 14px; cursor: pointer; font-weight: 900; border-radius: 8px; color: white; width: 100%; margin-bottom: 10px; }
         .btn-save { background: #28a745; border-bottom: 4px solid #1e7e34; }
         .btn-p1 { background: var(--unlp-blue); } .btn-p2 { background: var(--unlp-green); }
@@ -32,13 +31,14 @@
         
         /* PLACAS 1080x1350 */
         .placa-box { 
-            width: 1080px; height: 1350px; background: white; padding: 15px; 
+            width: 1080px; height: 1350px; background: white; padding: 20px 40px; 
             position: relative; display: flex; flex-direction: column; box-sizing: border-box;
-            transform: scale(0.48); transform-origin: top center; overflow: visible;
+            transform: scale(0.48); transform-origin: top center;
+            overflow: visible; /* Clave para que no se corten los globos */
         }
 
-        /* HEADER UNIFICADO (LINEA ATRAVIESA AL MEDIO) */
-        .header-container { position: relative; margin-top: 55px; margin-bottom: 40px; width: 100%; overflow: visible; }
+        /* HEADER UNIFICADO */
+        .header-container { position: relative; margin-top: 55px; margin-bottom: 45px; width: 100%; z-index: 10; }
         .header-capsule { 
             border: 5px solid var(--unlp-blue); border-radius: 100px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -48,33 +48,39 @@
         .header-capsule img { height: 85px; }
         .city-box { display: flex; align-items: center; gap: 20px; }
 
+        /* CAPSULA TITULO: SUPERPUESTA AL MEDIO */
         .title-pill { 
             background: var(--unlp-blue); color: white; padding: 6px 50px; 
             border-radius: 30px; font-weight: 800; font-size: 18px; 
-            position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); /* Superpuesta al medio */
+            position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); 
             text-transform: uppercase; z-index: 100; white-space: nowrap;
         }
 
-        /* CAPSULA FECHA Y EMISIÓN (FINA Y SUPERPUESTA AL MEDIO) */
+        /* CAPSULA FECHA Y EMISIÓN: DEL MISMO ANCHO QUE LOS PERÍODOS (720px aprox) */
         .date-emission-pill { 
-            background: var(--unlp-bg-pill); border-radius: 60px; padding: 6px 60px; 
-            position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); /* Superpuesta al medio */
-            display: flex; align-items: center; gap: 70px; color: var(--unlp-blue); 
-            z-index: 100; border: 4px solid white;
+            background: var(--unlp-bg-pill); border-radius: 60px; padding: 5px 0; 
+            width: 740px; /* Mismo ancho que la barra de mañana/tarde/noche */
+            position: absolute; top: 0; left: 670px; /* Centrado respecto a la zona de datos */
+            transform: translate(-50%, -50%); 
+            display: flex; align-items: center; justify-content: center; gap: 60px; color: var(--unlp-blue); 
+            z-index: 500; border: 3px solid white;
         }
         .date-val { font-size: 26px; font-weight: 900; }
-        .issuance-block { display: flex; flex-direction: column; align-items: center; line-height: 1.1; text-transform: uppercase; }
-        .issuance-label { font-size: 20px; font-weight: 800; }
-        .issuance-time { font-size: 20px; font-weight: 900; }
+        .issuance-block { display: flex; flex-direction: column; align-items: center; line-height: 1; text-transform: uppercase; }
+        .issuance-label { font-size: 16px; font-weight: 800; }
+        .issuance-time { font-size: 16px; font-weight: 900; }
 
-        /* BLOQUES DIARIOS PLACA 1 */
-        .day-block { border-radius: 50px; overflow: hidden; margin-bottom: 10px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; }
+        /* BLOQUES DIARIOS */
+        .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; overflow: visible; }
         .day-1 { background: var(--unlp-blue); margin-top: 50px; }
         .day-2 { background: var(--unlp-accent-blue); }
 
-        .day-header { display: flex; align-items: center; padding: 45px 50px 10px; color: white; }
+        /* Fondo interno para simular overflow hidden pero permitiendo globos fuera */
+        .day-content-wrap { border-radius: 50px; overflow: hidden; display: flex; flex-direction: column; flex-grow: 1; }
+
+        .day-header { display: flex; align-items: center; padding: 40px 50px 10px; color: white; }
         .day-header h2 { font-size: 34px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 300px; }
-        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; flex-grow: 1; justify-content: space-around; padding: 12px 0; font-weight: 800; font-size: 23px; }
+        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; flex-grow: 1; justify-content: space-around; padding: 12px 0; font-weight: 800; font-size: 23px; width: 740px; }
 
         .day-main-grid { display: grid; grid-template-columns: 300px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; }
         .day-main-grid-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
@@ -83,7 +89,7 @@
         .temp-v-box { background: rgba(255,255,255,0.3); border-radius: 40px; padding: 25px; width: 100%; text-align: center; }
         .temp-v-box h4 { margin: 0 0 10px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
         .temp-vals { display: flex; justify-content: space-around; font-size: 20px; font-weight: 700; }
-        .temp-sub { font-size: 14px; font-weight: 800; display: block; opacity: 0.8; margin-top: -5px; }
+        .temp-sub { font-size: 14px; font-weight: 800; display: block; opacity: 0.8; margin-top: -3px; }
 
         .forecast-item { text-align: center; }
         .forecast-item img { height: 170px; margin-bottom: 2px; }
@@ -129,8 +135,8 @@
         </div>
     </div>
     <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
-    <button class="btn btn-p1" onclick="download('placa-1', 'IG_D1D2')">⬇ PLACA 1 (D1-D2)</button>
-    <button class="btn btn-p2" onclick="download('placa-2', 'IG_D3D4')">⬇ PLACA 2 (D3-D4)</button>
+    <button class="btn btn-p1" onclick="download('placa-1', 'IG_CortoPlazo')">⬇ PLACA 1 (D1-D2)</button>
+    <button class="btn btn-p2" onclick="download('placa-2', 'IG_Extendido')">⬇ PLACA 2 (D3-D4)</button>
     <div id="dynamic-inputs"></div>
 </div>
 
@@ -156,34 +162,38 @@
                     <span class="issuance-time" id="out-hora">08:00 hs</span>
                 </div>
             </div>
-            <div class="day-header">
-                <h2 class="n0">LUNES</h2>
-                <div class="periods-pill"><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+            <div class="day-content-wrap">
+                <div class="day-header">
+                    <h2 class="n0">LUNES</h2>
+                    <div class="periods-pill"><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+                </div>
+                <div class="day-main-grid">
+                    <div class="temp-side-col"><div class="temp-v-box"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="h-min">--</span>°<span class="temp-sub" id="h-min-sub">--*</span></div><div>MAX <span id="h-max">--</span>°<span class="temp-sub" id="h-max-sub">--*</span></div></div></div></div>
+                    <div class="forecast-item"><img id="h-icon-1" src="images/default.png"><div class="forecast-temp" id="h-t1">--°</div></div>
+                    <div class="forecast-item"><img id="h-icon-2" src="images/default.png"><div class="forecast-temp" id="h-t2">--°</div></div>
+                    <div class="forecast-item"><img id="h-icon-3" src="images/default.png"><div class="forecast-temp" id="h-t3">--°</div></div>
+                </div>
+                <div class="stripe stripe-wind"><div class="stripe-label">Vientos</div><div class="stripe-data" id="h-v1">--</div><div class="stripe-data" id="h-v2">--</div><div class="stripe-data" id="h-v3">--</div></div>
+                <div class="stripe stripe-time"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1">--</div><div class="stripe-data" id="h-w2">--</div><div class="stripe-data" id="h-w3">--</div></div>
             </div>
-            <div class="day-main-grid">
-                <div class="temp-side-col"><div class="temp-v-box"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="h-min">--</span>°<span class="temp-sub" id="h-min-sub">--*</span></div><div>MAX <span id="h-max">--</span>°<span class="temp-sub" id="h-max-sub">--*</span></div></div></div></div>
-                <div class="forecast-item"><img id="h-icon-1" src="images/default.png"><div class="forecast-temp" id="h-t1">--°</div></div>
-                <div class="forecast-item"><img id="h-icon-2" src="images/default.png"><div class="forecast-temp" id="h-t2">--°</div></div>
-                <div class="forecast-item"><img id="h-icon-3" src="images/default.png"><div class="forecast-temp" id="h-t3">--°</div></div>
-            </div>
-            <div class="stripe stripe-wind"><div class="stripe-label">Vientos</div><div class="stripe-data" id="h-v1">--</div><div class="stripe-data" id="h-v2">--</div><div class="stripe-data" id="h-v3">--</div></div>
-            <div class="stripe stripe-time"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1">--</div><div class="stripe-data" id="h-w2">--</div><div class="stripe-data" id="h-w3">--</div></div>
         </div>
 
         <div class="day-block day-2">
-            <div class="day-header">
-                <h2 class="n1">MARTES</h2>
-                <div class="periods-pill"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+            <div class="day-content-wrap">
+                <div class="day-header">
+                    <h2 class="n1">MARTES</h2>
+                    <div class="periods-pill"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+                </div>
+                <div class="day-main-grid day-main-grid-4">
+                    <div class="temp-side-col"><div class="temp-v-box" style="background: rgba(0,49,90,0.35);"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="m-min">--</span>°<span class="temp-sub" id="m-min-sub">--*</span></div><div>MAX <span id="m-max">--</span>°<span class="temp-sub" id="m-max-sub">--*</span></div></div></div></div>
+                    <div class="forecast-item"><img id="m-icon-1" src="images/default.png"><div class="forecast-temp" id="m-t1">--°</div></div>
+                    <div class="forecast-item"><img id="m-icon-2" src="images/default.png"><div class="forecast-temp" id="m-t2">--°</div></div>
+                    <div class="forecast-item"><img id="m-icon-3" src="images/default.png"><div class="forecast-temp" id="m-t3">--°</div></div>
+                    <div class="forecast-item"><img id="m-icon-4" src="images/default.png"><div class="forecast-temp" id="m-t4">--°</div></div>
+                </div>
+                <div class="stripe stripe-wind stripe-wind-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
+                <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
             </div>
-            <div class="day-main-grid day-main-grid-4">
-                <div class="temp-side-col"><div class="temp-v-box" style="background: rgba(0,49,90,0.35);"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="m-min">--</span>°<span class="temp-sub" id="m-min-sub">--*</span></div><div>MAX <span id="m-max">--</span>°<span class="temp-sub" id="m-max-sub">--*</span></div></div></div></div>
-                <div class="forecast-item"><img id="m-icon-1" src="images/default.png"><div class="forecast-temp" id="m-t1">--°</div></div>
-                <div class="forecast-item"><img id="m-icon-2" src="images/default.png"><div class="forecast-temp" id="m-t2">--°</div></div>
-                <div class="forecast-item"><img id="m-icon-3" src="images/default.png"><div class="forecast-temp" id="m-t3">--°</div></div>
-                <div class="forecast-item"><img id="m-icon-4" src="images/default.png"><div class="forecast-temp" id="m-t4">--°</div></div>
-            </div>
-            <div class="stripe stripe-wind stripe-wind-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
-            <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
         </div>
         <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
@@ -274,7 +284,7 @@
         }
     };
 
-    function saveToWeb() { alert("Publicando en la API de Sebastian..."); }
+    function saveToWeb() { alert("Pronóstico publicado en la API."); }
 </script>
 </body>
 </html>
