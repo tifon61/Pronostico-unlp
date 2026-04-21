@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Meteorológico UNLP | IG Vertical Final</title>
+    <title>Panel de Control Meteorológico UNLP | IG Vertical 1080x1350</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -14,14 +14,15 @@
             --unlp-row-time: #00315a;
             --unlp-light: #5899d2;
             --unlp-green: #00796b;
+            --bg-canvas: #e6e7e8; 
         }
-        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: white; height: 100vh; overflow: hidden; }
         
-        /* SIDEBAR */
-        #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); }
-        .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
+        /* SIDEBAR ADMIN */
+        #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); color: #333; }
+        .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0 10px; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.85em; font-family: inherit; }
         .btn { border: none; padding: 14px; cursor: pointer; font-weight: 900; border-radius: 8px; color: white; width: 100%; margin-bottom: 10px; }
         .btn-save { background: #28a745; border-bottom: 4px solid #1e7e34; }
         .btn-p1 { background: var(--unlp-blue); } .btn-p2 { background: var(--unlp-green); }
@@ -31,46 +32,43 @@
         
         /* PLACAS 1080x1350 */
         .placa-box { 
-            width: 1080px; height: 1350px; background: white; padding: 20px 40px; 
+            width: 1080px; height: 1350px; background: white; padding: 15px; 
             position: relative; display: flex; flex-direction: column; box-sizing: border-box;
-            transform: scale(0.48); transform-origin: top center;
+            transform: scale(0.48); transform-origin: top center; overflow: visible;
         }
 
-        /* HEADER UNIFICADO */
-        .header-container { position: relative; margin-top: 50px; margin-bottom: 40px; }
+        /* HEADER UNIFICADO (LINEA ATRAVIESA AL MEDIO) */
+        .header-container { position: relative; margin-top: 55px; margin-bottom: 40px; width: 100%; overflow: visible; }
         .header-capsule { 
             border: 5px solid var(--unlp-blue); border-radius: 100px; 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px 60px; background: white; 
+            padding: 15px 60px; background: white; position: relative;
         }
         .header-capsule h1 { font-size: 65px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -3px; }
         .header-capsule img { height: 85px; }
         .city-box { display: flex; align-items: center; gap: 20px; }
 
-        /* CAPSULA TITULO: ATRAVESADA POR LA LINEA SUPERIOR */
         .title-pill { 
-            background: var(--unlp-blue); color: white; padding: 8px 50px; 
+            background: var(--unlp-blue); color: white; padding: 6px 50px; 
             border-radius: 30px; font-weight: 800; font-size: 18px; 
-            position: absolute; top: 0; left: 50%; 
-            transform: translate(-50%, -50%); /* Cruza la línea a la mitad */
-            text-transform: uppercase; z-index: 20; 
+            position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); /* Superpuesta al medio */
+            text-transform: uppercase; z-index: 100; white-space: nowrap;
         }
 
-        /* CAPSULA FECHA: ATRAVESADA POR LA LINEA DEL CUADRO */
-        .date-issuance-pill { 
-            background: var(--unlp-bg-pill); border-radius: 60px; padding: 10px 60px; 
-            position: absolute; top: 0; left: 50%; 
-            transform: translate(-50%, -50%); /* Cruza la línea a la mitad */
-            display: flex; align-items: center; gap: 60px; color: var(--unlp-blue); 
-            z-index: 50; border: 4px solid white;
+        /* CAPSULA FECHA Y EMISIÓN (FINA Y SUPERPUESTA AL MEDIO) */
+        .date-emission-pill { 
+            background: var(--unlp-bg-pill); border-radius: 60px; padding: 6px 60px; 
+            position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); /* Superpuesta al medio */
+            display: flex; align-items: center; gap: 70px; color: var(--unlp-blue); 
+            z-index: 100; border: 4px solid white;
         }
         .date-val { font-size: 26px; font-weight: 900; }
-        .issuance-block { display: flex; flex-direction: column; align-items: center; line-height: 1; text-transform: uppercase; }
+        .issuance-block { display: flex; flex-direction: column; align-items: center; line-height: 1.1; text-transform: uppercase; }
         .issuance-label { font-size: 20px; font-weight: 800; }
         .issuance-time { font-size: 20px; font-weight: 900; }
 
         /* BLOQUES DIARIOS PLACA 1 */
-        .day-block { border-radius: 50px; overflow: hidden; margin-bottom: 15px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; }
+        .day-block { border-radius: 50px; overflow: hidden; margin-bottom: 10px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; }
         .day-1 { background: var(--unlp-blue); margin-top: 50px; }
         .day-2 { background: var(--unlp-accent-blue); }
 
@@ -85,6 +83,7 @@
         .temp-v-box { background: rgba(255,255,255,0.3); border-radius: 40px; padding: 25px; width: 100%; text-align: center; }
         .temp-v-box h4 { margin: 0 0 10px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
         .temp-vals { display: flex; justify-content: space-around; font-size: 20px; font-weight: 700; }
+        .temp-sub { font-size: 14px; font-weight: 800; display: block; opacity: 0.8; margin-top: -5px; }
 
         .forecast-item { text-align: center; }
         .forecast-item img { height: 170px; margin-bottom: 2px; }
@@ -97,10 +96,10 @@
         .stripe-time-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
 
         .stripe-label { font-size: 34px; font-weight: 900; padding-left: 60px; }
-        .stripe-data { font-size: 29px; font-weight: 800; text-align: center; text-transform: uppercase; padding: 0 20px; line-height: 1.1; }
+        .stripe-data { font-size: 29px; font-weight: 800; text-align: center; text-transform: uppercase; padding: 0 20px; line-height: 1.1; display: flex; align-items: center; justify-content: center; }
 
         /* PLACA 2: TARJETAS EXTENDIDAS */
-        .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 20px; }
+        .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 10px; margin-top: 10px; }
         .v-card { width: 500px; border-radius: 60px; padding: 50px 30px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; flex: 1; }
         .v-card.celeste { background: var(--unlp-light); }
         .v-card.oscuro { background: var(--unlp-blue); }
@@ -112,7 +111,7 @@
         .temp-item-2 { font-size: 2.2em; font-weight: 700; }
         .v-card .full-desc { font-size: 1.4em; font-weight: 700; margin-top: auto; padding-top: 25px; border-top: 2px solid rgba(255,255,255,0.2); width: 100%; text-transform: uppercase; }
         
-        .footer-note { text-align: center; font-size: 20px; font-weight: 800; color: var(--unlp-blue); padding-bottom: 20px; text-transform: uppercase; }
+        .footer-note { text-align: center; font-size: 20px; font-weight: 800; color: var(--unlp-blue); padding: 15px 0; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -130,8 +129,8 @@
         </div>
     </div>
     <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
-    <button class="btn btn-p1" onclick="download('placa-1', 'IG_D1D2')">⬇ PLACA 1 (INSTAGRAM)</button>
-    <button class="btn btn-p2" onclick="download('placa-2', 'IG_D3D4')">⬇ PLACA 2 (INSTAGRAM)</button>
+    <button class="btn btn-p1" onclick="download('placa-1', 'IG_D1D2')">⬇ PLACA 1 (D1-D2)</button>
+    <button class="btn btn-p2" onclick="download('placa-2', 'IG_D3D4')">⬇ PLACA 2 (D3-D4)</button>
     <div id="dynamic-inputs"></div>
 </div>
 
@@ -150,7 +149,7 @@
         </div>
 
         <div class="day-block day-1">
-            <div class="date-issuance-pill">
+            <div class="date-emission-pill">
                 <span class="date-val f0">--/---/--</span>
                 <div class="issuance-block">
                     <span class="issuance-label">Hora de emisión</span>
@@ -162,7 +161,7 @@
                 <div class="periods-pill"><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             </div>
             <div class="day-main-grid">
-                <div class="temp-side-col"><div class="temp-v-box"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="h-min">--</span>°</div><div>MAX <span id="h-max">--</span>°</div></div></div></div>
+                <div class="temp-side-col"><div class="temp-v-box"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="h-min">--</span>°<span class="temp-sub" id="h-min-sub">--*</span></div><div>MAX <span id="h-max">--</span>°<span class="temp-sub" id="h-max-sub">--*</span></div></div></div></div>
                 <div class="forecast-item"><img id="h-icon-1" src="images/default.png"><div class="forecast-temp" id="h-t1">--°</div></div>
                 <div class="forecast-item"><img id="h-icon-2" src="images/default.png"><div class="forecast-temp" id="h-t2">--°</div></div>
                 <div class="forecast-item"><img id="h-icon-3" src="images/default.png"><div class="forecast-temp" id="h-t3">--°</div></div>
@@ -177,7 +176,7 @@
                 <div class="periods-pill"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             </div>
             <div class="day-main-grid day-main-grid-4">
-                <div class="temp-side-col"><div class="temp-v-box" style="background: rgba(0,49,90,0.35);"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="m-min">--</span>°</div><div>MAX <span id="m-max">--</span>°</div></div></div></div>
+                <div class="temp-side-col"><div class="temp-v-box" style="background: rgba(0,49,90,0.35);"><h4>TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="m-min">--</span>°<span class="temp-sub" id="m-min-sub">--*</span></div><div>MAX <span id="m-max">--</span>°<span class="temp-sub" id="m-max-sub">--*</span></div></div></div></div>
                 <div class="forecast-item"><img id="m-icon-1" src="images/default.png"><div class="forecast-temp" id="m-t1">--°</div></div>
                 <div class="forecast-item"><img id="m-icon-2" src="images/default.png"><div class="forecast-temp" id="m-t2">--°</div></div>
                 <div class="forecast-item"><img id="m-icon-3" src="images/default.png"><div class="forecast-temp" id="m-t3">--°</div></div>
@@ -186,7 +185,7 @@
             <div class="stripe stripe-wind stripe-wind-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
             <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
         </div>
-        <div class="footer-note">* PRONÓSTICO GENERADO POR EL GRUPO DE PRONÓSTICO FCAG - UNLP</div>
+        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
 
     <div id="placa-2" class="placa-box">
@@ -205,7 +204,7 @@
             <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div class="card-split"><div>MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div id="d3-w1">--</div></div><div>TARDE<br><img id="d3-icon-2" src="images/default.png"><br><div id="d3-w2">--</div></div></div><div class="card-temps"><div class="temp-item-2">⬇ <span id="d3-min">--</span>°</div><div class="temp-item-2">⬆ <span id="d3-max">--</span>°</div></div><div class="full-desc" id="d3-full-desc">--</div></div>
             <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div class="card-split"><div>MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div id="d4-w1">--</div></div><div>TARDE<br><img id="d4-icon-2" src="images/default.png"><br><div id="d4-w2">--</div></div></div><div class="card-temps"><div class="temp-item-2">⬇ <span id="d4-min">--</span>°</div><div class="temp-item-2">⬆ <span id="d4-max">--</span>°</div></div><div class="full-desc" id="d4-full-desc">--</div></div>
         </div>
-        <div class="footer-note">* PRONÓSTICO GENERADO POR EL GRUPO DE PRONÓSTICO FCAG - UNLP</div>
+        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
 </div>
 
@@ -219,7 +218,9 @@
         let html = '';
         const configs = [{id:'h', title:'DÍA 1', t:['mañ','tar','noc']}, {id:'m', title:'DÍA 2', t:['mad','mañ','tar','noc']}, {id:'d3', title:'DÍA 3', t:['mañ','tar']}, {id:'d4', title:'DÍA 4', t:['mañ','tar']}];
         configs.forEach(c => {
-            html += `<div class="section-title">${c.title}</div><div class="field-group"><div class="row"><input type="number" placeholder="Min" oninput="up('${c.id}-min', this.value)"><input type="number" placeholder="Max" oninput="up('${c.id}-max', this.value)"></div></div>`;
+            html += `<div class="section-title">${c.title}</div><div class="field-group">
+            <div class="row"><input type="number" placeholder="Min Urb" oninput="up('${c.id}-min', this.value)"><input type="number" placeholder="Min Sub" oninput="up('${c.id}-min-sub', this.value)"></div>
+            <div class="row"><input type="number" placeholder="Max Urb" oninput="up('${c.id}-max', this.value)"><input type="number" placeholder="Max Sub" oninput="up('${c.id}-max-sub', this.value)"></div></div>`;
             c.t.forEach((t, i) => {
                 const idx = i+1;
                 html += `<div class="field-group"><h5>${t.toUpperCase()}</h5>`;
@@ -247,7 +248,8 @@
 
     function up(id, v) { 
         let val = v ? v.trim() : '--';
-        if((id.includes('min') || id.includes('max') || id.includes('t')) && val !== '--') val += '°';
+        if((id.includes('min') || id.includes('max') || id.includes('t')) && !id.includes('sub') && val !== '--') val += '°';
+        if(id.includes('sub') && val !== '--') val += '*';
         const el = document.getElementById(id); if(el) el.innerText = val; 
     }
 
@@ -255,7 +257,7 @@
 
     function download(id, name) {
         const el = document.getElementById(id); const old = el.style.transform; el.style.transform = "none";
-        html2canvas(el, { scale: 3 }).then(c => {
+        html2canvas(el, { scale: 3, useCORS: true }).then(c => {
             const l = document.createElement('a'); l.download = `UNLP_${name}.png`; l.href = c.toDataURL(); l.click(); el.style.transform = old;
         });
     }
