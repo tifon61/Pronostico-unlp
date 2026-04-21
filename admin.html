@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Meteorológico UNLP | IG Vertical 1080x1350</title>
+    <title>Panel Meteorológico UNLP | IG Vertical Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -17,7 +17,7 @@
         }
         body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; }
         
-        /* SIDEBAR ADMIN */
+        /* SIDEBAR */
         #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; border-right: 5px solid var(--unlp-blue); }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
@@ -34,10 +34,10 @@
             width: 1080px; height: 1350px; background: white; padding: 20px 40px; 
             position: relative; display: flex; flex-direction: column; box-sizing: border-box;
             transform: scale(0.48); transform-origin: top center;
-            overflow: visible; /* Clave para que no se corten los globos */
+            overflow: visible; /* Crucial para que los globos superpuestos no se corten */
         }
 
-        /* HEADER UNIFICADO */
+        /* HEADER INSTITUCIONAL UNIFICADO */
         .header-container { position: relative; margin-top: 55px; margin-bottom: 45px; width: 100%; z-index: 10; }
         .header-capsule { 
             border: 5px solid var(--unlp-blue); border-radius: 100px; 
@@ -48,7 +48,7 @@
         .header-capsule img { height: 85px; }
         .city-box { display: flex; align-items: center; gap: 20px; }
 
-        /* CAPSULA TITULO: SUPERPUESTA AL MEDIO */
+        /* CAPSULA TITULO: CABALGA LA LINEA SUPERIOR AL 50% */
         .title-pill { 
             background: var(--unlp-blue); color: white; padding: 6px 50px; 
             border-radius: 30px; font-weight: 800; font-size: 18px; 
@@ -56,11 +56,11 @@
             text-transform: uppercase; z-index: 100; white-space: nowrap;
         }
 
-        /* CAPSULA FECHA Y EMISIÓN: DEL MISMO ANCHO QUE LOS PERÍODOS (720px aprox) */
+        /* CAPSULA FECHA Y EMISIÓN: ALINEADA CON LA GRILLA DE DATOS */
         .date-emission-pill { 
             background: var(--unlp-bg-pill); border-radius: 60px; padding: 5px 0; 
-            width: 740px; /* Mismo ancho que la barra de mañana/tarde/noche */
-            position: absolute; top: 0; left: 670px; /* Centrado respecto a la zona de datos */
+            width: 700px; /* Ancho exacto de la columna de períodos/datos */
+            position: absolute; top: 0; left: 690px; /* Centrado sobre los 3/4 períodos */
             transform: translate(-50%, -50%); 
             display: flex; align-items: center; justify-content: center; gap: 60px; color: var(--unlp-blue); 
             z-index: 500; border: 3px solid white;
@@ -70,21 +70,23 @@
         .issuance-label { font-size: 16px; font-weight: 800; }
         .issuance-time { font-size: 16px; font-weight: 900; }
 
-        /* BLOQUES DIARIOS */
+        /* BLOQUES DE DÍAS (MÁXIMA VERTICAL) */
         .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; overflow: visible; }
         .day-1 { background: var(--unlp-blue); margin-top: 50px; }
         .day-2 { background: var(--unlp-accent-blue); }
 
-        /* Fondo interno para simular overflow hidden pero permitiendo globos fuera */
+        /* Wrap para permitir overflow visible de los globos pero bordes redondeados en el contenido */
         .day-content-wrap { border-radius: 50px; overflow: hidden; display: flex; flex-direction: column; flex-grow: 1; }
 
         .day-header { display: flex; align-items: center; padding: 40px 50px 10px; color: white; }
         .day-header h2 { font-size: 34px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 300px; }
-        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; flex-grow: 1; justify-content: space-around; padding: 12px 0; font-weight: 800; font-size: 23px; width: 740px; }
+        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; flex-grow: 1; justify-content: space-around; padding: 12px 0; font-weight: 800; font-size: 23px; width: 700px; }
 
+        /* GRILLA DE CONTENIDO */
         .day-main-grid { display: grid; grid-template-columns: 300px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; }
         .day-main-grid-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
 
+        /* TEMPERATURA VERTICAL */
         .temp-side-col { padding: 10px 30px; display: flex; align-items: center; justify-content: center; height: 100%; }
         .temp-v-box { background: rgba(255,255,255,0.3); border-radius: 40px; padding: 25px; width: 100%; text-align: center; }
         .temp-v-box h4 { margin: 0 0 10px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
@@ -95,6 +97,7 @@
         .forecast-item img { height: 170px; margin-bottom: 2px; }
         .forecast-temp { font-size: 17.5px; font-weight: 700; }
 
+        /* FRANJAS (EXTENDIDAS BORDE A BORDE) */
         .stripe { display: grid; align-items: center; width: 100%; height: 110px; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 300px 1fr 1fr 1fr; }
         .stripe-wind-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
@@ -104,7 +107,7 @@
         .stripe-label { font-size: 34px; font-weight: 900; padding-left: 60px; }
         .stripe-data { font-size: 29px; font-weight: 800; text-align: center; text-transform: uppercase; padding: 0 20px; line-height: 1.1; display: flex; align-items: center; justify-content: center; }
 
-        /* PLACA 2: TARJETAS EXTENDIDAS */
+        /* PLACA 2: TARJETAS EXTENDIDAS (D3-D4) */
         .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 10px; margin-top: 10px; }
         .v-card { width: 500px; border-radius: 60px; padding: 50px 30px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; flex: 1; }
         .v-card.celeste { background: var(--unlp-light); }
@@ -135,8 +138,8 @@
         </div>
     </div>
     <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
-    <button class="btn btn-p1" onclick="download('placa-1', 'IG_CortoPlazo')">⬇ PLACA 1 (D1-D2)</button>
-    <button class="btn btn-p2" onclick="download('placa-2', 'IG_Extendido')">⬇ PLACA 2 (D3-D4)</button>
+    <button class="btn btn-p1" onclick="download('placa-1', 'CortoPlazo_IG')">⬇ PLACA 1 (D1-D2)</button>
+    <button class="btn btn-p2" onclick="download('placa-2', 'Extendido_IG')">⬇ PLACA 2 (D3-D4)</button>
     <div id="dynamic-inputs"></div>
 </div>
 
@@ -284,7 +287,7 @@
         }
     };
 
-    function saveToWeb() { alert("Pronóstico publicado en la API."); }
+    function saveToWeb() { alert("Sincronizando con la API de Sebastian..."); }
 </script>
 </body>
 </html>
