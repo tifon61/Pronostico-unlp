@@ -17,58 +17,56 @@
         body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; }
         
         /* SIDEBAR ADMIN */
-        #sidebar { width: 400px; background: white; padding: 20px; border-right: 5px solid var(--unlp-blue); overflow-y: auto; z-index: 100; }
+        #sidebar { width: 400px; background: white; padding: 20px; border-right: 5px solid var(--unlp-blue); overflow-y: auto; color: #333; z-index: 100; }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0; font-weight: 900; font-size: 14px; border-radius: 4px; text-transform: uppercase; }
         input, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; }
         .btn { border: none; padding: 14px; cursor: pointer; font-weight: 900; border-radius: 8px; color: white; width: 100%; margin-bottom: 12px; background: var(--unlp-blue); }
 
-        /* CANVAS VERTICAL (1080x1350) */
+        /* CANVAS 1080x1350 */
         #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; background: #333; }
         .placa-box { 
             width: 1080px; height: 1350px; 
-            background: white; padding: 40px; 
+            background: white; padding: 30px; 
             position: relative; display: flex; flex-direction: column; 
-            box-sizing: border-box; transform: scale(0.45); transform-origin: top center;
+            box-sizing: border-box; transform: scale(0.48); transform-origin: top center;
         }
 
-        /* HEADER (EL GLOBO QUE QUEDÓ BIEN) */
-        .header-container { position: relative; margin-top: 20px; margin-bottom: 50px; }
+        /* HEADER Y GLOBO CIUDAD */
+        .header-container { position: relative; margin-top: 20px; margin-bottom: 40px; }
         .header-capsule {
             border: 5px solid var(--unlp-blue); border-radius: 100px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 20px 60px; background: white;
         }
         .header-capsule h1 { font-size: 65px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -3px; }
-        .header-capsule img { height: 90px; }
+        .header-capsule img { height: 85px; }
         .title-pill-overlay {
             background: var(--unlp-blue); color: white; padding: 8px 40px;
             border-radius: 30px; font-weight: 800; font-size: 18px;
-            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-            text-transform: uppercase; white-space: nowrap; z-index: 20;
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            text-transform: uppercase; z-index: 20;
         }
 
-        /* CAPSULA FECHA Y EMISIÓN (SUPERPUESTA) */
+        /* CAPSULA FECHA Y EMISIÓN SUPERPUESTA */
         .date-emission-pill {
             background: var(--unlp-bg-pill); border-radius: 60px;
             padding: 15px 60px; width: fit-content;
-            position: absolute; top: 185px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 165px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; gap: 80px; color: var(--unlp-blue);
             z-index: 30; border: 3px solid white;
         }
         .f0 { font-size: 26px; font-weight: 900; }
-        .emission-block { display: flex; flex-direction: column; align-items: center; font-size: 20px; font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+        .emission-block { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+        .emission-label { font-size: 20px; font-weight: 800; text-transform: uppercase; }
+        .emission-time-val { font-size: 20px; font-weight: 900; }
 
-        /* BLOQUES DE DÍAS (EXTENDIDOS DE BORDE A BORDE CASI) */
-        .day-block { 
-            width: 100%; /* Ocupa el ancho disponible dentro del padding de 40px */
-            border-radius: 50px; overflow: hidden; margin-bottom: 40px; 
-            position: relative; display: flex; flex-direction: column; 
-        }
+        /* BLOQUES DE DÍAS (EXTENDIDOS) */
+        .day-block { border-radius: 50px; overflow: hidden; margin-bottom: 10px; position: relative; width: 100%; display: flex; flex-direction: column; }
         .day-1 { background: var(--unlp-blue); margin-top: 50px; }
         .day-2 { background: var(--unlp-accent-blue); }
 
         .day-header { display: flex; align-items: center; padding: 40px 50px 15px; color: white; }
-        .day-header h2 { font-size: 34px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 300px; }
+        .day-header h2 { font-size: 34px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 280px; }
         
         .periods-pill {
             background: rgba(255,255,255,0.2); border-radius: 40px;
@@ -76,39 +74,35 @@
             padding: 12px 0; font-weight: 800; font-size: 23px;
         }
 
-        /* CUERPO DEL DÍA */
-        .day-body { display: grid; grid-template-columns: 300px 1fr 1fr 1fr; color: white; }
-        .day-body-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
+        /* CUERPO PRINCIPAL */
+        .day-body { display: grid; grid-template-columns: 280px 1fr 1fr 1fr; color: white; }
+        .day-body-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; }
 
-        /* RECTÁNGULO VERTICAL IZQUIERDA (TEMPERATURA) */
+        /* RECUADRO TEMPERATURA VERTICAL */
         .temp-side-area { padding: 20px 30px; display: flex; align-items: center; justify-content: center; }
-        .temp-rect-vertical {
+        .temp-vertical-box {
             background: rgba(255,255,255,0.25); border-radius: 35px;
             padding: 25px; width: 100%; text-align: center;
         }
-        .temp-rect-vertical h4 { margin: 0 0 15px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
+        .temp-vertical-box h4 { margin: 0 0 15px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
         .temp-vals-grid { display: flex; justify-content: space-around; font-size: 20px; font-weight: 700; }
 
         .period-cell { text-align: center; padding: 20px 0; }
         .period-cell img { height: 160px; margin-bottom: 10px; }
         .period-temp-num { font-size: 17.5px; font-weight: 700; }
 
-        /* FRANJAS HORIZONTALES (EXTENDIDAS) */
-        .stripe { display: grid; align-items: center; }
-        .wind-stripe { background: var(--unlp-row-wind); color: var(--unlp-blue); height: 110px; grid-template-columns: 300px 1fr 1fr 1fr; }
-        .wind-stripe-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
+        /* FRANJAS HORIZONTALES (STRIPES) */
+        .stripe { display: grid; align-items: center; width: 100%; }
+        .wind-stripe { background: var(--unlp-row-wind); color: var(--unlp-blue); height: 110px; grid-template-columns: 280px 1fr 1fr 1fr; }
+        .wind-stripe-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; }
         
-        .time-stripe { background: var(--unlp-row-time); color: white; height: 110px; grid-template-columns: 300px 1fr 1fr 1fr; }
-        .time-stripe-4 { grid-template-columns: 300px 1fr 1fr 1fr 1fr; }
+        .time-stripe { background: var(--unlp-row-time); color: white; height: 110px; grid-template-columns: 280px 1fr 1fr 1fr; }
+        .time-stripe-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; }
 
         .stripe-label { font-size: 34px; font-weight: 900; padding-left: 55px; }
-        .stripe-data { 
-            font-size: 29px; font-weight: 800; text-align: center; 
-            text-transform: uppercase; padding: 0 20px; line-height: 1.1;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .stripe-data { font-size: 29px; font-weight: 800; text-align: center; text-transform: uppercase; padding: 0 20px; line-height: 1.1; display: flex; align-items: center; justify-content: center; }
         
-        .footer { text-align: center; font-size: 20px; font-weight: 800; margin-top: auto; color: var(--unlp-blue); padding-bottom: 30px; }
+        .footer { text-align: center; font-size: 20px; font-weight: 800; margin-top: auto; color: var(--unlp-blue); padding-bottom: 30px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -116,7 +110,7 @@
 <div id="sidebar">
     <h2 style="color: var(--unlp-blue)">Control UNLP</h2>
     <input type="text" id="in-hora" placeholder="Emisión (8:00 hs)" oninput="up('out-hora', this.value)">
-    <button class="btn" onclick="download('placa-1', 'IG_Vertical_Corregida')">DESCARGAR PLACA</button>
+    <button class="btn" onclick="download('placa-1', 'Pronostico_IG_Vertical')">DESCARGAR PLACA</button>
     <div id="fields"></div>
 </div>
 
@@ -132,11 +126,11 @@
             </div>
         </div>
 
-        <div class="date-emission-pill">
+        <div class="date-emission-overlay">
             <span class="f0">--/---/--</span>
             <div class="emission-block">
-                <span>Hora de emisión</span>
-                <span id="out-hora">8:00 hs</span>
+                <span class="emission-label">Hora de emisión</span>
+                <span class="emission-time-val" id="out-hora">8:00 hs</span>
             </div>
         </div>
 
@@ -147,7 +141,7 @@
             </div>
             <div class="day-body">
                 <div class="temp-side-area">
-                    <div class="temp-rect-vertical">
+                    <div class="temp-vertical-box">
                         <h4>TEMPERATURA</h4>
                         <div class="temp-vals-grid">
                             <div>MIN <span id="h-min">--</span>°</div>
@@ -158,10 +152,9 @@
                 <div class="period-cell"><img id="h-icon-1" src="images/default.png"><div class="period-temp-num" id="h-t1">--°</div></div>
                 <div class="period-cell"><img id="h-icon-2" src="images/default.png"><div class="period-temp-num" id="h-t2">--°</div></div>
                 <div class="period-cell"><img id="h-icon-3" src="images/default.png"><div class="period-temp-num" id="h-t3">--°</div></div>
-                
-                <div class="stripe wind-stripe"><div class="stripe-label">Vientos</div><div class="stripe-data" id="h-v1">--</div><div class="stripe-data" id="h-v2">--</div><div class="stripe-data" id="h-v3">--</div></div>
-                <div class="stripe stripe-time"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1">--</div><div class="stripe-data" id="h-w2">--</div><div class="stripe-data" id="h-w3">--</div></div>
             </div>
+            <div class="stripe wind-stripe"><div class="stripe-label">Vientos</div><div class="stripe-data" id="h-v1">--</div><div class="stripe-data" id="h-v2">--</div><div class="stripe-data" id="h-v3">--</div></div>
+            <div class="stripe time-stripe"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1">--</div><div class="stripe-data" id="h-w2">--</div><div class="stripe-data" id="h-w3">--</div></div>
         </div>
 
         <div class="day-block day-2">
@@ -171,7 +164,7 @@
             </div>
             <div class="day-body day-body-4">
                 <div class="temp-side-area">
-                    <div class="temp-rect-vertical" style="background: rgba(0,49,90,0.35);">
+                    <div class="temp-vertical-box" style="background: rgba(0,49,90,0.35);">
                         <h4>TEMPERATURA</h4>
                         <div class="temp-vals-grid">
                             <div>MIN <span id="m-min">--</span>°</div>
@@ -183,10 +176,9 @@
                 <div class="period-cell"><img id="m-icon-2" src="images/default.png"><div class="period-temp-num" id="m-t2">--°</div></div>
                 <div class="period-cell"><img id="m-icon-3" src="images/default.png"><div class="period-temp-num" id="m-t3">--°</div></div>
                 <div class="period-cell"><img id="m-icon-4" src="images/default.png"><div class="period-temp-num" id="m-t4">--°</div></div>
-
-                <div class="stripe wind-stripe wind-stripe-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
-                <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
             </div>
+            <div class="stripe wind-stripe wind-stripe-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
+            <div class="stripe time-stripe time-stripe-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
         </div>
         
         <div class="footer">* PRONÓSTICO GENERADO POR EL GRUPO DE PRONÓSTICO FCAG - UNLP</div>
@@ -198,24 +190,22 @@
         let h = '';
         const c = [{i:'h', t:'HOY', p:['mañ','tar','noc']}, {i:'m', t:'MAÑANA', p:['mad','mañ','tar','noc']}];
         c.forEach(x => {
-            h += `<div class="section-title">${x.t}</div><div style="display:flex; gap:5px;"><input type="number" placeholder="Min" oninput="up('${x.i}-min', this.value)"><input type="number" placeholder="Max" oninput="up('${x.i}-max', this.value)"></div>`;
+            h += `<div class="section-title">${x.t}</div><div style="display:flex; gap:10px;"><input type="number" placeholder="Min" oninput="up('${x.i}-min', this.value)"><input type="number" placeholder="Max" oninput="up('${x.i}-max', this.value)"></div>`;
             x.p.forEach((p, i) => {
                 const id = i + 1;
-                h += `<input type="number" placeholder="Temp ${p}" oninput="up('${x.i}-t${id}', this.value)"><input type="text" placeholder="Viento ${p}" oninput="up('${x.i}-v${id}', this.value)"><input type="text" placeholder="Tiempo ${p}" oninput="up('${x.i}-w${id}', this.value)">`;
+                h += `<input type="number" placeholder="Temp" oninput="up('${x.i}-t${id}', this.value)"><input type="text" placeholder="Vientos" oninput="up('${x.i}-v${id}', this.value)"><input type="text" placeholder="Tiempo" oninput="up('${x.i}-w${id}', this.value)">`;
             });
         });
         document.getElementById('fields').innerHTML = h;
     }
 
     function up(i, v) { document.getElementById(i).innerText = v || "--"; }
-    function updateCity(v) { document.querySelectorAll('.city-label').forEach(el => el.innerText = v.toUpperCase()); }
-
     function download(i, n) {
         const b = document.getElementById(i);
         b.style.transform = "none";
         html2canvas(b, { scale: 1 }).then(c => {
             const l = document.createElement('a'); l.download = `${n}.png`; l.href = c.toDataURL(); l.click();
-            b.style.transform = "scale(0.45)";
+            b.style.transform = "scale(0.48)";
         });
     }
 
@@ -224,7 +214,7 @@
         const ms = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
         const ds = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
         const d0 = new Date();
-        document.querySelector('.f0').innerText = `${d0.getDate()}/${ms[d0.getMonth()]}/${d0.getFullYear()}`;
+        document.querySelector('.f0').innerText = `${d0.getDate()}/${ms[d0.getMonth()]}/${d0.getFullYear().toString().slice(-2)}`;
         document.querySelector('.n0').innerText = ds[d0.getDay()].toUpperCase();
         const d1 = new Date(); d1.setDate(d0.getDate() + 1);
         document.querySelector('.n1').innerText = ds[d1.getDay()].toUpperCase();
