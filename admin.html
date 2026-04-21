@@ -36,10 +36,10 @@
             transform: scale(0.48); transform-origin: top center; overflow: visible;
         }
 
-        /* HEADER INSTITUCIONAL */
-        .header-container { position: relative; margin-top: 55px; margin-bottom: 45px; width: 100%; border-top: 5px solid var(--unlp-blue); }
+        /* HEADER INSTITUCIONAL (REVERTIDO A PÍLDORA COMPLETA) */
+        .header-container { position: relative; margin-top: 55px; margin-bottom: 45px; width: 100%; }
         .header-capsule { 
-            border: 5px solid var(--unlp-blue); border-top: none; border-radius: 0 0 100px 100px; 
+            border: 5px solid var(--unlp-blue); border-radius: 100px; /* Revertido a forma anterior */
             display: flex; justify-content: space-between; align-items: center; 
             padding: 15px 60px; background: white; position: relative;
         }
@@ -48,29 +48,29 @@
         .city-box { display: flex; align-items: center; gap: 20px; }
 
         .title-pill { 
-            background: var(--unlp-blue); color: white; padding: 6px 40px; 
+            background: var(--unlp-blue); color: white; padding: 6px 50px; 
             border-radius: 30px; font-weight: 800; font-size: 18px; 
             position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); 
             text-transform: uppercase; z-index: 100; white-space: nowrap;
         }
 
-        /* CAPSULA FECHA Y EMISIÓN: FINA, CENTRADA Y AJUSTADA AL TEXTO */
+        /* CAPSULA FECHA Y EMISIÓN: CENTRADA HORIZONTALMENTE */
         .date-emission-pill { 
             background: var(--unlp-bg-pill); border-radius: 50px; 
-            padding: 4px 25px; /* Muy fina y sin espacio de sobra */
-            position: absolute; top: 0; left: 650px; /* Centrada sobre la zona de datos */
+            padding: 5px 35px; 
+            position: absolute; top: 0; left: 50%; /* Centrado en el medio de la placa */
             transform: translate(-50%, -50%); 
-            display: flex; align-items: center; gap: 30px; color: var(--unlp-blue); 
+            display: flex; align-items: center; gap: 40px; color: var(--unlp-blue); 
             z-index: 500; border: 3px solid white; width: fit-content;
         }
-        .date-val { font-size: 24px; font-weight: 900; }
+        .date-val { font-size: 26px; font-weight: 900; }
         .issuance-block { display: flex; flex-direction: column; align-items: center; line-height: 1; text-transform: uppercase; }
         .issuance-label { font-size: 14px; font-weight: 800; }
         .issuance-time { font-size: 14px; font-weight: 900; }
 
         /* BLOQUES DIARIOS */
-        .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; border-top: 5px solid transparent; }
-        .day-1 { background: var(--unlp-blue); margin-top: 50px; border-top-color: var(--unlp-blue); }
+        .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; overflow: visible; }
+        .day-1 { background: var(--unlp-blue); margin-top: 50px; }
         .day-2 { background: var(--unlp-accent-blue); }
 
         .day-content-wrap { border-radius: 50px; overflow: hidden; display: flex; flex-direction: column; flex-grow: 1; }
@@ -93,9 +93,9 @@
 
         .stripe { display: grid; align-items: center; width: 100%; height: 105px; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 250px 1fr 1fr 1fr; }
-        .stripe-wind-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
+        .stripe-wind-4 { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 250px 1fr 1fr 1fr; }
-        .stripe-time-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
+        .stripe-time-4 { background: var(--unlp-row-time); color: white; grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
 
         .stripe-label { font-size: 30px; font-weight: 900; padding-left: 50px; }
         .stripe-data { font-size: 26px; font-weight: 800; text-align: center; text-transform: uppercase; padding: 0 15px; display: flex; align-items: center; justify-content: center; }
@@ -280,7 +280,7 @@
         }
     };
 
-    async function saveToWeb() { alert("Publicando en la API..."); }
+    function saveToWeb() { alert("Publicando en la API..."); }
 </script>
 </body>
 </html>
