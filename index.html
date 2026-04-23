@@ -268,9 +268,9 @@
             const response = await fetch(`${API_URL}?rand=${Date.now()}`);
             const json = await response.json();
 
-            // Buscar ciudad en el objeto 'data' de tu JSON
-            const cityKey = Object.keys(json.data).find(k => k.toLowerCase() === ciudad.toLowerCase());
-            const cityData = json.data[cityKey];
+            // Buscar ciudad directamente en el JSON (sin wrapper 'data')
+            const cityKey = Object.keys(json).find(k => k.toLowerCase() === ciudad.toLowerCase());
+            const cityData = json[cityKey];
 
             if (!cityData) {
                 placeholder.innerText = `No hay datos recientes para ${ciudad}.`;
@@ -279,8 +279,8 @@
 
             document.getElementById('view-placeholder').style.display = 'none';
             document.getElementById('main-content').style.display = 'flex';
-            document.getElementById('out-city').innerText = cityData.location.toUpperCase();
-            document.getElementById('out-hora').innerText = cityData.emission_time || '--:--';
+            document.getElementById('out-city').innerText = cityData.location ? cityData.location.toUpperCase() : ciudad.toUpperCase();
+            document.getElementById('out-hora').innerText = cityData.emission_time ? cityData.emission_time.replace(':00', '') + 'hs' : '--:--';
 
             const forecasts = cityData.daily_forecasts;
 
@@ -300,7 +300,11 @@
 
                     if (temp) temp.innerText = p.temperature ? p.temperature + "°" : "--";
                     if (wind) wind.innerText = `${p.wind_intensity || ''} del ${p.wind_direction || ''}`;
-                    if (sky) sky.innerText = p.sky_condition || "--";
+                    // Combinar sky_condition y precipitation_description para mostrar tiempo completo
+                    const weatherDesc = p.precipitation_description && p.precipitation_description !== "" 
+                        ? `${p.sky_condition || ""} - ${p.precipitation_description}` 
+                        : (p.sky_condition || "--");
+                    if (sky) sky.innerText = weatherDesc;
                     if (icon) icon.src = `images/${p.weather_icon_code || 'soleado'}.png`;
                 });
             };
