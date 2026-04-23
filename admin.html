@@ -78,6 +78,9 @@
         .day-main-grid-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; padding: 0 20px; position: relative; z-index: 2; }
         .temp-side-col { padding: 15px 25px; display: flex; align-items: center; justify-content: center; height: 100%; position: relative; z-index: 1; }
         .temp-v-box { background: rgba(255,255,255,0.35); border-radius: 45px; padding: 30px 15px; width: 100%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 180px; display: flex; flex-direction: column; justify-content: center; position: absolute; top: -40px; left: 25px; right: 25px; z-index: 1; }
+        .temp-v-box::before { content: ''; position: absolute; left: -15px; top: 0; bottom: 0; width: 15px; background: rgba(255,255,255,0.35); z-index: -1; }
+        .day-1 .temp-v-box::before { background: var(--unlp-blue); }
+        .day-2 .temp-v-box::before { background: var(--unlp-accent-blue); }
         .temp-v-box h4 { font-size: 18px; margin-bottom: 15px; letter-spacing: 0.5px; text-transform: uppercase; }
         .temp-vals { display: flex; justify-content: space-around; font-size: 24px; font-weight: 800; gap: 20px; align-items: baseline; }
         .temp-vals > div { display: flex; flex-direction: column; align-items: center; }
@@ -190,7 +193,6 @@
         </div>
 
         <div class="day-block day-1">
-            <div class="temp-left-border"></div>
             <div class="date-emission-pill">
                 <span class="date-val f0">--/---/--</span>
                 <div class="issuance-block">
@@ -213,7 +215,6 @@
         </div>
 
         <div class="day-block day-2">
-            <div class="temp-left-border"></div>
             <div class="day-header">
                 <h2 class="n1">MARTES</h2>
                 <div class="periods-pill"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
