@@ -33,6 +33,7 @@
         /* VIEWER */
         #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; gap: 40px; background: #333; }
         
+    
         /* PLACAS 1080x1350 */
         .placa-box { 
             width: 1080px; height: 1350px; background: white; padding: 20px 40px; 
@@ -73,10 +74,10 @@
         .day-header { display: flex; align-items: center; padding: 25px 50px 5px; color: white; }
         .day-header h2 { font-size: 38px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 280px; letter-spacing: -1px; }
         .periods-pill { background: rgba(255,255,255,0.25); border-radius: 45px; display: flex; flex-grow: 1; justify-content: space-around; padding: 15px 0; font-weight: 800; font-size: 26px; margin-right: 20px; }
-        .day-main-grid { display: grid; grid-template-columns: 280px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; padding: 0 20px; }
-        .day-main-grid-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; padding: 0 20px; }
-        .temp-side-col { padding: 15px 25px; display: flex; align-items: center; justify-content: center; height: 100%; }
-        .temp-v-box { background: rgba(255,255,255,0.35); border-radius: 45px; padding: 30px 15px; width: 100%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 180px; display: flex; flex-direction: column; justify-content: center; }
+        .day-main-grid { display: grid; grid-template-columns: 280px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; padding: 0 20px; position: relative; z-index: 2; }
+        .day-main-grid-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; padding: 0 20px; position: relative; z-index: 2; }
+        .temp-side-col { padding: 15px 25px; display: flex; align-items: center; justify-content: center; height: 100%; position: relative; z-index: 1; }
+        .temp-v-box { background: rgba(255,255,255,0.35); border-radius: 45px; padding: 30px 15px; width: 100%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 180px; display: flex; flex-direction: column; justify-content: center; position: absolute; top: -40px; left: 25px; right: 25px; z-index: 1; }
         .temp-v-box h4 { font-size: 18px; margin-bottom: 15px; letter-spacing: 0.5px; text-transform: uppercase; }
         .temp-vals { display: flex; justify-content: space-around; font-size: 24px; font-weight: 800; gap: 20px; align-items: baseline; }
         .temp-vals > div { display: flex; flex-direction: column; align-items: center; }
@@ -84,13 +85,15 @@
         .forecast-item { text-align: center; padding: 10px 0; }
         .forecast-item img { height: 170px; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); }
         .forecast-temp { font-size: 19px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        .stripe { display: grid; align-items: center; width: 100%; height: 95px; overflow: hidden; margin-top: 5px; }
+        .stripe { display: grid; align-items: center; width: 100%; height: 95px; overflow: hidden; margin-top: 5px; position: relative; z-index: 3; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 280px 1fr 1fr 1fr; }
         .stripe-wind-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; }
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 280px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; }
         .stripe-label { font-size: 32px; font-weight: 900; padding-left: 55px; text-transform: uppercase; letter-spacing: 1px; }
         .stripe-data { font-size: 26px; font-weight: 800; text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; letter-spacing: 0.5px; }
+        .temp-left-border { position: absolute; left: 0; top: -40px; bottom: 0; width: 15px; background: var(--unlp-blue); z-index: 0; }
+        .day-2 .temp-left-border { background: var(--unlp-accent-blue); }
 
         /* PLACA 2: EXTENDIDO */
         .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 20px; margin-top: 10px; }
@@ -187,6 +190,7 @@
         </div>
 
         <div class="day-block day-1">
+            <div class="temp-left-border"></div>
             <div class="date-emission-pill">
                 <span class="date-val f0">--/---/--</span>
                 <div class="issuance-block">
@@ -209,6 +213,7 @@
         </div>
 
         <div class="day-block day-2">
+            <div class="temp-left-border"></div>
             <div class="day-header">
                 <h2 class="n1">MARTES</h2>
                 <div class="periods-pill"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
