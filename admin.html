@@ -104,6 +104,38 @@
         .v-card .full-desc { font-size: 1.3em; font-weight: 700; margin-top: auto; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.2); width: 100%; text-transform: uppercase; }
         
         .footer-note { text-align: center; font-size: 18px; font-weight: 800; color: var(--unlp-blue); padding-bottom: 20px; text-transform: uppercase; }
+        
+        /* Forzar formato 24 horas en inputs de tiempo */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background: none;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .column label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--unlp-blue);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .time-input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .time-input-group input {
+            flex: 1;
+        }
+        .time-suffix {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--unlp-blue);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -113,12 +145,21 @@
     <div class="field-group">
         <h4>Información General</h4>
         <div class="row">
+            <div class="column">
+            <label for="city-selector">Ciudad</label>
             <select id="city-selector" onchange="updateCity(this.value)">
                 <option value="La Plata">La Plata</option>
                 <option value="Junín">Junín</option>
                 <option value="Mar del Plata">Mar del Plata</option>
             </select>
-            <input type="text" id="in-hora-emision" placeholder="Hora (ej: 08:00)" oninput="up('out-hora', this.value)">
+            </div>
+            <div class="column">
+            <label for="in-hora-emision">Hora de emisión</label>
+            <div class="time-input-group">
+                <input type="text" id="in-hora-emision" placeholder="HH:MM" pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" maxlength="5" oninput="formatTimeInput(this)" onblur="validateTime(this)">
+                <span class="time-suffix">hs</span>
+            </div>
+            </div>
         </div>
     </div>
 
@@ -222,14 +263,10 @@
         configs.forEach(conf => {
             html += `<div class="section-title">${conf.title}</div>
             <div class="field-group">
-                <h4>Temperaturas (Urb/Sub)</h4>
+                <h4>Temperaturas</h4>
                 <div class="row">
-                    <input type="text" id="${conf.id}-in-min-urb" placeholder="Min Urb" oninput="updateTempField('${conf.id}', 'min')">
-                    <input type="text" id="${conf.id}-in-min-sub" placeholder="Min Sub" oninput="updateTempField('${conf.id}', 'min-sub')">
-                </div>
-                <div class="row">
-                    <input type="text" id="${conf.id}-in-max-urb" placeholder="Max Urb" oninput="updateTempField('${conf.id}', 'max')">
-                    <input type="text" id="${conf.id}-in-max-sub" placeholder="Max Sub" oninput="updateTempField('${conf.id}', 'max-sub')">
+                    <input type="number" id="${conf.id}-min-urb" placeholder="Temperatura Mínima" oninput="updateTempField('${conf.id}', 'min')">
+                    <input type="number" id="${conf.id}-max-urb" placeholder="Temperatura Máxima" oninput="updateTempField('${conf.id}', 'max')">
                 </div>
             </div>`;
             
@@ -256,7 +293,7 @@
     }
 
     function updateTempField(dia, tipo) {
-        const value = document.getElementById(`${dia}-in-${tipo}`).value;
+        const value = document.getElementById(`${dia}-${tipo}-urb`).value;
         up(`${dia}-${tipo}`, value);
     }
 
@@ -289,6 +326,34 @@
 
     function updateCity(v) { document.querySelectorAll('.city-label').forEach(el => el.innerText = v.toUpperCase()); }
 
+    function formatTimeInput(input) {
+        let value = input.value.replace(/[^\d]/g, '');
+        if (value.length >= 2) {
+            const hours = value.substring(0, 2);
+            const minutes = value.substring(2, 4);
+            if (parseInt(hours) > 23) {
+                value = '23' + minutes;
+            }
+            if (minutes.length > 0 && parseInt(minutes) > 59) {
+                value = hours + '59';
+            }
+            value = value.substring(0, 2) + ':' + value.substring(2, 4);
+        }
+        input.value = value;
+        up('out-hora', value + 'hs');
+    }
+
+    function validateTime(input) {
+        const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (!timeRegex.test(input.value) && input.value !== '') {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            input.value = `${hours}:${minutes}`;
+            up('out-hora', `${hours}:${minutes}hs`);
+        }
+    }
+
     function download(id, name) {
         const el = document.getElementById(id); const old = el.style.transform; el.style.transform = "none";
         html2canvas(el, { scale: 3, useCORS: true }).then(c => {
@@ -296,8 +361,20 @@
         });
     }
 
-    window.onload = () => {
+    window.onload = function() {
         renderSidebar();
+        
+        // Establecer hora actual por defecto en formato 24h
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const currentTime = `${hours}:${minutes}`;
+        const timeInput = document.getElementById('in-hora-emision');
+        if (timeInput) {
+            timeInput.value = currentTime;
+            up('out-hora', currentTime + 'hs');
+        }
+        
         const ds = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
         const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
         const hoy = new Date();
@@ -335,8 +412,8 @@
             const dailyForecast = {
                 date: dateObj.toISOString().split('T')[0],
                 day_name: dayNames[dateObj.getDay()],
-                temp_min: parseFloat(document.getElementById(`${conf.id}-min`).innerText) || 0,
-                temp_max: parseFloat(document.getElementById(`${conf.id}-max`).innerText) || 0,
+                temp_min: parseFloat(document.getElementById(`${conf.id}-min-urb`).value) || 0,
+                temp_max: parseFloat(document.getElementById(`${conf.id}-max-urb`).value) || 0,
                 period_forecasts: []
             };
 
