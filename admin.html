@@ -66,29 +66,31 @@
         .issuance-label { font-size: 14px; font-weight: 800; }
         .issuance-time { font-size: 14px; font-weight: 900; }
 
-        /* DÍAS PLACA 1 */
+        /* DÍAS PLACA 1 - AJUSTES PRECISOS PARA COINCIDIR CON IMAGEN */
         .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; overflow: visible; }
         .day-1 { background: var(--unlp-blue); margin-top: 50px; }
         .day-2 { background: var(--unlp-accent-blue); }
-        .day-header { display: flex; align-items: center; padding: 35px 50px 10px; color: white; }
-        .day-header h2 { font-size: 34px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 250px; }
-        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; flex-grow: 1; justify-content: space-around; padding: 12px 0; font-weight: 800; font-size: 23px; }
-        .day-main-grid { display: grid; grid-template-columns: 250px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; }
-        .day-main-grid-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
-        .temp-side-col { padding: 10px 20px; display: flex; align-items: center; justify-content: center; height: 100%; }
-        .temp-v-box { background: rgba(255,255,255,0.3); border-radius: 40px; padding: 20px; width: 100%; text-align: center; }
-        .temp-vals { display: flex; justify-content: space-around; font-size: 20px; font-weight: 700; }
-        .temp-sub { font-size: 14px; font-weight: 800; display: block; opacity: 0.8; margin-top: -3px; }
-        .forecast-item { text-align: center; }
-        .forecast-item img { height: 160px; }
-        .forecast-temp { font-size: 17.5px; font-weight: 700; }
-        .stripe { display: grid; align-items: center; width: 100%; height: 105px; overflow: hidden; }
-        .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 250px 1fr 1fr 1fr; }
-        .stripe-wind-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
-        .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 250px 1fr 1fr 1fr; }
-        .stripe-time-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
-        .stripe-label { font-size: 30px; font-weight: 900; padding-left: 50px; }
-        .stripe-data { font-size: 24px; font-weight: 800; text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
+        .day-header { display: flex; align-items: center; padding: 25px 50px 5px; color: white; }
+        .day-header h2 { font-size: 38px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 280px; letter-spacing: -1px; }
+        .periods-pill { background: rgba(255,255,255,0.25); border-radius: 45px; display: flex; flex-grow: 1; justify-content: space-around; padding: 15px 0; font-weight: 800; font-size: 26px; margin-right: 20px; }
+        .day-main-grid { display: grid; grid-template-columns: 280px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; padding: 0 20px; }
+        .day-main-grid-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; padding: 0 20px; }
+        .temp-side-col { padding: 15px 25px; display: flex; align-items: center; justify-content: center; height: 100%; }
+        .temp-v-box { background: rgba(255,255,255,0.35); border-radius: 45px; padding: 30px 15px; width: 100%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 180px; display: flex; flex-direction: column; justify-content: center; }
+        .temp-v-box h4 { font-size: 18px; margin-bottom: 15px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .temp-vals { display: flex; justify-content: space-around; font-size: 24px; font-weight: 800; gap: 20px; align-items: baseline; }
+        .temp-vals > div { display: flex; flex-direction: column; align-items: center; }
+        .temp-sub { font-size: 16px; font-weight: 800; display: block; opacity: 0.85; margin-top: 5px; }
+        .forecast-item { text-align: center; padding: 10px 0; }
+        .forecast-item img { height: 170px; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); }
+        .forecast-temp { font-size: 19px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .stripe { display: grid; align-items: center; width: 100%; height: 95px; overflow: hidden; margin-top: 5px; }
+        .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 280px 1fr 1fr 1fr; }
+        .stripe-wind-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; }
+        .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 280px 1fr 1fr 1fr; }
+        .stripe-time-4 { grid-template-columns: 280px 1fr 1fr 1fr 1fr; }
+        .stripe-label { font-size: 32px; font-weight: 900; padding-left: 55px; text-transform: uppercase; letter-spacing: 1px; }
+        .stripe-data { font-size: 26px; font-weight: 800; text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; letter-spacing: 0.5px; }
 
         /* PLACA 2: EXTENDIDO */
         .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 20px; margin-top: 10px; }
@@ -364,25 +366,101 @@
     window.onload = function() {
         renderSidebar();
         
-        // Establecer hora actual por defecto en formato 24h
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const currentTime = `${hours}:${minutes}`;
+        // Establecer hora específica como en la imagen: 07:45
+        const specificTime = '07:45';
         const timeInput = document.getElementById('in-hora-emision');
         if (timeInput) {
-            timeInput.value = currentTime;
-            up('out-hora', currentTime + 'hs');
+            timeInput.value = specificTime;
+            up('out-hora', specificTime + 'hs');
         }
         
-        const ds = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+        // Establecer fecha específica como en la imagen: 23/ABR/26
+        const specificDate = new Date('2026-04-23'); // Jueves 23 de Abril de 2026
+        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
         const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-        const hoy = new Date();
+        
         for(let i=0; i<4; i++) {
-            let d = new Date(); d.setDate(hoy.getDate() + i);
-            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[d.getDay()].toUpperCase());
+            let d = new Date(specificDate); 
+            d.setDate(specificDate.getDate() + i);
+            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[d.getDay()]);
             document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${d.getDate()}/${ms[d.getMonth()]}/${d.getFullYear().toString().slice(-2)}`);
         }
+        
+        // Poblar automáticamente los valores del formulario para que coincidan con la imagen
+        setTimeout(() => {
+            // JUEVES (Día 1)
+            document.getElementById('h-min-urb').value = '12';
+            document.getElementById('h-max-urb').value = '23';
+            updateTempField('h', 'min');
+            updateTempField('h', 'max');
+            
+            // Temperaturas por período JUEVES
+            document.getElementById('h-temp-input-1').value = '';
+            document.getElementById('h-temp-input-2').value = '23';
+            document.getElementById('h-temp-input-3').value = '15';
+            updatePeriodTemp('h', 1);
+            updatePeriodTemp('h', 2);
+            updatePeriodTemp('h', 3);
+            
+            // Condiciones del cielo JUEVES (todo Despejado)
+            document.getElementById('h-sky-select-1').value = 'despejado';
+            document.getElementById('h-sky-select-2').value = 'despejado';
+            document.getElementById('h-sky-select-3').value = 'despejado';
+            updateSky('h', 1, 'despejado');
+            updateSky('h', 2, 'despejado');
+            updateSky('h', 3, 'despejado');
+            
+            // Vientos JUEVES
+            document.getElementById('h-v-i1').value = 'leves';
+            document.getElementById('h-v-d1').value = 'sudoeste';
+            document.getElementById('h-v-i2').value = 'leves';
+            document.getElementById('h-v-d2').value = 'noreste';
+            document.getElementById('h-v-i3').value = 'leves';
+            document.getElementById('h-v-d3').value = 'noreste';
+            updateWind('h', 1);
+            updateWind('h', 2);
+            updateWind('h', 3);
+            
+            // VIERNES (Día 2)
+            document.getElementById('m-min-urb').value = '14';
+            document.getElementById('m-max-urb').value = '22';
+            updateTempField('m', 'min');
+            updateTempField('m', 'max');
+            
+            // Temperaturas por período VIERNES
+            document.getElementById('m-temp-input-1').value = '15';
+            document.getElementById('m-temp-input-2').value = '14';
+            document.getElementById('m-temp-input-3').value = '22';
+            document.getElementById('m-temp-input-4').value = '16';
+            updatePeriodTemp('m', 1);
+            updatePeriodTemp('m', 2);
+            updatePeriodTemp('m', 3);
+            updatePeriodTemp('m', 4);
+            
+            // Condiciones del cielo VIERNES
+            document.getElementById('m-sky-select-1').value = 'algo nublado';
+            document.getElementById('m-sky-select-2').value = 'parcialmente nublado';
+            document.getElementById('m-sky-select-3').value = 'algo nublado';
+            document.getElementById('m-sky-select-4').value = 'algo nublado';
+            updateSky('m', 1, 'algo nublado');
+            updateSky('m', 2, 'parcialmente nublado');
+            updateSky('m', 3, 'algo nublado');
+            updateSky('m', 4, 'algo nublado');
+            
+            // Vientos VIERNES
+            document.getElementById('m-v-i1').value = 'leves';
+            document.getElementById('m-v-d1').value = 'noreste';
+            document.getElementById('m-v-i2').value = 'leves';
+            document.getElementById('m-v-d2').value = 'noreste';
+            document.getElementById('m-v-i3').value = 'leves';
+            document.getElementById('m-v-d3').value = 'noreste';
+            document.getElementById('m-v-i4').value = 'leves';
+            document.getElementById('m-v-d4').value = 'este';
+            updateWind('m', 1);
+            updateWind('m', 2);
+            updateWind('m', 3);
+            updateWind('m', 4);
+        }, 100);
     };
 
     async function saveToWeb() {
