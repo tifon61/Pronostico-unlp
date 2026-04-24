@@ -2,61 +2,78 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Análisis Histórico GFS - Bentley</title>
+    <title>Archivo Histórico GFS - Meteociel</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
-        .box { background: #2d2d2d; padding: 20px; border-radius: 10px; display: inline-block; }
-        img { max-width: 100%; border: 2px solid #00f2ff; margin-top: 20px; background: black; }
-        input, select, button { padding: 10px; margin: 5px; border-radius: 5px; border: none; }
-        button { background: #00f2ff; color: black; font-weight: bold; cursor: pointer; }
+        :root { --bg: #0f172a; --accent: #38bdf8; --text: #f1f5f9; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); text-align: center; padding: 20px; }
+        .box { background: #1e293b; padding: 20px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .map-container { margin-top: 20px; background: #000; border: 2px solid var(--accent); border-radius: 8px; min-height: 500px; display: flex; align-items: center; justify-content: center; }
+        img { max-width: 100%; height: auto; }
+        input, select, button { padding: 10px; margin: 5px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; }
+        button { background: var(--accent); color: #0f172a; font-weight: bold; cursor: pointer; border: none; }
+        .info { margin-top: 10px; font-size: 0.8rem; color: #94a3b8; }
     </style>
 </head>
 <body>
 
-    <h1>Archivo Sinóptico GFS (Bentley)</h1>
+    <h1>Archivo Histórico GFS (Meteociel)</h1>
+    <p>Análisis de eventos pasados - Sudamérica</p>
     
     <div class="box">
-        <input type="date" id="fecha" value="2024-03-18">
+        <input type="date" id="fecha" value="2024-04-18">
         <select id="ciclo">
-            <option value="00">00Z</option>
-            <option value="06">06Z</option>
+            <option value="0">00Z</option>
+            <option value="6">06Z</option>
             <option value="12" selected>12Z</option>
             <option value="18">18Z</option>
         </select>
         <select id="prod">
-            <option value="500_mslp_thickness">Espesores + 500hPa</option>
-            <option value="850_temp_mslp_wind">850hPa Temp/Viento</option>
-            <option value="250_wind_mslp">Jet Stream 250hPa</option>
-            <option value="6hprecip_mslp_thick">Precipitación 6h</option>
+            <option value="500">500hPa + Presión</option>
+            <option value="temp">Temperatura 850hPa</option>
+            <option value="jet">Viento 300hPa (Jet)</option>
+            <option value="prec">Precipitación</option>
         </select>
-        <button onclick="cargar()">CARGAR CARTA</button>
+        <button onclick="cargarMeteociel()">CARGAR ANÁLISIS</button>
     </div>
 
-    <br>
-    <img id="mapa" src="" alt="La imagen cargará aquí">
+    <div class="map-container">
+        <img id="mapa" src="" alt="Cargue una fecha para ver el mapa">
+    </div>
+
+    <div class="info">
+        <p id="debug-url"></p>
+        <p>Fuente: Meteociel.fr - Datos históricos del GFS V2</p>
+    </div>
 
     <script>
-        function cargar() {
+        function cargarMeteociel() {
             const f = document.getElementById('fecha').value.split('-');
+            if(f.length < 3) return;
+            
             const anio = f[0];
             const mes = f[1];
             const dia = f[2];
             const z = document.getElementById('ciclo').value;
             const p = document.getElementById('prod').value;
 
-            // NUEVA ESTRUCTURA DE ALICIA BENTLEY PARA SUDAMÉRICA
-            // Ella ahora suele guardar los análisis f000 sin la carpeta de año repetida
-            const url = `https://www.atmos.albany.edu/facstaff/bentley/realtime/images/gfs/southamer/${anio}${mes}${dia}${z}/${p}_f000.png`;
+            // Formato de URL de Meteociel (Muy estable)
+            // Ejemplo: https://www.meteociel.fr/modeles/archive/gfs-v2/2024041812/500hpa/america-del-sur-1.png
             
-            console.log("Probando URL:", url);
+            let campo = "";
+            if(p === "500") campo = "500hpa";
+            if(p === "temp") campo = "850temp";
+            if(p === "jet") campo = "300wind";
+            if(p === "prec") campo = "prec";
+
+            const url = `https://www.meteociel.fr/modeles/archive/gfs-v2/${anio}${mes}${dia}${z}/${campo}/america-del-sur-1.png`;
+            
+            console.log("Cargando:", url);
             document.getElementById('mapa').src = url;
-            
-            document.getElementById('mapa').onerror = function() {
-                // Si la anterior falla, probamos la ruta de "realtime" (para fechas muy recientes)
-                this.src = `https://www.atmos.albany.edu/facstaff/bentley/realtime/images/gfs/southamer/${p}_f000.png`;
-            };
+            document.getElementById('debug-url').innerText = "URL actual: " + url;
         }
-        window.onload = cargar;
+
+        // Cargar al iniciar
+        window.onload = cargarMeteociel;
     </script>
 </body>
 </html>
