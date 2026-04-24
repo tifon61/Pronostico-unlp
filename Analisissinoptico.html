@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivo Sinóptico GFS - Alicia Bentley</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f1f5f9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        
+        .selector-panel { 
+            background: var(--card); padding: 20px; border-radius: 12px; 
+            display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px;
+        }
+
+        .display-panel { background: var(--card); border-radius: 12px; padding: 15px; text-align: center; }
+        
+        img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #334155; background: #000; min-height: 400px; }
+
+        select, input, button { background: #0f172a; color: white; border: 1px solid #475569; padding: 10px; border-radius: 6px; cursor: pointer; }
+        button { background: var(--accent); color: #0f172a; font-weight: bold; border: none; padding: 10px 25px; }
+        button:hover { opacity: 0.9; }
+
+        .info-box { margin-top: 15px; font-size: 0.85rem; color: #94a3b8; }
+        a { color: var(--accent); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Análisis Histórico GFS - Alicia Bentley</h1>
+    <p>Cartas de Análisis (f000) para Sudamérica</p>
+</div>
+
+<div class="selector-panel">
+    <div>
+        <label>Fecha:</label>
+        <input type="date" id="fecha" value="2024-03-18">
+    </div>
+    <div>
+        <label>Ciclo:</label>
+        <select id="ciclo">
+            <option value="00">00 UTC</option>
+            <option value="06">06 UTC</option>
+            <option value="12" selected>12 UTC</option>
+            <option value="18">18 UTC</option>
+        </select>
+    </div>
+    <div>
+        <label>Nivel/Campo:</label>
+        <select id="producto">
+            <option value="500_mslp_thickness">500 hPa + MSLP + Espesores</option>
+            <option value="850_temp_mslp_wind">850 hPa Temp + Viento</option>
+            <option value="250_wind_mslp">250 hPa Viento (Jet Stream)</option>
+            <option value="pw_mslp_wind">Agua Precipitable (PWAT)</option>
+            <option value="700_relh_mslp_wind">700 hPa Humedad Relativa</option>
+            <option value="1000_500_thickness">Espesores 1000-500 hPa</option>
+        </select>
+    </div>
+    <button onclick="cargarCarta()">GENERAR ANÁLISIS</button>
+</div>
+
+<div class="display-panel">
+    <h2 id="titulo-carta">Seleccioná un evento</h2>
+    <div id="img-container">
+        <img id="carta-gfs" src="" alt="La imagen aparecerá aquí">
+    </div>
+    <div class="info-box">
+        <p id="url-debug"></p>
+        <p>Si la imagen no carga, puede que no exista análisis para esa hora específica en el servidor de Albany.</p>
+        <a id="link-directo" href="#" target="_blank">Abrir imagen en pestaña nueva</a>
+    </div>
+</div>
+
+<script>
+    function cargarCarta() {
+        const fechaVal = document.getElementById('fecha').value; // YYYY-MM-DD
+        if (!fechaVal) return;
+
+        const partes = fechaVal.split('-');
+        const anio = partes[0];
+        const mes = partes[1];
+        const dia = partes[2];
+        const ciclo = document.getElementById('ciclo').value;
+        const prod = document.getElementById('producto').value;
+
+        // ESTRUCTURA DEL ARCHIVO DE ALICIA BENTLEY:
+        // http://www.atmos.albany.edu/facstaff/bentley/realtime/images/gfs/southamer/archive/YYYY/YYYYMMDDHH/producto_f000.png
+        
+        const fechaHora = anio + mes + dia + ciclo;
+        const baseUrl = `http://www.atmos.albany.edu/facstaff/bentley/realtime/images/gfs/southamer/archive/${anio}/${fechaHora}/${prod}_f000.png`;
+
+        const img = document.getElementById('carta-gfs');
+        const link = document.getElementById('link-directo');
+        const debug = document.getElementById('url-debug');
+        const titulo = document.getElementById('titulo-carta');
+
+        img.src = baseUrl;
+        link.href = baseUrl;
+        debug.innerText = `URL solicitada: ${baseUrl}`;
+        titulo.innerText = `${prod.replace(/_/g, ' ').toUpperCase()} - ${dia}/${mes}/${anio} ${ciclo}UTC`;
+
+        img.onerror = function() {
+            this.alt = "CARTA NO ENCONTRADA: Es posible que esta fecha no esté en el archivo histórico de Albany.";
+            this.style.opacity = "0.5";
+        };
+        img.onload = function() {
+            this.style.opacity = "1";
+        };
+    }
+
+    // Cargar por defecto
+    window.onload = cargarCarta;
+</script>
+
+</body>
+</html>
