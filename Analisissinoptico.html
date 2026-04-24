@@ -2,78 +2,106 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Archivo Histórico GFS - Meteociel</title>
+    <title>Archivo Histórico Sinóptico - GFS</title>
     <style>
-        :root { --bg: #0f172a; --accent: #38bdf8; --text: #f1f5f9; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); text-align: center; padding: 20px; }
-        .box { background: #1e293b; padding: 20px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .map-container { margin-top: 20px; background: #000; border: 2px solid var(--accent); border-radius: 8px; min-height: 500px; display: flex; align-items: center; justify-content: center; }
-        img { max-width: 100%; height: auto; }
-        input, select, button { padding: 10px; margin: 5px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; }
-        button { background: var(--accent); color: #0f172a; font-weight: bold; cursor: pointer; border: none; }
-        .info { margin-top: 10px; font-size: 0.8rem; color: #94a3b8; }
+        :root { --bg: #0b0f19; --accent: #00d1ff; --card: #161b2c; --text: #f1f5f9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; text-align: center; }
+        
+        .container { max-width: 1100px; margin: auto; }
+        .controls { background: var(--card); padding: 20px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .map-frame { margin-top: 20px; background: #000; border: 2px solid #2d3748; border-radius: 10px; min-height: 600px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        img { width: 100%; height: auto; display: block; }
+
+        input, select, button { background: #0b0f19; color: white; border: 1px solid #475569; padding: 10px; border-radius: 6px; }
+        button { background: var(--accent); color: #0b0f19; font-weight: bold; cursor: pointer; border: none; padding: 10px 25px; }
+        
+        .status-bar { margin: 10px 0; font-size: 0.9rem; color: var(--accent); font-family: monospace; }
+        .desc { font-size: 0.8rem; color: #94a3b8; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>Archivo Histórico GFS (Meteociel)</h1>
-    <p>Análisis de eventos pasados - Sudamérica</p>
+<div class="container">
+    <h1>Rastreador de Situaciones Sinópticas Pasadas</h1>
     
-    <div class="box">
-        <input type="date" id="fecha" value="2024-04-18">
-        <select id="ciclo">
-            <option value="0">00Z</option>
-            <option value="6">06Z</option>
-            <option value="12" selected>12Z</option>
-            <option value="18">18Z</option>
-        </select>
-        <select id="prod">
-            <option value="500">500hPa + Presión</option>
-            <option value="temp">Temperatura 850hPa</option>
-            <option value="jet">Viento 300hPa (Jet)</option>
-            <option value="prec">Precipitación</option>
-        </select>
-        <button onclick="cargarMeteociel()">CARGAR ANÁLISIS</button>
+    <div class="controls">
+        <div>
+            <label>Fecha:</label>
+            <input type="date" id="fecha" value="2024-03-18">
+        </div>
+        <div>
+            <label>Hora (UTC):</label>
+            <select id="hora">
+                <option value="00">00Z</option>
+                <option value="06">06Z</option>
+                <option value="12" selected>12Z</option>
+                <option value="18">18Z</option>
+            </select>
+        </div>
+        <div>
+            <label>Nivel:</label>
+            <select id="nivel">
+                <option value="500hpa">500 hPa + Presión (Análisis Principal)</option>
+                <option value="850temp">850 hPa (Temperatura/Frentes)</option>
+                <option value="300wind">300 hPa (Corriente en Chorro)</option>
+                <option value="prec">Precipitación Acumulada</option>
+            </select>
+        </div>
+        <button onclick="cargarAnalisis()">GENERAR CARTA</button>
     </div>
 
-    <div class="map-container">
-        <img id="mapa" src="" alt="Cargue una fecha para ver el mapa">
+    <div class="status-bar" id="status">Listo para analizar...</div>
+
+    <div class="map-frame">
+        <img id="mapa-historia" src="" alt="El mapa cargará aquí">
     </div>
 
-    <div class="info">
-        <p id="debug-url"></p>
-        <p>Fuente: Meteociel.fr - Datos históricos del GFS V2</p>
+    <div class="desc">
+        Fuente: GFS Archive V2 (NCEP/NWS). Los mapas muestran el análisis (f000) de la situación sinóptica real ocurrida.
     </div>
+</div>
 
-    <script>
-        function cargarMeteociel() {
-            const f = document.getElementById('fecha').value.split('-');
-            if(f.length < 3) return;
-            
-            const anio = f[0];
-            const mes = f[1];
-            const dia = f[2];
-            const z = document.getElementById('ciclo').value;
-            const p = document.getElementById('prod').value;
+<script>
+    function cargarAnalisis() {
+        const fechaRaw = document.getElementById('fecha').value;
+        if (!fechaRaw) return;
 
-            // Formato de URL de Meteociel (Muy estable)
-            // Ejemplo: https://www.meteociel.fr/modeles/archive/gfs-v2/2024041812/500hpa/america-del-sur-1.png
-            
-            let campo = "";
-            if(p === "500") campo = "500hpa";
-            if(p === "temp") campo = "850temp";
-            if(p === "jet") campo = "300wind";
-            if(p === "prec") campo = "prec";
+        const partes = fechaRaw.split('-'); // [2024, 03, 18]
+        const anio = partes[0];
+        const mes = partes[1];
+        const dia = partes[2];
+        const h = document.getElementById('hora').value;
+        const p = document.getElementById('nivel').value;
+        const status = document.getElementById('status');
 
-            const url = `https://www.meteociel.fr/modeles/archive/gfs-v2/${anio}${mes}${dia}${z}/${campo}/america-del-sur-1.png`;
-            
-            console.log("Cargando:", url);
-            document.getElementById('mapa').src = url;
-            document.getElementById('debug-url').innerText = "URL actual: " + url;
-        }
+        // Meteociel Archive - La fuente más estable para el GFS histórico
+        // Estructura: /modeles/archive/gfs-v2/YYYYMMDDHH/NIVEL/america-del-sur-1.png
+        const url = `https://www.meteociel.fr/modeles/archive/gfs-v2/${anio}${mes}${dia}${h}/${p}/america-del-sur-1.png`;
 
-        // Cargar al iniciar
-        window.onload = cargarMeteociel;
-    </script>
+        status.innerText = `Buscando: GFS ${anio}-${mes}-${dia} ${h}Z [${p}]`;
+        
+        const img = document.getElementById('mapa-historia');
+        img.src = url;
+
+        img.onerror = function() {
+            status.innerText = "Error: No se encontró la carta. Intentando servidor alternativo...";
+            // Intento con formato secundario (algunas fechas viejas usan .gif)
+            if (!this.src.includes('.gif')) {
+                this.src = url.replace('.png', '.gif');
+            } else {
+                status.innerText = "Error crítico: El dato no está disponible en el archivo.";
+            }
+        };
+
+        img.onload = function() {
+            status.innerText = `Carta de Análisis cargada correctamente.`;
+        };
+    }
+
+    // Cargar automáticamente al abrir
+    window.onload = cargarAnalisis;
+</script>
+
 </body>
 </html>
