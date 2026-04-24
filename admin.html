@@ -36,7 +36,7 @@
     
         /* PLACAS 1080x1350 */
         .placa-box { 
-            width: 1080px; height: 1350px; background: white; padding: 20px 40px; 
+            width: 1080px; height: 1350px; background: white; padding: 20px 30px; 
             position: relative; display: flex; flex-direction: column; box-sizing: border-box;
             transform: scale(0.48); transform-origin: top center; overflow: visible;
         }
@@ -68,9 +68,9 @@
         .issuance-time { font-size: 14px; font-weight: 900; }
 
         /* DÍAS PLACA 1 - AJUSTES PRECISOS PARA COINCIDIR CON IMAGEN */
-        .day-block { border-radius: 50px; margin-bottom: 12px; position: relative; width: 100%; display: flex; flex-direction: column; flex: 1; overflow: visible; }
+        .day-block { border-radius: 50px; margin-bottom: 8px; position: relative; width: calc(100% - 10px); margin-left: 5px; margin-right: 5px; display: flex; flex-direction: column; flex: 1; overflow: visible; }
         .day-1 { background: var(--unlp-blue); margin-top: 35px; }
-        .day-2 { background: var(--unlp-accent-blue); margin-top: 25px; }
+        .day-2 { background: var(--unlp-accent-blue); margin-top: 15px; flex: 1.2; }
         .day-header { display: flex; align-items: center; padding: 20px 40px 5px; color: white; }
         .day-header h2 { font-size: 36px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 250px; letter-spacing: -1px; }
         .periods-pill { background: rgba(255,255,255,0.25); border-radius: 45px; display: flex; flex-grow: 1; justify-content: space-around; padding: 15px 0; font-weight: 800; font-size: 26px; margin-right: 20px; }
@@ -222,7 +222,6 @@
             <div class="stripe stripe-wind stripe-wind-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
             <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
         </div>
-        <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
 
     <div id="placa-2" class="placa-box">
