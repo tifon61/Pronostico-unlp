@@ -78,11 +78,11 @@
         .day-main-grid { display: grid; grid-template-columns: 220px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; padding: 0 15px; position: relative; z-index: 2; }
         .day-main-grid-4 { grid-template-columns: 220px 1fr 1fr 1fr 1fr; padding: 0 15px; position: relative; z-index: 2; align-items: end; }
         .temp-side-col { padding: 10px 15px; display: flex; align-items: center; justify-content: center; height: 100%; position: relative; z-index: 1; }
-        .temp-v-box { background: rgba(255,255,255,0.35); border-radius: 0 45px 45px 0; padding: 20px 15px; width: calc(100% - 5px); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 140px; display: flex; flex-direction: column; justify-content: center; position: absolute; top: 85px; left: -25px; right: 20px; z-index: 1; }
-        .temp-v-box h4 { font-size: 30px; margin-bottom: 15px; letter-spacing: 0.5px; text-transform: uppercase; }
-        .temp-vals { display: flex; justify-content: space-around; font-size: 30px; font-weight: 800; gap: 20px; align-items: baseline; }
+        .temp-v-box { background: rgba(255,255,255,0.9); border-radius: 0 45px 45px 0; padding: 20px 15px; width: calc(100% - 5px); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 140px; display: flex; flex-direction: column; justify-content: center; position: absolute; top: 85px; left: -25px; right: 20px; z-index: 1; }
+        .temp-v-box h4 { font-size: 30px; margin-bottom: 15px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--unlp-blue); }
+        .temp-vals { display: flex; justify-content: space-around; font-size: 30px; font-weight: 800; gap: 20px; align-items: baseline; color: var(--unlp-blue); }
         .temp-vals > div { display: flex; flex-direction: column; align-items: center; }
-        .temp-sub { font-size: 20px; font-weight: 800; display: block; opacity: 0.85; margin-top: 5px; }
+        .temp-sub { font-size: 20px; font-weight: 800; display: block; opacity: 0.85; margin-top: 5px; color: var(--unlp-blue); }
         .forecast-item { text-align: center; padding: 10px 0; min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .forecast-item img { height: 180px; width: 180px; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); object-fit: contain; }
         .forecast-temp { font-size: 24px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
@@ -102,7 +102,7 @@
         .v-card h2 { font-weight: 900; font-size: 3.5em; margin: 0; text-transform: uppercase; }
         .v-card .date { font-weight: 600; font-size: 1.8em; margin-bottom: 20px; }
         .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 20px; width: 100%; }
-        .card-split img { height: 130px; }
+        .card-split img { height: 150px; width: 150px; object-fit: contain; }
         .card-temps { display: flex; justify-content: center; gap: 35px; margin: 25px 0; width: 100%; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 20px; }
         .temp-item-2 { font-size: 2em; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .v-card .full-desc { font-size: 1.3em; font-weight: 700; margin-top: auto; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.2); width: 100%; text-transform: uppercase; }
