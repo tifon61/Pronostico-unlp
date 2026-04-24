@@ -2,106 +2,91 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Archivo Histórico Sinóptico - GFS</title>
+    <title>Archivo GFS - Alicia Bentley Pro</title>
     <style>
-        :root { --bg: #0b0f19; --accent: #00d1ff; --card: #161b2c; --text: #f1f5f9; }
+        :root { --bg: #0b0f19; --accent: #00f2ff; --card: #161b2c; --text: #f1f5f9; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; text-align: center; }
         
-        .container { max-width: 1100px; margin: auto; }
-        .controls { background: var(--card); padding: 20px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        .map-frame { margin-top: 20px; background: #000; border: 2px solid #2d3748; border-radius: 10px; min-height: 600px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        img { width: 100%; height: auto; display: block; }
+        .controls { 
+            background: var(--card); padding: 20px; border-radius: 12px; 
+            display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; 
+            margin-bottom: 20px; border: 1px solid #334155;
+        }
+
+        .map-container { 
+            width: 100%; max-width: 1100px; margin: auto;
+            background: #000; border: 2px solid var(--accent); border-radius: 12px; 
+            min-height: 600px; display: flex; align-items: center; justify-content: center;
+        }
+        img { width: 100%; height: auto; display: block; border-radius: 10px; }
 
         input, select, button { background: #0b0f19; color: white; border: 1px solid #475569; padding: 10px; border-radius: 6px; }
         button { background: var(--accent); color: #0b0f19; font-weight: bold; cursor: pointer; border: none; padding: 10px 25px; }
         
-        .status-bar { margin: 10px 0; font-size: 0.9rem; color: var(--accent); font-family: monospace; }
-        .desc { font-size: 0.8rem; color: #94a3b8; margin-top: 10px; }
+        .status { margin-top: 10px; font-size: 0.8rem; color: #94a3b8; font-family: monospace; }
+        .warning { color: #ffcc00; font-size: 0.75rem; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Rastreador de Situaciones Sinópticas Pasadas</h1>
+    <h1 style="color: var(--accent);">ANÁLISIS SINÓPTICO - ALICIA BENTLEY</h1>
     
     <div class="controls">
-        <div>
-            <label>Fecha:</label>
-            <input type="date" id="fecha" value="2024-03-18">
-        </div>
-        <div>
-            <label>Hora (UTC):</label>
-            <select id="hora">
-                <option value="00">00Z</option>
-                <option value="06">06Z</option>
-                <option value="12" selected>12Z</option>
-                <option value="18">18Z</option>
-            </select>
-        </div>
-        <div>
-            <label>Nivel:</label>
-            <select id="nivel">
-                <option value="500hpa">500 hPa + Presión (Análisis Principal)</option>
-                <option value="850temp">850 hPa (Temperatura/Frentes)</option>
-                <option value="300wind">300 hPa (Corriente en Chorro)</option>
-                <option value="prec">Precipitación Acumulada</option>
-            </select>
-        </div>
-        <button onclick="cargarAnalisis()">GENERAR CARTA</button>
+        <input type="date" id="fecha" value="2024-03-18">
+        <select id="ciclo">
+            <option value="00">00Z</option>
+            <option value="06">06Z</option>
+            <option value="12" selected>12Z</option>
+            <option value="18">18Z</option>
+        </select>
+        <select id="prod">
+            <option value="500_mslp_thickness">Espesores + 500hPa</option>
+            <option value="250_wind_mslp">Jet Stream (250hPa)</option>
+            <option value="850_temp_mslp_wind">850hPa Temp/Viento</option>
+            <option value="pw_mslp_wind">Agua Precipitable (PWAT)</option>
+            <option value="6hprecip_mslp_thick">Precipitación 6h</option>
+        </select>
+        <button onclick="cargarBentley()">GENERAR CARTA</button>
     </div>
 
-    <div class="status-bar" id="status">Listo para analizar...</div>
+    <div class="status" id="status">Esperando comando...</div>
 
-    <div class="map-frame">
-        <img id="mapa-historia" src="" alt="El mapa cargará aquí">
+    <div class="map-container">
+        <img id="mapa" src="" alt="La carta aparecerá aquí">
     </div>
 
-    <div class="desc">
-        Fuente: GFS Archive V2 (NCEP/NWS). Los mapas muestran el análisis (f000) de la situación sinóptica real ocurrida.
+    <div class="warning">
+        * Nota: Si la fecha es muy antigua, es posible que el servidor de Albany ya no la tenga disponible.
     </div>
-</div>
 
-<script>
-    function cargarAnalisis() {
-        const fechaRaw = document.getElementById('fecha').value;
-        if (!fechaRaw) return;
+    <script>
+        function cargarBentley() {
+            const f = document.getElementById('fecha').value.split('-');
+            const anio = f[0];
+            const mes = f[1];
+            const dia = f[2];
+            const z = document.getElementById('ciclo').value;
+            const p = document.getElementById('prod').value;
+            const status = document.getElementById('status');
+            const img = document.getElementById('mapa');
 
-        const partes = fechaRaw.split('-'); // [2024, 03, 18]
-        const anio = partes[0];
-        const mes = partes[1];
-        const dia = partes[2];
-        const h = document.getElementById('hora').value;
-        const p = document.getElementById('nivel').value;
-        const status = document.getElementById('status');
+            // 1. Construimos la URL original de Albany
+            const urlOriginal = `www.atmos.albany.edu/facstaff/bentley/realtime/images/gfs/southamer/archive/${anio}/${anio}${mes}${dia}${z}/${p}_f000.png`;
+            
+            // 2. La pasamos por un PROXY HTTPS (weserv.nl) para que GitHub no la bloquee
+            const urlConProxy = `https://images.weserv.nl/?url=${urlOriginal}`;
+            
+            status.innerText = `Solicitando análisis a Albany vía Proxy...`;
+            img.src = urlConProxy;
 
-        // Meteociel Archive - La fuente más estable para el GFS histórico
-        // Estructura: /modeles/archive/gfs-v2/YYYYMMDDHH/NIVEL/america-del-sur-1.png
-        const url = `https://www.meteociel.fr/modeles/archive/gfs-v2/${anio}${mes}${dia}${h}/${p}/america-del-sur-1.png`;
+            img.onload = () => { status.innerText = `Carta cargada: ${anio}-${mes}-${dia} ${z}Z`; };
+            img.onerror = () => { 
+                status.innerText = `ERROR: No se encontró la imagen. Probá con una fecha más reciente o verificá el ciclo.`;
+                img.src = "";
+            };
+        }
 
-        status.innerText = `Buscando: GFS ${anio}-${mes}-${dia} ${h}Z [${p}]`;
-        
-        const img = document.getElementById('mapa-historia');
-        img.src = url;
-
-        img.onerror = function() {
-            status.innerText = "Error: No se encontró la carta. Intentando servidor alternativo...";
-            // Intento con formato secundario (algunas fechas viejas usan .gif)
-            if (!this.src.includes('.gif')) {
-                this.src = url.replace('.png', '.gif');
-            } else {
-                status.innerText = "Error crítico: El dato no está disponible en el archivo.";
-            }
-        };
-
-        img.onload = function() {
-            status.innerText = `Carta de Análisis cargada correctamente.`;
-        };
-    }
-
-    // Cargar automáticamente al abrir
-    window.onload = cargarAnalisis;
-</script>
-
+        window.onload = cargarBentley;
+    </script>
 </body>
 </html>
