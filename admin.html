@@ -70,14 +70,15 @@
         /* DÍAS PLACA 1 - AJUSTES PRECISOS PARA COINCIDIR CON IMAGEN */
         .day-block { border-radius: 50px; margin-bottom: 4px; position: relative; width: calc(100% - 8px); margin-left: 4px; margin-right: 4px; display: flex; flex-direction: column; flex: 1; overflow: visible; min-height: 400px; }
         .day-1 { background: var(--unlp-blue); margin-top: 30px; min-height: 450px; }
-        .day-2 { background: var(--unlp-accent-blue); margin-top: 8px; flex: 1.5; min-height: 500px; }
+        .day-2 { background: var(--unlp-accent-blue); margin-top: 8px; flex: 1; min-height: 450px; }
         .day-header { display: flex; align-items: center; padding: 20px 40px 5px; color: white; }
         .day-header h2 { font-size: 36px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 250px; letter-spacing: -1px; }
         .periods-pill { background: rgba(255,255,255,0.25); border-radius: 45px; display: flex; flex-grow: 1; justify-content: space-around; padding: 15px 0; font-weight: 800; font-size: 26px; margin-right: 20px; }
+        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; }
         .day-main-grid { display: grid; grid-template-columns: 220px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; padding: 0 15px; position: relative; z-index: 2; }
-        .day-main-grid-4 { grid-template-columns: 220px 1fr 1fr 1fr 1fr; padding: 0 15px; position: relative; z-index: 2; }
+        .day-main-grid-4 { grid-template-columns: 220px 1fr 1fr 1fr 1fr; padding: 0 15px; position: relative; z-index: 2; align-items: end; }
         .temp-side-col { padding: 10px 15px; display: flex; align-items: center; justify-content: center; height: 100%; position: relative; z-index: 1; }
-        .temp-v-box { background: rgba(255,255,255,0.35); border-radius: 0 45px 45px 0; padding: 20px 15px; width: calc(100% - 5px); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 140px; display: flex; flex-direction: column; justify-content: center; position: absolute; top: 20px; left: -25px; right: 20px; z-index: 1; }
+        .temp-v-box { background: rgba(255,255,255,0.35); border-radius: 0 45px 45px 0; padding: 20px 15px; width: calc(100% - 5px); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 140px; display: flex; flex-direction: column; justify-content: center; position: absolute; top: 70px; left: -25px; right: 20px; z-index: 1; }
         .temp-v-box h4 { font-size: 18px; margin-bottom: 15px; letter-spacing: 0.5px; text-transform: uppercase; }
         .temp-vals { display: flex; justify-content: space-around; font-size: 24px; font-weight: 800; gap: 20px; align-items: baseline; }
         .temp-vals > div { display: flex; flex-direction: column; align-items: center; }
@@ -212,7 +213,7 @@
         <div class="day-block day-2">
             <div class="day-header">
                 <h2 class="n1">MARTES</h2>
-                <div class="periods-pill"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+                <div class="periods-pill periods-pill-4"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             </div>
             <div class="day-main-grid day-main-grid-4">
                 <div class="temp-side-col"><div class="temp-v-box"><h4 style="font-size:16px; margin-bottom:5px;">TEMPERATURA</h4><div class="temp-vals"><div>MIN <span id="m-min">--</span><span class="temp-sub" id="m-min-sub">--*</span></div><div>MAX <span id="m-max">--</span><span class="temp-sub" id="m-max-sub">--*</span></div></div></div></div>
