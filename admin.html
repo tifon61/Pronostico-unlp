@@ -44,7 +44,7 @@
         /* HEADER INSTITUCIONAL */
         .header-container { position: relative; margin-top: 35px; margin-bottom: 25px; width: 100%; }
         .header-capsule { border: 5px solid var(--unlp-blue); border-radius: 100px; display: flex; justify-content: space-between; align-items: center; padding: 12px 50px; background: white; }
-        .header-capsule h1 { font-size: 60px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -3px; }
+        .header-capsule h1 { font-size: 50px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 350px; }
         .header-capsule img { height: 75px; }
         .city-box { display: flex; align-items: center; gap: 20px; }
 
@@ -68,9 +68,9 @@
         .issuance-time { font-size: 14px; font-weight: 900; }
 
         /* DÍAS PLACA 1 - AJUSTES PRECISOS PARA COINCIDIR CON IMAGEN */
-        .day-block { border-radius: 50px; margin-bottom: 4px; position: relative; width: calc(100% - 8px); margin-left: 4px; margin-right: 4px; display: flex; flex-direction: column; flex: 1; overflow: visible; }
-        .day-1 { background: var(--unlp-blue); margin-top: 30px; }
-        .day-2 { background: var(--unlp-accent-blue); margin-top: 8px; flex: 1.5; }
+        .day-block { border-radius: 50px; margin-bottom: 4px; position: relative; width: calc(100% - 8px); margin-left: 4px; margin-right: 4px; display: flex; flex-direction: column; flex: 1; overflow: visible; min-height: 400px; }
+        .day-1 { background: var(--unlp-blue); margin-top: 30px; min-height: 450px; }
+        .day-2 { background: var(--unlp-accent-blue); margin-top: 8px; flex: 1.5; min-height: 500px; }
         .day-header { display: flex; align-items: center; padding: 20px 40px 5px; color: white; }
         .day-header h2 { font-size: 36px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 250px; letter-spacing: -1px; }
         .periods-pill { background: rgba(255,255,255,0.25); border-radius: 45px; display: flex; flex-grow: 1; justify-content: space-around; padding: 15px 0; font-weight: 800; font-size: 26px; margin-right: 20px; }
@@ -82,8 +82,8 @@
         .temp-vals { display: flex; justify-content: space-around; font-size: 24px; font-weight: 800; gap: 20px; align-items: baseline; }
         .temp-vals > div { display: flex; flex-direction: column; align-items: center; }
         .temp-sub { font-size: 16px; font-weight: 800; display: block; opacity: 0.85; margin-top: 5px; }
-        .forecast-item { text-align: center; padding: 10px 0; }
-        .forecast-item img { height: 180px; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); }
+        .forecast-item { text-align: center; padding: 10px 0; min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .forecast-item img { height: 180px; width: 180px; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); object-fit: contain; }
         .forecast-temp { font-size: 19px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         .stripe { display: grid; align-items: center; width: 100%; height: 90px; overflow: hidden; margin-top: 8px; position: relative; z-index: 3; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 220px 1fr 1fr 1fr; }
