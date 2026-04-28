@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -73,7 +74,7 @@
         .day-2 { background: var(--unlp-accent-blue); margin-top: 8px; flex: 1; min-height: 450px; --temp-box-top: 100px; }
         .day-header { display: flex; align-items: center; padding: 20px 40px 5px; color: white; }
         .day-header h2 { font-size: 36px; font-weight: 900; margin: 0; text-transform: uppercase; min-width: 220px; letter-spacing: -1px; }
-        .periods-pill { background: rgba(255,255,255,0.25); border-radius: 15px; display: flex; flex-grow: 1; justify-content: space-around; padding: 8px 0; font-weight: 800; font-size: 26px; margin-right: 20px; }
+        .periods-pill { background: rgba(255,255,255,0.25); border-radius: 15px; display: flex; flex-grow: 1; justify-content: space-around; padding: 4px 0; font-weight: 800; font-size: 26px; margin-right: 20px; }
         .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 15px 25px; margin-right: 0; background: rgba(70, 130, 180, 0.5); border-radius: 45px; }
         .day-main-grid { display: grid; grid-template-columns: 220px 1fr 1fr 1fr; color: white; flex-grow: 1; align-items: center; padding: 0 15px; position: relative; z-index: 2; }
         .day-main-grid-4 { grid-template-columns: 220px 1fr 1fr 1fr 1fr; padding: 0 15px; position: relative; z-index: 2; align-items: end; }
@@ -293,7 +294,7 @@
                 </div></div>`;
             });
             html += '</div>';
-            if(conf.id.startsWith('d')) html += `<textarea placeholder="Descripción..." oninput="up('${conf.id}-full-desc', this.value)"></textarea>`;
+            if(conf.id.startsWith('d')) html += `<textarea placeholder="Descripción..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
         });
         document.getElementById('dynamic-inputs').innerHTML = html;
     }
@@ -328,6 +329,11 @@
         if(id.includes('sub') && val !== '--') val += '*';
         const el = document.getElementById(id);
         if(el) el.innerText = val; 
+    }
+
+    function updateFullDesc(dia, v) {
+        const target = document.getElementById(`${dia}-w1`);
+        if(target) target.innerText = v || "--";
     }
 
     function updateCity(v) { document.querySelectorAll('.city-label').forEach(el => el.innerText = v.toUpperCase()); }
