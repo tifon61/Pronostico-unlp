@@ -216,13 +216,6 @@
         </div>
 
         <div class="day-block day-2">
-            <div class="date-emission-pill">
-                <span class="date-val f1">--/---/--</span>
-                <div class="issuance-block">
-                    <span class="issuance-label">Hora de emisión</span>
-                    <span class="issuance-time" id="out-hora">08:00 hs</span>
-                </div>
-            </div>
             <div class="day-header">
                 <h2 class="n1">MARTES</h2>
                 <div class="periods-pill periods-pill-4"><span style="margin-left: -15px;">MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
@@ -252,8 +245,8 @@
             </div>
         </div>
         <div class="cards-container">
-            <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div class="card-split"><div>MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d3-t1">--</div></div><div>TARDE<br><img id="d3-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d3-t2">--</div></div></div><div class="weather-desc" id="d3-w1">--</div><div class="wind-arrows"><img id="d3-wind-arrow-1" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"><img id="d3-wind-arrow-2" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"></div><div class="wind-legend" id="d3-wind-legend" style="font-size:1.2em;font-weight:700;margin-top:10px;text-align:center;">--</div></div>
-            <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div class="card-split"><div>MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d4-t1">--</div></div><div>TARDE<br><img id="d4-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d4-t2">--</div></div></div><div class="weather-desc" id="d4-w1">--</div><div class="wind-arrows"><img id="d4-wind-arrow-1" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"><img id="d4-wind-arrow-2" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"></div><div class="wind-legend" id="d4-wind-legend" style="font-size:1.2em;font-weight:700;margin-top:10px;text-align:center;">--</div></div>
+            <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div class="card-split"><div>MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d3-max1">--</div><div class="forecast-temp" id="d3-min1">--</div></div><div>TARDE<br><img id="d3-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d3-max2">--</div><div class="forecast-temp" id="d3-min2">--</div></div></div><div class="weather-desc" id="d3-w1">--</div><div class="wind-arrows"><img id="d3-wind-arrow-1" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"><img id="d3-wind-arrow-2" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"></div><div class="wind-legend" id="d3-wind-legend" style="font-size:1.2em;font-weight:700;margin-top:10px;text-align:center;">--</div></div>
+            <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div class="card-split"><div>MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d4-max1">--</div><div class="forecast-temp" id="d4-min1">--</div></div><div>TARDE<br><img id="d4-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d4-max2">--</div><div class="forecast-temp" id="d4-min2">--</div></div></div><div class="weather-desc" id="d4-w1">--</div><div class="wind-arrows"><img id="d4-wind-arrow-1" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"><img id="d4-wind-arrow-2" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"></div><div class="wind-legend" id="d4-wind-legend" style="font-size:1.2em;font-weight:700;margin-top:10px;text-align:center;">--</div></div>
         </div>
         <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
@@ -304,16 +297,12 @@
                     html += `<div class="field-group">
                         <h4>${periodValue.charAt(0).toUpperCase() + periodValue.slice(1)}</h4>`;
                     
-                    // Para días 1 y 2, mostrar temperaturas urbana/suburbana del período
+                    // Para días 1 y 2, mostrar solo temperatura urbana del período
                     if(!conf.id.startsWith('d')) {
                         html += `<div class="row">
                             <div class="column">
-                                <label for="${conf.id}-temp-urb-${tramoIdx}">Temp Urbana</label>
-                                <input type="number" id="${conf.id}-temp-urb-${tramoIdx}" placeholder="Temp Urb" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx}, 'urb')">
-                            </div>
-                            <div class="column">
-                                <label for="${conf.id}-temp-sub-${tramoIdx}">Temp Suburbana</label>
-                                <input type="number" id="${conf.id}-temp-sub-${tramoIdx}" placeholder="Temp Sub" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx}, 'sub')">
+                                <label for="${conf.id}-temp-${tramoIdx}">Temperatura</label>
+                                <input type="number" id="${conf.id}-temp-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
                             </div>
                             <div class="column">
                                 <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
@@ -324,11 +313,15 @@
                             </div>
                         </div>`;
                     } else {
-                        // Para días 3 y 4, mostrar input de temperatura del período
+                        // Para días 3 y 4, mostrar max/min del período
                         html += `<div class="row">
                             <div class="column">
-                                <label for="${conf.id}-temp-input-${tramoIdx}">Temperatura</label>
-                                <input type="number" id="${conf.id}-temp-input-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
+                                <label for="${conf.id}-max-${tramoIdx}">Máxima</label>
+                                <input type="number" id="${conf.id}-max-${tramoIdx}" placeholder="Máx" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx}, 'max')">
+                            </div>
+                            <div class="column">
+                                <label for="${conf.id}-min-${tramoIdx}">Mínima</label>
+                                <input type="number" id="${conf.id}-min-${tramoIdx}" placeholder="Mín" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx}, 'min')">
                             </div>
                             <div class="column">
                                 <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
@@ -379,13 +372,13 @@
 
     function updatePeriodTemp(dia, idx, zona) {
         if(zona) {
-            // Para días 1 y 2 con temperaturas urbana/suburbana
-            const tempValue = document.getElementById(`${dia}-temp-${zona}-${idx}`).value;
-            const targetId = zona === 'sub' ? `${dia}-t${idx}-sub` : `${dia}-t${idx}`;
+            // Para días 3 y 4 con max/min del período
+            const tempValue = document.getElementById(`${dia}-${zona}-${idx}`).value;
+            const targetId = `${dia}-${zona}${idx}`;
             up(targetId, tempValue);
         } else {
-            // Para días 3 y 4 con temperatura única
-            const tempValue = document.getElementById(`${dia}-temp-input-${idx}`).value;
+            // Para días 1 y 2 con temperatura única del período
+            const tempValue = document.getElementById(`${dia}-temp-${idx}`).value;
             up(`${dia}-t${idx}`, tempValue);
         }
     }
