@@ -319,12 +319,12 @@
                         </div>
                     </div>`;
                 });
+                if(conf.id.startsWith('d')) {
+                    html += `<textarea placeholder="Descripción..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
+                }
             });
-            html += '</div>';
-            if(conf.id.startsWith('d')) html += `<textarea placeholder="Descripción..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
-        });
-        document.getElementById('dynamic-inputs').innerHTML = html;
-    }
+            document.getElementById('dynamic-inputs').innerHTML = html;
+        }
 
     function updateTempField(dia, tipo) {
         const value = document.getElementById(`${dia}-${tipo}-urb`).value;
