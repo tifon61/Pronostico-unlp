@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -97,7 +96,7 @@
         
         /* PLACA 2: EXTENDIDO */
         .cards-container { display: flex; gap: 30px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 20px; margin-top: 10px; }
-        .v-card { width: 480px; border-radius: 60px; padding: 45px 30px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; flex: 1; }
+        .v-card { width: 480px; border-radius: 60px; padding: 45px 30px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; flex: 1; min-height: 600px; max-height: 600px; overflow: hidden; }
         .v-card.celeste { background: var(--unlp-light); }
         .v-card.oscuro { background: var(--unlp-blue); }
         .v-card h2 { font-weight: 900; font-size: 3.5em; margin: 0; text-transform: uppercase; }
@@ -252,46 +251,74 @@
 </div>
 
 <script>
-    const SKY_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas"];
-    const RAIN_OPTS = ["", "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
-    const WIND_INT = ["calmo", "leves", "moderado", "fuerte", "muy fuerte"];
-    const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
-    const iconMap = {"despejado": "soleado.png", "ligeramente nublado": "ligeramente_nublado.png", "algo nublado": "algo_nublado.png", "parcialmente nublado": "parcialmente_nublado.png", "nublado": "nublado.png", "cubierto": "cubierto.png", "lluvias aisladas": "lluvias_aisladas.png", "lluvias y tormentas": "tormentas.png", "nieblas": "nieblas.png"};
+        const SKY_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas"];
+        const RAIN_OPTS = ["", "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
+        const WIND_INT = ["calmo", "leves", "moderado", "fuerte", "muy fuerte"];
+        const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
+        const iconMap = {"despejado": "soleado.png", "ligeramente nublado": "ligeramente_nublado.png", "algo nublado": "algo_nublado.png", "parcialmente nublado": "parcialmente_nublado.png", "nublado": "nublado.png", "cubierto": "cubierto.png", "lluvias aisladas": "lluvias_aisladas.png", "lluvias y tormentas": "tormentas.png", "nieblas": "nieblas.png"};
 
-    function renderSidebar() {
-        let html = '';
-        const configs = [
-            {id: 'h', title: 'DÍA 1 (HOY)', tramos: ['mañana', 'tarde', 'noche']},
-            {id: 'm', title: 'DÍA 2 (MAÑANA)', tramos: ['madrugada', 'mañana', 'tarde', 'noche']},
-            {id: 'd3', title: 'DÍA 3', tramos: ['mañana', 'tarde']},
-            {id: 'd4', title: 'DÍA 4', tramos: ['mañana', 'tarde']}
-        ];
+        function renderSidebar() {
+            let html = '';
+            const configs = [
+                {id: 'h', title: 'DÍA 1 (HOY)', tramos: ['mañana', 'tarde', 'noche']},
+                {id: 'm', title: 'DÍA 2 (MAÑANA)', tramos: ['madrugada', 'mañana', 'tarde', 'noche']},
+                {id: 'd3', title: 'DÍA 3', tramos: ['mañana', 'tarde']},
+                {id: 'd4', title: 'DÍA 4', tramos: ['mañana', 'tarde']}
+            ];
 
-        configs.forEach(conf => {
-            html += `<div class="section-title">${conf.title}</div>
-            <div class="field-group">
-                <h4>Temperaturas</h4>
-                <div class="row">
-                    <input type="number" id="${conf.id}-min-urb" placeholder="Temperatura Mínima" oninput="updateTempField('${conf.id}', 'min')">
-                    <input type="number" id="${conf.id}-max-urb" placeholder="Temperatura Máxima" oninput="updateTempField('${conf.id}', 'max')">
-                </div>
-            </div>`;
-            
-            html += '<div class="field-group"><h4>Períodos</h4>';
-            conf.tramos.forEach((t, i) => {
-                const idx = i + 1;
-                html += `<div style="margin-bottom: 12px;"><h5 style="margin:0 0 5px 0; color: var(--unlp-green); font-size:0.7em;">${t.toUpperCase()}</h5>`;
-                if(conf.id === 'h' || conf.id === 'm') {
-                    html += `<input type="number" id="${conf.id}-temp-input-${idx}" placeholder="Temperatura" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${idx})">`;
-                }
-                html += `<div class="row">
-                    <select id="${conf.id}-sky-select-${idx}" onchange="updateSky('${conf.id}', ${idx}, this.value)"><option value="">Cielo...</option>${SKY_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
-                    <select id="${conf.id}-rain-select-${idx}"><option value="">Lluvias...</option>${RAIN_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
-                </div>
-                <div class="row">
-                    <select id="${conf.id}-v-i${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Intensidad</option>${WIND_INT.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
-                    <select id="${conf.id}-v-d${idx}" onchange="updateWind('${conf.id}', ${idx})"><option value="">Dirección</option>${WIND_DIR.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
-                </div></div>`;
+            configs.forEach(conf => {
+                html += `<div class="section-title">${conf.title}</div>
+                <div class="field-group">
+                    <h4>Temperaturas</h4>
+                    <div class="row">
+                        <input type="number" id="${conf.id}-min-urb" placeholder="Temperatura Mínima" oninput="updateTempField('${conf.id}', 'min')">
+                        <input type="number" id="${conf.id}-max-urb" placeholder="Temperatura Máxima" oninput="updateTempField('${conf.id}', 'max')">
+                    </div>
+                </div>`;
+                
+                conf.tramos.forEach((periodValue, index) => {
+                    const tramoIdx = index + 1;
+                    html += `<div class="field-group">
+                        <h4>${periodValue.charAt(0).toUpperCase() + periodValue.slice(1)}</h4>
+                        <div class="row">
+                            <div class="column">
+                                <label for="${conf.id}-temp-input-${tramoIdx}">Temp Urbana</label>
+                                <input type="number" id="${conf.id}-temp-input-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
+                            </div>
+                            <div class="column">
+                                <label for="${conf.id}-temp-sub-${tramoIdx}">Temp Suburbana</label>
+                                <input type="number" id="${conf.id}-temp-sub-${tramoIdx}" placeholder="Temp Sub" step="0.1" oninput="updatePeriodTempSub('${conf.id}', ${tramoIdx})">
+                            </div>
+                            <div class="column">
+                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
+                                <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx}, this.value)">
+                                    <option value="">Cielo...</option>
+                                    ${SKY_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="column">
+                                <label for="${conf.id}-rain-select-${tramoIdx}">Lluvias</label>
+                                <select id="${conf.id}-rain-select-${tramoIdx}">
+                                    <option value="">Lluvias...</option>
+                                    ${RAIN_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="column">
+                                <label for="${conf.id}-v-i${tramoIdx}">Viento</label>
+                                <select id="${conf.id}-v-i${tramoIdx}" onchange="updateWind('${conf.id}', ${tramoIdx})">
+                                    <option value="">Intensidad</option>
+                                    ${WIND_INT.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                </select>
+                                <select id="${conf.id}-v-d${tramoIdx}" onchange="updateWind('${conf.id}', ${tramoIdx})">
+                                    <option value="">Dirección</option>
+                                    ${WIND_DIR.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                    </div>`;
+                });
             });
             html += '</div>';
             if(conf.id.startsWith('d')) html += `<textarea placeholder="Descripción..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
@@ -309,6 +336,12 @@
         up(`${dia}-t${idx}`, tempValue);
     }
 
+    function updatePeriodTempSub(dia, idx) {
+        const tempValue = document.getElementById(`${dia}-temp-sub-${idx}`).value;
+        const target = document.getElementById(`${dia}-t${idx}-sub`);
+        if(target) target.innerText = tempValue ? tempValue + '°*' : '--*';
+    }
+
     function updateSky(dia, tramo, valor) {
         const textEl = document.getElementById(`${dia}-w${tramo}`);
         if(textEl) textEl.innerText = valor || "--";
@@ -321,6 +354,12 @@
         const d = document.getElementById(`${dia}-v-d${tramo}`).value;
         const target = document.getElementById(`${dia}-v${tramo}`);
         if(target) target.innerText = (i && d) ? `${i} del ${d}` : "--";
+        
+        // Update wind info for days 3 and 4
+        if(dia === 'd3' || dia === 'd4') {
+            const windInfo = document.getElementById(`${dia}-wind`);
+            if(windInfo) windInfo.innerText = (i && d) ? `${i} del ${d}` : "--";
+        }
     }
 
     function up(id, v) { 
