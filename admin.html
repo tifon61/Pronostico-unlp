@@ -107,8 +107,9 @@
         .temp-item-2 { font-size: 2em; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .v-card .full-desc { font-size: 1.3em; font-weight: 700; margin-top: auto; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.2); width: 100%; text-transform: uppercase; }
         .v-card .weather-desc { font-size: 1.5em; font-weight: 700; margin: 15px 0; text-align: center; }
-        .v-card .wind-arrows { font-size: 2.5em; font-weight: 800; margin: 10px 0; letter-spacing: 10px; }
-        .v-card .wind-info { font-size: 1.3em; font-weight: 700; margin: 10px 0; text-align: center; text-transform: capitalize; }
+        .v-card .wind-arrows { margin: 15px 0; display: flex; justify-content: center; gap: 20px; }
+        .v-card .wind-arrows img { height: 80px; width: 80px; object-fit: contain; }
+        .v-card .wind-legend { font-size: 1.1em; font-weight: 700; margin: 10px 0; text-align: center; line-height: 1.4; padding: 0 10px; }
         
         .footer-note { text-align: center; font-size: 18px; font-weight: 800; color: var(--unlp-blue); padding-bottom: 20px; text-transform: uppercase; }
         
@@ -243,8 +244,8 @@
             </div>
         </div>
         <div class="cards-container">
-            <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div class="card-split"><div>MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d3-t1">--</div></div><div>TARDE<br><img id="d3-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d3-t2">--</div></div></div><div class="weather-desc" id="d3-w1">--</div><div class="wind-arrows">🡣 🡡</div><div class="wind-info" id="d3-wind">--</div></div>
-            <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div class="card-split"><div>MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d4-t1">--</div></div><div>TARDE<br><img id="d4-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d4-t2">--</div></div></div><div class="weather-desc" id="d4-w1">--</div><div class="wind-arrows">🡣 🡡</div><div class="wind-info" id="d4-wind">--</div></div>
+            <div class="v-card celeste"><h2 class="n2">--</h2><div class="date f2">--</div><div class="card-split"><div>MAÑANA<br><img id="d3-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d3-t1">--</div></div><div>TARDE<br><img id="d3-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d3-t2">--</div></div></div><div class="weather-desc" id="d3-w1">--</div><div class="wind-arrows"><img id="d3-wind-arrow-1" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"><img id="d3-wind-arrow-2" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"></div><div class="wind-legend" id="d3-wind-legend" style="font-size:1.2em;font-weight:700;margin-top:10px;text-align:center;">--</div></div>
+            <div class="v-card oscuro"><h2 class="n3">--</h2><div class="date f3">--</div><div class="card-split"><div>MAÑANA<br><img id="d4-icon-1" src="images/default.png"><br><div class="forecast-temp" id="d4-t1">--</div></div><div>TARDE<br><img id="d4-icon-2" src="images/default.png"><br><div class="forecast-temp" id="d4-t2">--</div></div></div><div class="weather-desc" id="d4-w1">--</div><div class="wind-arrows"><img id="d4-wind-arrow-1" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"><img id="d4-wind-arrow-2" src="images/default_wind.png" style="height:80px;width:80px;object-fit:contain;"></div><div class="wind-legend" id="d4-wind-legend" style="font-size:1.2em;font-weight:700;margin-top:10px;text-align:center;">--</div></div>
         </div>
         <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
     </div>
@@ -269,25 +270,38 @@
             configs.forEach(conf => {
                 html += `<div class="section-title">${conf.title}</div>
                 <div class="field-group">
-                    <h4>Temperaturas</h4>
+                    <h4>Temperaturas Mín / Máx (Urbana / Suburbana)</h4>
                     <div class="row">
-                        <input type="number" id="${conf.id}-min-urb" placeholder="Temperatura Mínima" oninput="updateTempField('${conf.id}', 'min')">
-                        <input type="number" id="${conf.id}-max-urb" placeholder="Temperatura Máxima" oninput="updateTempField('${conf.id}', 'max')">
+                        <div class="column">
+                            <label>Mín Urbana</label>
+                            <input type="number" id="${conf.id}-min-urb" placeholder="Min Urbana" oninput="updateTempField('${conf.id}', 'min', 'urb')">
+                        </div>
+                        <div class="column">
+                            <label>Mín Suburbana</label>
+                            <input type="number" id="${conf.id}-min-sub" placeholder="Min Suburbana" oninput="updateTempField('${conf.id}', 'min', 'sub')">
+                        </div>
+                        <div class="column">
+                            <label>Máx Urbana</label>
+                            <input type="number" id="${conf.id}-max-urb" placeholder="Máx Urbana" oninput="updateTempField('${conf.id}', 'max', 'urb')">
+                        </div>
+                        <div class="column">
+                            <label>Máx Suburbana</label>
+                            <input type="number" id="${conf.id}-max-sub" placeholder="Máx Suburbana" oninput="updateTempField('${conf.id}', 'max', 'sub')">
+                        </div>
                     </div>
                 </div>`;
                 
                 conf.tramos.forEach((periodValue, index) => {
                     const tramoIdx = index + 1;
                     html += `<div class="field-group">
-                        <h4>${periodValue.charAt(0).toUpperCase() + periodValue.slice(1)}</h4>
-                        <div class="row">
+                        <h4>${periodValue.charAt(0).toUpperCase() + periodValue.slice(1)}</h4>`;
+                    
+                    // Para días 3 y 4, mostrar input de temperatura del período
+                    if(conf.id.startsWith('d')) {
+                        html += `<div class="row">
                             <div class="column">
-                                <label for="${conf.id}-temp-input-${tramoIdx}">Temp Urbana</label>
+                                <label for="${conf.id}-temp-input-${tramoIdx}">Temperatura</label>
                                 <input type="number" id="${conf.id}-temp-input-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
-                            </div>
-                            <div class="column">
-                                <label for="${conf.id}-temp-sub-${tramoIdx}">Temp Suburbana</label>
-                                <input type="number" id="${conf.id}-temp-sub-${tramoIdx}" placeholder="Temp Sub" step="0.1" oninput="updatePeriodTempSub('${conf.id}', ${tramoIdx})">
                             </div>
                             <div class="column">
                                 <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
@@ -296,8 +310,21 @@
                                     ${SKY_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
                             </div>
-                        </div>
-                        <div class="row">
+                        </div>`;
+                    } else {
+                        // Para días 1 y 2, solo cielo
+                        html += `<div class="row">
+                            <div class="column">
+                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
+                                <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx}, this.value)">
+                                    <option value="">Cielo...</option>
+                                    ${SKY_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>`;
+                    }
+                    
+                    html += `<div class="row">
                             <div class="column">
                                 <label for="${conf.id}-rain-select-${tramoIdx}">Lluvias</label>
                                 <select id="${conf.id}-rain-select-${tramoIdx}">
@@ -326,9 +353,10 @@
             document.getElementById('dynamic-inputs').innerHTML = html;
         }
 
-    function updateTempField(dia, tipo) {
-        const value = document.getElementById(`${dia}-${tipo}-urb`).value;
-        up(`${dia}-${tipo}`, value);
+    function updateTempField(dia, tipo, zona) {
+        const value = document.getElementById(`${dia}-${tipo}-${zona}`).value;
+        const targetId = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`;
+        up(targetId, value);
     }
 
     function updatePeriodTemp(dia, idx) {
@@ -336,10 +364,37 @@
         up(`${dia}-t${idx}`, tempValue);
     }
 
-    function updatePeriodTempSub(dia, idx) {
-        const tempValue = document.getElementById(`${dia}-temp-sub-${idx}`).value;
-        const target = document.getElementById(`${dia}-t${idx}-sub`);
-        if(target) target.innerText = tempValue ? tempValue + '°*' : '--*';
+    const windArrowMap = {
+        "norte": "flecha_norte.png", "noreste": "flecha_noreste.png",
+        "este": "flecha_este.png", "sudeste": "flecha_sudeste.png",
+        "sur": "flecha_sur.png", "sudoeste": "flecha_sudoeste.png",
+        "oeste": "flecha_oeste.png", "noroeste": "flecha_noroeste.png"
+    };
+
+    function updateWindArrow(dia, tramo, dir) {
+        const arrowImg = document.getElementById(`${dia}-wind-arrow-${tramo}`);
+        if(arrowImg) {
+            arrowImg.src = dir && windArrowMap[dir] ? `images/${windArrowMap[dir]}` : 'images/default_wind.png';
+        }
+    }
+
+    function updateWindLegend(dia) {
+        const legend = document.getElementById(`${dia}-wind-legend`);
+        if(!legend) return;
+        
+        const configs = { d3: 2, d4: 2 };
+        const count = configs[dia] || 0;
+        let parts = [];
+        
+        for(let idx = 1; idx <= count; idx++) {
+            const i = document.getElementById(`${dia}-v-i${idx}`).value;
+            const d = document.getElementById(`${dia}-v-d${idx}`).value;
+            if(i && d) parts.push(`${i} del ${d}`);
+        }
+        
+        if(parts.length === 0) legend.innerText = '--';
+        else if(parts.length === 1) legend.innerText = `Vientos ${parts[0]}`;
+        else legend.innerText = `Vientos ${parts.join(' rotando a ')}`;
     }
 
     function updateSky(dia, tramo, valor) {
@@ -355,10 +410,10 @@
         const target = document.getElementById(`${dia}-v${tramo}`);
         if(target) target.innerText = (i && d) ? `${i} del ${d}` : "--";
         
-        // Update wind info for days 3 and 4
+        // Update wind arrow and legend for days 3 and 4
         if(dia === 'd3' || dia === 'd4') {
-            const windInfo = document.getElementById(`${dia}-wind`);
-            if(windInfo) windInfo.innerText = (i && d) ? `${i} del ${d}` : "--";
+            updateWindArrow(dia, tramo, d);
+            updateWindLegend(dia);
         }
     }
 
@@ -439,17 +494,13 @@
         setTimeout(() => {
             // JUEVES (Día 1)
             document.getElementById('h-min-urb').value = '12';
+            document.getElementById('h-min-sub').value = '8';
             document.getElementById('h-max-urb').value = '23';
-            updateTempField('h', 'min');
-            updateTempField('h', 'max');
-            
-            // Temperaturas por período JUEVES
-            document.getElementById('h-temp-input-1').value = '';
-            document.getElementById('h-temp-input-2').value = '23';
-            document.getElementById('h-temp-input-3').value = '15';
-            updatePeriodTemp('h', 1);
-            updatePeriodTemp('h', 2);
-            updatePeriodTemp('h', 3);
+            document.getElementById('h-max-sub').value = '19';
+            updateTempField('h', 'min', 'urb');
+            updateTempField('h', 'min', 'sub');
+            updateTempField('h', 'max', 'urb');
+            updateTempField('h', 'max', 'sub');
             
             // Condiciones del cielo JUEVES (todo Despejado)
             document.getElementById('h-sky-select-1').value = 'despejado';
@@ -472,19 +523,13 @@
             
             // VIERNES (Día 2)
             document.getElementById('m-min-urb').value = '14';
+            document.getElementById('m-min-sub').value = '10';
             document.getElementById('m-max-urb').value = '22';
-            updateTempField('m', 'min');
-            updateTempField('m', 'max');
-            
-            // Temperaturas por período VIERNES
-            document.getElementById('m-temp-input-1').value = '15';
-            document.getElementById('m-temp-input-2').value = '14';
-            document.getElementById('m-temp-input-3').value = '22';
-            document.getElementById('m-temp-input-4').value = '16';
-            updatePeriodTemp('m', 1);
-            updatePeriodTemp('m', 2);
-            updatePeriodTemp('m', 3);
-            updatePeriodTemp('m', 4);
+            document.getElementById('m-max-sub').value = '18';
+            updateTempField('m', 'min', 'urb');
+            updateTempField('m', 'min', 'sub');
+            updateTempField('m', 'max', 'urb');
+            updateTempField('m', 'max', 'sub');
             
             // Condiciones del cielo VIERNES
             document.getElementById('m-sky-select-1').value = 'algo nublado';
