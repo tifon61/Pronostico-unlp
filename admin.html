@@ -86,6 +86,7 @@
         .forecast-item { text-align: center; padding: 10px 0; min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .forecast-item img { height: 180px; width: 180px; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); object-fit: contain; }
         .forecast-temp { font-size: 30px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .forecast-temp-sub { font-size: 20px; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.2); margin-top: 5px; opacity: 0.9; }
         .stripe { display: grid; align-items: center; width: 100%; height: 90px; overflow: hidden; margin-top: 8px; position: relative; z-index: 3; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 220px 1fr 1fr 1fr; }
         .stripe-wind-4 { grid-template-columns: 220px 1fr 1fr 1fr 1fr; }
@@ -206,25 +207,32 @@
             </div>
             <div class="day-main-grid">
                 <div class="temp-side-col"><div class="temp-v-box" style="background: #87CEEB;"><h4 style="font-size:24px; margin-bottom:5px; color: white;">TEMPERATURA</h4><div class="temp-vals" style="color: white;"><div>MIN <span id="h-min">--</span><span class="temp-sub" id="h-min-sub">--*</span></div><div>MAX <span id="h-max">--</span><span class="temp-sub" id="h-max-sub">--*</span></div></div></div></div>
-                <div class="forecast-item"><img id="h-icon-1" src="images/default.png"><div class="forecast-temp" id="h-t1">--</div></div>
-                <div class="forecast-item"><img id="h-icon-2" src="images/default.png"><div class="forecast-temp" id="h-t2" style="color:#ffeb3b">--</div></div>
-                <div class="forecast-item"><img id="h-icon-3" src="images/default.png"><div class="forecast-temp" id="h-t3">--</div></div>
+                <div class="forecast-item"><img id="h-icon-1" src="images/default.png"><div class="forecast-temp" id="h-t1">--</div><div class="forecast-temp-sub" id="h-t1-sub">--*</div></div>
+                <div class="forecast-item"><img id="h-icon-2" src="images/default.png"><div class="forecast-temp" id="h-t2" style="color:#ffeb3b">--</div><div class="forecast-temp-sub" id="h-t2-sub">--*</div></div>
+                <div class="forecast-item"><img id="h-icon-3" src="images/default.png"><div class="forecast-temp" id="h-t3">--</div><div class="forecast-temp-sub" id="h-t3-sub">--*</div></div>
             </div>
             <div class="stripe stripe-wind"><div class="stripe-label">Vientos</div><div class="stripe-data" id="h-v1">--</div><div class="stripe-data" id="h-v2">--</div><div class="stripe-data" id="h-v3">--</div></div>
             <div class="stripe stripe-time"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1">--</div><div class="stripe-data" id="h-w2">--</div><div class="stripe-data" id="h-w3">--</div></div>
         </div>
 
         <div class="day-block day-2">
+            <div class="date-emission-pill">
+                <span class="date-val f1">--/---/--</span>
+                <div class="issuance-block">
+                    <span class="issuance-label">Hora de emisión</span>
+                    <span class="issuance-time" id="out-hora">08:00 hs</span>
+                </div>
+            </div>
             <div class="day-header">
                 <h2 class="n1">MARTES</h2>
                 <div class="periods-pill periods-pill-4"><span style="margin-left: -15px;">MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
             </div>
             <div class="day-main-grid day-main-grid-4">
                 <div class="temp-side-col"><div class="temp-v-box" style="background: var(--unlp-blue); top: 100px;"><h4 style="font-size:24px; margin-bottom:5px; color: white;">TEMPERATURA</h4><div class="temp-vals" style="color: white;"><div>MIN <span id="m-min">--</span><span class="temp-sub" id="m-min-sub">--*</span></div><div>MAX <span id="m-max">--</span><span class="temp-sub" id="m-max-sub">--*</span></div></div></div></div>
-                <div class="forecast-item"><img id="m-icon-1" src="images/default.png"><div class="forecast-temp" id="m-t1">--</div></div>
-                <div class="forecast-item"><img id="m-icon-2" src="images/default.png"><div class="forecast-temp" id="m-t2">--</div></div>
-                <div class="forecast-item"><img id="m-icon-3" src="images/default.png"><div class="forecast-temp" id="m-t3" style="color:#ffeb3b">--</div></div>
-                <div class="forecast-item"><img id="m-icon-4" src="images/default.png"><div class="forecast-temp" id="m-t4">--</div></div>
+                <div class="forecast-item"><img id="m-icon-1" src="images/default.png"><div class="forecast-temp" id="m-t1">--</div><div class="forecast-temp-sub" id="m-t1-sub">--*</div></div>
+                <div class="forecast-item"><img id="m-icon-2" src="images/default.png"><div class="forecast-temp" id="m-t2">--</div><div class="forecast-temp-sub" id="m-t2-sub">--*</div></div>
+                <div class="forecast-item"><img id="m-icon-3" src="images/default.png"><div class="forecast-temp" id="m-t3" style="color:#ffeb3b">--</div><div class="forecast-temp-sub" id="m-t3-sub">--*</div></div>
+                <div class="forecast-item"><img id="m-icon-4" src="images/default.png"><div class="forecast-temp" id="m-t4">--</div><div class="forecast-temp-sub" id="m-t4-sub">--*</div></div>
             </div>
             <div class="stripe stripe-wind stripe-wind-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
             <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
@@ -296,12 +304,16 @@
                     html += `<div class="field-group">
                         <h4>${periodValue.charAt(0).toUpperCase() + periodValue.slice(1)}</h4>`;
                     
-                    // Para días 3 y 4, mostrar input de temperatura del período
-                    if(conf.id.startsWith('d')) {
+                    // Para días 1 y 2, mostrar temperaturas urbana/suburbana del período
+                    if(!conf.id.startsWith('d')) {
                         html += `<div class="row">
                             <div class="column">
-                                <label for="${conf.id}-temp-input-${tramoIdx}">Temperatura</label>
-                                <input type="number" id="${conf.id}-temp-input-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
+                                <label for="${conf.id}-temp-urb-${tramoIdx}">Temp Urbana</label>
+                                <input type="number" id="${conf.id}-temp-urb-${tramoIdx}" placeholder="Temp Urb" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx}, 'urb')">
+                            </div>
+                            <div class="column">
+                                <label for="${conf.id}-temp-sub-${tramoIdx}">Temp Suburbana</label>
+                                <input type="number" id="${conf.id}-temp-sub-${tramoIdx}" placeholder="Temp Sub" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx}, 'sub')">
                             </div>
                             <div class="column">
                                 <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
@@ -312,8 +324,12 @@
                             </div>
                         </div>`;
                     } else {
-                        // Para días 1 y 2, solo cielo
+                        // Para días 3 y 4, mostrar input de temperatura del período
                         html += `<div class="row">
+                            <div class="column">
+                                <label for="${conf.id}-temp-input-${tramoIdx}">Temperatura</label>
+                                <input type="number" id="${conf.id}-temp-input-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
+                            </div>
                             <div class="column">
                                 <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
                                 <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx}, this.value)">
@@ -361,9 +377,17 @@
         up(targetId2, value);
     }
 
-    function updatePeriodTemp(dia, idx) {
-        const tempValue = document.getElementById(`${dia}-temp-input-${idx}`).value;
-        up(`${dia}-t${idx}`, tempValue);
+    function updatePeriodTemp(dia, idx, zona) {
+        if(zona) {
+            // Para días 1 y 2 con temperaturas urbana/suburbana
+            const tempValue = document.getElementById(`${dia}-temp-${zona}-${idx}`).value;
+            const targetId = zona === 'sub' ? `${dia}-t${idx}-sub` : `${dia}-t${idx}`;
+            up(targetId, tempValue);
+        } else {
+            // Para días 3 y 4 con temperatura única
+            const tempValue = document.getElementById(`${dia}-temp-input-${idx}`).value;
+            up(`${dia}-t${idx}`, tempValue);
+        }
     }
 
     const windArrowMap = {
