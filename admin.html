@@ -356,7 +356,9 @@
     function updateTempField(dia, tipo, zona) {
         const value = document.getElementById(`${dia}-${tipo}-${zona}`).value;
         const targetId = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`;
+        const targetId2 = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}-urb`;
         up(targetId, value);
+        up(targetId2, value);
     }
 
     function updatePeriodTemp(dia, idx) {
