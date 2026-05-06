@@ -302,8 +302,8 @@
                     if(!conf.id.startsWith('d')) {
                         html += `<div class="row">
                             <div class="column">
-                                <label for="${conf.id}-temp-urb-${tramoIdx}">Temperatura Urbana</label>
-                                <input type="number" id="${conf.id}-temp-urb-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx}, 'urb')">
+                                <label for="${conf.id}-temp-${tramoIdx}">Temperatura</label>
+                                <input type="number" id="${conf.id}-temp-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
                             </div>
                             <div class="column">
                                 <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
@@ -367,10 +367,9 @@
         up(targetId2, value);
     }
 
-    function updatePeriodTemp(dia, idx, zona) {
-        if(zona) {
-        }
-        // Eliminado manejo de max/min por período
+    function updatePeriodTemp(dia, idx) {
+        const value = document.getElementById(`${dia}-temp-${idx}`).value;
+        up(`${dia}-t${idx}`, value);
     }
 
     const windArrowMap = {
@@ -611,8 +610,8 @@
 
                 let temp = null;
                 if (conf.id === 'h' || conf.id === 'm') {
-                    // Para días 1 y 2, usar temperatura urbana del período
-                    const tVal = document.getElementById(`${conf.id}-temp-urb-${tramoIdx}`).value;
+                    // Para días 1 y 2, usar temperatura del período
+                    const tVal = document.getElementById(`${conf.id}-temp-${tramoIdx}`).value;
                     temp = tVal ? parseFloat(tVal) : null;
                 }
 
