@@ -404,10 +404,16 @@
     }
 
     function updateSky(dia, tramo, valor) {
-        const textEl = document.getElementById(`${dia}-w${tramo}`);
-        if(textEl) textEl.innerText = valor || "--";
-        const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
-        if(imgEl) imgEl.src = iconMap[valor] ? `images/${iconMap[valor]}` : `images/default.png`;
+        try {
+            const textEl = document.getElementById(`${dia}-w${tramo}`);
+            if(textEl) textEl.innerText = valor || "--";
+            const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
+            if(imgEl && imgEl.tagName === 'IMG') {
+                imgEl.src = iconMap[valor] ? `images/${iconMap[valor]}` : `images/default.png`;
+            }
+        } catch (e) {
+            console.error('Error en updateSky:', e);
+        }
     }
 
     function updateWind(dia, tramo) {
@@ -498,68 +504,72 @@
         
         // Poblar automáticamente los valores del formulario para que coincidan con la imagen
         setTimeout(() => {
-            // JUEVES (Día 1)
-            document.getElementById('h-min-urb').value = '12';
-            document.getElementById('h-min-sub').value = '8';
-            document.getElementById('h-max-urb').value = '23';
-            document.getElementById('h-max-sub').value = '19';
-            updateTempField('h', 'min', 'urb');
-            updateTempField('h', 'min', 'sub');
-            updateTempField('h', 'max', 'urb');
-            updateTempField('h', 'max', 'sub');
-            
-            // Condiciones del cielo JUEVES (todo Despejado)
-            document.getElementById('h-sky-select-1').value = 'despejado';
-            document.getElementById('h-sky-select-2').value = 'despejado';
-            document.getElementById('h-sky-select-3').value = 'despejado';
-            updateSky('h', 1, 'despejado');
-            updateSky('h', 2, 'despejado');
-            updateSky('h', 3, 'despejado');
-            
-            // Vientos JUEVES
-            document.getElementById('h-v-i1').value = 'leves';
-            document.getElementById('h-v-d1').value = 'sudoeste';
-            document.getElementById('h-v-i2').value = 'leves';
-            document.getElementById('h-v-d2').value = 'noreste';
-            document.getElementById('h-v-i3').value = 'leves';
-            document.getElementById('h-v-d3').value = 'noreste';
-            updateWind('h', 1);
-            updateWind('h', 2);
-            updateWind('h', 3);
-            
-            // VIERNES (Día 2)
-            document.getElementById('m-min-urb').value = '14';
-            document.getElementById('m-min-sub').value = '10';
-            document.getElementById('m-max-urb').value = '22';
-            document.getElementById('m-max-sub').value = '18';
-            updateTempField('m', 'min', 'urb');
-            updateTempField('m', 'min', 'sub');
-            updateTempField('m', 'max', 'urb');
-            updateTempField('m', 'max', 'sub');
-            
-            // Condiciones del cielo VIERNES
-            document.getElementById('m-sky-select-1').value = 'algo nublado';
-            document.getElementById('m-sky-select-2').value = 'parcialmente nublado';
-            document.getElementById('m-sky-select-3').value = 'algo nublado';
-            document.getElementById('m-sky-select-4').value = 'algo nublado';
-            updateSky('m', 1, 'algo nublado');
-            updateSky('m', 2, 'parcialmente nublado');
-            updateSky('m', 3, 'algo nublado');
-            updateSky('m', 4, 'algo nublado');
-            
-            // Vientos VIERNES
-            document.getElementById('m-v-i1').value = 'leves';
-            document.getElementById('m-v-d1').value = 'noreste';
-            document.getElementById('m-v-i2').value = 'leves';
-            document.getElementById('m-v-d2').value = 'noreste';
-            document.getElementById('m-v-i3').value = 'leves';
-            document.getElementById('m-v-d3').value = 'noreste';
-            document.getElementById('m-v-i4').value = 'leves';
-            document.getElementById('m-v-d4').value = 'este';
-            updateWind('m', 1);
-            updateWind('m', 2);
-            updateWind('m', 3);
-            updateWind('m', 4);
+            try {
+                // JUEVES (Día 1)
+                document.getElementById('h-min-urb').value = '12';
+                document.getElementById('h-min-sub').value = '8';
+                document.getElementById('h-max-urb').value = '23';
+                document.getElementById('h-max-sub').value = '19';
+                updateTempField('h', 'min', 'urb');
+                updateTempField('h', 'min', 'sub');
+                updateTempField('h', 'max', 'urb');
+                updateTempField('h', 'max', 'sub');
+                
+                // Condiciones del cielo JUEVES (todo Despejado)
+                document.getElementById('h-sky-select-1').value = 'despejado';
+                document.getElementById('h-sky-select-2').value = 'despejado';
+                document.getElementById('h-sky-select-3').value = 'despejado';
+                updateSky('h', 1, 'despejado');
+                updateSky('h', 2, 'despejado');
+                updateSky('h', 3, 'despejado');
+                
+                // Vientos JUEVES
+                document.getElementById('h-v-i1').value = 'leves';
+                document.getElementById('h-v-d1').value = 'sudoeste';
+                document.getElementById('h-v-i2').value = 'leves';
+                document.getElementById('h-v-d2').value = 'noreste';
+                document.getElementById('h-v-i3').value = 'leves';
+                document.getElementById('h-v-d3').value = 'noreste';
+                updateWind('h', 1);
+                updateWind('h', 2);
+                updateWind('h', 3);
+                
+                // VIERNES (Día 2)
+                document.getElementById('m-min-urb').value = '14';
+                document.getElementById('m-min-sub').value = '10';
+                document.getElementById('m-max-urb').value = '22';
+                document.getElementById('m-max-sub').value = '18';
+                updateTempField('m', 'min', 'urb');
+                updateTempField('m', 'min', 'sub');
+                updateTempField('m', 'max', 'urb');
+                updateTempField('m', 'max', 'sub');
+                
+                // Condiciones del cielo VIERNES
+                document.getElementById('m-sky-select-1').value = 'algo nublado';
+                document.getElementById('m-sky-select-2').value = 'parcialmente nublado';
+                document.getElementById('m-sky-select-3').value = 'algo nublado';
+                document.getElementById('m-sky-select-4').value = 'algo nublado';
+                updateSky('m', 1, 'algo nublado');
+                updateSky('m', 2, 'parcialmente nublado');
+                updateSky('m', 3, 'algo nublado');
+                updateSky('m', 4, 'algo nublado');
+                
+                // Vientos VIERNES
+                document.getElementById('m-v-i1').value = 'leves';
+                document.getElementById('m-v-d1').value = 'noreste';
+                document.getElementById('m-v-i2').value = 'leves';
+                document.getElementById('m-v-d2').value = 'noreste';
+                document.getElementById('m-v-i3').value = 'leves';
+                document.getElementById('m-v-d3').value = 'noreste';
+                document.getElementById('m-v-i4').value = 'leves';
+                document.getElementById('m-v-d4').value = 'este';
+                updateWind('m', 1);
+                updateWind('m', 2);
+                updateWind('m', 3);
+                updateWind('m', 4);
+            } catch (e) {
+                console.error('Error en setTimeout:', e);
+            }
         }, 100);
     };
 
@@ -644,3 +654,4 @@
 </script>
 </body>
 </html>
+    
