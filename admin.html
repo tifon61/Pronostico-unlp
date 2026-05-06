@@ -592,10 +592,14 @@
             const dailyForecast = {
                 date: dateObj.toISOString().split('T')[0],
                 day_name: dayNames[dateObj.getDay()],
-                temp_min: parseFloat(document.getElementById(`${conf.id}-min-urb`).value) || 0,
-                temp_max: parseFloat(document.getElementById(`${conf.id}-max-urb`).value) || 0,
                 period_forecasts: []
             };
+            
+            // Solo agregar temp_min y temp_max para días 1 y 2
+            if (conf.id === 'h' || conf.id === 'm') {
+                dailyForecast.temp_min = parseFloat(document.getElementById(`${conf.id}-min-urb`).value) || 0;
+                dailyForecast.temp_max = parseFloat(document.getElementById(`${conf.id}-max-urb`).value) || 0;
+            }
 
             conf.tramos.forEach((periodValue, index) => {
                 const tramoIdx = index + 1;
