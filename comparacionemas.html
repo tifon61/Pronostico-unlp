@@ -35,12 +35,11 @@
             </div>
         </header>
 
-        <!-- Tarjetas de Acumulados -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">EMA VIOLETA</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">0.34mm/p</span>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Cargando...</span>
                 </div>
                 <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Esperando datos...</p>
@@ -49,24 +48,22 @@
             <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">CAMPBELL</p>
-                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded">0.1mm/p</span>
+                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded">ID: 2823820 | 0.1mm</span>
                 </div>
                 <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Esperando datos...</p>
             </div>
         </div>
 
-        <!-- Gráfico -->
         <div class="grid grid-cols-1 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl shadow-xl">
-                <h3 class="text-lg font-bold mb-6 text-slate-200">Comparativa Horaria (mm)</h3>
+                <h3 class="text-lg font-bold mb-6 text-slate-200">Comparativa Horaria (mm acumulados)</h3>
                 <div class="relative w-full" style="height: 400px;">
                     <canvas id="precipChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Iframes -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-4 rounded-2xl">
                 <h3 class="font-bold mb-4 text-sm text-slate-400">Wunderground ILAPLA66</h3>
@@ -79,19 +76,17 @@
         </div>
 
         <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
-            Sistema inicializado
+            Iniciando sistema...
         </div>
     </div>
 
     <script>
-        // Configuraciones de Canales
         const VIOLETA_NUEVA = { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, mult: 0.34 };
         const VIOLETA_VIEJA = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", field: 1, mult: 0.34 }; 
         const CAMPBELL = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 0.1 };
 
         let myChart = null;
 
-        // Inicializar fecha
         const d = new Date();
         const fechaHoy = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         document.getElementById('dateSelector').value = fechaHoy;
@@ -118,7 +113,7 @@
                 const data = await res.json();
                 return data.feeds || [];
             } catch (e) {
-                console.error("Error al obtener datos:", e);
+                console.error("Error API:", e);
                 return [];
             }
         }
@@ -130,10 +125,10 @@
 
             feeds.forEach(f => {
                 const val = parseFloat(f[key]);
+                // Si el campo tiene un valor (aunque sea pequeño), lo contamos como 1 PULSO completo
                 if (!isNaN(val) && val > 0) {
                     const h = new Date(f.created_at).getHours();
-                    // Multiplicamos el valor (pulsos) por el factor mm (0.34 o 0.1)
-                    const amount = val * mult; 
+                    const amount = mult; // Sumamos el factor de pulso directamente
                     hourly[h] += amount;
                     total += amount;
                 }
@@ -143,7 +138,8 @@
 
         async function updateDashboard() {
             const date = document.getElementById('dateSelector').value;
-            document.getElementById('debugInfo').innerText = "Sincronizando con ThingSpeak...";
+            const debug = document.getElementById('debugInfo');
+            debug.innerText = "Consultando canales...";
 
             const violetaCfg = getVioletaConfig(date);
             
@@ -158,16 +154,15 @@
             document.getElementById('accumVioleta').innerHTML = `${resV.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             document.getElementById('accumCampbell').innerHTML = `${resC.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             
-            document.getElementById('msgVioleta').innerText = `Pulsos procesados: ${resV.count}`;
-            document.getElementById('msgCampbell').innerText = `Pulsos procesados: ${resC.count}`;
+            document.getElementById('msgVioleta').innerText = `Pulsos detectados: ${resV.count}`;
+            document.getElementById('msgCampbell').innerText = `Pulsos detectados: ${resC.count}`;
 
-            document.getElementById('debugInfo').innerText = `Panel actualizado: ${date}`;
+            debug.innerText = `Datos actualizados: ${date}`;
             renderChart(resV.hourly, resC.hourly);
         }
 
         function renderChart(dataV, dataC) {
             const ctx = document.getElementById('precipChart').getContext('2d');
-            
             if (myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {
@@ -176,17 +171,17 @@
                     labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [
                         {
-                            label: 'EMA Violeta (0.34 mm)',
+                            label: 'EMA Violeta (mm)',
                             data: dataV,
-                            backgroundColor: 'rgba(168, 85, 247, 0.8)',
+                            backgroundColor: 'rgba(168, 85, 247, 0.7)',
                             borderColor: '#a855f7',
                             borderWidth: 1,
                             borderRadius: 4
                         },
                         {
-                            label: 'Campbell (0.1 mm)',
+                            label: 'Campbell (mm)',
                             data: dataC,
-                            backgroundColor: 'rgba(14, 165, 233, 0.8)',
+                            backgroundColor: 'rgba(14, 165, 233, 0.7)',
                             borderColor: '#0ea5e9',
                             borderWidth: 1,
                             borderRadius: 4
@@ -197,19 +192,14 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { 
-                        legend: { 
-                            display: true, 
-                            position: 'top',
-                            labels: { color: '#94a3b8', font: { size: 11 } } 
-                        } 
+                        legend: { display: true, labels: { color: '#94a3b8' } } 
                     },
                     scales: {
                         y: { 
-                            beginAtZero: true, 
-                            suggestedMax: 0.5,
+                            beginAtZero: true,
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             ticks: { color: '#94a3b8' },
-                            title: { display: true, text: 'Milímetros (mm)', color: '#64748b' }
+                            title: { display: true, text: 'Precipitación Acumulada (mm)', color: '#64748b' }
                         },
                         x: { 
                             grid: { display: false },
