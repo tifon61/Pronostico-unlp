@@ -6,7 +6,7 @@
     <title>Comparativa de Pluviómetros - UNLP</title>
     <!-- Cargamos Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Cargamos Chart.js con un ID para controlar su carga -->
+    <!-- Cargamos Chart.js -->
     <script id="chart-script" src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -37,12 +37,12 @@
             </div>
         </header>
 
-        <!-- Acumulados -->
+        <!-- Acumulados Totales del Día -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">EMA VIOLETA</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Buscando...</span>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded tracking-wider">Buscando...</span>
                 </div>
                 <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Cargando...</p>
@@ -58,16 +58,17 @@
             </div>
         </div>
 
-        <!-- Gráfico Principal -->
+        <!-- Gráfico Principal de Líneas (Acumulado) -->
         <div class="grid grid-cols-1 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
-                <h3 class="text-lg font-bold mb-6 text-slate-200">Comparativa Horaria (mm Acumulados)</h3>
+                <h3 class="text-lg font-bold mb-6 text-slate-200">Curva de Precipitación Acumulada (mm)</h3>
                 <div id="chartParent" class="relative w-full h-[380px]">
                     <canvas id="precipChart"></canvas>
                 </div>
             </div>
         </div>
 
+        <!-- Iframes de Referencia -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-4 rounded-2xl">
                 <h3 class="font-bold mb-4 text-sm text-slate-400">Wunderground ILAPLA66</h3>
@@ -92,7 +93,7 @@
 
         let myChart = null;
 
-        // Fecha inicial
+        // Establecer fecha por defecto (Hoy)
         const d = new Date();
         const fechaHoy = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         document.getElementById('dateSelector').value = fechaHoy;
@@ -109,32 +110,44 @@
             }
         }
 
+        /**
+         * Procesa los datos y genera el array acumulativo
+         */
         function processData(feeds, fieldNum, mult) {
-            const hourly = Array(24).fill(0);
+            const hourlyValues = Array(24).fill(0);
             let totalPrecip = 0;
             let pulseCount = 0;
             const fieldKey = "field" + fieldNum;
 
             feeds.forEach(f => {
                 const val = parseFloat(f[fieldKey]);
-                // Contamos 1 pulso por cada registro con valor > 0
+                // Cada registro con valor > 0 cuenta como 1 pulso completo
                 if (!isNaN(val) && val > 0) {
-                    const hour = new Date(f.created_at).getHours();
-                    hourly[hour] += mult;
+                    const timestamp = new Date(f.created_at);
+                    const hour = timestamp.getHours();
+                    hourlyValues[hour] += mult;
                     totalPrecip += mult;
                     pulseCount++;
                 }
             });
 
-            return { total: totalPrecip.toFixed(2), hourly, pulseCount };
+            // Convertir valores horarios en acumulativos (Curva)
+            const cumulativeArray = Array(24).fill(0);
+            let currentSum = 0;
+            for (let i = 0; i < 24; i++) {
+                currentSum += hourlyValues[i];
+                cumulativeArray[i] = currentSum;
+            }
+
+            return { total: totalPrecip.toFixed(2), cumulative: cumulativeArray, pulseCount };
         }
 
         async function updateDashboard() {
             const date = document.getElementById('dateSelector').value;
             const debug = document.getElementById('debugInfo');
-            debug.innerText = "Sincronizando con ThingSpeak...";
+            debug.innerText = "Consultando datos en tiempo real...";
 
-            // Lógica de búsqueda: Intenta actual, si no hay, intenta histórico
+            // Lógica de búsqueda inteligente
             let feedsV = await fetchFeeds(V_ACTUAL, date);
             let activeConfigV = V_ACTUAL;
 
@@ -149,21 +162,18 @@
             const resV = processData(feedsV, activeConfigV.field, activeConfigV.mult);
             const resC = processData(feedsC, C_STATION.field, C_STATION.mult);
 
-            // Actualizar interfaz
+            // Actualizar tarjetas de interfaz
             document.getElementById('channelBadge').innerText = `${activeConfigV.label.toUpperCase()} (${activeConfigV.id}) | 0.34mm`;
             document.getElementById('accumVioleta').innerHTML = `${resV.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             document.getElementById('accumCampbell').innerHTML = `${resC.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             
-            document.getElementById('msgVioleta').innerText = `Pulsos totales: ${resV.pulseCount}`;
-            document.getElementById('msgCampbell').innerText = `Pulsos totales: ${resC.pulseCount}`;
+            document.getElementById('msgVioleta').innerText = `Pulsos reales: ${resV.pulseCount}`;
+            document.getElementById('msgCampbell').innerText = `Pulsos reales: ${resC.pulseCount}`;
 
-            debug.innerText = `Datos actualizados: ${date}`;
+            debug.innerText = `Visualizando acumulados para: ${date}`;
             
-            // Verificamos si Chart existe antes de renderizar
             if (typeof Chart !== 'undefined') {
-                renderChart(resV.hourly, resC.hourly);
-            } else {
-                console.error("Librería Chart.js no disponible aún");
+                renderChart(resV.cumulative, resC.cumulative);
             }
         }
 
@@ -172,25 +182,31 @@
             if (myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [
                         {
-                            label: 'EMA Violeta (mm)',
+                            label: 'EMA Violeta (Acumulado mm)',
                             data: dataV,
-                            backgroundColor: 'rgba(168, 85, 247, 0.7)',
                             borderColor: '#a855f7',
-                            borderWidth: 1,
-                            borderRadius: 4
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#a855f7'
                         },
                         {
-                            label: 'Campbell (mm)',
+                            label: 'Campbell (Acumulado mm)',
                             data: dataC,
-                            backgroundColor: 'rgba(14, 165, 233, 0.7)',
                             borderColor: '#0ea5e9',
-                            borderWidth: 1,
-                            borderRadius: 4
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#0ea5e9'
                         }
                     ]
                 },
@@ -198,13 +214,27 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { 
-                        legend: { display: true, labels: { color: '#94a3b8' } } 
+                        legend: { 
+                            display: true, 
+                            labels: { color: '#94a3b8', font: { weight: 'bold' } } 
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(2)} mm`
+                            }
+                        }
                     },
                     scales: {
                         y: { 
                             beginAtZero: true, 
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
+                            ticks: { 
+                                color: '#94a3b8',
+                                callback: (val) => val + ' mm'
+                            },
+                            title: { display: true, text: 'Milímetros Totales', color: '#64748b' }
                         },
                         x: { 
                             grid: { display: false },
@@ -215,9 +245,8 @@
             });
         }
 
-        // CONTROL DE CARGA SEGURO
+        // Control de carga seguro de Chart.js
         window.addEventListener('load', function() {
-            // Verificamos periódicamente si Chart está definido
             const checkChart = setInterval(function() {
                 if (typeof Chart !== 'undefined') {
                     clearInterval(checkChart);
