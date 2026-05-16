@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Pluviómetros y Estaciones</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        header h1 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: 500px; /* Altura fija para mantener simetría */
+        }
+
+        .card h2 {
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-link {
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn-link:hover {
+            background-color: #2980b9;
+        }
+
+        /* Contenedores de contenido */
+        .chart-container, .iframe-container {
+            flex-grow: 1;
+            width: 100%;
+            height: calc(100% - 40px);
+            border: none;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Comparativa de Pluviómetros y Monitoreo Meteorológico</h1>
+    </header>
+
+    <div class="dashboard-grid">
+
+        <!-- Gráfico ThingSpeak Estación 1 -->
+        <div class="card">
+            <h2>Estación Principal (ID: 2626952) - Pluviómetro</h2>
+            <!-- Nota: Generalmente el pluviómetro en ThingSpeak usa el Field 1, si es otro cambialo en 'field/1' -->
+            <iframe class="chart-container" src="https://thingspeak.com/channels/2626952/charts/1?api_key=4XYH56YSV64HE17H&dynamic=true&results=60&type=line&title=Precipitación"></iframe>
+        </div>
+
+        <!-- Gráfico ThingSpeak Estación Campbell -->
+        <div class="card">
+            <h2>Estación Campbell (ID: 2823820) - Pluviómetro</h2>
+            <!-- Nota: Ajusta el número del field según dónde guarde los datos de lluvia esta estación -->
+            <iframe class="chart-container" src="https://thingspeak.com/channels/2823820/charts/1?api_key=FFI1HK80ZKDNS6V8&dynamic=true&results=60&type=line&title=Precipitación+Campbell"></iframe>
+        </div>
+
+        <!-- Wunderground Dashboard -->
+        <div class="card">
+            <h2>
+                Weather Underground (ILAPLA66)
+                <a href="https://www.wunderground.com/dashboard/pws/ILAPLA66" target="_blank" class="btn-link">Abrir en pestaña</a>
+            </h2>
+            <div class="iframe-container">
+                <iframe src="https://www.wunderground.com/dashboard/pws/ILAPLA66"></iframe>
+            </div>
+        </div>
+
+        <!-- Web FCAGLP UNLP -->
+        <div class="card">
+            <h2>
+                Meteorología FCAG (UNLP)
+                <a href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank" class="btn-link">Abrir en pestaña</a>
+            </h2>
+            <div class="iframe-container">
+                <iframe src="https://meteo.fcaglp.unlp.edu.ar/"></iframe>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
