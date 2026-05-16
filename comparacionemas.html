@@ -29,7 +29,7 @@
             <div class="glass p-4 rounded-2xl flex items-center gap-4">
                 <label for="dateSelector" class="font-medium text-sm">Consultar Fecha:</label>
                 <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
-                <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg">
+                <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg shadow-sky-900/20">
                     Actualizar
                 </button>
             </div>
@@ -40,7 +40,7 @@
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">EMA VIOLETA</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Cargando Canal...</span>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">0.34mm/p</span>
                 </div>
                 <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Esperando datos...</p>
@@ -49,7 +49,7 @@
             <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">CAMPBELL</p>
-                    <span id="campbellBadge" class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded">ID: 2823820 | 0.1mm/p</span>
+                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded">0.1mm/p</span>
                 </div>
                 <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Esperando datos...</p>
@@ -58,9 +58,9 @@
 
         <!-- Gráfico -->
         <div class="grid grid-cols-1 gap-6 mb-8">
-            <div class="glass p-6 rounded-2xl shadow-xl min-h-[400px]">
+            <div class="glass p-6 rounded-2xl shadow-xl">
                 <h3 class="text-lg font-bold mb-6 text-slate-200">Comparativa Horaria (mm)</h3>
-                <div class="relative w-full h-[350px]">
+                <div class="relative w-full" style="height: 400px;">
                     <canvas id="precipChart"></canvas>
                 </div>
             </div>
@@ -84,13 +84,14 @@
     </div>
 
     <script>
+        // Configuraciones de Canales
         const VIOLETA_NUEVA = { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, mult: 0.34 };
         const VIOLETA_VIEJA = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", field: 1, mult: 0.34 }; 
-        const CAMPBELL = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 0.1 }; // Ajustado: 0.1mm por pulso
+        const CAMPBELL = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 0.1 };
 
         let myChart = null;
 
-        // Fecha de hoy local
+        // Inicializar fecha
         const d = new Date();
         const fechaHoy = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         document.getElementById('dateSelector').value = fechaHoy;
@@ -102,10 +103,10 @@
             ayer.setHours(0,0,0,0);
 
             if (dateObj < ayer) {
-                document.getElementById('channelBadge').innerText = "CANAL HISTÓRICO (1778165)";
+                document.getElementById('channelBadge').innerText = "HISTÓRICO (1778165) | 0.34mm";
                 return VIOLETA_VIEJA;
             } else {
-                document.getElementById('channelBadge').innerText = "CANAL ACTUAL (2626952)";
+                document.getElementById('channelBadge').innerText = "ACTUAL (2626952) | 0.34mm";
                 return VIOLETA_NUEVA;
             }
         }
@@ -117,7 +118,7 @@
                 const data = await res.json();
                 return data.feeds || [];
             } catch (e) {
-                console.error("Error fetching station " + config.id, e);
+                console.error("Error al obtener datos:", e);
                 return [];
             }
         }
@@ -130,9 +131,8 @@
             feeds.forEach(f => {
                 const val = parseFloat(f[key]);
                 if (!isNaN(val) && val > 0) {
-                    const timestamp = new Date(f.created_at);
-                    const h = timestamp.getHours();
-                    // Multiplicamos el valor del campo (por si hay múltiples pulsos en un registro) por el factor mm
+                    const h = new Date(f.created_at).getHours();
+                    // Multiplicamos el valor (pulsos) por el factor mm (0.34 o 0.1)
                     const amount = val * mult; 
                     hourly[h] += amount;
                     total += amount;
@@ -143,8 +143,7 @@
 
         async function updateDashboard() {
             const date = document.getElementById('dateSelector').value;
-            const debug = document.getElementById('debugInfo');
-            debug.innerText = "Consultando datos...";
+            document.getElementById('debugInfo').innerText = "Sincronizando con ThingSpeak...";
 
             const violetaCfg = getVioletaConfig(date);
             
@@ -159,17 +158,15 @@
             document.getElementById('accumVioleta').innerHTML = `${resV.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             document.getElementById('accumCampbell').innerHTML = `${resC.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             
-            document.getElementById('msgVioleta').innerText = `Registros: ${resV.count}`;
-            document.getElementById('msgCampbell').innerText = `Registros: ${resC.count}`;
+            document.getElementById('msgVioleta').innerText = `Pulsos procesados: ${resV.count}`;
+            document.getElementById('msgCampbell').innerText = `Pulsos procesados: ${resC.count}`;
 
-            debug.innerText = `Datos actualizados para ${date}`;
+            document.getElementById('debugInfo').innerText = `Panel actualizado: ${date}`;
             renderChart(resV.hourly, resC.hourly);
         }
 
         function renderChart(dataV, dataC) {
-            const canvas = document.getElementById('precipChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
+            const ctx = document.getElementById('precipChart').getContext('2d');
             
             if (myChart) myChart.destroy();
 
@@ -179,15 +176,19 @@
                     labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [
                         {
-                            label: 'Violeta',
+                            label: 'EMA Violeta (0.34 mm)',
                             data: dataV,
-                            backgroundColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.8)',
+                            borderColor: '#a855f7',
+                            borderWidth: 1,
                             borderRadius: 4
                         },
                         {
-                            label: 'Campbell',
+                            label: 'Campbell (0.1 mm)',
                             data: dataC,
-                            backgroundColor: '#0ea5e9',
+                            backgroundColor: 'rgba(14, 165, 233, 0.8)',
+                            borderColor: '#0ea5e9',
+                            borderWidth: 1,
                             borderRadius: 4
                         }
                     ]
@@ -198,7 +199,8 @@
                     plugins: { 
                         legend: { 
                             display: true, 
-                            labels: { color: '#94a3b8' } 
+                            position: 'top',
+                            labels: { color: '#94a3b8', font: { size: 11 } } 
                         } 
                     },
                     scales: {
@@ -206,11 +208,12 @@
                             beginAtZero: true, 
                             suggestedMax: 0.5,
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#64748b' }
+                            ticks: { color: '#94a3b8' },
+                            title: { display: true, text: 'Milímetros (mm)', color: '#64748b' }
                         },
                         x: { 
                             grid: { display: false },
-                            ticks: { color: '#64748b' }
+                            ticks: { color: '#94a3b8' }
                         }
                     }
                 }
@@ -218,7 +221,7 @@
         }
 
         window.onload = () => {
-            setTimeout(updateDashboard, 800);
+            setTimeout(updateDashboard, 500);
         };
     </script>
 </body>
