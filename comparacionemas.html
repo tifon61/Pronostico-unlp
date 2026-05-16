@@ -3,141 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control - Pluviómetros y Estaciones</title>
+    <title>Comparativa de Pluviómetros - UNLP</title>
+    <!-- Tailwind para diseño profesional y Chart.js para gráficos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .card-title { color: #94a3b8; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-size: 2.25rem; font-weight: 700; color: #38bdf8; }
+        .iframe-container { height: 500px; width: 100%; border-radius: 12px; overflow: hidden; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
 
-        body {
-            background-color: #f4f6f9;
-            color: #333;
-            padding: 20px;
-        }
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
+                <p class="text-slate-400">Comparativa Emas: Violeta vs. Campbell</p>
+            </div>
+            
+            <div class="glass p-4 rounded-2xl flex items-center gap-4">
+                <label for="dateSelector" class="font-medium">Fecha de consulta:</label>
+                <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
+                <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg transition-all font-bold">
+                    Actualizar
+                </button>
+            </div>
+        </header>
 
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #3498db;
-        }
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="glass p-6 rounded-2xl shadow-xl">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="card-title">EMA VIOLETA (2626952)</p>
+                    <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded">0.34mm/pulso</span>
+                </div>
+                <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
+                <p class="text-slate-400 text-sm mt-2">Acumulado diario calculado</p>
+            </div>
 
-        header h1 {
-            color: #2c3e50;
-            font-size: 24px;
-        }
+            <div class="glass p-6 rounded-2xl shadow-xl">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="card-title">CAMPBELL (2823820)</p>
+                    <span class="bg-sky-500/20 text-sky-400 text-xs px-2 py-1 rounded">Field 5</span>
+                </div>
+                <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
+                <p class="text-slate-400 text-sm mt-2">Total diario registrado</p>
+            </div>
+        </div>
 
-        /* Dashboard Grid Layout */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
-            gap: 20px;
-        }
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 gap-6 mb-8">
+            <div class="glass p-6 rounded-2xl shadow-xl">
+                <h3 class="text-xl font-bold mb-6 text-slate-200">Distribución Horaria de Precipitación</h3>
+                <div style="height: 350px;">
+                    <canvas id="precipChart"></canvas>
+                </div>
+            </div>
+        </div>
 
-        @media (max-width: 900px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+        <!-- External Links Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass p-4 rounded-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold"><i class="fa-solid fa-cloud-sun-rain mr-2"></i>Wunderground ILAPLA66</h3>
+                    <a href="https://www.wunderground.com/dashboard/pws/ILAPLA66" target="_blank" class="text-sky-400 hover:underline text-sm">Ver sitio completo</a>
+                </div>
+                <iframe src="https://www.wunderground.com/dashboard/pws/ILAPLA66" class="iframe-container bg-white"></iframe>
+            </div>
+
+            <div class="glass p-4 rounded-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold"><i class="fa-solid fa-building-columns mr-2"></i>Meteo FCAGLP UNLP</h3>
+                    <a href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank" class="text-sky-400 hover:underline text-sm">Ver sitio completo</a>
+                </div>
+                <iframe src="https://meteo.fcaglp.unlp.edu.ar/" class="iframe-container bg-white"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de Canales
+        const CONFIG = {
+            violeta: { id: "2626952", api: "4XYH56YSV64HE17H", field: 1, multiplier: 0.34 },
+            campbell: { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, multiplier: 1 }
+        };
+
+        let myChart;
+
+        // Establecer fecha de hoy al cargar
+        document.getElementById('dateSelector').valueAsDate = new Date();
+
+        async function fetchData(station, date) {
+            const start = `${date} 00:00:00`;
+            const end = `${date} 23:59:59`;
+            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${start}&end=${end}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.feeds || [];
+            } catch (error) {
+                console.error("Error al obtener datos:", error);
+                return [];
             }
         }
 
-        .card {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            height: 500px; /* Altura fija para mantener simetría */
+        function processPrecip(feeds, multiplier) {
+            let total = 0;
+            const hourly = Array(24).fill(0);
+
+            feeds.forEach(feed => {
+                const val = parseFloat(feed[`field${Object.keys(feed).find(k => k.startsWith('field'))[5]}`]) || 0;
+                const date = new Date(feed.created_at);
+                const hour = date.getHours();
+                
+                const increment = val * multiplier;
+                total += increment;
+                hourly[hour] += increment;
+            });
+
+            return { total: total.toFixed(2), hourly };
         }
 
-        .card h2 {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        async function updateDashboard() {
+            const selectedDate = document.getElementById('dateSelector').value;
+            if (!selectedDate) return;
+
+            // Mostrar "Cargando..."
+            document.getElementById('accumVioleta').innerText = "---";
+            document.getElementById('accumCampbell').innerText = "---";
+
+            const dataVioleta = await fetchData(CONFIG.violeta, selectedDate);
+            const dataCampbell = await fetchData(CONFIG.campbell, selectedDate);
+
+            const resVioleta = processPrecip(dataVioleta, CONFIG.violeta.multiplier);
+            const resCampbell = processPrecip(dataCampbell, CONFIG.campbell.multiplier);
+
+            // Actualizar Stats
+            document.getElementById('accumVioleta').innerHTML = `${resVioleta.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
+            document.getElementById('accumCampbell').innerHTML = `${resCampbell.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
+
+            renderChart(resVioleta.hourly, resCampbell.hourly);
         }
 
-        .btn-link {
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            transition: background 0.2s;
+        function renderChart(violetaHourly, campbellHourly) {
+            const ctx = document.getElementById('precipChart').getContext('2d');
+            
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    datasets: [
+                        {
+                            label: 'EMA Violeta (mm)',
+                            data: violetaHourly,
+                            backgroundColor: 'rgba(168, 85, 247, 0.6)',
+                            borderColor: 'rgb(168, 85, 247)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Campbell (mm)',
+                            data: campbellHourly,
+                            backgroundColor: 'rgba(56, 189, 248, 0.6)',
+                            borderColor: 'rgb(56, 189, 248)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
         }
 
-        .btn-link:hover {
-            background-color: #2980b9;
-        }
-
-        /* Contenedores de contenido */
-        .chart-container, .iframe-container {
-            flex-grow: 1;
-            width: 100%;
-            height: calc(100% - 40px);
-            border: none;
-            border-radius: 4px;
-            background-color: #fafafa;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>Comparativa de Pluviómetros y Monitoreo Meteorológico</h1>
-    </header>
-
-    <div class="dashboard-grid">
-
-        <!-- Gráfico ThingSpeak Estación 1 -->
-        <div class="card">
-            <h2>Estación Principal (ID: 2626952) - Pluviómetro</h2>
-            <!-- Nota: Generalmente el pluviómetro en ThingSpeak usa el Field 1, si es otro cambialo en 'field/1' -->
-            <iframe class="chart-container" src="https://thingspeak.com/channels/2626952/charts/1?api_key=4XYH56YSV64HE17H&dynamic=true&results=60&type=line&title=Precipitación"></iframe>
-        </div>
-
-        <!-- Gráfico ThingSpeak Estación Campbell -->
-        <div class="card">
-            <h2>Estación Campbell (ID: 2823820) - Pluviómetro</h2>
-            <!-- Nota: Ajusta el número del field según dónde guarde los datos de lluvia esta estación -->
-            <iframe class="chart-container" src="https://thingspeak.com/channels/2823820/charts/1?api_key=FFI1HK80ZKDNS6V8&dynamic=true&results=60&type=line&title=Precipitación+Campbell"></iframe>
-        </div>
-
-        <!-- Wunderground Dashboard -->
-        <div class="card">
-            <h2>
-                Weather Underground (ILAPLA66)
-                <a href="https://www.wunderground.com/dashboard/pws/ILAPLA66" target="_blank" class="btn-link">Abrir en pestaña</a>
-            </h2>
-            <div class="iframe-container">
-                <iframe src="https://www.wunderground.com/dashboard/pws/ILAPLA66"></iframe>
-            </div>
-        </div>
-
-        <!-- Web FCAGLP UNLP -->
-        <div class="card">
-            <h2>
-                Meteorología FCAG (UNLP)
-                <a href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank" class="btn-link">Abrir en pestaña</a>
-            </h2>
-            <div class="iframe-container">
-                <iframe src="https://meteo.fcaglp.unlp.edu.ar/"></iframe>
-            </div>
-        </div>
-
-    </div>
-
+        // Carga inicial
+        updateDashboard();
+    </script>
 </body>
 </html>
