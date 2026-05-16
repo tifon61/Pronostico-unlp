@@ -27,7 +27,7 @@
         <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
-                <p class="text-slate-400">Comparativa Emas: Violeta vs. Campbell</p>
+                <p class="text-slate-400">Comparativa Emas: Violeta (Pulsos) vs. Campbell</p>
             </div>
             
             <div class="glass p-4 rounded-2xl flex items-center gap-4">
@@ -47,10 +47,10 @@
                 </div>
                 <div class="flex justify-between items-start mb-2 relative z-10">
                     <p class="card-title">EMA VIOLETA (2626952)</p>
-                    <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded">Field 5 | 0.34mm</span>
+                    <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded">Field 5 | 0.34mm/p</span>
                 </div>
                 <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-sm mt-2">Acumulado diario por pulsos</p>
+                <p class="text-slate-400 text-sm mt-2">Acumulado calculado por suma de pulsos</p>
             </div>
 
             <div class="glass p-6 rounded-2xl shadow-xl border-l-4 border-sky-500 relative overflow-hidden">
@@ -62,7 +62,7 @@
                     <span class="bg-sky-500/20 text-sky-400 text-xs px-2 py-1 rounded">Field 5</span>
                 </div>
                 <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-sm mt-2">Total diario registrado</p>
+                <p class="text-slate-400 text-sm mt-2">Total diario registrado en el canal</p>
             </div>
         </div>
 
@@ -87,7 +87,6 @@
             <div class="glass p-4 rounded-2xl">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-300"><i class="fa-solid fa-cloud-sun-rain mr-2 text-sky-400"></i>Wunderground ILAPLA66</h3>
-                    <a href="https://www.wunderground.com/dashboard/pws/ILAPLA66" target="_blank" class="text-sky-400 hover:text-sky-300 text-sm transition-colors">Abrir <i class="fa-solid fa-external-link ml-1"></i></a>
                 </div>
                 <iframe src="https://www.wunderground.com/dashboard/pws/ILAPLA66" class="iframe-container bg-white"></iframe>
             </div>
@@ -95,7 +94,6 @@
             <div class="glass p-4 rounded-2xl">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-300"><i class="fa-solid fa-building-columns mr-2 text-purple-400"></i>Meteo FCAGLP UNLP</h3>
-                    <a href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank" class="text-sky-400 hover:text-sky-300 text-sm transition-colors">Abrir <i class="fa-solid fa-external-link ml-1"></i></a>
                 </div>
                 <iframe src="https://meteo.fcaglp.unlp.edu.ar/" class="iframe-container bg-white"></iframe>
             </div>
@@ -104,28 +102,25 @@
 
     <script>
         const CONFIG = {
-            violeta: { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, multiplier: 0.34 },
-            campbell: { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, multiplier: 1 }
+            violeta: { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, multiplier: 0.34, isPulse: true },
+            campbell: { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, multiplier: 1, isPulse: false }
         };
 
         let myChart = null;
 
-        // Establecer fecha de hoy por defecto al cargar
+        // Fecha local de Argentina
         const d = new Date();
-        const offset = d.getTimezoneOffset() * 60000;
-        const localISOTime = (new Date(d - offset)).toISOString().slice(0, 10);
+        const localISOTime = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         document.getElementById('dateSelector').value = localISOTime;
 
         async function fetchData(station, date) {
-            // Ampliamos un poco el rango para capturar cambios de huso horario si es necesario
-            const start = `${date}%2000:00:00`;
-            const end = `${date}%2023:59:59`;
-            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${start}&end=${end}`;
+            // Añadimos zona horaria para que coincida con Argentina
+            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${date}%2000:00:00&end=${date}%2023:59:59&timezone=America/Argentina/Buenos_Aires`;
             
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('Error en la red');
                 const data = await response.json();
+                console.log(`Datos recibidos Estación ${station.id}:`, data.feeds);
                 return data.feeds || [];
             } catch (error) {
                 console.error(`Error en estación ${station.id}:`, error);
@@ -133,7 +128,7 @@
             }
         }
 
-        function processPrecip(feeds, fieldNum, multiplier) {
+        function processData(feeds, fieldNum, multiplier, isPulse) {
             let total = 0;
             const hourly = Array(24).fill(0);
             const fieldKey = `field${fieldNum}`;
@@ -142,13 +137,14 @@
 
             feeds.forEach(feed => {
                 const val = parseFloat(feed[fieldKey]);
+                // Si es pulso, cualquier valor > 0 cuenta como 1 evento de 0.34mm
+                // Si no es pulso, sumamos el valor real
                 if (!isNaN(val) && val > 0) {
-                    const date = new Date(feed.created_at);
-                    const hour = date.getHours();
+                    const hour = new Date(feed.created_at).getHours();
+                    const amount = isPulse ? multiplier : (val * multiplier);
                     
-                    const increment = val * multiplier;
-                    total += increment;
-                    hourly[hour] += increment;
+                    total += amount;
+                    hourly[hour] += amount;
                 }
             });
 
@@ -159,33 +155,27 @@
             const selectedDate = document.getElementById('dateSelector').value;
             if (!selectedDate) return;
 
-            document.getElementById('accumVioleta').innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>`;
-            document.getElementById('accumCampbell').innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>`;
+            document.getElementById('accumVioleta').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            document.getElementById('accumCampbell').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
 
-            try {
-                const [dataVioleta, dataCampbell] = await Promise.all([
-                    fetchData(CONFIG.violeta, selectedDate),
-                    fetchData(CONFIG.campbell, selectedDate)
-                ]);
+            const [feedsVioleta, feedsCampbell] = await Promise.all([
+                fetchData(CONFIG.violeta, selectedDate),
+                fetchData(CONFIG.campbell, selectedDate)
+            ]);
 
-                const resVioleta = processPrecip(dataVioleta, CONFIG.violeta.field, CONFIG.violeta.multiplier);
-                const resCampbell = processPrecip(dataCampbell, CONFIG.campbell.field, CONFIG.campbell.multiplier);
+            const resVioleta = processData(feedsVioleta, CONFIG.violeta.field, CONFIG.violeta.multiplier, CONFIG.violeta.isPulse);
+            const resCampbell = processData(feedsCampbell, CONFIG.campbell.field, CONFIG.campbell.multiplier, CONFIG.campbell.isPulse);
 
-                document.getElementById('accumVioleta').innerHTML = `${resVioleta.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
-                document.getElementById('accumCampbell').innerHTML = `${resCampbell.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
+            document.getElementById('accumVioleta').innerHTML = `${resVioleta.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
+            document.getElementById('accumCampbell').innerHTML = `${resCampbell.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
 
-                renderChart(resVioleta.hourly, resCampbell.hourly);
-            } catch (err) {
-                console.error("Error al actualizar panel:", err);
-            }
+            renderChart(resVioleta.hourly, resCampbell.hourly);
         }
 
-        function renderChart(violetaHourly, campbellHourly) {
+        function renderChart(violetaData, campbellData) {
             const ctx = document.getElementById('precipChart').getContext('2d');
             
-            if (myChart) {
-                myChart.destroy();
-            }
+            if (myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {
                 type: 'bar',
@@ -193,70 +183,42 @@
                     labels: Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`),
                     datasets: [
                         {
-                            label: 'EMA Violeta (0.34mm/p)',
-                            data: violetaHourly,
-                            backgroundColor: 'rgba(168, 85, 247, 0.7)',
-                            borderColor: 'rgb(168, 85, 247)',
-                            borderWidth: 1,
+                            label: 'Violeta (mm)',
+                            data: violetaData,
+                            backgroundColor: '#a855f7',
                             borderRadius: 4,
-                            barPercentage: 0.8,
-                            categoryPercentage: 0.7
                         },
                         {
                             label: 'Campbell (mm)',
-                            data: campbellHourly,
-                            backgroundColor: 'rgba(56, 189, 248, 0.7)',
-                            borderColor: 'rgb(56, 189, 248)',
-                            borderWidth: 1,
+                            data: campbellData,
+                            backgroundColor: '#0ea5e9',
                             borderRadius: 4,
-                            barPercentage: 0.8,
-                            categoryPercentage: 0.7
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
                     plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleColor: '#f8fafc',
-                            bodyColor: '#cbd5e1',
-                            padding: 12,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    return ` ${context.dataset.label}: ${context.raw.toFixed(2)} mm`;
-                                }
-                            }
-                        }
+                        legend: { display: false }
                     },
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            title: { display: true, text: 'Precipitación (mm)', color: '#94a3b8', font: { size: 12, weight: '600' } },
-                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-                            ticks: { color: '#64748b' }
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 1, // Para que barras de 0.34 se vean claras
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#94a3b8' }
                         },
-                        x: { 
+                        x: {
                             grid: { display: false },
-                            ticks: { color: '#64748b' }
+                            ticks: { color: '#94a3b8' }
                         }
                     }
                 }
             });
         }
 
-        // Inicialización
-        window.onload = function() {
-            // Pequeño delay para asegurar que Chart.js esté cargado
-            setTimeout(updateDashboard, 500);
-        };
+        window.onload = () => setTimeout(updateDashboard, 500);
     </script>
 </body>
 </html>
