@@ -31,10 +31,10 @@
             </div>
             
             <div class="glass p-4 rounded-2xl flex items-center gap-4">
-                <label for="dateSelector" class="font-medium text-sm">Seleccionar Fecha:</label>
+                <label for="dateSelector" class="font-medium text-sm">Fecha de consulta:</label>
                 <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
                 <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg shadow-sky-900/20">
-                    Actualizar
+                    <i class="fa-solid fa-arrows-rotate mr-2"></i>Actualizar
                 </button>
             </div>
         </header>
@@ -50,7 +50,7 @@
                     <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded">Field 5 | 0.34mm/p</span>
                 </div>
                 <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-sm mt-2">Acumulado calculado por suma de pulsos</p>
+                <p class="text-slate-400 text-sm mt-2" id="msgVioleta text-xs">Cargando datos...</p>
             </div>
 
             <div class="glass p-6 rounded-2xl shadow-xl border-l-4 border-sky-500 relative overflow-hidden">
@@ -62,7 +62,7 @@
                     <span class="bg-sky-500/20 text-sky-400 text-xs px-2 py-1 rounded">Field 5</span>
                 </div>
                 <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-sm mt-2">Total diario registrado en el canal</p>
+                <p class="text-slate-400 text-sm mt-2" id="msgCampbell text-xs">Cargando datos...</p>
             </div>
         </div>
 
@@ -72,11 +72,11 @@
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-slate-200">Comparativa de Precipitación Horaria</h3>
                     <div class="flex gap-4 text-xs font-semibold">
-                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-purple-500 rounded-full"></span> Violeta</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-purple-500 rounded-full"></span> EMA Violeta</span>
                         <span class="flex items-center gap-1"><span class="w-3 h-3 bg-sky-500 rounded-full"></span> Campbell</span>
                     </div>
                 </div>
-                <div style="height: 450px; position: relative;">
+                <div style="height: 450px; position: relative;" id="chartContainer">
                     <canvas id="precipChart"></canvas>
                 </div>
             </div>
@@ -108,22 +108,23 @@
 
         let myChart = null;
 
-        // Fecha local de Argentina
-        const d = new Date();
-        const localISOTime = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-        document.getElementById('dateSelector').value = localISOTime;
+        // Establecer fecha de hoy (Local Argentina)
+        const hoy = new Date();
+        const fechaLocal = new Date(hoy.getTime() - (hoy.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        document.getElementById('dateSelector').value = fechaLocal;
 
         async function fetchData(station, date) {
-            // Añadimos zona horaria para que coincida con Argentina
-            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${date}%2000:00:00&end=${date}%2023:59:59&timezone=America/Argentina/Buenos_Aires`;
+            // Usamos results=8000 para asegurarnos de traer todos los datos del día
+            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${date}%2000:00:00&end=${date}%2023:59:59`;
             
             try {
                 const response = await fetch(url);
+                if (!response.ok) throw new Error('Error en API');
                 const data = await response.json();
-                console.log(`Datos recibidos Estación ${station.id}:`, data.feeds);
+                console.log(`Estación ${station.id} -> Registros encontrados:`, data.feeds ? data.feeds.length : 0);
                 return data.feeds || [];
             } catch (error) {
-                console.error(`Error en estación ${station.id}:`, error);
+                console.error(`Error de conexión Estación ${station.id}:`, error);
                 return [];
             }
         }
@@ -133,28 +134,32 @@
             const hourly = Array(24).fill(0);
             const fieldKey = `field${fieldNum}`;
 
-            if (!feeds || feeds.length === 0) return { total: "0.00", hourly };
+            if (!feeds || feeds.length === 0) return { total: "0.00", hourly, count: 0 };
 
             feeds.forEach(feed => {
                 const val = parseFloat(feed[fieldKey]);
-                // Si es pulso, cualquier valor > 0 cuenta como 1 evento de 0.34mm
-                // Si no es pulso, sumamos el valor real
+                // Si hay valor (pulso o medida), procesamos
                 if (!isNaN(val) && val > 0) {
-                    const hour = new Date(feed.created_at).getHours();
-                    const amount = isPulse ? multiplier : (val * multiplier);
+                    // Procesar hora del timestamp de ThingSpeak
+                    const timestamp = new Date(feed.created_at);
+                    const hour = timestamp.getHours();
                     
-                    total += amount;
-                    hourly[hour] += amount;
+                    // Si es pulso, sumamos el factor fijo. Si es valor real, multiplicamos.
+                    const rainAmount = isPulse ? multiplier : (val * multiplier);
+                    
+                    total += rainAmount;
+                    hourly[hour] += rainAmount;
                 }
             });
 
-            return { total: total.toFixed(2), hourly };
+            return { total: total.toFixed(2), hourly, count: feeds.length };
         }
 
         async function updateDashboard() {
             const selectedDate = document.getElementById('dateSelector').value;
             if (!selectedDate) return;
 
+            // Feedback visual de carga
             document.getElementById('accumVioleta').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
             document.getElementById('accumCampbell').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
 
@@ -166,8 +171,12 @@
             const resVioleta = processData(feedsVioleta, CONFIG.violeta.field, CONFIG.violeta.multiplier, CONFIG.violeta.isPulse);
             const resCampbell = processData(feedsCampbell, CONFIG.campbell.field, CONFIG.campbell.multiplier, CONFIG.campbell.isPulse);
 
+            // Actualizar textos
             document.getElementById('accumVioleta').innerHTML = `${resVioleta.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             document.getElementById('accumCampbell').innerHTML = `${resCampbell.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
+            
+            document.getElementById('msgVioleta text-xs').innerText = `${resVioleta.count} registros obtenidos`;
+            document.getElementById('msgCampbell text-xs').innerText = `${resCampbell.count} registros obtenidos`;
 
             renderChart(resVioleta.hourly, resCampbell.hourly);
         }
@@ -183,16 +192,20 @@
                     labels: Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`),
                     datasets: [
                         {
-                            label: 'Violeta (mm)',
+                            label: 'EMA Violeta (mm)',
                             data: violetaData,
                             backgroundColor: '#a855f7',
-                            borderRadius: 4,
+                            borderColor: '#c084fc',
+                            borderWidth: 1,
+                            borderRadius: 5,
                         },
                         {
                             label: 'Campbell (mm)',
                             data: campbellData,
                             backgroundColor: '#0ea5e9',
-                            borderRadius: 4,
+                            borderColor: '#38bdf8',
+                            borderWidth: 1,
+                            borderRadius: 5,
                         }
                     ]
                 },
@@ -200,14 +213,19 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (item) => ` ${item.dataset.label}: ${item.raw.toFixed(2)} mm`
+                            }
+                        }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            suggestedMax: 1, // Para que barras de 0.34 se vean claras
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { color: '#94a3b8' }
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' },
+                            title: { display: true, text: 'Milímetros (mm)', color: '#64748b' }
                         },
                         x: {
                             grid: { display: false },
@@ -218,7 +236,10 @@
             });
         }
 
-        window.onload = () => setTimeout(updateDashboard, 500);
+        // Auto-ejecutar al cargar la página
+        window.onload = () => {
+            setTimeout(updateDashboard, 500);
+        };
     </script>
 </body>
 </html>
