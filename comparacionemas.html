@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comparativa de Pluviómetros - UNLP</title>
-    <!-- Cargamos Tailwind -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Cargamos Chart.js -->
-    <script id="chart-script" src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -15,9 +16,10 @@
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; margin: 0; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .card-title { color: #94a3b8; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-value { font-size: 2.25rem; font-weight: 700; color: #38bdf8; }
+        .stat-value { font-size: 2.5rem; font-weight: 700; color: #38bdf8; }
         .iframe-container { height: 500px; width: 100%; border-radius: 12px; overflow: hidden; border: none; }
-        .tab-btn.active { background-color: #0ea5e9; color: white; border-color: #0ea5e9; }
+        .tab-btn { transition: all 0.2s ease; }
+        .tab-btn.active { background-color: #0ea5e9; color: white; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -26,18 +28,18 @@
         <header class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-6">
             <div>
                 <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
-                <p class="text-slate-400">Panel de Análisis: EMA Violeta vs Campbell</p>
+                <p class="text-slate-400">Análisis Estricto por Pulsos (1 reg = 1 pulso): EMA Violeta & Campbell</p>
             </div>
             
             <div class="flex flex-col sm:flex-row gap-4 items-center">
                 <div class="glass p-1 rounded-xl flex gap-1">
-                    <button onclick="setRange('day')" id="btn-day" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold transition-all">Día</button>
-                    <button onclick="setRange('week')" id="btn-week" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all">Semana</button>
-                    <button onclick="setRange('month')" id="btn-month" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all">Mes</button>
+                    <button onclick="setRange('day')" id="btn-day" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold">Día</button>
+                    <button onclick="setRange('week')" id="btn-week" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">Semana</button>
+                    <button onclick="setRange('month')" id="btn-month" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">Mes</button>
                 </div>
 
                 <div class="glass p-4 rounded-2xl flex items-center gap-4">
-                    <label for="dateSelector" class="font-medium text-sm text-slate-300">Fecha Fin:</label>
+                    <label for="dateSelector" class="font-medium text-sm text-slate-300">Fecha:</label>
                     <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
                     <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg">
                         <i class="fa-solid fa-sync-alt mr-2"></i>Actualizar
@@ -46,56 +48,60 @@
             </div>
         </header>
 
-        <!-- Acumulados -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- EMA Violeta -->
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">EMA VIOLETA (0.34mm)</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Sincronizando...</span>
+                    <p class="card-title">EMA VIOLETA (0.34mm/p)</p>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded tracking-wider">Cargando Canal...</span>
                 </div>
-                <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Esperando datos...</p>
+                <div class="flex items-baseline gap-2">
+                    <p class="stat-value" id="accumVioleta">0.00</p>
+                    <span class="text-slate-500 font-bold text-xl">mm</span>
+                </div>
+                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Contando registros únicos...</p>
             </div>
 
+            <!-- Campbell -->
             <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
                 <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">CAMPBELL (0.1mm)</p>
+                    <p class="card-title">CAMPBELL (0.1mm/p)</p>
                     <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820</span>
                 </div>
-                <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Calculando acumulado diario...</p>
+                <div class="flex items-baseline gap-2">
+                    <p class="stat-value" id="accumCampbell">0.00</p>
+                    <span class="text-slate-500 font-bold text-xl">mm</span>
+                </div>
+                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sincronizando...</p>
             </div>
         </div>
 
-        <!-- Gráfico -->
         <div class="grid grid-cols-1 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
-                <h3 class="text-lg font-bold mb-6 text-slate-200" id="chartTitle">Evolución de Precipitación</h3>
+                <h3 class="text-lg font-bold mb-6 text-slate-200" id="chartTitle">Curva de Precipitación Acumulada</h3>
                 <div id="chartParent" class="relative w-full h-[380px]">
                     <canvas id="precipChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Externos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-4 rounded-2xl">
-                <h3 class="font-bold mb-4 text-sm text-slate-400">Wunderground ILAPLA66</h3>
+                <h3 class="font-bold mb-4 text-sm text-slate-400"><i class="fa-solid fa-cloud-sun-rain mr-2"></i>Wunderground ILAPLA66</h3>
                 <iframe src="https://www.wunderground.com/dashboard/pws/ILAPLA66" class="iframe-container bg-white"></iframe>
             </div>
             <div class="glass p-4 rounded-2xl">
-                <h3 class="font-bold mb-4 text-sm text-slate-400">Meteo FCAGLP UNLP</h3>
+                <h3 class="font-bold mb-4 text-sm text-slate-400"><i class="fa-solid fa-building-columns mr-2"></i>Meteo FCAGLP UNLP</h3>
                 <iframe src="https://meteo.fcaglp.unlp.edu.ar/" class="iframe-container bg-white"></iframe>
             </div>
         </div>
 
         <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
-            Sistema de monitoreo v2.3 - Corregido error de declaración
+            v2.9 - Lógica Estricta de Pulso Único por Registro
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN DE CANALES
         const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.34, field: 5 };
         const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.34, field: 5 }; 
         const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 0.1, field: 5 };
@@ -104,8 +110,8 @@
         let currentRange = 'day';
 
         const d = new Date();
-        const fechaHoy = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-        document.getElementById('dateSelector').value = fechaHoy;
+        const localDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        document.getElementById('dateSelector').value = localDate;
 
         function setRange(range) {
             currentRange = range;
@@ -121,43 +127,52 @@
                 const data = await res.json();
                 return { feeds: data.feeds || [], field: station.field };
             } catch (e) {
-                console.error("Error consultando API", e);
                 return { feeds: [], field: station.field };
             }
         }
 
         function processStationData(allFeedsData, mult, range, endDate) {
             let totalPeriod = 0;
-            let pulseCount = 0;
+            let totalRecordsCount = 0;
             const daysCount = range === 'day' ? 1 : (range === 'week' ? 7 : 30);
-            
             const dailyTotals = {};
             const hourly = Array(24).fill(0);
             const labels = [];
+            const seenTimestamps = new Set(); 
 
             if (range === 'day') {
                 for(let i=0; i<24; i++) labels.push(`${i}:00`);
             } else {
                 for(let i = daysCount - 1; i >= 0; i--) {
-                    const d = new Date(endDate); d.setDate(d.getDate() - i);
-                    const ds = d.toISOString().split('T')[0];
+                    const tempDate = new Date(endDate);
+                    tempDate.setDate(tempDate.getDate() - i);
+                    const ds = tempDate.toISOString().split('T')[0];
                     dailyTotals[ds] = 0;
-                    labels.push(ds.split('-').slice(1).reverse().join('/'));
+                    labels.push(ds.split('-').reverse().slice(0,2).join('/'));
                 }
             }
 
             allFeedsData.forEach(source => {
                 const fieldKey = "field" + source.field;
                 source.feeds.forEach(f => {
-                    const val = parseFloat(f[fieldKey]);
-                    if (!isNaN(val) && val > 0) {
-                        totalPeriod += mult;
-                        pulseCount++;
+                    let val = parseFloat(f[fieldKey]);
+                    const ts = f.created_at;
+
+                    // LÓGICA ESTRICTA: Si hay un valor > 0 en el registro, sumamos UN PULSO (mult)
+                    // No importa si el valor es 1, 5 o 750000.
+                    if (!isNaN(val) && val > 0 && !seenTimestamps.has(ts)) {
+                        seenTimestamps.add(ts);
+                        
+                        const amount = mult; // Sumamos exactamente 0.34 o 0.1
+                        
+                        totalPeriod += amount;
+                        totalRecordsCount++;
+                        
                         if (range === 'day') {
-                            hourly[new Date(f.created_at).getHours()] += mult;
+                            hourly[new Date(ts).getHours()] += amount;
                         } else {
-                            const ds = f.created_at.split('T')[0];
-                            if (dailyTotals[ds] !== undefined) dailyTotals[ds] += mult;
+                            const ds = ts.split('T')[0];
+                            if (dailyTotals[ds] !== undefined) dailyTotals[ds] += amount;
                         }
                     }
                 });
@@ -172,7 +187,7 @@
                 chartData = Object.values(dailyTotals);
             }
 
-            return { total: totalPeriod.toFixed(2), chartData, labels, pulseCount };
+            return { total: totalPeriod.toFixed(2), chartData, labels, totalRecordsCount };
         }
 
         async function updateDashboard() {
@@ -185,29 +200,36 @@
             startDateObj.setDate(startDateObj.getDate() - daysToSub);
             const startDate = startDateObj.toISOString().split('T')[0];
 
-            chartTitle.innerText = currentRange === 'day' ? `Curva de Acumulación (${endDate})` : `Lluvia Diaria (${startDate} al ${endDate})`;
-            debug.innerText = "Consultando campos de precipitación...";
+            chartTitle.innerText = currentRange === 'day' ? `Curva Acumulada (${endDate})` : `Lluvia Diaria (${startDate} al ${endDate})`;
+            debug.innerText = "Sincronizando datos con ThingSpeak...";
 
-            // Cambiamos el nombre de la variable de retorno para evitar conflicto
-            const [feedsVActual, feedsVHist, feedsC_raw] = await Promise.all([
+            const [resVActual, resVHist, resC_raw] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startDate, endDate),
                 fetchFeeds(V_HISTORICO, startDate, endDate),
                 fetchFeeds(C_STATION, startDate, endDate)
             ]);
 
-            const resV = processStationData([feedsVActual, feedsVHist], 0.34, currentRange, endDate);
-            const resC = processStationData([feedsC_raw], 0.1, currentRange, endDate);
+            const resV = processStationData([resVActual, resVHist], 0.34, currentRange, endDate);
+            const resC = processStationData([resC_raw], 0.1, currentRange, endDate);
 
-            document.getElementById('accumVioleta').innerHTML = `${resV.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
-            document.getElementById('accumCampbell').innerHTML = `${resC.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
+            document.getElementById('accumVioleta').innerText = resV.total;
+            document.getElementById('accumCampbell').innerText = resC.total;
+            document.getElementById('msgVioleta').innerText = `Pulsos totales detectados: ${resV.totalRecordsCount}`;
+            document.getElementById('msgCampbell').innerText = `Pulsos totales detectados: ${resC.totalRecordsCount}`;
             
-            document.getElementById('msgVioleta').innerText = `Pulsos: ${resV.pulseCount} (F5 Actual + F5 Histórico)`;
-            document.getElementById('msgCampbell').innerText = `Pulsos: ${resC.pulseCount} (Field 5)`;
-            
-            // Verificamos si hubo datos en el canal actual
-            document.getElementById('channelBadge').innerText = feedsVActual.feeds.length > 0 ? "CANAL ACTUAL" : "CANAL HISTÓRICO";
+            const badge = document.getElementById('channelBadge');
+            if (resVActual.feeds.length > 0) {
+                badge.innerText = "CANAL ACTUAL";
+                badge.className = "bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded tracking-wider";
+            } else if (resVHist.feeds.length > 0) {
+                badge.innerText = "CANAL HISTÓRICO";
+                badge.className = "bg-yellow-500/20 text-yellow-400 text-[10px] px-2 py-1 rounded tracking-wider";
+            } else {
+                badge.innerText = "SIN DATOS";
+                badge.className = "bg-red-500/20 text-red-400 text-[10px] px-2 py-1 rounded tracking-wider";
+            }
 
-            debug.innerText = `Sincronización completa: ${resV.pulseCount + resC.pulseCount} pulsos procesados.`;
+            debug.innerText = `Sincronización completa. Registros procesados: ${resV.totalRecordsCount} (Violeta).`;
             
             if (typeof Chart !== 'undefined') renderChart(resV, resC);
         }
@@ -229,7 +251,7 @@
                             borderWidth: 3,
                             fill: true,
                             tension: 0.3,
-                            pointRadius: currentRange === 'day' ? 2 : 4
+                            pointRadius: currentRange === 'day' ? 1 : 4
                         },
                         {
                             label: 'Campbell (mm)',
@@ -239,7 +261,7 @@
                             borderWidth: 3,
                             fill: true,
                             tension: 0.3,
-                            pointRadius: currentRange === 'day' ? 2 : 4
+                            pointRadius: currentRange === 'day' ? 1 : 4
                         }
                     ]
                 },
