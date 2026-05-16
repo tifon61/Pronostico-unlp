@@ -49,7 +49,7 @@
             <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">CAMPBELL</p>
-                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded">ID: 2823820 | F5</span>
+                    <span id="campbellBadge" class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded">ID: 2823820 | 0.1mm/p</span>
                 </div>
                 <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Esperando datos...</p>
@@ -85,8 +85,8 @@
 
     <script>
         const VIOLETA_NUEVA = { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, mult: 0.34 };
-        const VIOLETA_VIEJA = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", field: 1, mult: 0.34 }; // Asumo Field 1 para la vieja, ajustar si es otro
-        const CAMPBELL = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 1 };
+        const VIOLETA_VIEJA = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", field: 1, mult: 0.34 }; 
+        const CAMPBELL = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 0.1 }; // Ajustado: 0.1mm por pulso
 
         let myChart = null;
 
@@ -130,8 +130,10 @@
             feeds.forEach(f => {
                 const val = parseFloat(f[key]);
                 if (!isNaN(val) && val > 0) {
-                    const h = new Date(f.created_at).getHours();
-                    const amount = mult; // En el caso de pulsos, cada entrada es 1 pulso
+                    const timestamp = new Date(f.created_at);
+                    const h = timestamp.getHours();
+                    // Multiplicamos el valor del campo (por si hay múltiples pulsos en un registro) por el factor mm
+                    const amount = val * mult; 
                     hourly[h] += amount;
                     total += amount;
                 }
@@ -193,11 +195,16 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { 
+                            display: true, 
+                            labels: { color: '#94a3b8' } 
+                        } 
+                    },
                     scales: {
                         y: { 
                             beginAtZero: true, 
-                            suggestedMax: 1,
+                            suggestedMax: 0.5,
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             ticks: { color: '#64748b' }
                         },
@@ -210,7 +217,6 @@
             });
         }
 
-        // Ejecutar al cargar
         window.onload = () => {
             setTimeout(updateDashboard, 800);
         };
