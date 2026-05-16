@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comparativa de Pluviómetros - UNLP</title>
+    <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -27,19 +28,20 @@
             </div>
             
             <div class="glass p-4 rounded-2xl flex items-center gap-4">
-                <label for="dateSelector" class="font-medium text-sm">Consultar Fecha:</label>
+                <label for="dateSelector" class="font-medium text-sm text-slate-300">Consultar Fecha:</label>
                 <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
                 <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg shadow-sky-900/20">
-                    Actualizar
+                    <i class="fa-solid fa-sync-alt mr-2"></i>Actualizar
                 </button>
             </div>
         </header>
 
+        <!-- Tarjetas de Acumulados -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">EMA VIOLETA</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Cargando...</span>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded tracking-wider">Cargando...</span>
                 </div>
                 <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Esperando datos...</p>
@@ -48,22 +50,28 @@
             <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">CAMPBELL</p>
-                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded">ID: 2823820 | 0.1mm</span>
+                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820 | 0.1mm/p</span>
                 </div>
                 <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
                 <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Esperando datos...</p>
             </div>
         </div>
 
+        <!-- Contenedor del Gráfico -->
         <div class="grid grid-cols-1 gap-6 mb-8">
-            <div class="glass p-6 rounded-2xl shadow-xl">
-                <h3 class="text-lg font-bold mb-6 text-slate-200">Comparativa Horaria (mm acumulados)</h3>
-                <div class="relative w-full" style="height: 400px;">
+            <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
+                <h3 class="text-lg font-bold mb-6 text-slate-200">Comparativa Horaria (Lluvia en mm)</h3>
+                <div id="chartContainer" class="relative w-full h-[380px]">
+                    <!-- El canvas se mantiene aquí -->
                     <canvas id="precipChart"></canvas>
+                </div>
+                <div id="chartLoading" class="hidden absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-2xl">
+                    <p class="text-sky-400 font-bold"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Cargando gráfico...</p>
                 </div>
             </div>
         </div>
 
+        <!-- Secciones de Información Externa -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-4 rounded-2xl">
                 <h3 class="font-bold mb-4 text-sm text-slate-400">Wunderground ILAPLA66</h3>
@@ -76,93 +84,100 @@
         </div>
 
         <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
-            Iniciando sistema...
+            Monitor meteorológico inicializado
         </div>
     </div>
 
     <script>
-        const VIOLETA_NUEVA = { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, mult: 0.34 };
-        const VIOLETA_VIEJA = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", field: 1, mult: 0.34 }; 
-        const CAMPBELL = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 0.1 };
+        // CONFIGURACIÓN DE ESTACIONES
+        const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, mult: 0.34, label: "Actual" };
+        const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", field: 1, mult: 0.34, label: "Histórico" };
+        const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 0.1, label: "Campbell" };
 
         let myChart = null;
 
+        // Configuración inicial de fecha (Hoy)
         const d = new Date();
         const fechaHoy = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         document.getElementById('dateSelector').value = fechaHoy;
 
-        function getVioletaConfig(selectedDate) {
-            const dateObj = new Date(selectedDate + "T12:00:00");
-            const ayer = new Date();
-            ayer.setDate(ayer.getDate() - 1);
-            ayer.setHours(0,0,0,0);
-
-            if (dateObj < ayer) {
-                document.getElementById('channelBadge').innerText = "HISTÓRICO (1778165) | 0.34mm";
-                return VIOLETA_VIEJA;
-            } else {
-                document.getElementById('channelBadge').innerText = "ACTUAL (2626952) | 0.34mm";
-                return VIOLETA_NUEVA;
-            }
-        }
-
-        async function fetchStationData(config, date) {
-            const url = `https://api.thingspeak.com/channels/${config.id}/fields/${config.field}.json?api_key=${config.api}&start=${date}%2000:00:00&end=${date}%2023:59:59&timezone=America/Argentina/Buenos_Aires`;
+        async function fetchFeeds(station, date) {
+            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${date}%2000:00:00&end=${date}%2023:59:59&timezone=America/Argentina/Buenos_Aires`;
             try {
                 const res = await fetch(url);
                 const data = await res.json();
                 return data.feeds || [];
             } catch (e) {
-                console.error("Error API:", e);
+                console.error("Error consultando " + station.id, e);
                 return [];
             }
         }
 
-        function process(feeds, fieldNum, mult) {
+        function processData(feeds, fieldNum, mult) {
             const hourly = Array(24).fill(0);
-            let total = 0;
-            const key = "field" + fieldNum;
+            let totalPrecip = 0;
+            let pulseCount = 0;
+            const fieldKey = "field" + fieldNum;
 
             feeds.forEach(f => {
-                const val = parseFloat(f[key]);
-                // Si el campo tiene un valor (aunque sea pequeño), lo contamos como 1 PULSO completo
+                const val = parseFloat(f[fieldKey]);
+                // Si el valor es mayor a cero, contamos 1 pulso completo
                 if (!isNaN(val) && val > 0) {
-                    const h = new Date(f.created_at).getHours();
-                    const amount = mult; // Sumamos el factor de pulso directamente
-                    hourly[h] += amount;
-                    total += amount;
+                    const hour = new Date(f.created_at).getHours();
+                    hourly[hour] += mult;
+                    totalPrecip += mult;
+                    pulseCount++;
                 }
             });
-            return { total: total.toFixed(2), hourly, count: feeds.length };
+
+            return { total: totalPrecip.toFixed(2), hourly, pulseCount };
         }
 
         async function updateDashboard() {
             const date = document.getElementById('dateSelector').value;
             const debug = document.getElementById('debugInfo');
-            debug.innerText = "Consultando canales...";
+            debug.innerText = "Sincronizando con ThingSpeak...";
 
-            const violetaCfg = getVioletaConfig(date);
-            
-            const [feedsV, feedsC] = await Promise.all([
-                fetchStationData(violetaCfg, date),
-                fetchStationData(CAMPBELL, date)
-            ]);
+            // Lógica inteligente de selección de canal para la Violeta
+            let feedsV = await fetchFeeds(V_ACTUAL, date);
+            let activeConfigV = V_ACTUAL;
 
-            const resV = process(feedsV, violetaCfg.field, violetaCfg.mult);
-            const resC = process(feedsC, CAMPBELL.field, CAMPBELL.mult);
+            if (feedsV.length === 0) {
+                debug.innerText = "Sin datos en canal actual. Probando canal histórico...";
+                feedsV = await fetchFeeds(V_HISTORICO, date);
+                activeConfigV = V_HISTORICO;
+            }
 
+            const feedsC = await fetchFeeds(C_STATION, date);
+
+            const resV = processData(feedsV, activeConfigV.field, activeConfigV.mult);
+            const resC = processData(feedsC, C_STATION.field, C_STATION.mult);
+
+            // Actualización de Tarjetas
+            document.getElementById('channelBadge').innerText = `${activeConfigV.label.toUpperCase()} (${activeConfigV.id})`;
             document.getElementById('accumVioleta').innerHTML = `${resV.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             document.getElementById('accumCampbell').innerHTML = `${resC.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             
-            document.getElementById('msgVioleta').innerText = `Pulsos detectados: ${resV.count}`;
-            document.getElementById('msgCampbell').innerText = `Pulsos detectados: ${resC.count}`;
+            document.getElementById('msgVioleta').innerText = `Pulsos de 0.34mm: ${resV.pulseCount}`;
+            document.getElementById('msgCampbell').innerText = `Pulsos de 0.1mm: ${resC.pulseCount}`;
 
-            debug.innerText = `Datos actualizados: ${date}`;
+            debug.innerText = `Datos listos para ${date}`;
+            
+            // Intentar renderizar gráfico con protección contra fallos de librería
             renderChart(resV.hourly, resC.hourly);
         }
 
         function renderChart(dataV, dataC) {
-            const ctx = document.getElementById('precipChart').getContext('2d');
+            // PROTECCIÓN: Si Chart.js aún no cargó, reintentar en 500ms
+            if (typeof Chart === 'undefined') {
+                console.warn("Chart.js no está listo. Reintentando...");
+                setTimeout(() => renderChart(dataV, dataC), 500);
+                return;
+            }
+
+            const canvas = document.getElementById('precipChart');
+            const ctx = canvas.getContext('2d');
+            
             if (myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {
@@ -192,14 +207,17 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { 
-                        legend: { display: true, labels: { color: '#94a3b8' } } 
+                        legend: { 
+                            display: true, 
+                            labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' } } 
+                        } 
                     },
                     scales: {
                         y: { 
-                            beginAtZero: true,
+                            beginAtZero: true, 
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             ticks: { color: '#94a3b8' },
-                            title: { display: true, text: 'Precipitación Acumulada (mm)', color: '#64748b' }
+                            title: { display: true, text: 'Precipitación por hora (mm)', color: '#64748b' }
                         },
                         x: { 
                             grid: { display: false },
@@ -210,8 +228,10 @@
             });
         }
 
+        // Inicio del sistema
         window.onload = () => {
-            setTimeout(updateDashboard, 500);
+            // Esperamos un segundo extra para asegurar que las librerías CDN cargaron
+            setTimeout(updateDashboard, 1000);
         };
     </script>
 </body>
