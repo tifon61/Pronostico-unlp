@@ -26,11 +26,10 @@
         <header class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-6">
             <div>
                 <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
-                <p class="text-slate-400">Panel Multitemporal EMA Violeta & Campbell</p>
+                <p class="text-slate-400">Panel de Análisis: EMA Violeta vs Campbell</p>
             </div>
             
             <div class="flex flex-col sm:flex-row gap-4 items-center">
-                <!-- Selector de Período -->
                 <div class="glass p-1 rounded-xl flex gap-1">
                     <button onclick="setRange('day')" id="btn-day" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold transition-all">Día</button>
                     <button onclick="setRange('week')" id="btn-week" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all">Semana</button>
@@ -40,35 +39,35 @@
                 <div class="glass p-4 rounded-2xl flex items-center gap-4">
                     <label for="dateSelector" class="font-medium text-sm text-slate-300">Fecha Fin:</label>
                     <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
-                    <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg shadow-sky-900/20">
+                    <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg">
                         <i class="fa-solid fa-sync-alt mr-2"></i>Actualizar
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Acumulados Totales -->
+        <!-- Acumulados -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">EMA VIOLETA</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded tracking-wider">0.34mm/p</span>
+                    <p class="card-title">EMA VIOLETA (0.34mm)</p>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Sincronizando...</span>
                 </div>
                 <p class="stat-value" id="accumVioleta">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Cargando...</p>
+                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Esperando datos...</p>
             </div>
 
             <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
                 <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">CAMPBELL</p>
-                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">0.1mm/p</span>
+                    <p class="card-title">CAMPBELL (0.1mm)</p>
+                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820</span>
                 </div>
                 <p class="stat-value" id="accumCampbell">0.00 <span class="text-lg font-normal text-slate-500">mm</span></p>
-                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Cargando...</p>
+                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Calculando acumulado diario...</p>
             </div>
         </div>
 
-        <!-- Gráfico Principal -->
+        <!-- Gráfico -->
         <div class="grid grid-cols-1 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
                 <h3 class="text-lg font-bold mb-6 text-slate-200" id="chartTitle">Evolución de Precipitación</h3>
@@ -78,7 +77,7 @@
             </div>
         </div>
 
-        <!-- Iframes Externos -->
+        <!-- Externos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-4 rounded-2xl">
                 <h3 class="font-bold mb-4 text-sm text-slate-400">Wunderground ILAPLA66</h3>
@@ -91,20 +90,19 @@
         </div>
 
         <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
-            Sincronizando estaciones meteorológicas...
+            Sistema de monitoreo v2.3 - Corregido error de declaración
         </div>
     </div>
 
     <script>
         // CONFIGURACIÓN DE CANALES
-        const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", field: 5, mult: 0.34 };
-        const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", field: 1, mult: 0.34 }; 
-        const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", field: 5, mult: 0.1 };
+        const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.34, field: 5 };
+        const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.34, field: 5 }; 
+        const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 0.1, field: 5 };
 
         let myChart = null;
-        let currentRange = 'day'; // day, week, month
+        let currentRange = 'day';
 
-        // Fecha inicial
         const d = new Date();
         const fechaHoy = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         document.getElementById('dateSelector').value = fechaHoy;
@@ -117,72 +115,64 @@
         }
 
         async function fetchFeeds(station, startDate, endDate) {
-            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${startDate}%2000:00:00&end=${endDate}%2023:59:59&timezone=America/Argentina/Buenos_Aires`;
+            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${startDate}%2000:00:00&end=${endDate}%2023:59:59&timezone=America/Argentina/Buenos_Aires&results=8000`;
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                return data.feeds || [];
+                return { feeds: data.feeds || [], field: station.field };
             } catch (e) {
-                console.error("Error API", e);
-                return [];
+                console.error("Error consultando API", e);
+                return { feeds: [], field: station.field };
             }
         }
 
-        function processData(feeds, fieldNum, mult, range, endDate) {
-            const fieldKey = "field" + fieldNum;
+        function processStationData(allFeedsData, mult, range, endDate) {
             let totalPeriod = 0;
             let pulseCount = 0;
+            const daysCount = range === 'day' ? 1 : (range === 'week' ? 7 : 30);
+            
+            const dailyTotals = {};
+            const hourly = Array(24).fill(0);
+            const labels = [];
 
             if (range === 'day') {
-                const hourly = Array(24).fill(0);
-                feeds.forEach(f => {
+                for(let i=0; i<24; i++) labels.push(`${i}:00`);
+            } else {
+                for(let i = daysCount - 1; i >= 0; i--) {
+                    const d = new Date(endDate); d.setDate(d.getDate() - i);
+                    const ds = d.toISOString().split('T')[0];
+                    dailyTotals[ds] = 0;
+                    labels.push(ds.split('-').slice(1).reverse().join('/'));
+                }
+            }
+
+            allFeedsData.forEach(source => {
+                const fieldKey = "field" + source.field;
+                source.feeds.forEach(f => {
                     const val = parseFloat(f[fieldKey]);
                     if (!isNaN(val) && val > 0) {
-                        const hour = new Date(f.created_at).getHours();
-                        hourly[hour] += mult;
                         totalPeriod += mult;
                         pulseCount++;
-                    }
-                });
-                // Acumulativo para el día
-                const cumulative = Array(24).fill(0);
-                let sum = 0;
-                for(let i=0; i<24; i++) { sum += hourly[i]; cumulative[i] = sum; }
-                return { total: totalPeriod.toFixed(2), chartData: cumulative, labels: Array.from({length: 24}, (_, i) => `${i}:00`), pulseCount };
-            } else {
-                // Semana o Mes: Agrupar por día
-                const daysCount = range === 'week' ? 7 : 30;
-                const dailyTotals = {};
-                const labels = [];
-                
-                // Generar etiquetas de los últimos X días
-                for(let i = daysCount - 1; i >= 0; i--) {
-                    const date = new Date(endDate);
-                    date.setDate(date.getDate() - i);
-                    const dateStr = date.toISOString().split('T')[0];
-                    labels.push(dateStr.split('-').slice(1).reverse().join('/')); // Formato DD/MM
-                    dailyTotals[dateStr] = 0;
-                }
-
-                feeds.forEach(f => {
-                    const val = parseFloat(f[fieldKey]);
-                    if (!isNaN(val) && val > 0) {
-                        const dateStr = f.created_at.split('T')[0];
-                        if (dailyTotals[dateStr] !== undefined) {
-                            dailyTotals[dateStr] += mult;
-                            totalPeriod += mult;
-                            pulseCount++;
+                        if (range === 'day') {
+                            hourly[new Date(f.created_at).getHours()] += mult;
+                        } else {
+                            const ds = f.created_at.split('T')[0];
+                            if (dailyTotals[ds] !== undefined) dailyTotals[ds] += mult;
                         }
                     }
                 });
+            });
 
-                return { 
-                    total: totalPeriod.toFixed(2), 
-                    chartData: Object.values(dailyTotals), 
-                    labels: labels, 
-                    pulseCount 
-                };
+            let chartData;
+            if (range === 'day') {
+                chartData = Array(24).fill(0);
+                let sum = 0;
+                for(let i=0; i<24; i++) { sum += hourly[i]; chartData[i] = sum; }
+            } else {
+                chartData = Object.values(dailyTotals);
             }
+
+            return { total: totalPeriod.toFixed(2), chartData, labels, pulseCount };
         }
 
         async function updateDashboard() {
@@ -195,74 +185,29 @@
             startDateObj.setDate(startDateObj.getDate() - daysToSub);
             const startDate = startDateObj.toISOString().split('T')[0];
 
-            chartTitle.innerText = currentRange === 'day' ? `Acumulación Horaria (${endDate})` : `Lluvia Diaria (${startDate} al ${endDate})`;
-            debug.innerText = `Consultando período del ${startDate} al ${endDate}...`;
+            chartTitle.innerText = currentRange === 'day' ? `Curva de Acumulación (${endDate})` : `Lluvia Diaria (${startDate} al ${endDate})`;
+            debug.innerText = "Consultando campos de precipitación...";
 
-            // Para la Violeta, consultamos AMBOS canales si el rango es largo para no perder datos
-            const [feedsVActual, feedsVHist, feedsC] = await Promise.all([
+            // Cambiamos el nombre de la variable de retorno para evitar conflicto
+            const [feedsVActual, feedsVHist, feedsC_raw] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startDate, endDate),
                 fetchFeeds(V_HISTORICO, startDate, endDate),
                 fetchFeeds(C_STATION, startDate, endDate)
             ]);
 
-            // Unir feeds de la Violeta (evitando duplicados si los hubiera)
-            const feedsV = [...feedsVActual, ...feedsVHist].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-            
-            // Usamos field 5 para el actual y field 1 para el histórico si detectamos que vienen de allí
-            // Simplificación: Procesa feedsV comprobando en qué campo viene el dato
-            function processVioletaMixed(feeds, range, end) {
-                const daysCount = range === 'day' ? 1 : (range === 'week' ? 7 : 30);
-                const dailyTotals = {};
-                const hourly = Array(24).fill(0);
-                const labels = [];
-                let total = 0;
-                let count = 0;
+            const resV = processStationData([feedsVActual, feedsVHist], 0.34, currentRange, endDate);
+            const resC = processStationData([feedsC_raw], 0.1, currentRange, endDate);
 
-                // Inicializar
-                if (range !== 'day') {
-                    for(let i = daysCount - 1; i >= 0; i--) {
-                        const d = new Date(end); d.setDate(d.getDate() - i);
-                        dailyTotals[d.toISOString().split('T')[0]] = 0;
-                        const label = d.toISOString().split('T')[0].split('-').slice(1).reverse().join('/');
-                        labels.push(label);
-                    }
-                }
-
-                feeds.forEach(f => {
-                    // Revisa ambos campos posibles (1 y 5)
-                    const val = parseFloat(f.field5) || parseFloat(f.field1) || 0;
-                    if (val > 0) {
-                        total += 0.34;
-                        count++;
-                        if (range === 'day') {
-                            hourly[new Date(f.created_at).getHours()] += 0.34;
-                        } else {
-                            const ds = f.created_at.split('T')[0];
-                            if(dailyTotals[ds] !== undefined) dailyTotals[ds] += 0.34;
-                        }
-                    }
-                });
-
-                if (range === 'day') {
-                    const cumulative = Array(24).fill(0);
-                    let s = 0;
-                    for(let i=0; i<24; i++) { s += hourly[i]; cumulative[i] = s; }
-                    return { total: total.toFixed(2), chartData: cumulative, labels: Array.from({length: 24}, (_, i) => `${i}:00`), pulseCount: count };
-                }
-                return { total: total.toFixed(2), chartData: Object.values(dailyTotals), labels: labels, pulseCount: count };
-            }
-
-            const resV = processVioletaMixed(feedsV, currentRange, endDate);
-            const resC = processData(feedsC, C_STATION.field, C_STATION.mult, currentRange, endDate);
-
-            // UI
             document.getElementById('accumVioleta').innerHTML = `${resV.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
             document.getElementById('accumCampbell').innerHTML = `${resC.total} <span class="text-lg font-normal text-slate-500">mm</span>`;
-            document.getElementById('msgVioleta').innerText = `${resV.pulseCount} pulsos en el período`;
-            document.getElementById('msgCampbell').innerText = `${resC.pulseCount} pulsos en el período`;
-            document.getElementById('channelBadge').innerText = feedsVActual.length > 0 ? "CANAL ACTIVO" : "DATOS HISTÓRICOS";
+            
+            document.getElementById('msgVioleta').innerText = `Pulsos: ${resV.pulseCount} (F5 Actual + F5 Histórico)`;
+            document.getElementById('msgCampbell').innerText = `Pulsos: ${resC.pulseCount} (Field 5)`;
+            
+            // Verificamos si hubo datos en el canal actual
+            document.getElementById('channelBadge').innerText = feedsVActual.feeds.length > 0 ? "CANAL ACTUAL" : "CANAL HISTÓRICO";
 
-            debug.innerText = `Visualización ${currentRange} completada.`;
+            debug.innerText = `Sincronización completa: ${resV.pulseCount + resC.pulseCount} pulsos procesados.`;
             
             if (typeof Chart !== 'undefined') renderChart(resV, resC);
         }
@@ -283,8 +228,8 @@
                             backgroundColor: 'rgba(168, 85, 247, 0.1)',
                             borderWidth: 3,
                             fill: true,
-                            tension: currentRange === 'day' ? 0.3 : 0.1,
-                            pointRadius: currentRange === 'day' ? 2 : 5
+                            tension: 0.3,
+                            pointRadius: currentRange === 'day' ? 2 : 4
                         },
                         {
                             label: 'Campbell (mm)',
@@ -293,8 +238,8 @@
                             backgroundColor: 'rgba(14, 165, 233, 0.1)',
                             borderWidth: 3,
                             fill: true,
-                            tension: currentRange === 'day' ? 0.3 : 0.1,
-                            pointRadius: currentRange === 'day' ? 2 : 5
+                            tension: 0.3,
+                            pointRadius: currentRange === 'day' ? 2 : 4
                         }
                     ]
                 },
@@ -309,7 +254,7 @@
                         y: { 
                             beginAtZero: true, 
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8', callback: (v) => v + ' mm' }
+                            ticks: { color: '#94a3b8', callback: (v) => v.toFixed(1) + ' mm' }
                         },
                         x: { 
                             grid: { display: false },
