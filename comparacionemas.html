@@ -4,78 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comparativa de Pluviómetros - UNLP</title>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS para diseño moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
+    <!-- Chart.js para visualización de datos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <!-- Iconos -->
+    <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; margin: 0; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .card-title { color: #94a3b8; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-value { font-size: 2.5rem; font-weight: 700; color: #38bdf8; }
-        .iframe-container { height: 500px; width: 100%; border-radius: 12px; overflow: hidden; border: none; }
-        .tab-btn { transition: all 0.2s ease; }
-        .tab-btn.active { background-color: #0ea5e9; color: white; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #f1f5f9; 
+            margin: 0; 
+            overflow-x: hidden;
+        }
+
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        .card-title { 
+            color: #94a3b8; 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+        }
+
+        .stat-value { 
+            font-size: 2.5rem; 
+            font-weight: 700; 
+            color: #38bdf8; 
+        }
+
+        .iframe-container { 
+            height: 500px; 
+            width: 100%; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: none; 
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active { 
+            background-color: #0ea5e9; 
+            color: white; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
+        <!-- Encabezado -->
         <header class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-6">
-            <div>
+            <div class="text-center lg:text-left">
                 <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
-                <p class="text-slate-400">Análisis Estricto por Pulsos (1 reg = 1 pulso): EMA Violeta & Campbell</p>
+                <p class="text-slate-400">Análisis Calibrado: EMA Violeta vs Campbell</p>
             </div>
             
             <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <!-- Selector de Rango -->
                 <div class="glass p-1 rounded-xl flex gap-1">
-                    <button onclick="setRange('day')" id="btn-day" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold">Día</button>
-                    <button onclick="setRange('week')" id="btn-week" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">Semana</button>
-                    <button onclick="setRange('month')" id="btn-month" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">Mes</button>
+                    <button onclick="setRange('day')" id="btn-day" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold transition-all">Día</button>
+                    <button onclick="setRange('week')" id="btn-week" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all">Semana</button>
+                    <button onclick="setRange('month')" id="btn-month" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all">Mes</button>
                 </div>
 
+                <!-- Selector de Fecha -->
                 <div class="glass p-4 rounded-2xl flex items-center gap-4">
                     <label for="dateSelector" class="font-medium text-sm text-slate-300">Fecha:</label>
                     <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
                     <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg">
-                        <i class="fa-solid fa-sync-alt mr-2"></i>Actualizar
+                        <i class="fa-solid fa-sync-alt mr-2"></i>Sincronizar
                     </button>
                 </div>
             </div>
         </header>
 
+        <!-- Tarjetas de Totales -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- EMA Violeta -->
+            <!-- EMA Violeta: Cada registro es un pulso de 0.34mm -->
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="card-title">EMA VIOLETA (0.34mm/p)</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded tracking-wider">Cargando Canal...</span>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Sincronizando...</span>
                 </div>
                 <div class="flex items-baseline gap-2">
                     <p class="stat-value" id="accumVioleta">0.00</p>
                     <span class="text-slate-500 font-bold text-xl">mm</span>
                 </div>
-                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Contando registros únicos...</p>
+                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Procesando pulsos únicos...</p>
             </div>
 
-            <!-- Campbell -->
+            <!-- Campbell: Los valores del field son mm directos -->
             <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
                 <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">CAMPBELL (0.1mm/p)</p>
+                    <p class="card-title">CAMPBELL (Lectura Directa)</p>
                     <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820</span>
                 </div>
                 <div class="flex items-baseline gap-2">
                     <p class="stat-value" id="accumCampbell">0.00</p>
                     <span class="text-slate-500 font-bold text-xl">mm</span>
                 </div>
-                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sincronizando...</p>
+                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sumando mm del datalogger...</p>
             </div>
         </div>
 
+        <!-- Gráfico Principal -->
         <div class="grid grid-cols-1 gap-6 mb-8">
             <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
                 <h3 class="text-lg font-bold mb-6 text-slate-200" id="chartTitle">Curva de Precipitación Acumulada</h3>
@@ -85,6 +134,7 @@
             </div>
         </div>
 
+        <!-- Dashboards Externos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-4 rounded-2xl">
                 <h3 class="font-bold mb-4 text-sm text-slate-400"><i class="fa-solid fa-cloud-sun-rain mr-2"></i>Wunderground ILAPLA66</h3>
@@ -97,18 +147,22 @@
         </div>
 
         <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
-            v2.9 - Lógica Estricta de Pulso Único por Registro
+            v3.0 - Calibración Dual (EMA: Pulsos | Campbell: mm Directos)
         </div>
     </div>
 
     <script>
+        /**
+         * CONFIGURACIÓN DE LOS CANALES DE THINGSPEAK
+         */
         const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.34, field: 5 };
         const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.34, field: 5 }; 
-        const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 0.1, field: 5 };
+        const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
 
         let myChart = null;
         let currentRange = 'day';
 
+        // Fecha de hoy local argentina
         const d = new Date();
         const localDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         document.getElementById('dateSelector').value = localDate;
@@ -125,21 +179,24 @@
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                return { feeds: data.feeds || [], field: station.field };
+                return { feeds: data.feeds || [], field: station.field, id: station.id };
             } catch (e) {
-                return { feeds: [], field: station.field };
+                console.error("Error consultando ThingSpeak:", e);
+                return { feeds: [], field: station.field, id: station.id };
             }
         }
 
         function processStationData(allFeedsData, mult, range, endDate) {
             let totalPeriod = 0;
-            let totalRecordsCount = 0;
+            let recordsCount = 0;
             const daysCount = range === 'day' ? 1 : (range === 'week' ? 7 : 30);
+            
             const dailyTotals = {};
             const hourly = Array(24).fill(0);
             const labels = [];
-            const seenTimestamps = new Set(); 
+            const seenTimestamps = new Set();
 
+            // Inicialización
             if (range === 'day') {
                 for(let i=0; i<24; i++) labels.push(`${i}:00`);
             } else {
@@ -155,21 +212,27 @@
             allFeedsData.forEach(source => {
                 const fieldKey = "field" + source.field;
                 source.feeds.forEach(f => {
-                    let val = parseFloat(f[fieldKey]);
+                    const val = parseFloat(f[fieldKey]);
                     const ts = f.created_at;
 
-                    // LÓGICA ESTRICTA: Si hay un valor > 0 en el registro, sumamos UN PULSO (mult)
-                    // No importa si el valor es 1, 5 o 750000.
                     if (!isNaN(val) && val > 0 && !seenTimestamps.has(ts)) {
                         seenTimestamps.add(ts);
                         
-                        const amount = mult; // Sumamos exactamente 0.34 o 0.1
+                        let amount = 0;
+                        if (source.id === "2823820") {
+                            // CAMPBELL: El valor enviado ya son mm acumulados en el intervalo
+                            amount = val; 
+                        } else {
+                            // EMA VIOLETA: Cada renglón es 1 pulso de 0.34mm
+                            amount = mult; 
+                        }
                         
                         totalPeriod += amount;
-                        totalRecordsCount++;
+                        recordsCount++;
                         
                         if (range === 'day') {
-                            hourly[new Date(ts).getHours()] += amount;
+                            const dateObj = new Date(ts);
+                            hourly[dateObj.getHours()] += amount;
                         } else {
                             const ds = ts.split('T')[0];
                             if (dailyTotals[ds] !== undefined) dailyTotals[ds] += amount;
@@ -182,12 +245,15 @@
             if (range === 'day') {
                 chartData = Array(24).fill(0);
                 let sum = 0;
-                for(let i=0; i<24; i++) { sum += hourly[i]; chartData[i] = sum; }
+                for(let i=0; i<24; i++) { 
+                    sum += hourly[i]; 
+                    chartData[i] = sum; 
+                }
             } else {
                 chartData = Object.values(dailyTotals);
             }
 
-            return { total: totalPeriod.toFixed(2), chartData, labels, totalRecordsCount };
+            return { total: totalPeriod.toFixed(2), chartData, labels, recordsCount };
         }
 
         async function updateDashboard() {
@@ -200,8 +266,8 @@
             startDateObj.setDate(startDateObj.getDate() - daysToSub);
             const startDate = startDateObj.toISOString().split('T')[0];
 
-            chartTitle.innerText = currentRange === 'day' ? `Curva Acumulada (${endDate})` : `Lluvia Diaria (${startDate} al ${endDate})`;
-            debug.innerText = "Sincronizando datos con ThingSpeak...";
+            chartTitle.innerText = currentRange === 'day' ? `Curva Acumulada Diaria (${endDate})` : `Lluvia Diaria (${startDate} al ${endDate})`;
+            debug.innerText = "Sincronizando datos meteorológicos...";
 
             const [resVActual, resVHist, resC_raw] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startDate, endDate),
@@ -210,12 +276,12 @@
             ]);
 
             const resV = processStationData([resVActual, resVHist], 0.34, currentRange, endDate);
-            const resC = processStationData([resC_raw], 0.1, currentRange, endDate);
+            const resC = processStationData([resC_raw], 1.0, currentRange, endDate);
 
             document.getElementById('accumVioleta').innerText = resV.total;
             document.getElementById('accumCampbell').innerText = resC.total;
-            document.getElementById('msgVioleta').innerText = `Pulsos totales detectados: ${resV.totalRecordsCount}`;
-            document.getElementById('msgCampbell').innerText = `Pulsos totales detectados: ${resC.totalRecordsCount}`;
+            document.getElementById('msgVioleta').innerText = `Registros con lluvia: ${resV.recordsCount}`;
+            document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
             
             const badge = document.getElementById('channelBadge');
             if (resVActual.feeds.length > 0) {
@@ -229,7 +295,7 @@
                 badge.className = "bg-red-500/20 text-red-400 text-[10px] px-2 py-1 rounded tracking-wider";
             }
 
-            debug.innerText = `Sincronización completa. Registros procesados: ${resV.totalRecordsCount} (Violeta).`;
+            debug.innerText = `Actualización finalizada.`;
             
             if (typeof Chart !== 'undefined') renderChart(resV, resC);
         }
@@ -269,14 +335,33 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { 
-                        legend: { display: true, labels: { color: '#94a3b8', font: { weight: 'bold' } } },
-                        tooltip: { mode: 'index', intersect: false }
+                        legend: { 
+                            display: true, 
+                            labels: { color: '#94a3b8', font: { weight: 'bold' } } 
+                        },
+                        tooltip: { 
+                            mode: 'index', 
+                            intersect: false,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
                     },
                     scales: {
                         y: { 
                             beginAtZero: true, 
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8', callback: (v) => v.toFixed(1) + ' mm' }
+                            ticks: { 
+                                color: '#94a3b8', 
+                                callback: (v) => v.toFixed(1) + ' mm' 
+                            }
                         },
                         x: { 
                             grid: { display: false },
@@ -287,6 +372,7 @@
             });
         }
 
+        // Ejecución Segura tras carga de librerías
         window.addEventListener('load', () => {
             const checkChart = setInterval(() => {
                 if (typeof Chart !== 'undefined') {
