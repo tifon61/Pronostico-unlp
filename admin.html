@@ -65,7 +65,8 @@
         .date-emission-pill { 
             background: var(--unlp-bg-pill); border-radius: 50px; padding: 8px 50px; 
             display: flex; align-items: center; gap: 50px; color: var(--unlp-blue); 
-            border: 3px solid white; width: fit-content; margin: 0 auto -26px; /* Atrae el bloque del Día 1 hacia arriba para dividir la cápsula al medio */
+            border: 3px solid white; width: fit-content; 
+            margin: 0 auto -28px; /* Intersecta exactamente a la mitad del borde superior del bloque Día 1 */
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             position: relative; z-index: 10;
         }
@@ -74,19 +75,31 @@
         .issuance-label { font-size: 13px; font-weight: 800; max-width: 140px; line-height: 1.1; }
         .issuance-time { font-size: 24px; font-weight: 900; }
 
-        /* DÍAS PLACA 1 - AJUSTES DE GRID EXACTO */
-        .day-block { border-radius: 45px; margin-bottom: 4px; position: relative; width: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex-grow: 1; justify-content: space-between; }
-        .day-1 { background: var(--unlp-blue); }
-        .day-1 .day-header { padding-top: 36px; } /* Desplaza el título LUNES hacia abajo para no chocar con la cápsula solapada */
-        .day-2 { background: var(--unlp-accent-blue); margin-bottom: 0; }
+        /* DÍAS PLACA 1 - AJUSTES DE GRID EXACTO (FORZANDO 50/50 DE ESPACIO) */
+        .day-block { 
+            border-radius: 45px; 
+            margin-bottom: 6px; /* Delgada línea divisoria */
+            position: relative; 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            flex: 1; /* Ambos días tomarán exactamente el mismo espacio vertical */
+            min-height: 0; /* CORRECCIÓN CLAVE: Evita que el contenido desborde y empuje al día 2 */
+            justify-content: space-between; 
+        }
         
-        .day-header { display: flex; align-items: center; padding: 15px 25px 5px; color: white; }
+        .day-1 { background: var(--unlp-blue); padding-top: 25px; } /* Espacio para equilibrar la cápsula superpuesta */
+        .day-2 { background: var(--unlp-accent-blue); padding-top: 25px; margin-bottom: 0; }
+        
+        .day-header { display: flex; align-items: center; padding: 5px 25px 0px; color: white; }
         .day-header h2 { font-size: 42px; font-weight: 900; margin: 0; text-transform: uppercase; width: 260px; letter-spacing: -1px; flex-shrink: 0; }
         .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 10px 0; font-weight: 800; font-size: 24px; margin-right: 15px; }
         .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 10px 10px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
         
-        /* Ajuste de padding-bottom a 0px para permitir pegado exacto del semicuadrado */
-        .day-main-grid { display: grid; grid-template-columns: 285px 1fr 1fr 1fr; color: white; align-items: center; padding: 5px 15px 0px 15px; position: relative; flex-grow: 1; }
+        /* Ajuste de grilla principal */
+        .day-main-grid { display: grid; grid-template-columns: 285px 1fr 1fr 1fr; color: white; align-items: center; padding: 5px 15px 0px 15px; position: relative; flex: 1; min-height: 0; }
         .day-main-grid-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         
         /* BLOQUE TEMPERATURA DETALLADO CON SEMICUADRADO UNLP PEGADO ABAJO */
@@ -96,37 +109,32 @@
             align-items: stretch; 
             justify-content: flex-end; /* Alinea la cápsula de temperaturas contra el fondo */
             height: 100%; 
-            align-self: stretch; /* Se estira en toda la altura de la fila */
+            align-self: stretch; 
             border-right: 2px dashed rgba(255,255,255,0.2); 
             padding-right: 15px; 
         }
         
         .temp-v-box { 
-            border-radius: 0 40px 0 0; /* Bordes rectos en la parte inferior (0 40px 0 0) */
+            border-radius: 0 40px 0 0; 
             padding: 20px 10px 15px 25px; 
             margin-left: -15px; 
             width: calc(100% + 15px); 
-            height: 185px; /* Altura achatada que permite coincidir con los 3/4 del icono */
-            min-height: 185px;
+            height: 180px; /* Achatado como solicitaste (se alineará a 3/4 del icono) */
+            min-height: 180px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border: none; /* Sin bordes grises exteriores para verse limpio como la imagen original */
+            border: none; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
         
-        /* Ajuste de color del semicuadrado respetando los colores exactos e inversos de la muestra */
-        .day-1 .temp-v-box {
-            background: var(--unlp-accent-blue); /* Celeste sólido para Lunes */
-        }
-        .day-2 .temp-v-box {
-            background: var(--unlp-blue); /* Azul UNLP oscuro sólido para Martes */
-        }
+        .day-1 .temp-v-box { background: var(--unlp-accent-blue); }
+        .day-2 .temp-v-box { background: var(--unlp-blue); }
 
         .temp-v-box h4 { 
-            font-size: 15px; /* Aumentado */
-            margin: 0 0 15px; 
+            font-size: 26px; /* Aumentado todavía más */
+            margin: 0 0 10px; 
             letter-spacing: 1px; 
             text-transform: uppercase; 
             color: rgba(255,255,255,0.9); 
@@ -137,26 +145,26 @@
         
         .temp-v-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
         .temp-v-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .temp-v-col .label { font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 2px; } /* Aumentado */
+        .temp-v-col .label { font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 5px; } /* Aumentado todavía más */
         .temp-v-item { display: flex; align-items: center; gap: 5px; }
-        .temp-v-item svg { width: 22px; height: 66px; } /* Termómetros más grandes */
-        .temp-v-vals { display: flex; flex-direction: column; line-height: 1.1; align-items: flex-start; }
-        .temp-v-urb { font-size: 35px; font-weight: 900; color: white; } /* Aumentado */
-        .temp-v-sub { font-size: 20px; font-weight: 800; color: rgba(255,255,255,0.8); } /* Aumentado */
+        .temp-v-item svg { width: 22px; height: 66px; } /* Termómetros ajustados a la nueva proporción */
+        .temp-v-vals { display: flex; flex-direction: column; line-height: 1; align-items: flex-start; }
+        .temp-v-urb { font-size: 32px; font-weight: 600; color: white; } /* Quitada la negrita extra */
+        .temp-v-sub { font-size: 22px; font-weight: 500; color: rgba(255,255,255,0.8); } /* Quitada la negrita extra */
 
         /* DETALLES PRONÓSTICO */
-        .forecast-item { text-align: center; padding: 10px 0 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }
-        .forecast-item img { height: 165px; width: 165px; margin-bottom: 15px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15)); object-fit: contain; }
-        .forecast-temp { font-size: 42px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 5px; }
+        .forecast-item { text-align: center; padding: 0 0 5px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
+        .forecast-item img { height: 155px; width: 155px; margin-bottom: 5px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15)); object-fit: contain; }
+        .forecast-temp { font-size: 46px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 5px; line-height: 1; } /* Quitada la negrita extra a las temperaturas de los periodos */
         
-        /* FILAS DE STRIPES */
-        .stripe { display: grid; align-items: center; width: 100%; height: 115px; position: relative; } /* Fila más alta para dar espacio */
+        /* FILAS DE STRIPES (VIENTO Y TIEMPO) */
+        .stripe { display: grid; align-items: center; width: 100%; height: 120px; position: relative; } /* Filas más anchas */
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 285px 1fr 1fr 1fr; }
         .stripe-wind-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 285px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
-        .stripe-label { font-size: 30px; font-weight: 900; padding-left: 25px; letter-spacing: 0.5px; text-transform: none; } /* Aumentado */
-        .stripe-data { font-size: 26px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 0 10px; } /* Aumentado */
+        .stripe-label { font-size: 32px; font-weight: 900; padding-left: 25px; letter-spacing: 0.5px; text-transform: none; } /* Reducido para igualar la imagen */
+        .stripe-data { font-size: 26px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.2; } /* Reducido, con line-height para textos largos */
         
         /* PLACA 2: TARJETAS VERTICALES EXTENDIDAS */
         .cards-container { display: flex; gap: 40px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 30px; }
@@ -175,8 +183,8 @@
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; line-height: 1.1; align-items: flex-start; }
-        .card-temp-urb { font-size: 28px; font-weight: 900; color: white; }
-        .card-temp-sub { font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.85); }
+        .card-temp-urb { font-size: 28px; font-weight: 600; color: white; } /* Quitada la negrita extra en placa 2 */
+        .card-temp-sub { font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.85); } /* Quitada la negrita extra en placa 2 */
         
         .v-card .weather-desc { font-size: 22px; font-weight: 800; margin: 15px 0 5px; text-align: center; }
         .v-card .wind-arrows { margin: 10px 0; display: flex; justify-content: center; gap: 15px; }
@@ -731,8 +739,19 @@
         if(target) target.innerText = v || "--";
     }
 
-    // Actualiza el nombre de la ciudad en todas las marcas
-    function updateCity(v) { document.querySelectorAll('.city-label').forEach(el => el.innerText = v.toUpperCase()); }
+    // Actualiza el nombre de la ciudad en todas las marcas con ajuste de tamaño automático
+    function updateCity(v) { 
+        document.querySelectorAll('.city-label').forEach(el => {
+            el.innerText = v.toUpperCase();
+            if (v.length > 10) {
+                el.style.fontSize = '38px';
+                el.style.letterSpacing = '-1px';
+            } else {
+                el.style.fontSize = '55px';
+                el.style.letterSpacing = '-2px';
+            }
+        }); 
+    }
 
     function updateDateVal(v) {
         document.querySelectorAll('.f0').forEach(el => el.innerText = v.toUpperCase());
