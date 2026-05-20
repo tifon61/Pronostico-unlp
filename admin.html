@@ -31,6 +31,7 @@
             overflow: hidden; 
             -webkit-font-smoothing: antialiased; 
             text-rendering: optimizeLegibility;
+            transform: translateZ(0);
         }
 
         /* SIDEBAR ADMIN */
@@ -126,17 +127,41 @@
             overflow: hidden; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
             justify-content: space-between; 
+            padding-bottom: 18px;
         }
         
         .day-1 { background: var(--unlp-blue); padding-top: 25px; height: 610px; }
         .day-2 { background: var(--unlp-accent-blue); padding-top: 25px; margin-bottom: 0; height: 610px; }
         
-        .day-header { display: flex; align-items: center; padding: 5px 25px 0px; color: white; }
-        .day-header h2 { font-size: 42px; font-weight: 900; margin: 0; text-transform: uppercase; width: 260px; letter-spacing: 0; flex-shrink: 0; }
+        .day-header { 
+            display: flex; 
+            align-items: flex-start; 
+            padding: 0px 25px 0px; 
+            color: white; 
+        }
+        .day-header h2 { 
+            font-size: 34px; 
+            font-weight: 800; 
+            margin: -5px 0 0 0; 
+            text-transform: uppercase; 
+            width: 240px; 
+            letter-spacing: -0.5px; 
+            flex-shrink: 0; 
+            line-height: 1; 
+        }
         .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 10px 0; font-weight: 800; font-size: 24px; margin-right: 15px; }
         .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 10px 10px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
         
-        .day-main-grid { display: grid; grid-template-columns: 285px 1fr 1fr 1fr; color: white; align-items: center; padding: 5px 15px 0px 15px; position: relative; flex: 1; min-height: 0; }
+        .day-main-grid { 
+            display: grid; 
+            grid-template-columns: 285px 1fr 1fr 1fr; 
+            color: white; 
+            align-items: flex-start; 
+            padding: 5px 15px 0px 15px; 
+            position: relative; 
+            flex: 1; 
+            min-height: 0; 
+        }
         .day-main-grid-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         
         .temp-side-col { 
@@ -151,7 +176,7 @@
         
         .temp-v-box { 
             border-radius: 0 40px 0 0; 
-            padding: 20px 10px 15px 25px; 
+            padding: 24px 20px 22px 28px; 
             margin-left: -15px; 
             width: calc(100% + 15px); 
             height: 180px; 
@@ -168,27 +193,48 @@
 
         .temp-v-box h4 { font-size: 26px; margin: 0 0 10px; letter-spacing: 0; text-transform: uppercase; color: rgba(255,255,255,0.9); border: none; font-weight: 800; text-align: center; }
         
-        .temp-v-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        .temp-v-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 28px; 
+            padding: 0 10px; 
+            width: 100%; 
+        }
         .temp-v-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .temp-v-col .label { font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 5px; }
         .temp-v-item { display: flex; align-items: center; gap: 5px; }
-        .temp-v-item svg { width: 22px; height: 66px; } 
         .temp-v-vals { display: flex; flex-direction: column; align-items: flex-start; }
-        .temp-v-urb { font-size: 32px; font-weight: 600; color: white; } 
-        .temp-v-sub { font-size: 22px; font-weight: 500; color: rgba(255,255,255,0.8); } 
+        
+        .temp-v-urb { 
+            font-size: 38px; 
+            font-weight: 700; 
+            line-height: 1; 
+            color: white; 
+        } 
+        .temp-v-sub { 
+            font-size: 24px; 
+            font-weight: 500; 
+            color: rgba(255,255,255,0.8); 
+        } 
 
         .forecast-item { 
-            text-align: center; padding: 0 0 5px; 
-            display: flex; flex-direction: column; 
-            justify-content: flex-end; align-items: center; 
+            text-align: center; 
+            padding: 0 0 5px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            align-items: center; 
             min-height: 0;
             flex-shrink: 0;
+            padding-top: 10px;
         }
         .forecast-item img { 
-            width: 130px; 
-            height: 130px; 
+            width: auto; 
+            height: 145px; 
+            max-width: 145px; 
             object-fit: contain; 
             flex-shrink: 0; 
+            image-rendering: -webkit-optimize-contrast;
         }
         .forecast-temp { font-size: 46px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 5px; line-height: 1; }
         
@@ -246,8 +292,9 @@
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; }
         .card-split img { 
-            width: 140px; 
-            height: 140px; 
+            width: auto; 
+            height: 155px; 
+            max-width: 155px; 
             object-fit: contain; 
             flex-shrink: 0; 
         }
@@ -255,17 +302,26 @@
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; }
-        .card-temp-urb { font-size: 28px; font-weight: 600; color: white; } 
-        .card-temp-sub { font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.85); } 
+        .card-temp-urb { font-size: 38px; font-weight: 700; line-height: 1; color: white; } 
+        .card-temp-sub { font-size: 24px; font-weight: 500; color: rgba(255,255,255,0.85); } 
         
         .weather-desc { 
             font-size: 28px;
             line-height: 1.2;
-            margin-top: 40px;
             font-weight: 800; 
             text-align: center; 
+            margin-top: 55px;
+            margin-bottom: 20px;
+            padding: 0 10px;
         }
-        .v-card .wind-arrows { margin: 10px 0; display: flex; justify-content: center; gap: 15px; }
+        .v-card .wind-arrows { 
+            margin: 18px 0 8px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 22px; 
+            min-height: 70px; 
+        }
         
         .wind-legend { 
             font-size: 28px;
@@ -279,7 +335,7 @@
         .footer-note { text-align: center; font-size: 18px; font-weight: 800; color: var(--unlp-blue); padding-bottom: 20px; text-transform: uppercase; }
         
         /* Fallback elegante para imágenes */
-        img { display: block; position: relative; background: rgba(0,0,0,0.03); min-width: 40px; min-height: 40px; border-radius: 8px; object-fit: contain; }
+        img { display: block; position: relative; background: rgba(0,0,0,0.03); min-width: 40px; min-height: 40px; border-radius: 8px; object-fit: contain; image-rendering: auto; }
 
         .column { display: flex; flex-direction: column; flex: 1; }
         .column label { font-size: 0.8em; font-weight: 600; color: var(--unlp-blue); margin-bottom: 5px; text-transform: uppercase; }
@@ -328,7 +384,6 @@
 </div>
 
 <div id="viewer">
-    <!-- PLACA 1 WRAPPER -->
     <div class="placa-preview">
         <div id="placa-1" class="placa-box">
             <div class="header-container">
@@ -351,7 +406,6 @@
                 </div>
             </div>
 
-            <!-- DÍA 1 (HOY) -->
             <div class="day-block day-1">
                 <div class="day-header">
                     <h2 class="n0">LUNES</h2>
@@ -362,11 +416,10 @@
                         <div class="temp-v-box">
                             <h4>TEMPERATURA</h4>
                             <div class="temp-v-grid">
-                                <!-- MIN -->
                                 <div class="temp-v-col">
                                     <span class="label">MIN</span>
                                     <div class="temp-v-item">
-                                        <svg viewBox="0 0 30 90" width="16" height="48">
+                                        <svg viewBox="0 0 30 90" width="26" height="78">
                                             <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                             <circle cx="15" cy="67" r="9" fill="#00bcd4"/>
                                             <rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/>
@@ -377,11 +430,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- MAX -->
                                 <div class="temp-v-col">
                                     <span class="label">MAX</span>
                                     <div class="temp-v-item">
-                                        <svg viewBox="0 0 30 90" width="16" height="48">
+                                        <svg viewBox="0 0 30 90" width="26" height="78">
                                             <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                             <circle cx="15" cy="67" r="9" fill="#ef4444"/>
                                             <rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/>
@@ -403,7 +455,6 @@
                 <div class="stripe stripe-time"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1">--</div><div class="stripe-data" id="h-w2">--</div><div class="stripe-data" id="h-w3">--</div></div>
             </div>
 
-            <!-- DÍA 2 (MARTES) -->
             <div class="day-block day-2">
                 <div class="day-header">
                     <h2 class="n1">MARTES</h2>
@@ -414,11 +465,10 @@
                         <div class="temp-v-box">
                             <h4>TEMPERATURA</h4>
                             <div class="temp-v-grid">
-                                <!-- MIN -->
                                 <div class="temp-v-col">
                                     <span class="label">MIN</span>
                                     <div class="temp-v-item">
-                                        <svg viewBox="0 0 30 90" width="16" height="48">
+                                        <svg viewBox="0 0 30 90" width="26" height="78">
                                             <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                             <circle cx="15" cy="67" r="9" fill="#00bcd4"/>
                                             <rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/>
@@ -429,11 +479,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- MAX -->
                                 <div class="temp-v-col">
                                     <span class="label">MAX</span>
                                     <div class="temp-v-item">
-                                        <svg viewBox="0 0 30 90" width="16" height="48">
+                                        <svg viewBox="0 0 30 90" width="26" height="78">
                                             <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                             <circle cx="15" cy="67" r="9" fill="#ef4444"/>
                                             <rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/>
@@ -458,7 +507,6 @@
         </div>
     </div>
 
-    <!-- PLACA 2 WRAPPER -->
     <div class="placa-preview">
         <div id="placa-2" class="placa-box">
             <div class="header-container">
@@ -473,7 +521,6 @@
                 </div>
             </div>
             <div class="cards-container">
-                <!-- TARJETA DÍA 3 (CELESTE) -->
                 <div class="v-card celeste">
                     <h2 class="n2">--</h2>
                     <div class="date f2">--</div>
@@ -490,7 +537,7 @@
                     
                     <div class="card-temps-row">
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="18" height="54">
+                            <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                 <circle cx="15" cy="67" r="9" fill="#00bcd4"/>
                                 <rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/>
@@ -501,7 +548,7 @@
                             </div>
                         </div>
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="18" height="54">
+                            <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                 <circle cx="15" cy="67" r="9" fill="#ef4444"/>
                                 <rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/>
@@ -519,7 +566,6 @@
                     <div class="wind-legend" id="d3-wind-legend">--</div>
                 </div>
                 
-                <!-- TARJETA DÍA 4 (OSCURO) -->
                 <div class="v-card oscuro">
                     <h2 class="n3">--</h2>
                     <div class="date f3">--</div>
@@ -536,7 +582,7 @@
                     
                     <div class="card-temps-row">
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="18" height="54">
+                            <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                 <circle cx="15" cy="67" r="9" fill="#00bcd4"/>
                                 <rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/>
@@ -547,7 +593,7 @@
                             </div>
                         </div>
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="18" height="54">
+                            <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
                                 <circle cx="15" cy="67" r="9" fill="#ef4444"/>
                                 <rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/>
@@ -723,16 +769,37 @@
     }
 
     function getWindArrowSVG(dir) {
-        const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
-        return `<svg viewBox="0 0 100 100" width="55" height="55" style="transform: rotate(${angle}deg); filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3)); margin: 0 5px;">
+        const angle = windDirectionsAngles[dir] !== undefined
+            ? windDirectionsAngles[dir]
+            : 0;
+
+        const gradId = 'grad-' + Math.random().toString(36).substr(2, 9);
+
+        return `
+        <svg 
+            viewBox="0 0 100 100"
+            width="58"
+            height="58"
+            style="
+                transform: rotate(${angle}deg);
+                margin: 0 8px;
+                flex-shrink: 0;
+                overflow: visible;
+            "
+        >
             <defs>
-                <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#ffffff" />
-                    <stop offset="100%" stop-color="#f2f2f2" />
+                <linearGradient id="${gradId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="100%" stop-color="#e9eef2"/>
                 </linearGradient>
             </defs>
-            <path d="M 50 12 L 82 75 L 50 60 L 18 75 Z" fill="url(#arrowGrad)" />
-        </svg>`;
+
+            <path
+                d="M 50 10 L 85 78 L 50 60 L 15 78 Z"
+                fill="url(#${gradId})"
+            />
+        </svg>
+        `;
     }
 
     function updateWindLegendAndArrows(dia) {
