@@ -676,19 +676,19 @@
                     <div class="row">
                         <div class="column">
                             <label>Mín Urbana</label>
-                            <input type="number" id="${conf.id}-min-urb" placeholder="Min Urbana" oninput="updateTempField('${conf.id}', 'min', 'urb')">
+                            <input type="number" id="in-${conf.id}-min-urb" placeholder="Min Urbana" oninput="updateTempField('${conf.id}', 'min', 'urb')">
                         </div>
                         <div class="column">
                             <label>Mín Suburbana</label>
-                            <input type="number" id="${conf.id}-min-sub" placeholder="Min Suburbana" oninput="updateTempField('${conf.id}', 'min', 'sub')">
+                            <input type="number" id="in-${conf.id}-min-sub" placeholder="Min Suburbana" oninput="updateTempField('${conf.id}', 'min', 'sub')">
                         </div>
                         <div class="column">
                             <label>Máx Urbana</label>
-                            <input type="number" id="${conf.id}-max-urb" placeholder="Máx Urbana" oninput="updateTempField('${conf.id}', 'max', 'urb')">
+                            <input type="number" id="in-${conf.id}-max-urb" placeholder="Máx Urbana" oninput="updateTempField('${conf.id}', 'max', 'urb')">
                         </div>
                         <div class="column">
                             <label>Máx Suburbana</label>
-                            <input type="number" id="${conf.id}-max-sub" placeholder="Máx Suburbana" oninput="updateTempField('${conf.id}', 'max', 'sub')">
+                            <input type="number" id="in-${conf.id}-max-sub" placeholder="Máx Suburbana" oninput="updateTempField('${conf.id}', 'max', 'sub')">
                         </div>
                     </div>
                 </div>`;
@@ -758,7 +758,7 @@
         }
 
     function updateTempField(dia, tipo, zona) {
-        const value = document.getElementById(`${dia}-${tipo}-${zona}`).value;
+        const value = document.getElementById(`in-${dia}-${tipo}-${zona}`).value;
         const targetId = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`;
         up(targetId, value);
     }
@@ -960,8 +960,20 @@
     window.onload = function() {
         renderSidebar();
         
-        const specificTime = '07:50';
-        const specificDateStr = '18/MAY/26';
+        const today = new Date();
+        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+        const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+
+        // Hora actual
+        const h = String(today.getHours()).padStart(2, '0');
+        const m = String(today.getMinutes()).padStart(2, '0');
+        const specificTime = `${h}:${m}`;
+        
+        // Fecha actual
+        const dStr = String(today.getDate()).padStart(2, '0');
+        const moStr = ms[today.getMonth()];
+        const yStr = String(today.getFullYear()).slice(-2);
+        const specificDateStr = `${dStr}/${moStr}/${yStr}`;
         
         const timeInput = document.getElementById('in-hora-emision');
         if (timeInput) {
@@ -975,24 +987,25 @@
             updateDateVal(specificDateStr);
         }
         
-        const specificDate = new Date('2026-05-18T12:00:00'); 
-        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-        
+        // Calcular los 4 días a partir de hoy
         for(let i=0; i<4; i++) {
-            let d = new Date(specificDate); 
-            d.setDate(specificDate.getDate() + i);
-            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[d.getDay()]);
-            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${d.getDate()}/${ms[d.getMonth()]}/${d.getFullYear().toString().slice(-2)}`);
+            let iterDate = new Date(today); 
+            iterDate.setDate(today.getDate() + i);
+            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
+            
+            let iterD = String(iterDate.getDate()).padStart(2, '0');
+            let iterM = ms[iterDate.getMonth()];
+            let iterY = String(iterDate.getFullYear()).slice(-2);
+            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${iterD}/${iterM}/${iterY}`);
         }
         
         setTimeout(() => {
             try {
                 // ==================== LUNES (Día 1) ====================
-                document.getElementById('h-min-urb').value = '5';
-                document.getElementById('h-min-sub').value = '3';
-                document.getElementById('h-max-urb').value = '15';
-                document.getElementById('h-max-sub').value = '15';
+                document.getElementById('in-h-min-urb').value = '5';
+                document.getElementById('in-h-min-sub').value = '3';
+                document.getElementById('in-h-max-urb').value = '15';
+                document.getElementById('in-h-max-sub').value = '15';
                 updateTempField('h', 'min', 'urb');
                 updateTempField('h', 'min', 'sub');
                 updateTempField('h', 'max', 'urb');
@@ -1018,10 +1031,10 @@
                 updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
                 
                 // ==================== MARTES (Día 2) ====================
-                document.getElementById('m-min-urb').value = '4';
-                document.getElementById('m-min-sub').value = '3';
-                document.getElementById('m-max-urb').value = '16';
-                document.getElementById('m-max-sub').value = '16';
+                document.getElementById('in-m-min-urb').value = '4';
+                document.getElementById('in-m-min-sub').value = '3';
+                document.getElementById('in-m-max-urb').value = '16';
+                document.getElementById('in-m-max-sub').value = '16';
                 updateTempField('m', 'min', 'urb'); updateTempField('m', 'min', 'sub');
                 updateTempField('m', 'max', 'urb'); updateTempField('m', 'max', 'sub');
                 
@@ -1040,8 +1053,8 @@
                 updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
 
                 // ==================== MIÉRCOLES (Día 3) ====================
-                document.getElementById('d3-min-urb').value = '7'; document.getElementById('d3-min-sub').value = '6';
-                document.getElementById('d3-max-urb').value = '13'; document.getElementById('d3-max-sub').value = '13';
+                document.getElementById('in-d3-min-urb').value = '7'; document.getElementById('in-d3-min-sub').value = '6';
+                document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
                 updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub');
                 updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
 
@@ -1056,8 +1069,8 @@
                 updateFullDesc('d3', 'Cielo algo nublado.');
 
                 // ==================== JUEVES (Día 4) ====================
-                document.getElementById('d4-min-urb').value = '4'; document.getElementById('d4-min-sub').value = '3';
-                document.getElementById('d4-max-urb').value = '11'; document.getElementById('d4-max-sub').value = '11';
+                document.getElementById('in-d4-min-urb').value = '4'; document.getElementById('in-d4-min-sub').value = '3';
+                document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
                 updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub');
                 updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
 
@@ -1101,8 +1114,8 @@
             const conf = dayConfigs[i];
             const dateObj = new Date(); dateObj.setDate(today.getDate() + i);
 
-            const minInput = document.getElementById(`${conf.id}-min-urb`);
-            const maxInput = document.getElementById(`${conf.id}-max-urb`);
+            const minInput = document.getElementById(`in-${conf.id}-min-urb`);
+            const maxInput = document.getElementById(`in-${conf.id}-max-urb`);
 
             const dailyForecast = {
                 date: dateObj.toISOString().split('T')[0],
