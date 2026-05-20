@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Meteorológico UNLP | IG Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
@@ -30,10 +30,7 @@
             height: 100vh; 
             overflow: hidden; 
             -webkit-font-smoothing: antialiased; 
-        }
-        
-        h1, h2, h3, h4, span, div {
-            line-height: 1;
+            text-rendering: optimizeLegibility;
         }
 
         /* SIDEBAR ADMIN */
@@ -52,30 +49,43 @@
         .btn-p2:hover { background: #005b50; }
 
         /* VIEWER */
-        #viewer { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; gap: 40px; background: #333; }
+        #viewer { 
+            flex-grow: 1; 
+            padding: 20px; 
+            overflow: auto; 
+            background: #2d2d2d; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 60px; 
+        }
         
         /* ESTRUCTURA PROTEGIDA PARA EXPORTACIÓN PERFECTA */
         .placa-preview {
-            transform: scale(0.48);
-            transform-origin: top center;
-            margin-bottom: -680px;
+            width: 540px;
         }
 
         /* PLACAS 1080x1350 - Tamaño físico real sin distorsión */
         .placa-box { 
             width: 1080px; 
             height: 1350px; 
-            background: white; 
-            padding: 15px 20px; 
+            background: #e6e7e8; 
             position: relative; 
+            overflow: hidden;
             display: flex; 
             flex-direction: column; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            overflow: hidden;
+            padding: 20px; 
+            box-sizing: border-box;
         }
 
         /* HEADER INSTITUCIONAL */
-        .header-container { position: relative; margin-top: 10px; margin-bottom: 20px; width: 100%; }
+        .header-container { 
+            width: 100%;
+            height: 150px;
+            position: relative;
+            margin-bottom: 35px;
+            flex-shrink: 0;
+        }
         .header-capsule { border: 5px solid var(--unlp-blue); border-radius: 100px; display: flex; justify-content: space-between; align-items: center; padding: 12px 50px; background: white; }
         .header-capsule h1 { font-size: 55px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: 0; }
         .header-capsule img { height: 75px; object-fit: contain; }
@@ -174,7 +184,12 @@
             min-height: 0;
             flex-shrink: 0;
         }
-        .forecast-item img { height: 155px; width: 155px; margin-bottom: 5px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15)); object-fit: contain; }
+        .forecast-item img { 
+            width: 130px; 
+            height: 130px; 
+            object-fit: contain; 
+            flex-shrink: 0; 
+        }
         .forecast-temp { font-size: 46px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 5px; line-height: 1; }
         
         .stripe { display: grid; align-items: center; width: 100%; height: 120px; position: relative; } 
@@ -186,17 +201,56 @@
         .stripe-data { font-size: 26px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.1; } 
         
         /* PLACA 2: TARJETAS VERTICALES EXTENDIDAS */
-        .cards-container { display: flex; gap: 40px; width: 100%; justify-content: center; flex-grow: 1; align-items: stretch; margin-bottom: 30px; }
-        .v-card { width: 480px; border-radius: 55px; padding: 45px 35px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; flex: 1; min-height: 600px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .cards-container { 
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin-top: 40px;
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+        
+        .v-card { 
+            height: 980px;
+            border-radius: 55px; 
+            padding: 45px 35px; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
         .v-card.celeste { background: var(--unlp-light); }
         .v-card.oscuro { background: var(--unlp-blue); }
-        .v-card h2 { font-weight: 900; font-size: 45px; margin: 0; text-transform: uppercase; letter-spacing: 0; }
-        .v-card .date { font-weight: 600; font-size: 24px; opacity: 0.85; margin-bottom: 10px; }
+        
+        .v-card h2 { 
+            font-size: 72px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase; 
+            letter-spacing: 0; 
+        }
+        .v-card .date { 
+            font-size: 46px;
+            font-weight: 300;
+            margin-bottom: 40px;
+            opacity: 0.85; 
+        }
         
         .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; width: 100%; }
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; }
-        .card-split img { height: 130px; width: 130px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); }
+        .card-split img { 
+            width: 140px; 
+            height: 140px; 
+            object-fit: contain; 
+            flex-shrink: 0; 
+        }
         
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
@@ -204,9 +258,23 @@
         .card-temp-urb { font-size: 28px; font-weight: 600; color: white; } 
         .card-temp-sub { font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.85); } 
         
-        .v-card .weather-desc { font-size: 22px; font-weight: 800; margin: 15px 0 5px; text-align: center; }
+        .weather-desc { 
+            font-size: 28px;
+            line-height: 1.2;
+            margin-top: 40px;
+            font-weight: 800; 
+            text-align: center; 
+        }
         .v-card .wind-arrows { margin: 10px 0; display: flex; justify-content: center; gap: 15px; }
-        .v-card .wind-legend { font-size: 16px; font-weight: 700; margin-top: 5px; text-align: center; max-width: 90%; color: rgba(255,255,255,0.95); }
+        
+        .wind-legend { 
+            font-size: 28px;
+            line-height: 1.15;
+            font-weight: 700; 
+            text-align: center; 
+            max-width: 90%; 
+            color: rgba(255,255,255,0.95); 
+        }
         
         .footer-note { text-align: center; font-size: 18px; font-weight: 800; color: var(--unlp-blue); padding-bottom: 20px; text-transform: uppercase; }
         
@@ -807,7 +875,7 @@
         }));
 
         const canvas = await html2canvas(el, {
-            scale: 3,
+            scale: 2,
             useCORS: true,
             logging: false,
             backgroundColor: null
