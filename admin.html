@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -82,9 +83,9 @@
         /* HEADER INSTITUCIONAL */
         .header-container { 
             width: 100%;
-            height: 150px;
+            height: 130px;
             position: relative;
-            margin-bottom: 35px;
+            margin-bottom: 20px;
             flex-shrink: 0;
         }
         .header-capsule { 
@@ -93,7 +94,7 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 8px 45px; 
+            padding: 8px 35px; 
             background: white;
             height: 120px;
             position: relative;
@@ -110,8 +111,8 @@
             flex-shrink: 0; 
         }
         .logo-prono { 
-            height: 105px; 
-            width: 105px; 
+            height: 80px; 
+            width: 80px; 
             object-fit: contain; 
             border-radius: 50%; 
             flex-shrink: 0; 
@@ -152,7 +153,7 @@
             display: inline-flex;
             align-items: center; gap: 50px; color: var(--unlp-blue); 
             border: 3px solid white; 
-            margin: 0 auto -28px;
+            margin: 0 auto -20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             position: relative; z-index: 10;
         }
@@ -175,27 +176,38 @@
             padding-bottom: 18px;
         }
         
-        .day-1 { background: var(--unlp-blue); padding-top: 25px; height: 610px; }
-        .day-2 { background: var(--unlp-accent-blue); padding-top: 25px; margin-bottom: 0; height: 610px; }
+        .day-1 { background: var(--unlp-blue); padding-top: 25px; height: 630px; }
+        .day-2 { background: var(--unlp-accent-blue); padding-top: 25px; margin-bottom: 0; height: 630px; }
         
         .day-header { 
             display: flex; 
             align-items: flex-start; 
             padding: 0px 25px 0px; 
             color: white; 
+            gap: 15px;
         }
         .day-header h2 { 
             font-size: 34px; 
             font-weight: 800; 
             margin: -5px 0 0 0; 
             text-transform: uppercase; 
-            width: 240px; 
+            width: 230px; 
             letter-spacing: -0.5px; 
             flex-shrink: 0; 
             line-height: 1; 
         }
-        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 10px 0; font-weight: 800; font-size: 24px; margin-right: 15px; }
-        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 10px 10px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
+        .periods-pill { 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 20px; 
+            display: flex; 
+            flex-grow: 1; 
+            justify-content: space-around; 
+            padding: 4px 0; 
+            font-weight: 800; 
+            font-size: 24px; 
+            margin-right: 15px; 
+        }
+        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 4px 10px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
         
         .day-main-grid { 
             display: grid; 
@@ -275,8 +287,8 @@
         }
         .forecast-item img { 
             width: auto; 
-            height: 145px; 
-            max-width: 145px; 
+            height: 155px; 
+            max-width: 155px; 
             object-fit: contain; 
             flex-shrink: 0; 
             image-rendering: -webkit-optimize-contrast;
@@ -297,13 +309,13 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 35px;
-            margin-top: 40px;
+            margin-top: 20px;
             padding: 0 40px;
             box-sizing: border-box;
         }
         
         .v-card { 
-            height: 980px;
+            height: 1010px;
             border-radius: 55px; 
             padding: 45px 35px; 
             color: white; 
@@ -338,8 +350,8 @@
         .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; }
         .card-split img { 
             width: auto; 
-            height: 155px; 
-            max-width: 155px; 
+            height: 165px; 
+            max-width: 165px; 
             object-fit: contain; 
             flex-shrink: 0; 
         }
@@ -662,6 +674,12 @@
 </div>
 
 <script>
+        // Función auxiliar para forzar la primera letra en mayúscula (capitalizar)
+        function capitalizeFirst(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
+
         // Manejador global de errores de imagen para evitar fallos en html2canvas
         window.addEventListener('error', function(e) {
             if (e.target && e.target.tagName === 'IMG') {
@@ -868,10 +886,10 @@
             legend.innerText = '--';
             arrowContainer.innerHTML = '';
         } else if(parts.length === 1) {
-            legend.innerText = `Vientos ${parts[0]}.`;
+            legend.innerText = capitalizeFirst(`vientos ${parts[0]}.`);
             arrowContainer.innerHTML = arrowsHTML;
         } else {
-            legend.innerText = `Vientos ${parts[0]} rotando al ${document.getElementById(`${dia}-v-d2`).value}.`;
+            legend.innerText = capitalizeFirst(`vientos ${parts[0]} rotando al ${document.getElementById(`${dia}-v-d2`).value}.`);
             arrowContainer.innerHTML = arrowsHTML;
         }
     }
@@ -880,7 +898,7 @@
         try {
             if(!dia.startsWith('d')) {
                 const textEl = document.getElementById(`${dia}-w${tramo}`);
-                if(textEl) textEl.innerText = valor || "--";
+                if(textEl) textEl.innerText = valor ? capitalizeFirst(valor) : "--";
             }
             
             const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
@@ -904,7 +922,7 @@
         
         if(!dia.startsWith('d')) {
             const target = document.getElementById(`${dia}-v${tramo}`);
-            if(target) target.innerText = (i && d) ? `${i} del ${d}` : "--";
+            if(target) target.innerText = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
         }
         
         if(dia === 'd3' || dia === 'd4') {
@@ -929,7 +947,8 @@
         document.querySelectorAll('.city-label').forEach(el => {
             el.innerText = v.toUpperCase();
             if (v.length > 10) {
-                el.style.fontSize = '48px'; 
+                // Reducido levemente para que Mar del Plata quepa sin tocar iconos
+                el.style.fontSize = '44px'; 
             } else {
                 el.style.fontSize = '58px';
             }
