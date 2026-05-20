@@ -87,10 +87,55 @@
             margin-bottom: 35px;
             flex-shrink: 0;
         }
-        .header-capsule { border: 5px solid var(--unlp-blue); border-radius: 100px; display: flex; justify-content: space-between; align-items: center; padding: 12px 50px; background: white; }
-        .header-capsule h1 { font-size: 55px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: 0; }
-        .header-capsule img { height: 75px; object-fit: contain; }
-        .city-box { display: flex; align-items: center; gap: 20px; }
+        .header-capsule { 
+            border: 5px solid var(--unlp-blue); 
+            border-radius: 100px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px 45px; 
+            background: white;
+            height: 120px;
+            position: relative;
+        }
+        .header-left-logos {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            z-index: 2;
+        }
+        .logo-fcag { 
+            height: 65px; 
+            object-fit: contain; 
+            flex-shrink: 0; 
+        }
+        .logo-prono { 
+            height: 105px; 
+            width: 105px; 
+            object-fit: contain; 
+            border-radius: 50%; 
+            flex-shrink: 0; 
+        }
+        .logo-unlp { 
+            height: 75px; 
+            object-fit: contain; 
+            flex-shrink: 0; 
+            z-index: 2; 
+        }
+        .header-capsule h1 { 
+            font-size: 58px; 
+            font-weight: 900; 
+            margin: 0; 
+            color: var(--unlp-blue); 
+            text-transform: uppercase; 
+            letter-spacing: 0; 
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            z-index: 1;
+        }
 
         .title-pill { 
             background: var(--unlp-blue); color: white; padding: 8px 60px; 
@@ -389,12 +434,12 @@
             <div class="header-container">
                 <div class="title-pill">PRONÓSTICO METEOROLÓGICO</div>
                 <div class="header-capsule">
-                    <img src="images/Logo astronomicas y geofisicas.png">
-                    <div class="city-box">
-                        <img src="images/Logo pronounlp.jfif" style="height: 80px;">
-                        <h1 class="city-label">LA PLATA</h1>
+                    <div class="header-left-logos">
+                        <img src="images/Logo astronomicas y geofisicas.png" class="logo-fcag">
+                        <img src="images/Logo pronounlp.jfif" class="logo-prono">
                     </div>
-                    <img src="images/Logo unlp.png">
+                    <h1 class="city-label">LA PLATA</h1>
+                    <img src="images/Logo unlp.png" class="logo-unlp">
                 </div>
             </div>
 
@@ -512,12 +557,12 @@
             <div class="header-container">
                 <div class="title-pill">PRONÓSTICO EXTENDIDO</div>
                 <div class="header-capsule">
-                    <img src="images/Logo astronomicas y geofisicas.png">
-                    <div class="city-box">
-                        <img src="images/Logo pronounlp.jfif" style="height: 80px;">
-                        <h1 class="city-label">LA PLATA</h1>
+                    <div class="header-left-logos">
+                        <img src="images/Logo astronomicas y geofisicas.png" class="logo-fcag">
+                        <img src="images/Logo pronounlp.jfif" class="logo-prono">
                     </div>
-                    <img src="images/Logo unlp.png">
+                    <h1 class="city-label">LA PLATA</h1>
+                    <img src="images/Logo unlp.png" class="logo-unlp">
                 </div>
             </div>
             <div class="cards-container">
@@ -884,11 +929,9 @@
         document.querySelectorAll('.city-label').forEach(el => {
             el.innerText = v.toUpperCase();
             if (v.length > 10) {
-                el.style.fontSize = '38px';
-                el.style.letterSpacing = '0';
+                el.style.fontSize = '48px'; 
             } else {
-                el.style.fontSize = '55px';
-                el.style.letterSpacing = '0';
+                el.style.fontSize = '58px';
             }
         }); 
     }
