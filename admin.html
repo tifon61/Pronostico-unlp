@@ -84,6 +84,7 @@
             width: 100%;
             height: 130px;
             position: relative;
+            margin-top: 15px; /* Empuja la cápsula hacia abajo para dejar margen superior */
             margin-bottom: 20px;
             flex-shrink: 0;
         }
@@ -101,8 +102,9 @@
         .header-left-logos {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 20px; /* Gap levemente reducido para acomodar nombres grandes */
             z-index: 2;
+            transform: translateY(8px); /* Desplaza los logos y el texto hacia abajo de la cápsula */
         }
         .logo-fcag { 
             height: 65px; 
@@ -125,7 +127,7 @@
         .header-capsule h1 { 
             font-size: 58px; 
             font-weight: 900; 
-            margin: 0 0 0 -5px; /* Acercamos el texto al logo de pronóstico con un pequeño margen negativo */
+            margin: 0; 
             color: var(--unlp-blue); 
             text-transform: uppercase; 
             letter-spacing: -1px; 
@@ -257,7 +259,6 @@
         .temp-v-item { display: flex; align-items: center; gap: 8px; }
         .temp-v-vals { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         
-        /* Modificado: Mismo tamaño y sin negritas */
         .temp-v-urb { 
             font-size: 28px; 
             font-weight: 500; 
@@ -357,7 +358,6 @@
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
         
-        /* Modificado: Mismo tamaño y sin negritas */
         .card-temp-urb { 
             font-size: 28px; 
             font-weight: 500; 
@@ -398,10 +398,9 @@
             color: rgba(255,255,255,0.95); 
         }
         
-        /* Modificado: Texto del footer más grande y reposicionado para Placa 2 */
         .footer-note { 
             position: absolute;
-            bottom: 70px; /* Separado del rectángulo inferior */
+            bottom: 70px; 
             left: 0;
             width: 100%;
             text-align: center; 
@@ -411,7 +410,6 @@
             text-transform: uppercase; 
         }
 
-        /* Rectángulo azul abajo de todo (Solo en Placa 2) */
         .bottom-bar {
             position: absolute;
             bottom: 0;
@@ -975,11 +973,18 @@
     function updateCity(v) { 
         document.querySelectorAll('.city-label').forEach(el => {
             el.innerText = v.toUpperCase();
-            if (v.length > 10) {
-                // Reducido a 40px y sin position absolute para que siempre entre bien al lado de los logos
-                el.style.fontSize = '40px'; 
-            } else {
+            if (v.toUpperCase() === 'MAR DEL PLATA') {
+                el.style.fontSize = '46px'; 
+                el.style.letterSpacing = '-1.5px';
+                el.style.marginLeft = '0px';
+            } else if (v.toUpperCase() === 'JUNÍN') {
                 el.style.fontSize = '58px';
+                el.style.letterSpacing = '-1px';
+                el.style.marginLeft = '70px'; // Lo empuja hacia el centro
+            } else { // LA PLATA
+                el.style.fontSize = '58px';
+                el.style.letterSpacing = '-1px';
+                el.style.marginLeft = '10px';
             }
         }); 
     }
@@ -1089,6 +1094,10 @@
             let iterY = String(iterDate.getFullYear()).slice(-2);
             document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${iterD}/${iterM}/${iterY}`);
         }
+
+        // Aplica el espaciado para la ciudad seleccionada inicialmente
+        const initialCity = document.getElementById('city-selector');
+        if (initialCity) updateCity(initialCity.value);
         
         setTimeout(() => {
             try {
