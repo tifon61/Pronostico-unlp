@@ -5,6 +5,7 @@
     <title>Admin Meteorológico UNLP | IG Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -48,6 +49,8 @@
         .btn-p1:hover { background: #002240; }
         .btn-p2 { background: var(--unlp-green); }
         .btn-p2:hover { background: #005b50; }
+        .btn-pdf { background: #d35400; border-bottom: 4px solid #a04000; }
+        .btn-pdf:hover { background: #ba4a00; }
 
         /* VIEWER */
         #viewer { 
@@ -483,8 +486,9 @@
     </div>
 
     <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
-    <button class="btn btn-p1" onclick="download('placa-1', 'IG_D1D2')">⬇ PLACA 1 (D1-D2)</button>
-    <button class="btn btn-p2" onclick="download('placa-2', 'IG_D3D4')">⬇ PLACA 2 (D3-D4)</button>
+    <button class="btn btn-p1" onclick="download('placa-1')">⬇ PLACA 1 (D1-D2)</button>
+    <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
+    <button class="btn btn-pdf" onclick="downloadPDF()">📄 DESCARGAR PDF</button>
 
     <div id="dynamic-inputs"></div>
 </div>
@@ -1085,11 +1089,25 @@
         }
     }
 
-    async function download(id, name) {
+    function getFilename(type) {
+        // Reemplaza los espacios por guiones bajos para el nombre del archivo (ej. Mar_del_Plata)
+        const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
+        if (type === 'placa-1') {
+            const d1 = document.querySelector('.n0').innerText;
+            const d2 = document.querySelector('.n1').innerText;
+            return `Pronostico_${city}_${d1}_${d2}`;
+        } else if (type === 'placa-2') {
+            const d3 = document.querySelector('.n2').innerText;
+            const d4 = document.querySelector('.n3').innerText;
+            return `Pronostico_${city}_${d3}_${d4}`;
+        }
+        return `Pronostico_${city}`;
+    }
+
+    async function download(id) {
         await document.fonts.ready;
 
         const el = document.getElementById(id);
-
         const images = el.querySelectorAll("img");
 
         await Promise.all([...images].map(img => {
@@ -1109,12 +1127,43 @@
         });
 
         const link = document.createElement("a");
-
-        link.download = `UNLP_${name}.png`;
-
+        link.download = getFilename(id) + `.png`;
         link.href = canvas.toDataURL("image/png");
-
         link.click();
+    }
+
+    async function downloadPDF() {
+        await document.fonts.ready;
+        
+        const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
+        const d1 = document.querySelector('.n0').innerText;
+        const d4 = document.querySelector('.n3').innerText;
+        const pdfName = `Pronostico_${city}_${d1}_a_${d4}.pdf`;
+
+        const el1 = document.getElementById('placa-1');
+        const el2 = document.getElementById('placa-2');
+        
+        const images = document.querySelectorAll("img");
+        await Promise.all([...images].map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+        }));
+
+        const canvas1 = await html2canvas(el1, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
+        const canvas2 = await html2canvas(el2, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [1080, 1350]
+        });
+
+        doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
+        doc.addPage();
+        doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
+        
+        doc.save(pdfName);
     }
 
     window.onload = function() {
