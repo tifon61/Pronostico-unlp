@@ -110,7 +110,7 @@
             transform: translateY(8px); /* VISIÓN NORMAL: centrado en pantalla */
         }
         .exporting .header-left-logos {
-            transform: translateY(-10px); /* TRAMPA EXPORTACIÓN: más arriba */
+            transform: translateY(15px); /* TRAMPA EXPORTACIÓN: Baja los logos (FCAG y Pronóstico) para que no choquen con la píldora */
         }
         
         .logo-fcag { 
@@ -142,7 +142,7 @@
             z-index: 1;
         }
         .exporting .header-capsule h1 {
-            margin: -6px 0 0 0; /* TRAMPA EXPORTACIÓN */
+            margin: -20px 0 0 0; /* TRAMPA EXPORTACIÓN: Sube de forma independiente el texto de la ciudad */
         }
 
         .title-pill { 
@@ -250,7 +250,7 @@
             align-items: stretch; 
             justify-content: flex-end;
             align-self: stretch; 
-            border-right: none; /* ELIMINADA la línea punteada vertical */
+            border-right: none; 
             padding-right: 15px; 
         }
         
@@ -341,7 +341,7 @@
         .v-card { 
             height: 1010px;
             border-radius: 55px; 
-            padding: 25px 35px; /* Reducido para que todo suba en el espacio disponible */
+            padding: 25px 35px; 
             color: white; 
             display: flex; 
             flex-direction: column; 
@@ -358,14 +358,14 @@
         .v-card h2 { 
             font-size: 72px;
             font-weight: 900;
-            margin-bottom: 5px; /* Reducido para que no quede tanto aire debajo del título */
+            margin-bottom: 5px; 
             text-transform: uppercase; 
             letter-spacing: 0; 
         }
         .v-card .date { 
             font-size: 46px;
             font-weight: 300;
-            margin-bottom: 25px; /* Reducido */
+            margin-bottom: 25px; 
             opacity: 0.85; 
         }
         
@@ -401,7 +401,7 @@
         .weather-desc { 
             height: 140px;
             width: 100%;
-            margin-top: 15px; /* Reducido para acercarlo a las temperaturas */
+            margin-top: 15px; 
             display: flex;
             align-items: center;
             justify-content: center;
