@@ -170,7 +170,7 @@
             overflow: hidden; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
             justify-content: space-between; 
-            padding-bottom: 18px;
+            padding-bottom: 0px; /* CORREGIDO: Eliminamos el padding para que la banda llegue hasta abajo */
         }
         
         .day-1 { background: var(--unlp-blue); padding-top: 25px; height: 630px; }
@@ -670,12 +670,12 @@
                         </div>
                     </div>
 
-                    <!-- NUEVO: Contenedor estricto para escalar texto (Día 3) -->
+                    <!-- Contenedor estricto para escalar texto (Día 3) -->
                     <div class="weather-desc" id="d3-desc-container">
                         <span id="d3-w1">--</span>
                     </div>
                     
-                    <!-- NUEVO: Sección de vientos fija al fondo -->
+                    <!-- Sección de vientos fija al fondo -->
                     <div class="wind-section">
                         <div class="wind-arrows" id="d3-arrows-container"></div>
                         <div class="wind-legend" id="d3-wind-legend">--</div>
@@ -723,12 +723,12 @@
                         </div>
                     </div>
 
-                    <!-- NUEVO: Contenedor estricto para escalar texto (Día 4) -->
+                    <!-- Contenedor estricto para escalar texto (Día 4) -->
                     <div class="weather-desc" id="d4-desc-container">
                         <span id="d4-w1">--</span>
                     </div>
                     
-                    <!-- NUEVO: Sección de vientos fija al fondo -->
+                    <!-- Sección de vientos fija al fondo -->
                     <div class="wind-section">
                         <div class="wind-arrows" id="d4-arrows-container"></div>
                         <div class="wind-legend" id="d4-wind-legend">--</div>
@@ -762,8 +762,13 @@
             }
         }, true);
 
-        const SKY_OPTS = ["despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", "nublado", "cubierto", "neblinas", "nieblas"];
-        const RAIN_OPTS = ["", "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
+        // LISTA UNIFICADA: Cielo + Tormentas/Lluvias
+        const COMBINED_WEATHER_OPTS = [
+            "despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", 
+            "nublado", "cubierto", "neblinas", "nieblas", 
+            "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"
+        ];
+        
         const WIND_INT = ["calmo", "leves", "moderado", "fuerte", "muy fuerte"];
         const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
         
@@ -839,10 +844,10 @@
                                 <input type="number" id="${conf.id}-temp-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
                             </div>
                             <div class="column">
-                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
+                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo / Fenómeno</label>
                                 <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx}, this.value)">
-                                    <option value="">Cielo...</option>
-                                    ${SKY_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                    <option value="">Cielo o Lluvia...</option>
+                                    ${COMBINED_WEATHER_OPTS.map(o => `<option value="${o}">${capitalizeFirst(o)}</option>`).join('')}
                                 </select>
                             </div>
                         </div>`;
@@ -853,10 +858,10 @@
                                 <span class="period-no-temp">Controlado por T. Diaria</span>
                             </div>
                             <div class="column">
-                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo</label>
+                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo / Fenómeno</label>
                                 <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx}, this.value)">
-                                    <option value="">Cielo...</option>
-                                    ${SKY_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                    <option value="">Cielo o Lluvia...</option>
+                                    ${COMBINED_WEATHER_OPTS.map(o => `<option value="${o}">${capitalizeFirst(o)}</option>`).join('')}
                                 </select>
                             </div>
                         </div>`;
@@ -864,18 +869,14 @@
                     
                     html += `<div class="row">
                             <div class="column">
-                                <label for="${conf.id}-rain-select-${tramoIdx}">Lluvias</label>
-                                <select id="${conf.id}-rain-select-${tramoIdx}">
-                                    <option value="">Lluvias...</option>
-                                    ${RAIN_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
-                                </select>
-                            </div>
-                            <div class="column">
-                                <label for="${conf.id}-v-i${tramoIdx}">Viento</label>
+                                <label for="${conf.id}-v-i${tramoIdx}">Intensidad Viento</label>
                                 <select id="${conf.id}-v-i${tramoIdx}" onchange="updateWind('${conf.id}', ${tramoIdx})">
                                     <option value="">Intensidad</option>
                                     ${WIND_INT.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
+                            </div>
+                            <div class="column">
+                                <label for="${conf.id}-v-d${tramoIdx}">Dirección Viento</label>
                                 <select id="${conf.id}-v-d${tramoIdx}" onchange="updateWind('${conf.id}', ${tramoIdx})">
                                     <option value="">Dirección</option>
                                     ${WIND_DIR.map(o => `<option value="${o}">${o}</option>`).join('')}
@@ -1290,9 +1291,12 @@
             conf.tramos.forEach((periodValue, index) => {
                 const tramoIdx = index + 1;
                 const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`).value;
-                const rainCond = document.getElementById(`${conf.id}-rain-select-${tramoIdx}`).value;
                 const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
+
+                // Determinamos si es un tipo de lluvia para el envío a la API
+                const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
+                const isRain = rainTypes.includes(skyCond);
 
                 let temp = null;
                 if (conf.id === 'h' || conf.id === 'm') {
@@ -1305,8 +1309,8 @@
 
                 dailyForecast.period_forecasts.push({
                     period: periodValue,
-                    precipitation_description: rainCond || "",
-                    sky_condition: skyCond || null,
+                    precipitation_description: isRain ? skyCond : "",
+                    sky_condition: isRain ? null : (skyCond || null),
                     temperature: temp,
                     weather_icon_code: iconCode,
                     wind_direction: windDir || null,
