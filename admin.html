@@ -87,7 +87,7 @@
             width: 100%;
             height: 130px;
             position: relative;
-            margin-top: 15px; /* Empuja la cápsula hacia abajo para dejar margen superior */
+            margin-top: 15px; 
             margin-bottom: 20px;
             flex-shrink: 0;
         }
@@ -105,9 +105,9 @@
         .header-left-logos {
             display: flex;
             align-items: center;
-            gap: 20px; /* Gap levemente reducido para acomodar nombres grandes */
+            gap: 20px; 
             z-index: 2;
-            transform: translateY(8px); /* Desplaza los logos y el texto hacia abajo de la cápsula */
+            transform: translateY(2px); /* SUBIMOS un poco los logos y la ciudad para compensar al descargar */
         }
         .logo-fcag { 
             height: 65px; 
@@ -149,7 +149,8 @@
 
         /* CAPSULA FECHA Y EMISIÓN */
         .date-emission-pill { 
-            background: var(--unlp-bg-pill); border-radius: 50px; padding: 8px 50px; 
+            background: var(--unlp-bg-pill); border-radius: 50px; 
+            padding: 4px 50px 12px; /* Aumenta el padding abajo para que visualmente el texto quede más alto */
             display: inline-flex;
             align-items: center; gap: 50px; color: var(--unlp-blue); 
             border: 3px solid white; 
@@ -173,7 +174,7 @@
             overflow: hidden; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
             justify-content: space-between; 
-            padding-bottom: 0px; /* CORREGIDO: Eliminamos el padding para que la banda llegue hasta abajo */
+            padding-bottom: 0px; 
         }
         
         .day-1 { background: var(--unlp-blue); padding-top: 25px; height: 630px; }
@@ -318,7 +319,7 @@
         .v-card { 
             height: 1010px;
             border-radius: 55px; 
-            padding: 45px 35px; 
+            padding: 25px 35px; /* Reducido para que todo suba en el espacio disponible */
             color: white; 
             display: flex; 
             flex-direction: column; 
@@ -335,14 +336,14 @@
         .v-card h2 { 
             font-size: 72px;
             font-weight: 900;
-            margin-bottom: 20px;
+            margin-bottom: 5px; /* Reducido para que no quede tanto aire debajo del título */
             text-transform: uppercase; 
             letter-spacing: 0; 
         }
         .v-card .date { 
             font-size: 46px;
             font-weight: 300;
-            margin-bottom: 40px;
+            margin-bottom: 25px; /* Reducido */
             opacity: 0.85; 
         }
         
@@ -374,11 +375,11 @@
             color: rgba(255,255,255,0.9); 
         } 
         
-        /* NUEVO: Espacio delimitado para la descripción */
+        /* Espacio delimitado para la descripción */
         .weather-desc { 
             height: 140px;
             width: 100%;
-            margin-top: 30px;
+            margin-top: 15px; /* Reducido para acercarlo a las temperaturas */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -393,7 +394,7 @@
             width: 100%;
         }
 
-        /* NUEVO: Contenedor anclado al fondo para los vientos */
+        /* Contenedor anclado al fondo para los vientos */
         .wind-section {
             position: absolute;
             bottom: 45px;
@@ -648,7 +649,7 @@
                     </div>
                     
                     <div class="card-temps-row">
-                        <!-- MIN TEMP RESTAURADA -->
+                        <!-- MIN TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -701,7 +702,7 @@
                     </div>
                     
                     <div class="card-temps-row">
-                        <!-- MIN TEMP RESTAURADA -->
+                        <!-- MIN TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -908,30 +909,18 @@
         up(`${dia}-t${idx}`, value);
     }
 
-    // Nuevo diseño plano/triangular de flecha de viento
+    // Nuevo diseño de flecha blindado contra errores de html2canvas (con wrapper y sombra manual en vez de CSS drop-shadow)
     function getWindArrowSVG(dir) {
-        const angle = windDirectionsAngles[dir] !== undefined
-            ? windDirectionsAngles[dir]
-            : 0;
-
+        const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
         return `
-        <svg 
-            viewBox="0 0 100 100"
-            width="58"
-            height="58"
-            style="
-                transform: rotate(${angle}deg);
-                margin: 0 8px;
-                flex-shrink: 0;
-                overflow: visible;
-                filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.15));
-            "
-        >
-            <path
-                d="M 50 15 L 85 85 L 50 70 L 15 85 Z"
-                fill="#ffffff"
-            />
-        </svg>
+        <div style="width: 58px; height: 58px; margin: 0 8px; flex-shrink: 0; display: inline-flex; justify-content: center; align-items: center;">
+            <svg viewBox="0 0 100 100" width="58" height="58" style="transform: rotate(${angle}deg); overflow: visible; display: block;">
+                <!-- Sombra dibujada de forma rígida para que no se mueva en la descarga -->
+                <path d="M 50 17 L 85 87 L 50 72 L 15 87 Z" fill="rgba(0,0,0,0.15)" />
+                <!-- Flecha principal -->
+                <path d="M 50 15 L 85 85 L 50 70 L 15 85 Z" fill="#ffffff" />
+            </svg>
+        </div>
         `;
     }
 
@@ -1089,19 +1078,22 @@
         }
     }
 
+    // NUEVO: Generador dinámico de nombres de archivo incluyendo la fecha formateada (limpia de barras invertidas)
     function getFilename(type) {
-        // Reemplaza los espacios por guiones bajos para el nombre del archivo (ej. Mar_del_Plata)
         const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
+        const rawDate = document.getElementById('in-fecha-emision').value; // Ej: "18/MAY/26"
+        const cleanDate = rawDate.replace(/\//g, ''); // Lo limpia a "18MAY26" para no romper el archivo
+        
         if (type === 'placa-1') {
             const d1 = document.querySelector('.n0').innerText;
             const d2 = document.querySelector('.n1').innerText;
-            return `Pronostico_${city}_${d1}_${d2}`;
+            return `Pronostico_${city}_${cleanDate}_${d1}_${d2}`;
         } else if (type === 'placa-2') {
             const d3 = document.querySelector('.n2').innerText;
             const d4 = document.querySelector('.n3').innerText;
-            return `Pronostico_${city}_${d3}_${d4}`;
+            return `Pronostico_${city}_${cleanDate}_${d3}_${d4}`;
         }
-        return `Pronostico_${city}`;
+        return `Pronostico_${city}_${cleanDate}`;
     }
 
     async function download(id) {
@@ -1136,9 +1128,10 @@
         await document.fonts.ready;
         
         const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
+        const rawDate = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
         const d1 = document.querySelector('.n0').innerText;
         const d4 = document.querySelector('.n3').innerText;
-        const pdfName = `Pronostico_${city}_${d1}_a_${d4}.pdf`;
+        const pdfName = `Pronostico_${city}_${rawDate}_${d1}_a_${d4}.pdf`;
 
         const el1 = document.getElementById('placa-1');
         const el2 = document.getElementById('placa-2');
