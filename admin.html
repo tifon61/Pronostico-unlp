@@ -345,7 +345,7 @@
         
         .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; width: 100%; }
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; }
+        .card-split-title { font-size: 15px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
         .card-split img { 
             width: auto; 
             height: 165px; 
@@ -634,11 +634,11 @@
                     <div class="date f2">--</div>
                     <div class="card-split">
                         <div class="card-split-col">
-                            <span class="card-split-title">MAÑANA</span>
+                            <span class="card-split-title">MADRUGADA/MAÑANA</span>
                             <img id="d3-icon-1" src="images/default.png">
                         </div>
                         <div class="card-split-col">
-                            <span class="card-split-title">TARDE</span>
+                            <span class="card-split-title">TARDE/NOCHE</span>
                             <img id="d3-icon-2" src="images/default.png">
                         </div>
                     </div>
@@ -687,11 +687,11 @@
                     <div class="date f3">--</div>
                     <div class="card-split">
                         <div class="card-split-col">
-                            <span class="card-split-title">MAÑANA</span>
+                            <span class="card-split-title">MADRUGADA/MAÑANA</span>
                             <img id="d4-icon-1" src="images/default.png">
                         </div>
                         <div class="card-split-col">
-                            <span class="card-split-title">TARDE</span>
+                            <span class="card-split-title">TARDE/NOCHE</span>
                             <img id="d4-icon-2" src="images/default.png">
                         </div>
                     </div>
@@ -795,6 +795,7 @@
         function getMomentoDia(dia, tramo) {
             if (dia === 'h') return tramo === 3 ? 'noche' : 'dia'; 
             if (dia === 'm') return (tramo === 1 || tramo === 4) ? 'noche' : 'dia'; 
+            if (dia === 'd3' || dia === 'd4') return tramo === 2 ? 'noche' : 'dia';
             return 'dia'; 
         }
 
@@ -803,8 +804,8 @@
             const configs = [
                 {id: 'h', title: 'DÍA 1 (HOY)', tramos: ['mañana', 'tarde', 'noche']},
                 {id: 'm', title: 'DÍA 2 (MAÑANA)', tramos: ['madrugada', 'mañana', 'tarde', 'noche']},
-                {id: 'd3', title: 'DÍA 3', tramos: ['mañana', 'tarde']},
-                {id: 'd4', title: 'DÍA 4', tramos: ['mañana', 'tarde']}
+                {id: 'd3', title: 'DÍA 3', tramos: ['madrugada/mañana', 'tarde/noche']},
+                {id: 'd4', title: 'DÍA 4', tramos: ['madrugada/mañana', 'tarde/noche']}
             ];
 
             configs.forEach(conf => {
