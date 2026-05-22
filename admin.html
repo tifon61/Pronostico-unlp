@@ -107,7 +107,7 @@
             align-items: center;
             gap: 20px; 
             z-index: 2;
-            transform: translateY(-5px); /* SUBIMOS un poco más los logos y la ciudad para compensar al descargar */
+            transform: translateY(-10px); /* SUBIMOS un poco más los logos y la ciudad para compensar al descargar */
         }
         .logo-fcag { 
             height: 65px; 
@@ -130,7 +130,7 @@
         .header-capsule h1 { 
             font-size: 58px; 
             font-weight: 900; 
-            margin: 0; 
+            margin: -6px 0 0 0; /* Empuje extra hacia arriba solo para el texto de la ciudad */
             color: var(--unlp-blue); 
             text-transform: uppercase; 
             letter-spacing: -1px; 
@@ -203,13 +203,18 @@
             display: flex; 
             flex-grow: 1; 
             justify-content: space-around; 
-            padding: 4px 0; 
+            padding: 0px 0 8px; /* Ajustado para que el texto suba visualmente */
             font-weight: 800; 
             font-size: 24px; 
             margin-right: 15px; 
         }
-        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 4px 10px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
+        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 0px 10px 8px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
         
+        .periods-pill span, .periods-pill-4 span {
+            display: inline-block;
+            margin-top: -3px; /* Empuje fino hacia arriba para contrarrestar la descarga */
+        }
+
         .day-main-grid { 
             display: grid; 
             grid-template-columns: 285px 1fr 1fr 1fr; 
@@ -228,7 +233,7 @@
             align-items: stretch; 
             justify-content: flex-end;
             align-self: stretch; 
-            border-right: 2px dashed rgba(255,255,255,0.2); 
+            border-right: none; /* ELIMINADA la línea punteada vertical */
             padding-right: 15px; 
         }
         
