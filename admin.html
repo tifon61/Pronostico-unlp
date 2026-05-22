@@ -107,8 +107,12 @@
             align-items: center;
             gap: 20px; 
             z-index: 2;
-            transform: translateY(-10px); /* SUBIMOS un poco más los logos y la ciudad para compensar al descargar */
+            transform: translateY(8px); /* VISIÓN NORMAL: centrado en pantalla */
         }
+        .exporting .header-left-logos {
+            transform: translateY(-10px); /* TRAMPA EXPORTACIÓN: más arriba */
+        }
+        
         .logo-fcag { 
             height: 65px; 
             object-fit: contain; 
@@ -130,12 +134,15 @@
         .header-capsule h1 { 
             font-size: 58px; 
             font-weight: 900; 
-            margin: -6px 0 0 0; /* Empuje extra hacia arriba solo para el texto de la ciudad */
+            margin: 0; /* VISIÓN NORMAL: sin margen */
             color: var(--unlp-blue); 
             text-transform: uppercase; 
             letter-spacing: -1px; 
             line-height: 1;
             z-index: 1;
+        }
+        .exporting .header-capsule h1 {
+            margin: -6px 0 0 0; /* TRAMPA EXPORTACIÓN */
         }
 
         .title-pill { 
@@ -150,7 +157,7 @@
         /* CAPSULA FECHA Y EMISIÓN */
         .date-emission-pill { 
             background: var(--unlp-bg-pill); border-radius: 50px; 
-            padding: 4px 50px 12px; /* Aumenta el padding abajo para que visualmente el texto quede más alto */
+            padding: 8px 50px; /* VISIÓN NORMAL: padding uniforme */
             display: inline-flex;
             align-items: center; gap: 50px; color: var(--unlp-blue); 
             border: 3px solid white; 
@@ -158,6 +165,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             position: relative; z-index: 10;
         }
+        .exporting .date-emission-pill {
+            padding: 4px 50px 12px; /* TRAMPA EXPORTACIÓN */
+        }
+        
         .date-val { font-size: 28px; font-weight: 900; }
         .issuance-block { display: flex; align-items: center; gap: 10px; text-transform: uppercase; border-left: 2px solid rgba(0,49,90,0.25); padding-left: 20px; }
         .issuance-label { font-size: 13px; font-weight: 800; max-width: 140px; line-height: 1.1; }
@@ -203,16 +214,22 @@
             display: flex; 
             flex-grow: 1; 
             justify-content: space-around; 
-            padding: 0px 0 8px; /* Ajustado para que el texto suba visualmente */
+            padding: 4px 0; /* VISIÓN NORMAL */
             font-weight: 800; 
             font-size: 24px; 
             margin-right: 15px; 
         }
-        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 0px 10px 8px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
+        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 4px 10px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
+        
+        .exporting .periods-pill { padding: 0px 0 8px; }
+        .exporting .periods-pill-4 { padding: 0px 10px 8px; }
         
         .periods-pill span, .periods-pill-4 span {
             display: inline-block;
-            margin-top: -3px; /* Empuje fino hacia arriba para contrarrestar la descarga */
+            margin-top: 0; /* VISIÓN NORMAL */
+        }
+        .exporting .periods-pill span, .exporting .periods-pill-4 span {
+            margin-top: -3px; /* TRAMPA EXPORTACIÓN */
         }
 
         .day-main-grid { 
@@ -1108,6 +1125,12 @@
         await document.fonts.ready;
 
         const el = document.getElementById(id);
+        
+        // --- APLICAMOS MÁSCARA DE EXPORTACIÓN ---
+        el.classList.add('exporting');
+        // Pequeña pausa para asegurar que el navegador aplique los estilos antes de la foto
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
         const images = el.querySelectorAll("img");
 
         await Promise.all([...images].map(img => {
@@ -1125,6 +1148,9 @@
             logging: false,
             backgroundColor: null
         });
+        
+        // --- QUITAMOS MÁSCARA ---
+        el.classList.remove('exporting');
 
         const link = document.createElement("a");
         link.download = getFilename(id) + `.png`;
@@ -1144,6 +1170,11 @@
         const el1 = document.getElementById('placa-1');
         const el2 = document.getElementById('placa-2');
         
+        // --- APLICAMOS MÁSCARA DE EXPORTACIÓN ---
+        el1.classList.add('exporting');
+        el2.classList.add('exporting');
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
         const images = document.querySelectorAll("img");
         await Promise.all([...images].map(img => {
             if (img.complete) return Promise.resolve();
@@ -1152,6 +1183,10 @@
 
         const canvas1 = await html2canvas(el1, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
         const canvas2 = await html2canvas(el2, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
+
+        // --- QUITAMOS MÁSCARA ---
+        el1.classList.remove('exporting');
+        el2.classList.remove('exporting');
 
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({
