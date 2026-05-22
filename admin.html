@@ -107,7 +107,7 @@
             align-items: center;
             gap: 20px; 
             z-index: 2;
-            transform: translateY(2px); /* SUBIMOS un poco los logos y la ciudad para compensar al descargar */
+            transform: translateY(-5px); /* SUBIMOS un poco más los logos y la ciudad para compensar al descargar */
         }
         .logo-fcag { 
             height: 65px; 
@@ -358,7 +358,7 @@
             flex-shrink: 0; 
         }
         
-        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; }
+        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; transform: translateX(-12px); /* Desplaza visualmente hacia la izquierda para centrar */ }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
         
@@ -909,16 +909,19 @@
         up(`${dia}-t${idx}`, value);
     }
 
-    // Nuevo diseño de flecha blindado contra errores de html2canvas (con wrapper y sombra manual en vez de CSS drop-shadow)
+    // Nuevo diseño de flecha blindado contra errores de html2canvas (con wrapper y rotación nativa SVG)
     function getWindArrowSVG(dir) {
         const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
         return `
-        <div style="width: 58px; height: 58px; margin: 0 8px; flex-shrink: 0; display: inline-flex; justify-content: center; align-items: center;">
-            <svg viewBox="0 0 100 100" width="58" height="58" style="transform: rotate(${angle}deg); overflow: visible; display: block;">
-                <!-- Sombra dibujada de forma rígida para que no se mueva en la descarga -->
-                <path d="M 50 17 L 85 87 L 50 72 L 15 87 Z" fill="rgba(0,0,0,0.15)" />
-                <!-- Flecha principal -->
-                <path d="M 50 15 L 85 85 L 50 70 L 15 85 Z" fill="#ffffff" />
+        <div style="width: 58px; height: 58px; margin: 0 8px; flex-shrink: 0;">
+            <svg viewBox="0 0 100 100" width="58" height="58" style="display: block;">
+                <!-- Usamos una etiqueta group <g> con rotación interna para que html2canvas no se maree -->
+                <g transform="rotate(${angle} 50 50)">
+                    <!-- Sombra dibujada de forma rígida -->
+                    <path d="M 50 17 L 85 87 L 50 72 L 15 87 Z" fill="rgba(0,0,0,0.15)" />
+                    <!-- Flecha principal -->
+                    <path d="M 50 15 L 85 85 L 50 70 L 15 85 Z" fill="#ffffff" />
+                </g>
             </svg>
         </div>
         `;
