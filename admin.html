@@ -51,6 +51,8 @@
         .btn-p2:hover { background: #005b50; }
         .btn-pdf { background: #d35400; border-bottom: 4px solid #a04000; }
         .btn-pdf:hover { background: #ba4a00; }
+        .btn-clear { background: #6c757d; padding: 8px; font-size: 0.8em; border-bottom: 3px solid #5a6268; margin-top: 5px; }
+        .btn-clear:hover { background: #5a6268; }
 
         /* VIEWER */
         #viewer { 
@@ -485,8 +487,18 @@
 
 <div id="sidebar">
     <h2 style="font-size: 1.1em; color: var(--unlp-blue); border-bottom: 3px solid var(--unlp-blue); padding-bottom: 8px; margin-top: 0;">ADMIN PRONÓSTICO UNLP</h2>
+    
     <div class="field-group">
         <h4>Información General</h4>
+        
+        <!-- NUEVO: Interruptor para preparar pronóstico el día anterior -->
+        <div class="row">
+            <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
+                <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
+                <label for="chk-tomorrow" style="margin: 0; cursor: pointer; color: var(--unlp-blue); font-weight: 800; font-size: 0.75em;">CREAR PARA MAÑANA (Turno noche)</label>
+            </div>
+        </div>
+
         <div class="row">
             <div class="column">
                 <label for="city-selector">Ciudad</label>
@@ -516,6 +528,9 @@
     <button class="btn btn-p1" onclick="download('placa-1')">⬇ PLACA 1 (D1-D2)</button>
     <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
     <button class="btn btn-pdf" onclick="downloadPDF()">📄 DESCARGAR PDF</button>
+    
+    <!-- NUEVO: Botón para limpiar autoguardado -->
+    <button class="btn btn-clear" onclick="clearDraft()">🗑️ Limpiar Borrador Guardado</button>
 
     <div id="dynamic-inputs"></div>
 </div>
@@ -924,6 +939,44 @@
             document.getElementById('dynamic-inputs').innerHTML = html;
         }
 
+    // NUEVO: Función para calcular o re-calcular fechas basado en el checkbox
+    function recalculateDates() {
+        const today = new Date();
+        const isTomorrow = document.getElementById('chk-tomorrow').checked;
+        
+        // Si activaron el switch, la fecha base de cálculo es "mañana"
+        if (isTomorrow) {
+            today.setDate(today.getDate() + 1);
+        }
+
+        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+        const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+
+        // Actualizar la cápsula de fecha de emisión
+        const dStr = String(today.getDate()).padStart(2, '0');
+        const moStr = ms[today.getMonth()];
+        const yStr = String(today.getFullYear()).slice(-2);
+        const specificDateStr = `${dStr}/${moStr}/${yStr}`;
+
+        const dateInput = document.getElementById('in-fecha-emision');
+        if (dateInput) {
+            dateInput.value = specificDateStr;
+            updateDateVal(specificDateStr);
+        }
+
+        // Calcular los nombres y fechas de los 4 días
+        for(let i=0; i<4; i++) {
+            let iterDate = new Date(today); 
+            iterDate.setDate(today.getDate() + i);
+            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
+            
+            let iterD = String(iterDate.getDate()).padStart(2, '0');
+            let iterM = ms[iterDate.getMonth()];
+            let iterY = String(iterDate.getFullYear()).slice(-2);
+            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${iterD}/${iterM}/${iterY}`);
+        }
+    }
+
     function updateTempField(dia, tipo, zona) {
         const value = document.getElementById(`in-${dia}-${tipo}-${zona}`).value;
         const targetId = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`;
@@ -935,13 +988,12 @@
         up(`${dia}-t${idx}`, value);
     }
 
-    // Nuevo diseño de flecha blindado contra errores de html2canvas (con wrapper y rotación nativa SVG)
+    // Diseño de flecha blindado contra errores de html2canvas (con wrapper y rotación nativa SVG)
     function getWindArrowSVG(dir) {
         const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
         return `
         <div style="width: 58px; height: 58px; margin: 0 8px; flex-shrink: 0;">
             <svg viewBox="0 0 100 100" width="58" height="58" style="display: block;">
-                <!-- Usamos una etiqueta group <g> con rotación interna para que html2canvas no se maree -->
                 <g transform="rotate(${angle} 50 50)">
                     <!-- Sombra dibujada de forma rígida -->
                     <path d="M 50 17 L 85 87 L 50 72 L 15 87 Z" fill="rgba(0,0,0,0.15)" />
@@ -977,14 +1029,11 @@
         // Lógica de redacción de vientos 
         if (i1 && d1 && i2 && d2) {
             if (d1 === d2) {
-                // No rota
                 legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}.`);
             } else {
-                // Rota
                 legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1} rotando a ${i2} del ${d2}.`);
             }
         } else if (i1 && d1) {
-            // Solo primer periodo
             legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}.`);
         }
         
@@ -1005,8 +1054,6 @@
                     const fileName = iconMap[valor][momento];
                     imgEl.src = `images/${fileName}`;
                     
-                    // ESCALADO INTELIGENTE DE ÍCONOS
-                    // Los PNG de nubes/lluvia tienen más margen, los aumentamos de tamaño
                     if (valor === "despejado") {
                         imgEl.style.transform = "scale(1)";
                     } else {
@@ -1051,17 +1098,15 @@
         if (target && container) {
             target.innerText = v || "--";
             
-            // Reiniciamos a tamaño base por defecto
             target.style.fontSize = '28px';
             
-            // Auto-escalado: reduce la letra si el texto se pasa del alto fijo
             let currentSize = 28;
             while (target.offsetHeight > container.offsetHeight && currentSize > 12) {
                 currentSize--;
                 target.style.fontSize = currentSize + 'px';
             }
         } else if (target) {
-            target.innerText = v || "--"; // Alternativa de seguridad
+            target.innerText = v || "--";
         }
     }
 
@@ -1075,8 +1120,8 @@
             } else if (v.toUpperCase() === 'JUNÍN') {
                 el.style.fontSize = '58px';
                 el.style.letterSpacing = '-1px';
-                el.style.marginLeft = '70px'; // Lo empuja hacia el centro
-            } else { // LA PLATA
+                el.style.marginLeft = '70px'; 
+            } else { 
                 el.style.fontSize = '58px';
                 el.style.letterSpacing = '-1px';
                 el.style.marginLeft = '10px';
@@ -1116,11 +1161,10 @@
         }
     }
 
-    // NUEVO: Generador dinámico de nombres de archivo incluyendo la fecha formateada (limpia de barras invertidas)
     function getFilename(type) {
         const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
-        const rawDate = document.getElementById('in-fecha-emision').value; // Ej: "18/MAY/26"
-        const cleanDate = rawDate.replace(/\//g, ''); // Lo limpia a "18MAY26" para no romper el archivo
+        const rawDate = document.getElementById('in-fecha-emision').value; 
+        const cleanDate = rawDate.replace(/\//g, ''); 
         
         if (type === 'placa-1') {
             const d1 = document.querySelector('.n0').innerText;
@@ -1136,33 +1180,19 @@
 
     async function download(id) {
         await document.fonts.ready;
-
         const el = document.getElementById(id);
         
-        // --- APLICAMOS MÁSCARA DE EXPORTACIÓN ---
         el.classList.add('exporting');
-        // Pequeña pausa para asegurar que el navegador aplique los estilos antes de la foto
         await new Promise(resolve => setTimeout(resolve, 50));
         
         const images = el.querySelectorAll("img");
-
         await Promise.all([...images].map(img => {
             if (img.complete) return Promise.resolve();
-
-            return new Promise(resolve => {
-                img.onload = resolve;
-                img.onerror = resolve;
-            });
+            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
         }));
 
-        const canvas = await html2canvas(el, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: null
-        });
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
         
-        // --- QUITAMOS MÁSCARA ---
         el.classList.remove('exporting');
 
         const link = document.createElement("a");
@@ -1183,7 +1213,6 @@
         const el1 = document.getElementById('placa-1');
         const el2 = document.getElementById('placa-2');
         
-        // --- APLICAMOS MÁSCARA DE EXPORTACIÓN ---
         el1.classList.add('exporting');
         el2.classList.add('exporting');
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -1197,16 +1226,11 @@
         const canvas1 = await html2canvas(el1, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
         const canvas2 = await html2canvas(el2, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
 
-        // --- QUITAMOS MÁSCARA ---
         el1.classList.remove('exporting');
         el2.classList.remove('exporting');
 
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'px',
-            format: [1080, 1350]
-        });
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
 
         doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
         doc.addPage();
@@ -1215,140 +1239,140 @@
         doc.save(pdfName);
     }
 
+    // NUEVO: SISTEMA DE AUTOGUARDADO (LOCAL STORAGE)
+    function saveDraft() {
+        const data = {};
+        const excludeIds = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision']; // La hora y fecha siempre son reales/frescas al abrir la app
+        
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if(el.id && !excludeIds.includes(el.id)) {
+                data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+            }
+        });
+        localStorage.setItem('pronoDraft', JSON.stringify(data));
+    }
+
+    function loadDraft() {
+        try {
+            const draft = JSON.parse(localStorage.getItem('pronoDraft'));
+            if (!draft) return;
+            
+            // Llenar inputs con datos guardados
+            for(let key in draft) {
+                const el = document.getElementById(key);
+                if(el) {
+                    if(el.type === 'checkbox') el.checked = draft[key];
+                    else el.value = draft[key];
+                }
+            }
+            
+            // Disparar las visuales correspondientes
+            updateCity(document.getElementById('city-selector').value);
+            
+            ['h','m','d3','d4'].forEach(dia => {
+                updateTempField(dia, 'min', 'urb'); updateTempField(dia, 'min', 'sub');
+                updateTempField(dia, 'max', 'urb'); updateTempField(dia, 'max', 'sub');
+            });
+            
+            [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i, document.getElementById(`h-sky-select-${i}`).value); updateWind('h', i); });
+            [1,2,3,4].forEach(i => { updatePeriodTemp('m', i); updateSky('m', i, document.getElementById(`m-sky-select-${i}`).value); updateWind('m', i); });
+            [1,2].forEach(i => { updateSky('d3', i, document.getElementById(`d3-sky-select-${i}`).value); updateWind('d3', i); });
+            updateFullDesc('d3', document.getElementById('d3-custom-desc').value);
+            [1,2].forEach(i => { updateSky('d4', i, document.getElementById(`d4-sky-select-${i}`).value); updateWind('d4', i); });
+            updateFullDesc('d4', document.getElementById('d4-custom-desc').value);
+
+        } catch (e) {
+            console.error("Error al cargar borrador", e);
+        }
+    }
+
+    function clearDraft() {
+        if(confirm("¿Estás seguro de borrar todo el progreso guardado y empezar de cero?")) {
+            localStorage.removeItem('pronoDraft');
+            location.reload();
+        }
+    }
+
+    function populateDummyData() {
+        try {
+            // LUNES
+            document.getElementById('in-h-min-urb').value = '5'; document.getElementById('in-h-min-sub').value = '3';
+            document.getElementById('in-h-max-urb').value = '15'; document.getElementById('in-h-max-sub').value = '15';
+            updateTempField('h', 'min', 'urb'); updateTempField('h', 'min', 'sub'); updateTempField('h', 'max', 'urb'); updateTempField('h', 'max', 'sub');
+            document.getElementById('h-temp-1').value = '5'; document.getElementById('h-temp-2').value = '15'; document.getElementById('h-temp-3').value = '8';
+            updatePeriodTemp('h', 1); updatePeriodTemp('h', 2); updatePeriodTemp('h', 3);
+            document.getElementById('h-sky-select-1').value = 'despejado'; document.getElementById('h-sky-select-2').value = 'despejado'; document.getElementById('h-sky-select-3').value = 'despejado';
+            updateSky('h', 1, 'despejado'); updateSky('h', 2, 'despejado'); updateSky('h', 3, 'despejado');
+            document.getElementById('h-v-i1').value = 'leves'; document.getElementById('h-v-d1').value = 'oeste'; document.getElementById('h-v-i2').value = 'leves'; document.getElementById('h-v-d2').value = 'oeste'; document.getElementById('h-v-i3').value = 'leves'; document.getElementById('h-v-d3').value = 'oeste';
+            updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
+            
+            // MARTES
+            document.getElementById('in-m-min-urb').value = '4'; document.getElementById('in-m-min-sub').value = '3';
+            document.getElementById('in-m-max-urb').value = '16'; document.getElementById('in-m-max-sub').value = '16';
+            updateTempField('m', 'min', 'urb'); updateTempField('m', 'min', 'sub'); updateTempField('m', 'max', 'urb'); updateTempField('m', 'max', 'sub');
+            document.getElementById('m-temp-1').value = '7'; document.getElementById('m-temp-2').value = '4'; document.getElementById('m-temp-3').value = '16'; document.getElementById('m-temp-4').value = '9';
+            updatePeriodTemp('m', 1); updatePeriodTemp('m', 2); updatePeriodTemp('m', 3); updatePeriodTemp('m', 4);
+            document.getElementById('m-sky-select-1').value = 'despejado'; document.getElementById('m-sky-select-2').value = 'despejado'; document.getElementById('m-sky-select-3').value = 'despejado'; document.getElementById('m-sky-select-4').value = 'despejado';
+            updateSky('m', 1, 'despejado'); updateSky('m', 2, 'despejado'); updateSky('m', 3, 'despejado'); updateSky('m', 4, 'despejado');
+            document.getElementById('m-v-i1').value = 'leves'; document.getElementById('m-v-d1').value = 'oeste'; document.getElementById('m-v-i2').value = 'leves'; document.getElementById('m-v-d2').value = 'oeste'; document.getElementById('m-v-i3').value = 'leves'; document.getElementById('m-v-d3').value = 'oeste'; document.getElementById('m-v-i4').value = 'leves'; document.getElementById('m-v-d4').value = 'oeste';
+            updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
+
+            // MIÉRCOLES
+            document.getElementById('in-d3-min-urb').value = '7'; document.getElementById('in-d3-min-sub').value = '6';
+            document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
+            updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub'); updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
+            document.getElementById('d3-sky-select-1').value = 'algo nublado'; document.getElementById('d3-sky-select-2').value = 'algo nublado';
+            updateSky('d3', 1, 'algo nublado'); updateSky('d3', 2, 'algo nublado');
+            document.getElementById('d3-v-i1').value = 'leves'; document.getElementById('d3-v-d1').value = 'sudoeste'; document.getElementById('d3-v-i2').value = 'leves'; document.getElementById('d3-v-d2').value = 'sur';
+            updateWind('d3', 1); updateWind('d3', 2);
+            document.getElementById('d3-custom-desc').value = 'Cielo algo nublado.'; updateFullDesc('d3', 'Cielo algo nublado.');
+
+            // JUEVES
+            document.getElementById('in-d4-min-urb').value = '4'; document.getElementById('in-d4-min-sub').value = '3';
+            document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
+            updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub'); updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
+            document.getElementById('d4-sky-select-1').value = 'ligeramente nublado'; document.getElementById('d4-sky-select-2').value = 'algo nublado';
+            updateSky('d4', 1, 'ligeramente nublado'); updateSky('d4', 2, 'algo nublado');
+            document.getElementById('d4-v-i1').value = 'leves'; document.getElementById('d4-v-d1').value = 'sur'; document.getElementById('d4-v-i2').value = 'leves'; document.getElementById('d4-v-d2').value = 'sudeste';
+            updateWind('d4', 1); updateWind('d4', 2);
+            document.getElementById('d4-custom-desc').value = 'Cielo ligeramente a algo nublado.'; updateFullDesc('d4', 'Cielo ligeramente a algo nublado.');
+        } catch (e) {
+            console.error('Error auto-población', e);
+        }
+    }
+
     window.onload = function() {
         renderSidebar();
         
+        // La hora se setea SIEMPRE con el momento exacto en el que abrís la página (no se saca del borrador)
         const today = new Date();
-        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-
-        // Hora actual
         const h = String(today.getHours()).padStart(2, '0');
         const m = String(today.getMinutes()).padStart(2, '0');
         const specificTime = `${h}:${m}`;
-        
-        // Fecha actual
-        const dStr = String(today.getDate()).padStart(2, '0');
-        const moStr = ms[today.getMonth()];
-        const yStr = String(today.getFullYear()).slice(-2);
-        const specificDateStr = `${dStr}/${moStr}/${yStr}`;
-        
         const timeInput = document.getElementById('in-hora-emision');
+        
         if (timeInput) {
             timeInput.value = specificTime;
             up('out-hora', specificTime + ' hs');
         }
         
-        const dateInput = document.getElementById('in-fecha-emision');
-        if (dateInput) {
-            dateInput.value = specificDateStr;
-            updateDateVal(specificDateStr);
-        }
+        recalculateDates();
         
-        // Calcular los 4 días a partir de hoy
-        for(let i=0; i<4; i++) {
-            let iterDate = new Date(today); 
-            iterDate.setDate(today.getDate() + i);
-            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
-            
-            let iterD = String(iterDate.getDate()).padStart(2, '0');
-            let iterM = ms[iterDate.getMonth()];
-            let iterY = String(iterDate.getFullYear()).slice(-2);
-            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${iterD}/${iterM}/${iterY}`);
-        }
-
-        // Aplica el espaciado para la ciudad seleccionada inicialmente
         const initialCity = document.getElementById('city-selector');
         if (initialCity) updateCity(initialCity.value);
         
         setTimeout(() => {
-            try {
-                // ==================== LUNES (Día 1) ====================
-                document.getElementById('in-h-min-urb').value = '5';
-                document.getElementById('in-h-min-sub').value = '3';
-                document.getElementById('in-h-max-urb').value = '15';
-                document.getElementById('in-h-max-sub').value = '15';
-                updateTempField('h', 'min', 'urb');
-                updateTempField('h', 'min', 'sub');
-                updateTempField('h', 'max', 'urb');
-                updateTempField('h', 'max', 'sub');
-                
-                document.getElementById('h-temp-1').value = '5';
-                document.getElementById('h-temp-2').value = '15';
-                document.getElementById('h-temp-3').value = '8';
-                updatePeriodTemp('h', 1);
-                updatePeriodTemp('h', 2);
-                updatePeriodTemp('h', 3);
-                
-                document.getElementById('h-sky-select-1').value = 'despejado';
-                document.getElementById('h-sky-select-2').value = 'despejado';
-                document.getElementById('h-sky-select-3').value = 'despejado';
-                updateSky('h', 1, 'despejado');
-                updateSky('h', 2, 'despejado');
-                updateSky('h', 3, 'despejado');
-                
-                document.getElementById('h-v-i1').value = 'leves'; document.getElementById('h-v-d1').value = 'oeste';
-                document.getElementById('h-v-i2').value = 'leves'; document.getElementById('h-v-d2').value = 'oeste';
-                document.getElementById('h-v-i3').value = 'leves'; document.getElementById('h-v-d3').value = 'oeste';
-                updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
-                
-                // ==================== MARTES (Día 2) ====================
-                document.getElementById('in-m-min-urb').value = '4';
-                document.getElementById('in-m-min-sub').value = '3';
-                document.getElementById('in-m-max-urb').value = '16';
-                document.getElementById('in-m-max-sub').value = '16';
-                updateTempField('m', 'min', 'urb'); updateTempField('m', 'min', 'sub');
-                updateTempField('m', 'max', 'urb'); updateTempField('m', 'max', 'sub');
-                
-                document.getElementById('m-temp-1').value = '7'; document.getElementById('m-temp-2').value = '4';
-                document.getElementById('m-temp-3').value = '16'; document.getElementById('m-temp-4').value = '9';
-                updatePeriodTemp('m', 1); updatePeriodTemp('m', 2); updatePeriodTemp('m', 3); updatePeriodTemp('m', 4);
-                
-                document.getElementById('m-sky-select-1').value = 'despejado'; document.getElementById('m-sky-select-2').value = 'despejado';
-                document.getElementById('m-sky-select-3').value = 'despejado'; document.getElementById('m-sky-select-4').value = 'despejado';
-                updateSky('m', 1, 'despejado'); updateSky('m', 2, 'despejado'); updateSky('m', 3, 'despejado'); updateSky('m', 4, 'despejado');
-                
-                document.getElementById('m-v-i1').value = 'leves'; document.getElementById('m-v-d1').value = 'oeste';
-                document.getElementById('m-v-i2').value = 'leves'; document.getElementById('m-v-d2').value = 'oeste';
-                document.getElementById('m-v-i3').value = 'leves'; document.getElementById('m-v-d3').value = 'oeste';
-                document.getElementById('m-v-i4').value = 'leves'; document.getElementById('m-v-d4').value = 'oeste';
-                updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
-
-                // ==================== MIÉRCOLES (Día 3) ====================
-                document.getElementById('in-d3-min-urb').value = '7'; document.getElementById('in-d3-min-sub').value = '6';
-                document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
-                updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub');
-                updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
-
-                document.getElementById('d3-sky-select-1').value = 'algo nublado'; document.getElementById('d3-sky-select-2').value = 'algo nublado';
-                updateSky('d3', 1, 'algo nublado'); updateSky('d3', 2, 'algo nublado');
-
-                document.getElementById('d3-v-i1').value = 'leves'; document.getElementById('d3-v-d1').value = 'sudoeste';
-                document.getElementById('d3-v-i2').value = 'leves'; document.getElementById('d3-v-d2').value = 'sur';
-                updateWind('d3', 1); updateWind('d3', 2);
-
-                document.getElementById('d3-custom-desc').value = 'Cielo algo nublado.';
-                updateFullDesc('d3', 'Cielo algo nublado.');
-
-                // ==================== JUEVES (Día 4) ====================
-                document.getElementById('in-d4-min-urb').value = '4'; document.getElementById('in-d4-min-sub').value = '3';
-                document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
-                updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub');
-                updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
-
-                document.getElementById('d4-sky-select-1').value = 'ligeramente nublado'; document.getElementById('d4-sky-select-2').value = 'algo nublado';
-                updateSky('d4', 1, 'ligeramente nublado'); updateSky('d4', 2, 'algo nublado');
-
-                document.getElementById('d4-v-i1').value = 'leves'; document.getElementById('d4-v-d1').value = 'sur';
-                document.getElementById('d4-v-i2').value = 'leves'; document.getElementById('d4-v-d2').value = 'sudeste';
-                updateWind('d4', 1); updateWind('d4', 2);
-
-                document.getElementById('d4-custom-desc').value = 'Cielo ligeramente a algo nublado.';
-                updateFullDesc('d4', 'Cielo ligeramente a algo nublado.');
-
-            } catch (e) {
-                console.error('Error durante la auto-población:', e);
+            // Lógica de recuperación:
+            if(localStorage.getItem('pronoDraft')) {
+                // Si existe un borrador, se carga por encima (no sobreescribe la hora y fecha correcta de hoy)
+                loadDraft();
+            } else {
+                // Si es la primera vez que entra, llena datos de prueba
+                populateDummyData();
             }
+            
+            // Activar el autoguardado silencioso cada 2 segundos
+            setInterval(saveDraft, 2000);
         }, 150);
     };
 
@@ -1393,7 +1417,6 @@
                 const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
 
-                // Determinamos si es un tipo de lluvia para el envío a la API
                 const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
                 const isRain = rainTypes.includes(skyCond);
 
