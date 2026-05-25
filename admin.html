@@ -145,6 +145,10 @@
             margin: -8px 0 0 0; /* TRAMPA EXPORTACIÓN: Un empuje extra leve hacia arriba solo para la tipografía de la ciudad */
         }
 
+        .exporting .card-temps-row svg {
+            transform: translateY(12px); /* TRAMPA EXPORTACIÓN: Baja los iconos de termómetro en el 3er y 4to día */
+        }
+
         .title-pill { 
             background: var(--unlp-blue); color: white; padding: 8px 60px; 
             border-radius: 40px; font-weight: 800; font-size: 20px; 
@@ -789,14 +793,15 @@
             }
         }, true);
 
-        // LISTA UNIFICADA: Cielo + Tormentas/Lluvias
+        // LISTA UNIFICADA: Cielo + Tormentas/Lluvias (sin "nublado")
         const COMBINED_WEATHER_OPTS = [
             "despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", 
-            "nublado", "cubierto", "neblinas", "nieblas", 
+            "cubierto", "neblinas", "nieblas", 
             "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"
         ];
         
-        const WIND_INT = ["calmo", "leves", "moderado", "fuerte", "muy fuerte"];
+        // Intensidades actualizadas
+        const WIND_INT = ["leves", "moderados", "regulares", "fuertes o muy fuertes"];
         const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
         
         const iconMap = {
@@ -804,7 +809,6 @@
             "ligeramente nublado": { dia: "Ligeramente_nublado_dia.png", noche: "Ligeramente_nublado_noche.png" },
             "algo nublado": { dia: "Algo_nublado_dia.png", noche: "Algo_nublado_noche.png" },
             "parcialmente nublado": { dia: "Parcialmente_nublado_dia.png", noche: "Parcialmente_nublado_noche.png" },
-            "nublado": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
             "cubierto": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
             "neblinas": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
             "nieblas": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
@@ -954,28 +958,37 @@
         const arrowContainer = document.getElementById(`${dia}-arrows-container`);
         if(!legend || !arrowContainer) return;
         
-        let parts = [];
         let arrowsHTML = '';
         
-        for(let idx = 1; idx <= 2; idx++) {
-            const i = document.getElementById(`${dia}-v-i${idx}`).value;
-            const d = document.getElementById(`${dia}-v-d${idx}`).value;
-            if(i && d) {
-                parts.push(`${i} del ${d}`);
-                arrowsHTML += getWindArrowSVG(d);
-            }
-        }
+        const i1 = document.getElementById(`${dia}-v-i1`).value;
+        const d1 = document.getElementById(`${dia}-v-d1`).value;
+        const i2 = document.getElementById(`${dia}-v-i2`).value;
+        const d2 = document.getElementById(`${dia}-v-d2`).value;
         
-        if(parts.length === 0) {
+        if(i1 && d1) arrowsHTML += getWindArrowSVG(d1);
+        if(i2 && d2) arrowsHTML += getWindArrowSVG(d2);
+        
+        if (!i1 || !d1) {
             legend.innerText = '--';
             arrowContainer.innerHTML = '';
-        } else if(parts.length === 1) {
-            legend.innerText = capitalizeFirst(`vientos ${parts[0]}.`);
-            arrowContainer.innerHTML = arrowsHTML;
-        } else {
-            legend.innerText = capitalizeFirst(`vientos ${parts[0]} rotando al ${document.getElementById(`${dia}-v-d2`).value}.`);
-            arrowContainer.innerHTML = arrowsHTML;
+            return;
         }
+
+        // Lógica de redacción de vientos 
+        if (i1 && d1 && i2 && d2) {
+            if (d1 === d2) {
+                // No rota
+                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}.`);
+            } else {
+                // Rota
+                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1} rotando a ${i2} del ${d2}.`);
+            }
+        } else if (i1 && d1) {
+            // Solo primer periodo
+            legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}.`);
+        }
+        
+        arrowContainer.innerHTML = arrowsHTML;
     }
 
     function updateSky(dia, tramo, valor) {
