@@ -147,10 +147,6 @@
             margin: -8px 0 0 0; /* TRAMPA EXPORTACIÓN: Un empuje extra leve hacia arriba solo para la tipografía de la ciudad */
         }
 
-        .exporting .card-temps-row svg {
-            transform: translateY(3px); /* TRAMPA EXPORTACIÓN: Bajada muy sutil para que el termómetro alinee perfecto con el número */
-        }
-
         .title-pill { 
             background: var(--unlp-blue); color: white; padding: 8px 60px; 
             border-radius: 40px; font-weight: 800; font-size: 20px; 
@@ -390,6 +386,10 @@
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
         
+        .exporting .card-temps-row svg {
+            transform: translateY(3px); /* TRAMPA EXPORTACIÓN: Bajada muy sutil para que el termómetro alinee perfecto con el número */
+        }
+        
         .card-temp-urb { 
             font-size: 28px; 
             font-weight: 500; 
@@ -425,7 +425,7 @@
         /* Contenedor anclado al fondo para los vientos */
         .wind-section {
             position: absolute;
-            bottom: 45px;
+            bottom: 65px; 
             left: 0;
             width: 100%;
             display: flex;
@@ -491,7 +491,7 @@
     <div class="field-group">
         <h4>Información General</h4>
         
-        <!-- NUEVO: Interruptor para preparar pronóstico el día anterior -->
+        <!-- Interruptor para preparar pronóstico el día anterior -->
         <div class="row">
             <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
                 <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
@@ -529,7 +529,7 @@
     <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
     <button class="btn btn-pdf" onclick="downloadPDF()">📄 DESCARGAR PDF</button>
     
-    <!-- NUEVO: Botón para limpiar autoguardado -->
+    <!-- Botón para limpiar autoguardado -->
     <button class="btn btn-clear" onclick="clearDraft()">🗑️ Limpiar Borrador Guardado</button>
 
     <div id="dynamic-inputs"></div>
@@ -825,8 +825,8 @@
             "algo nublado": { dia: "Algo_nublado_dia.png", noche: "Algo_nublado_noche.png" },
             "parcialmente nublado": { dia: "Parcialmente_nublado_dia.png", noche: "Parcialmente_nublado_noche.png" },
             "cubierto": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
-            "neblinas": { dia: "Nieblas.png", noche: "Nieblas.png" },
-            "nieblas": { dia: "Nieblas.png", noche: "Nieblas.png" },
+            "neblinas": { dia: "Nieblas_dia.png", noche: "Nieblas_noche.png" },
+            "nieblas": { dia: "Nieblas_dia.png", noche: "Nieblas_noche.png" },
             "lluvias aisladas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
             "lloviznas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
             "lluvias y tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" },
@@ -939,7 +939,7 @@
             document.getElementById('dynamic-inputs').innerHTML = html;
         }
 
-    // NUEVO: Función para calcular o re-calcular fechas basado en el checkbox
+    // Función para calcular o re-calcular fechas basado en el checkbox
     function recalculateDates() {
         const today = new Date();
         const isTomorrow = document.getElementById('chk-tomorrow').checked;
@@ -1239,7 +1239,7 @@
         doc.save(pdfName);
     }
 
-    // NUEVO: SISTEMA DE AUTOGUARDADO (LOCAL STORAGE)
+    // SISTEMA DE AUTOGUARDADO (LOCAL STORAGE)
     function saveDraft() {
         const data = {};
         const excludeIds = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision']; // La hora y fecha siempre son reales/frescas al abrir la app
