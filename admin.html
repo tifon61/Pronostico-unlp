@@ -155,6 +155,10 @@
             border: 3px solid white;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
+        .exporting .title-pill {
+            padding-top: 4px; /* TRAMPA EXPORTACIÓN: empuja el texto más al centro-arriba */
+            padding-bottom: 12px;
+        }
 
         /* CAPSULA FECHA Y EMISIÓN */
         .date-emission-pill { 
@@ -287,6 +291,12 @@
         .temp-v-item { display: flex; align-items: center; gap: 8px; }
         .temp-v-vals { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         
+        /* TRAMPA EXPORTACIÓN: Bajada sutil para que el termómetro alinee perfecto con el número (Día 1, 2, 3 y 4) */
+        .exporting .temp-v-item svg,
+        .exporting .card-temps-row svg {
+            transform: translateY(6px); 
+        }
+
         .temp-v-urb { 
             font-size: 28px; 
             font-weight: 500; 
@@ -327,7 +337,8 @@
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 285px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         .stripe-label { font-size: 32px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; } 
-        .stripe-data { font-size: 26px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.1; } 
+        /* Creció el tamaño base de las filas a 32px */
+        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.1; } 
         
         /* PLACA 2: TARJETAS VERTICALES EXTENDIDAS */
         .cards-container { 
@@ -385,10 +396,6 @@
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; transform: translateX(-12px); /* Desplaza visualmente hacia la izquierda para centrar */ }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
-        
-        .exporting .card-temps-row svg {
-            transform: translateY(3px); /* TRAMPA EXPORTACIÓN: Bajada muy sutil para que el termómetro alinee perfecto con el número */
-        }
         
         .card-temp-urb { 
             font-size: 28px; 
@@ -495,7 +502,7 @@
         <div class="row">
             <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
                 <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
-                <label for="chk-tomorrow" style="margin: 0; cursor: pointer; color: var(--unlp-blue); font-weight: 800; font-size: 0.75em;">CREAR PARA MAÑANA </label>
+                <label for="chk-tomorrow" style="margin: 0; cursor: pointer; color: var(--unlp-blue); font-weight: 800; font-size: 0.75em;">CREAR PARA MAÑANA (Turno noche)</label>
             </div>
         </div>
 
@@ -1043,8 +1050,18 @@
     function updateSky(dia, tramo, valor) {
         try {
             if(!dia.startsWith('d')) {
-                const textEl = document.getElementById(`${dia}-w${tramo}`);
-                if(textEl) textEl.innerText = valor ? capitalizeFirst(valor) : "--";
+                const target = document.getElementById(`${dia}-w${tramo}`);
+                if(target) {
+                    target.innerText = valor ? capitalizeFirst(valor) : "--";
+                    
+                    // Auto-escalado Dinámico para la fila Tiempo
+                    target.style.fontSize = '32px';
+                    let currentSize = 32;
+                    while ((target.scrollHeight > target.clientHeight || target.scrollWidth > target.clientWidth) && currentSize > 14) {
+                        currentSize--;
+                        target.style.fontSize = currentSize + 'px';
+                    }
+                }
             }
             
             const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
@@ -1075,7 +1092,17 @@
         
         if(!dia.startsWith('d')) {
             const target = document.getElementById(`${dia}-v${tramo}`);
-            if(target) target.innerText = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
+            if(target) {
+                target.innerText = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
+                
+                // Auto-escalado Dinámico para la fila Vientos
+                target.style.fontSize = '32px';
+                let currentSize = 32;
+                while ((target.scrollHeight > target.clientHeight || target.scrollWidth > target.clientWidth) && currentSize > 14) {
+                    currentSize--;
+                    target.style.fontSize = currentSize + 'px';
+                }
+            }
         }
         
         if(dia === 'd3' || dia === 'd4') {
