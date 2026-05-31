@@ -855,6 +855,25 @@
             return 'dia'; 
         }
 
+        // NUEVO: Función para achicar toda la fila de forma pareja y simétrica
+        function syncRowFontSize(elements, maxSize, minSize) {
+            if (!elements || elements.length === 0) return;
+            
+            let currentSize = maxSize;
+            elements.forEach(el => el.style.fontSize = currentSize + 'px');
+            
+            // Función interna para detectar si ALGÚN elemento de la fila se desborda
+            let isOverflowing = () => {
+                return elements.some(el => el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2);
+            };
+
+            // Achicamos progresivamente todos a la vez hasta que ninguno se desborde
+            while (isOverflowing() && currentSize > minSize) {
+                currentSize--;
+                elements.forEach(el => el.style.fontSize = currentSize + 'px');
+            }
+        }
+
         function renderSidebar() {
             let html = '';
             const configs = [
@@ -1069,13 +1088,14 @@
                     }
                     target.innerText = text;
                     
-                    // Auto-escalado Dinámico para la fila Tiempo
-                    target.style.fontSize = '32px';
-                    let currentSize = 32;
-                    while ((target.scrollHeight > target.clientHeight || target.scrollWidth > target.clientWidth) && currentSize > 14) {
-                        currentSize--;
-                        target.style.fontSize = currentSize + 'px';
+                    // Auto-escalado Dinámico SIMÉTRICO para toda la fila Tiempo
+                    const count = (dia === 'h') ? 3 : 4;
+                    const elements = [];
+                    for (let i = 1; i <= count; i++) {
+                        const el = document.getElementById(`${dia}-w${i}`);
+                        if (el) elements.push(el);
                     }
+                    syncRowFontSize(elements, 32, 12);
                 }
             } else {
                 // Para los días 3 y 4, llamamos a la función de refresco del texto custom
@@ -1120,13 +1140,14 @@
                 
                 target.innerText = text;
                 
-                // Auto-escalado Dinámico para la fila Vientos
-                target.style.fontSize = '32px';
-                let currentSize = 32;
-                while ((target.scrollHeight > target.clientHeight || target.scrollWidth > target.clientWidth) && currentSize > 14) {
-                    currentSize--;
-                    target.style.fontSize = currentSize + 'px';
+                // Auto-escalado Dinámico SIMÉTRICO para toda la fila Vientos
+                const count = (dia === 'h') ? 3 : 4;
+                const elements = [];
+                for (let i = 1; i <= count; i++) {
+                    const el = document.getElementById(`${dia}-v${i}`);
+                    if (el) elements.push(el);
                 }
+                syncRowFontSize(elements, 32, 12);
             }
         }
         
