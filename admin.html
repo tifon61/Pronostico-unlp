@@ -336,9 +336,9 @@
         .stripe-wind-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 285px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
-        .stripe-label { font-size: 28px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; } 
+        .stripe-label { font-size: 32px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; } 
         /* Creció el tamaño base de las filas a 32px */
-        .stripe-data { font-size: 28px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.1; } 
+        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.1; } 
         
         /* PLACA 2: TARJETAS VERTICALES EXTENDIDAS */
         .cards-container { 
@@ -483,7 +483,7 @@
         img { display: block; position: relative; background: rgba(0,0,0,0.03); min-width: 40px; min-height: 40px; border-radius: 8px; object-fit: contain; image-rendering: auto; }
 
         .column { display: flex; flex-direction: column; flex: 1; }
-        .column label { font-size: 0.8em; font-weight: 600; color: var(--unlp-blue); margin-bottom: 5px; text-transform: uppercase; }
+        .column label { font-size: 0.75em; font-weight: 600; color: var(--unlp-blue); margin-bottom: 5px; text-transform: uppercase; }
         .time-input-group { display: flex; align-items: center; gap: 5px; }
         .time-input-group input { flex: 1; }
         .time-suffix { font-size: 0.9em; font-weight: 600; color: var(--unlp-blue); text-transform: uppercase; white-space: nowrap; }
@@ -502,7 +502,7 @@
         <div class="row">
             <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
                 <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
-                <label for="chk-tomorrow" style="margin: 0; cursor: pointer; color: var(--unlp-blue); font-weight: 800; font-size: 0.75em;">CREAR PARA MAÑANA</label>
+                <label for="chk-tomorrow" style="margin: 0; cursor: pointer; color: var(--unlp-blue); font-weight: 800; font-size: 0.75em;">CREAR PARA MAÑANA (Turno noche)</label>
             </div>
         </div>
 
@@ -798,6 +798,9 @@
 </div>
 
 <script>
+        // Opciones de Probabilidad de Precipitación
+        const POP_OPTS = ["0 %", "10 a 40 %", "40 a 70 %", "70 a 100 %"];
+
         // Función auxiliar para forzar la primera letra en mayúscula (capitalizar)
         function capitalizeFirst(str) {
             if (!str) return '';
@@ -891,56 +894,52 @@
                     html += `<div class="field-group">
                         <h4>${periodValue.charAt(0).toUpperCase() + periodValue.slice(1)}</h4>`;
                     
-                    if(!conf.id.startsWith('d')) {
-                        html += `<div class="row">
-                            <div class="column">
-                                <label for="${conf.id}-temp-${tramoIdx}">Temperatura</label>
-                                <input type="number" id="${conf.id}-temp-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
-                            </div>
-                            <div class="column">
-                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo / Fenómeno</label>
-                                <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx}, this.value)">
-                                    <option value="">Cielo o Lluvia...</option>
-                                    ${COMBINED_WEATHER_OPTS.map(o => `<option value="${o}">${capitalizeFirst(o)}</option>`).join('')}
-                                </select>
-                            </div>
-                        </div>`;
-                    } else {
-                        html += `<div class="row">
-                            <div class="column">
-                                <label>Período</label>
-                                <span class="period-no-temp">Controlado por T. Diaria</span>
-                            </div>
-                            <div class="column">
-                                <label for="${conf.id}-sky-select-${tramoIdx}">Cielo / Fenómeno</label>
-                                <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx}, this.value)">
-                                    <option value="">Cielo o Lluvia...</option>
-                                    ${COMBINED_WEATHER_OPTS.map(o => `<option value="${o}">${capitalizeFirst(o)}</option>`).join('')}
-                                </select>
-                            </div>
-                        </div>`;
-                    }
-                    
+                    html += `<div class="row">
+                        <div class="column">
+                            <label for="${conf.id}-sky-select-${tramoIdx}">Cielo / Fenómeno</label>
+                            <select id="${conf.id}-sky-select-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx})">
+                                <option value="">Cielo o Lluvia...</option>
+                                ${COMBINED_WEATHER_OPTS.map(o => `<option value="${o}">${capitalizeFirst(o)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="column">
+                            <label for="${conf.id}-pop-${tramoIdx}">Prob. Precip.</label>
+                            <select id="${conf.id}-pop-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx})">
+                                <option value="">Sin Prob...</option>
+                                ${POP_OPTS.map(o => `<option value="${o}">${o}</option>`).join('')}
+                            </select>
+                        </div>
+                        ${!conf.id.startsWith('d') ? `
+                        <div class="column">
+                            <label for="${conf.id}-temp-${tramoIdx}">Temp.</label>
+                            <input type="number" id="${conf.id}-temp-${tramoIdx}" placeholder="Temp" step="0.1" oninput="updatePeriodTemp('${conf.id}', ${tramoIdx})">
+                        </div>` : ''}
+                    </div>`;
+
                     html += `<div class="row">
                             <div class="column">
-                                <label for="${conf.id}-v-i${tramoIdx}">Intensidad Viento</label>
+                                <label for="${conf.id}-v-i${tramoIdx}">Intensidad</label>
                                 <select id="${conf.id}-v-i${tramoIdx}" onchange="updateWind('${conf.id}', ${tramoIdx})">
                                     <option value="">Intensidad</option>
                                     ${WIND_INT.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
                             </div>
                             <div class="column">
-                                <label for="${conf.id}-v-d${tramoIdx}">Dirección Viento</label>
+                                <label for="${conf.id}-v-d${tramoIdx}">Dirección</label>
                                 <select id="${conf.id}-v-d${tramoIdx}" onchange="updateWind('${conf.id}', ${tramoIdx})">
                                     <option value="">Dirección</option>
                                     ${WIND_DIR.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
                             </div>
+                            <div class="column">
+                                <label for="${conf.id}-rafagas-${tramoIdx}">Ráfagas</label>
+                                <input type="text" id="${conf.id}-rafagas-${tramoIdx}" placeholder="Ej: 50" oninput="updateWind('${conf.id}', ${tramoIdx})">
+                            </div>
                         </div>
                     </div>`;
                 });
                 if(conf.id.startsWith('d')) {
-                    html += `<textarea id="${conf.id}-custom-desc" placeholder="Descripción extendida del día..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
+                    html += `<textarea id="${conf.id}-custom-desc" placeholder="Descripción extendida del día (el selector PoP sumará texto aquí automáticamente)..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
                 }
             });
             document.getElementById('dynamic-inputs').innerHTML = html;
@@ -1021,8 +1020,13 @@
         
         const i1 = document.getElementById(`${dia}-v-i1`).value;
         const d1 = document.getElementById(`${dia}-v-d1`).value;
+        let r1 = document.getElementById(`${dia}-rafagas-1`).value;
+        if (r1 && !r1.toLowerCase().includes('km/h')) r1 += ' km/h';
+
         const i2 = document.getElementById(`${dia}-v-i2`).value;
         const d2 = document.getElementById(`${dia}-v-d2`).value;
+        let r2 = document.getElementById(`${dia}-rafagas-2`).value;
+        if (r2 && !r2.toLowerCase().includes('km/h')) r2 += ' km/h';
         
         if(i1 && d1) arrowsHTML += getWindArrowSVG(d1);
         if(i2 && d2) arrowsHTML += getWindArrowSVG(d2);
@@ -1033,26 +1037,37 @@
             return;
         }
 
-        // Lógica de redacción de vientos 
+        // Lógica de redacción de vientos con ráfagas
         if (i1 && d1 && i2 && d2) {
             if (d1 === d2) {
-                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}.`);
+                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''}.`);
             } else {
-                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1} rotando a ${i2} del ${d2}.`);
+                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''} rotando a ${i2} del ${d2}${r2 ? ' con ráfagas de ' + r2 : ''}.`);
             }
         } else if (i1 && d1) {
-            legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}.`);
+            legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''}.`);
         }
         
         arrowContainer.innerHTML = arrowsHTML;
     }
 
-    function updateSky(dia, tramo, valor) {
+    function updateSky(dia, tramo) {
         try {
+            const skySelect = document.getElementById(`${dia}-sky-select-${tramo}`);
+            const valor = skySelect ? skySelect.value : "";
+            
+            const popSelect = document.getElementById(`${dia}-pop-${tramo}`);
+            const pop = popSelect ? popSelect.value : "";
+
+            // Para los Días 1 y 2, impactamos en las tiras (.stripe-time)
             if(!dia.startsWith('d')) {
                 const target = document.getElementById(`${dia}-w${tramo}`);
                 if(target) {
-                    target.innerText = valor ? capitalizeFirst(valor) : "--";
+                    let text = valor ? capitalizeFirst(valor) : "--";
+                    if (pop) {
+                        text += ` (Prob: ${pop})`;
+                    }
+                    target.innerText = text;
                     
                     // Auto-escalado Dinámico para la fila Tiempo
                     target.style.fontSize = '32px';
@@ -1062,6 +1077,9 @@
                         target.style.fontSize = currentSize + 'px';
                     }
                 }
+            } else {
+                // Para los días 3 y 4, llamamos a la función de refresco del texto custom
+                updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`).value);
             }
             
             const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
@@ -1089,11 +1107,18 @@
     function updateWind(dia, tramo) {
         const i = document.getElementById(`${dia}-v-i${tramo}`).value;
         const d = document.getElementById(`${dia}-v-d${tramo}`).value;
+        let r = document.getElementById(`${dia}-rafagas-${tramo}`).value;
+        if (r && !r.toLowerCase().includes('km/h')) r += ' km/h';
         
         if(!dia.startsWith('d')) {
             const target = document.getElementById(`${dia}-v${tramo}`);
             if(target) {
-                target.innerText = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
+                let text = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
+                if (r && text !== "--") {
+                    text += ` (Ráf: ${r})`;
+                }
+                
+                target.innerText = text;
                 
                 // Auto-escalado Dinámico para la fila Vientos
                 target.style.fontSize = '32px';
@@ -1122,8 +1147,18 @@
         const target = document.getElementById(`${dia}-w1`);
         const container = document.getElementById(`${dia}-desc-container`);
         
+        // Sumamos las probabilidades para D3/D4 automáticamente al texto
+        const pop1 = document.getElementById(`${dia}-pop-1`)?.value;
+        const pop2 = document.getElementById(`${dia}-pop-2`)?.value;
+        
+        let popText = "";
+        if (pop1 && pop2 && pop1 === pop2) popText = ` (Prob: ${pop1})`;
+        else if (pop1 && pop2) popText = ` (Prob: ${pop1} luego ${pop2})`;
+        else if (pop1) popText = ` (Prob: ${pop1})`;
+        else if (pop2) popText = ` (Prob: ${pop2})`;
+
         if (target && container) {
-            target.innerText = v || "--";
+            target.innerText = (v || "--") + popText;
             
             target.style.fontSize = '28px';
             
@@ -1133,7 +1168,7 @@
                 target.style.fontSize = currentSize + 'px';
             }
         } else if (target) {
-            target.innerText = v || "--";
+            target.innerText = (v || "--") + popText;
         }
     }
 
@@ -1301,11 +1336,11 @@
                 updateTempField(dia, 'max', 'urb'); updateTempField(dia, 'max', 'sub');
             });
             
-            [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i, document.getElementById(`h-sky-select-${i}`).value); updateWind('h', i); });
-            [1,2,3,4].forEach(i => { updatePeriodTemp('m', i); updateSky('m', i, document.getElementById(`m-sky-select-${i}`).value); updateWind('m', i); });
-            [1,2].forEach(i => { updateSky('d3', i, document.getElementById(`d3-sky-select-${i}`).value); updateWind('d3', i); });
+            [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i); updateWind('h', i); });
+            [1,2,3,4].forEach(i => { updatePeriodTemp('m', i); updateSky('m', i); updateWind('m', i); });
+            [1,2].forEach(i => { updateSky('d3', i); updateWind('d3', i); });
             updateFullDesc('d3', document.getElementById('d3-custom-desc').value);
-            [1,2].forEach(i => { updateSky('d4', i, document.getElementById(`d4-sky-select-${i}`).value); updateWind('d4', i); });
+            [1,2].forEach(i => { updateSky('d4', i); updateWind('d4', i); });
             updateFullDesc('d4', document.getElementById('d4-custom-desc').value);
 
         } catch (e) {
@@ -1329,7 +1364,7 @@
             document.getElementById('h-temp-1').value = '5'; document.getElementById('h-temp-2').value = '15'; document.getElementById('h-temp-3').value = '8';
             updatePeriodTemp('h', 1); updatePeriodTemp('h', 2); updatePeriodTemp('h', 3);
             document.getElementById('h-sky-select-1').value = 'despejado'; document.getElementById('h-sky-select-2').value = 'despejado'; document.getElementById('h-sky-select-3').value = 'despejado';
-            updateSky('h', 1, 'despejado'); updateSky('h', 2, 'despejado'); updateSky('h', 3, 'despejado');
+            updateSky('h', 1); updateSky('h', 2); updateSky('h', 3);
             document.getElementById('h-v-i1').value = 'leves'; document.getElementById('h-v-d1').value = 'oeste'; document.getElementById('h-v-i2').value = 'leves'; document.getElementById('h-v-d2').value = 'oeste'; document.getElementById('h-v-i3').value = 'leves'; document.getElementById('h-v-d3').value = 'oeste';
             updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
             
@@ -1340,7 +1375,7 @@
             document.getElementById('m-temp-1').value = '7'; document.getElementById('m-temp-2').value = '4'; document.getElementById('m-temp-3').value = '16'; document.getElementById('m-temp-4').value = '9';
             updatePeriodTemp('m', 1); updatePeriodTemp('m', 2); updatePeriodTemp('m', 3); updatePeriodTemp('m', 4);
             document.getElementById('m-sky-select-1').value = 'despejado'; document.getElementById('m-sky-select-2').value = 'despejado'; document.getElementById('m-sky-select-3').value = 'despejado'; document.getElementById('m-sky-select-4').value = 'despejado';
-            updateSky('m', 1, 'despejado'); updateSky('m', 2, 'despejado'); updateSky('m', 3, 'despejado'); updateSky('m', 4, 'despejado');
+            updateSky('m', 1); updateSky('m', 2); updateSky('m', 3); updateSky('m', 4);
             document.getElementById('m-v-i1').value = 'leves'; document.getElementById('m-v-d1').value = 'oeste'; document.getElementById('m-v-i2').value = 'leves'; document.getElementById('m-v-d2').value = 'oeste'; document.getElementById('m-v-i3').value = 'leves'; document.getElementById('m-v-d3').value = 'oeste'; document.getElementById('m-v-i4').value = 'leves'; document.getElementById('m-v-d4').value = 'oeste';
             updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
 
@@ -1349,7 +1384,7 @@
             document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
             updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub'); updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
             document.getElementById('d3-sky-select-1').value = 'algo nublado'; document.getElementById('d3-sky-select-2').value = 'algo nublado';
-            updateSky('d3', 1, 'algo nublado'); updateSky('d3', 2, 'algo nublado');
+            updateSky('d3', 1); updateSky('d3', 2);
             document.getElementById('d3-v-i1').value = 'leves'; document.getElementById('d3-v-d1').value = 'sudoeste'; document.getElementById('d3-v-i2').value = 'leves'; document.getElementById('d3-v-d2').value = 'sur';
             updateWind('d3', 1); updateWind('d3', 2);
             document.getElementById('d3-custom-desc').value = 'Cielo algo nublado.'; updateFullDesc('d3', 'Cielo algo nublado.');
@@ -1359,7 +1394,7 @@
             document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
             updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub'); updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
             document.getElementById('d4-sky-select-1').value = 'ligeramente nublado'; document.getElementById('d4-sky-select-2').value = 'algo nublado';
-            updateSky('d4', 1, 'ligeramente nublado'); updateSky('d4', 2, 'algo nublado');
+            updateSky('d4', 1); updateSky('d4', 2);
             document.getElementById('d4-v-i1').value = 'leves'; document.getElementById('d4-v-d1').value = 'sur'; document.getElementById('d4-v-i2').value = 'leves'; document.getElementById('d4-v-d2').value = 'sudeste';
             updateWind('d4', 1); updateWind('d4', 2);
             document.getElementById('d4-custom-desc').value = 'Cielo ligeramente a algo nublado.'; updateFullDesc('d4', 'Cielo ligeramente a algo nublado.');
@@ -1443,6 +1478,8 @@
                 const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`).value;
                 const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
+                const rafagas = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`).value;
+                const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`).value;
 
                 const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
                 const isRain = rainTypes.includes(skyCond);
@@ -1459,11 +1496,13 @@
                 dailyForecast.period_forecasts.push({
                     period: periodValue,
                     precipitation_description: isRain ? skyCond : "",
+                    probability_of_precipitation: pop || null,
                     sky_condition: isRain ? null : (skyCond || null),
                     temperature: temp,
                     weather_icon_code: iconCode,
                     wind_direction: windDir || null,
-                    wind_intensity: windInt || null
+                    wind_intensity: windInt || null,
+                    wind_gusts: rafagas || null
                 });
             });
             forecastPayload.daily_forecasts.push(dailyForecast);
