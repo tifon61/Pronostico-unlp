@@ -337,7 +337,8 @@
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 285px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         .stripe-label { font-size: 32px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; } 
-        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 5px 10px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; word-break: break-word; } 
+        /* REMOVIMOS el word-break: break-word para evitar que corte letras como "Despejad-o" */
+        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 5px 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; } 
         
         /* PLACA 2: TARJETAS VERTICALES EXTENDIDAS */
         .cards-container { 
@@ -427,7 +428,6 @@
             padding: 0 10px;
             display: inline-block;
             width: 100%;
-            word-break: break-word;
         }
 
         /* Contenedor anclado al fondo para los vientos */
@@ -861,11 +861,14 @@
             if (!elements || elements.length === 0) return;
             
             let currentSize = maxSize;
-            elements.forEach(el => el.style.fontSize = currentSize + 'px');
+            elements.forEach(el => {
+                el.style.fontSize = currentSize + 'px';
+                el.style.wordBreak = 'normal'; // Aseguramos comportamiento natural y prevenimos que se corte la palabra
+            });
             
-            // Función interna para detectar si ALGÚN elemento de la fila se desborda
+            // Función interna mejorada para detectar desbordes
             let isOverflowing = () => {
-                return elements.some(el => el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2);
+                return elements.some(el => el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth);
             };
 
             // Achicamos progresivamente todos a la vez hasta que ninguno se desborde
@@ -1144,8 +1147,8 @@
                 // Auto-escalado Dinámico SIMÉTRICO para toda la fila Vientos
                 const count = (dia === 'h') ? 3 : 4;
                 const elements = [];
-                for (let i = 1; i <= count; i++) {
-                    const el = document.getElementById(`${dia}-v${i}`);
+                for (let idx = 1; idx <= count; idx++) {
+                    const el = document.getElementById(`${dia}-v${idx}`);
                     if (el) elements.push(el);
                 }
                 syncRowFontSize(elements, 32, 12);
