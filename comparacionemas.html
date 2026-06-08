@@ -629,11 +629,14 @@
         // Helpers de Lluvia y Flujo
         function updateFlow(fObj, pathFn, active=true) {
             for(let i=0; i<fObj.count; i++) {
-                if(!active) { fObj.pos[i*3+1] = -100; continue; }
+                if(!active) { fObj.pos[i*3+1] = -10; continue; }
                 let d = fObj.data[i];
                 d.p += d.s; if(d.p > 1) d.p = 0;
-                let [nx, ny, nz] = pathFn(d.p);
-                fObj.pos[i*3]=nx; fObj.pos[i*3+1]=ny; fObj.pos[i*3+2]=nz;
+                let coords = pathFn(d.p);
+                // Evitar inyección de NaN si la función de ruta falla
+                if (coords && !isNaN(coords[0]) && !isNaN(coords[1]) && !isNaN(coords[2])) {
+                    fObj.pos[i*3]=coords[0]; fObj.pos[i*3+1]=coords[1]; fObj.pos[i*3+2]=coords[2];
+                }
             }
             fObj.mesh.geometry.attributes.position.needsUpdate = true;
         }
@@ -641,12 +644,12 @@
         function updateRain(cx, cz, rad, active) {
             for(let i=0; i<rain.count; i++) {
                 let idx = i*3;
-                if(!active || isNaN(rain.pos[idx+1])) { rain.pos[idx+1] = -100; continue; }
+                if(!active || isNaN(rain.pos[idx+1])) { rain.pos[idx+1] = -10; continue; }
                 rain.pos[idx+1] -= 0.6; // Caída
                 if(rain.pos[idx+1] < 0) {
-                    rain.pos[idx] = cx + (Math.random()-0.5)*rad*2;
+                    rain.pos[idx] = (cx || 0) + (Math.random()-0.5)*rad*2;
                     rain.pos[idx+1] = 4 + Math.random()*6;
-                    rain.pos[idx+2] = cz + (Math.random()-0.5)*rad*2;
+                    rain.pos[idx+2] = (cz || 0) + (Math.random()-0.5)*rad*2;
                 }
             }
             rain.mesh.geometry.attributes.position.needsUpdate = true;
@@ -655,12 +658,12 @@
         function updateHail(cx, cz, rad, active) {
             for(let i=0; i<hail.count; i++) {
                 let idx = i*3;
-                if(!active || isNaN(hail.pos[idx+1])) { hail.pos[idx+1] = -100; continue; }
+                if(!active || isNaN(hail.pos[idx+1])) { hail.pos[idx+1] = -10; continue; }
                 hail.pos[idx+1] -= 0.9;
                 if(hail.pos[idx+1] < 0) {
-                    hail.pos[idx] = cx + (Math.random()-0.5)*rad;
+                    hail.pos[idx] = (cx || 0) + (Math.random()-0.5)*rad;
                     hail.pos[idx+1] = 8 + Math.random()*4;
-                    hail.pos[idx+2] = cz + (Math.random()-0.5)*rad;
+                    hail.pos[idx+2] = (cz || 0) + (Math.random()-0.5)*rad;
                 }
             }
             hail.mesh.geometry.attributes.position.needsUpdate = true;
@@ -795,6 +798,26 @@
         
         function animate() {
             requestAnimationFrame(animate);
+
+            // Sanitización Global Failsafe: Evita que un cálculo NaN congele WebGL
+            scene.traverse((child) => {
+                if (child.geometry && child.geometry.attributes && child.geometry.attributes.position) {
+                    const pos = child.geometry.attributes.position.array;
+                    let needsFix = false;
+                    for (let i = 0; i < pos.length; i++) {
+                        if (isNaN(pos[i])) {
+                            // Si detecta un NaN, mueve la partícula a un eje seguro y la oculta bajo tierra
+                            pos[i] = (i % 3 === 1) ? -10 : 0; 
+                            needsFix = true;
+                        }
+                    }
+                    if (needsFix) {
+                        child.geometry.attributes.position.needsUpdate = true;
+                        // Forzar a Three.js a recalcular la esfera delimitadora de forma segura
+                        if (child.geometry.boundingSphere) child.geometry.computeBoundingSphere();
+                    }
+                }
+            });
 
             if(STATE.isPlaying) {
                 STATE.t += 0.001;
