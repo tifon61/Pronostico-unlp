@@ -350,62 +350,38 @@
         scene.add(realisticGroup);
 
         const cloudParticlesCount = 300;
-        const cloudGeo = new THREE.BufferGeometry();
-        const cloudPos = new Float32Array(cloudParticlesCount * 3);
-        const cloudScales = new Float32Array(cloudParticlesCount);
+        const realisticSprites = []; // Declarando el arreglo esperado por updatePhysics
         
-        // Inicializar posiciones seguras
-        for(let i=0; i<cloudParticlesCount*3; i++) cloudPos[i] = 0;
-        for(let i=0; i<cloudParticlesCount; i++) cloudScales[i] = Math.random() * 2 + 1.5;
-
-        cloudGeo.setAttribute('position', new THREE.BufferAttribute(cloudPos, 3));
-        cloudGeo.setAttribute('scale', new THREE.BufferAttribute(cloudScales, 1));
-
-        // Shader Material para Glaciación térmica (Gris abajo, Blanco arriba de 4km)
-        const cloudMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                map: { value: cloudTexture },
-                freezingLevel: { value: 4.0 }
-            },
-            vertexShader: `
-                attribute float scale;
-                varying vec3 vPos;
-                void main() {
-                    vPos = position;
-                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                    // Tamaño ajustado por perspectiva y escala individual
-                    gl_PointSize = scale * (150.0 / -mvPosition.z);
-                    gl_Position = projectionMatrix * mvPosition;
-                }
-            `,
-            fragmentShader: `
-                uniform sampler2D map;
-                uniform float freezingLevel;
-                varying vec3 vPos;
-                #include <clipping_planes_pars_fragment>
-                void main() {
-                    #include <clipping_planes_fragment>
-                    vec4 texColor = texture2D(map, gl_PointCoord);
-                    // Lógica térmica: si y < 4, color gris oscuro (agua). si y > 4, interpolar a blanco (hielo)
-                    float heightFactor = smoothstep(freezingLevel - 1.0, freezingLevel + 3.0, vPos.y);
-                    vec3 baseColor = vec3(0.2, 0.25, 0.3); // Gris tormenta
-                    vec3 topColor = vec3(1.0, 1.0, 1.0);   // Blanco hielo
-                    vec3 finalColor = mix(baseColor, topColor, heightFactor);
-                    
-                    // Añadir un poco de sombreado falso basado en la posición Y
-                    finalColor *= smoothstep(0.0, 10.0, vPos.y + 2.0);
-
-                    gl_FragColor = vec4(finalColor, texColor.a * 0.9);
-                }
-            `,
+        // Material base con soporte para recortes (Modo Corte Vertical)
+        const baseSpriteMat = new THREE.SpriteMaterial({
+            map: cloudTexture,
             transparent: true,
             depthWrite: false,
             blending: THREE.NormalBlending,
-            clipping: true
+            clippingPlanes: [globalClipPlane]
         });
 
-        const realisticClouds = new THREE.Points(cloudGeo, cloudMaterial);
-        realisticGroup.add(realisticClouds);
+        // Instanciar sprites de nube individualmente
+        for(let i=0; i<cloudParticlesCount; i++) {
+            const spriteMat = baseSpriteMat.clone(); // Necesitamos opacidad y color individual por altura
+            const sprite = new THREE.Sprite(spriteMat);
+            
+            let scale = Math.random() * 4 + 3; 
+            sprite.scale.set(scale, scale, scale);
+            sprite.position.y = -100; // Esconder bajo tierra por defecto
+            
+            // Datos físicos para el sistema de partículas
+            sprite.userData = {
+                life: 0,
+                phase: Math.random() * Math.PI * 2,
+                speed: 0.02 + Math.random() * 0.03,
+                radius: 1.5 + Math.random() * 2.5,
+                role: 'HIDDEN'
+            };
+            
+            realisticSprites.push(sprite);
+            realisticGroup.add(sprite);
+        }
 
         // --------------------------------------------------------
         // 7. FLUJOS, HIDROMETEOROS Y FRENTES EN SUPERFICIE
@@ -577,36 +553,87 @@
             }
 
             // ---- ACTUALIZAR NUBES VOLUMÉTRICAS (Realista) ----
-            if(STATE.mode === 'realista') {
-                for(let i=0; i<cloudParticlesCount; i++) {
-                    // Distribuir esferas en las zonas activas
-                    let r = Math.random();
-                    let px, py, pz;
-                    if(r < 0.4 && udHeight > 0) { // En UD
-                        px = centerUD.x + (Math.random()-0.5)*4;
-                        py = Math.random() * udHeight;
-                        pz = centerUD.z + (Math.random()-0.5)*4;
-                    } else if (r < 0.7 && t > 0.3) { // En FFD
-                        px = centerFFD.x + (Math.random()-0.5)*6;
-                        py = Math.random() * 8;
-                        pz = centerFFD.z + (Math.random()-0.5)*6;
-                    } else if (r < 0.9 && udHeight > 10) { // Yunque
-                        px = centerUD.x + 2 + (Math.random()-0.5)*12;
-                        py = 11 + Math.random()*2;
-                        pz = centerUD.z + (Math.random()-0.5)*8;
-                    } else if (newCellX !== -100) { // Nueva celda multi
-                        px = newCellX + (Math.random()-0.5)*3;
-                        py = Math.random() * ((t-0.4)*15);
-                        pz = (Math.random()-0.5)*3;
-                    } else {
-                        py = -100; // Ocultar
+            if(STATE.mode === 'realista' || STATE.mode === 'corte') {
+                const baseColor = new THREE.Color(0x2d3748); // Gris oscuro (Agua)
+                const topColor = new THREE.Color(0xf0f4f8);  // Blanco (Hielo)
+
+                for(let i=0; i<realisticSprites.length; i++) {
+                    let sprite = realisticSprites[i];
+                    let ud = sprite.userData;
+                    let px = sprite.position.x, py = sprite.position.y, pz = sprite.position.z;
+
+                    // Reiniciar sprite si muere o sale de escena
+                    if(ud.life <= 0 || isNaN(py) || py < -10) {
+                        ud.life = 1.0;
+                        let r = Math.random();
+                        if(r < 0.35 && udHeight > 0) ud.role = 'UD';
+                        else if(r < 0.55 && newCellX !== -100) ud.role = 'NEW_UD'; // Para Multicelular
+                        else if(r < 0.75 && t > 0.3 && centerFFD.x > -50) ud.role = 'FFD';
+                        else if(r < 0.9 && udHeight > 9) ud.role = 'ANVIL';
+                        else if(type === 'supercelda' && t > 0.5) ud.role = 'RFD';
+                        else ud.role = 'HIDDEN';
+
+                        // Coordenadas de nacimiento según rol
+                        if(ud.role === 'UD') {
+                            px = centerUD.x + (Math.random()-0.5)*5; py = Math.random() * 2; pz = centerUD.z + (Math.random()-0.5)*5;
+                        } else if(ud.role === 'NEW_UD') {
+                            px = newCellX + (Math.random()-0.5)*4; py = Math.random() * 2; pz = (Math.random()-0.5)*4;
+                        } else if(ud.role === 'FFD') {
+                            px = centerFFD.x + (Math.random()-0.5)*7; py = 6 + Math.random() * 4; pz = centerFFD.z + (Math.random()-0.5)*7;
+                        } else if(ud.role === 'RFD') {
+                            px = centerRFD.x + (Math.random()-0.5)*4; py = 3 + Math.random() * 3; pz = centerRFD.z + (Math.random()-0.5)*4;
+                        } else if(ud.role === 'ANVIL') {
+                            px = centerUD.x + (Math.random()-0.5)*5; py = 10 + Math.random() * 2; pz = centerUD.z + (Math.random()-0.5)*5;
+                        } else {
+                            py = -100;
+                        }
                     }
-                    // Suavizar movimiento
-                    cloudPos[i*3] += (px - cloudPos[i*3]) * 0.1;
-                    cloudPos[i*3+1] += (py - cloudPos[i*3+1]) * 0.1;
-                    cloudPos[i*3+2] += (pz - cloudPos[i*3+2]) * 0.1;
+
+                    // Movimiento Físico
+                    ud.life -= 0.006; // Envejecimiento
+                    ud.phase += ud.speed;
+
+                    if(ud.role === 'UD' && udHeight > 0) {
+                        py += 0.2; // Ascenso
+                        if(type === 'supercelda') {
+                            px = centerUD.x + Math.cos(ud.phase) * ud.radius;
+                            pz = centerUD.z + Math.sin(ud.phase) * ud.radius;
+                        } else {
+                            px += (centerUD.x - px) * 0.05; pz += (centerUD.z - pz) * 0.05;
+                        }
+                        if(py > udHeight) ud.life = 0;
+                    } else if(ud.role === 'NEW_UD') {
+                        py += 0.2; px += (newCellX - px) * 0.05;
+                        if(py > (t-0.4)*15) ud.life = 0;
+                    } else if(ud.role === 'FFD') {
+                        py -= 0.15; // Descenso pluvial
+                        px += (centerFFD.x - px) * 0.02; pz += (centerFFD.z - pz) * 0.02;
+                        if(py < 0) ud.life = 0;
+                    } else if(ud.role === 'RFD') {
+                        py -= 0.15; // Descenso envolvente
+                        if(type === 'supercelda') {
+                            px = centerUD.x + Math.cos(ud.phase + Math.PI) * (ud.radius + 1.5);
+                            pz = centerUD.z + Math.sin(ud.phase + Math.PI) * (ud.radius + 1.5);
+                        }
+                        if(py < 0) ud.life = 0;
+                    } else if(ud.role === 'ANVIL') {
+                        px += 0.08; // Arrastre horizontal por viento
+                        pz += (Math.random() - 0.5) * 0.1;
+                        if(px > centerUD.x + 15) ud.life = 0;
+                    }
+
+                    // Asignación y Glaciación (Interpolación de Color)
+                    if(ud.role !== 'HIDDEN' && !isNaN(px) && !isNaN(py) && !isNaN(pz)) {
+                        sprite.position.set(px, py, pz);
+                        let heightFactor = THREE.MathUtils.clamp(py / 4.0, 0, 1); // 0 a 4km (Freezing level)
+                        sprite.material.color.copy(baseColor).lerp(topColor, heightFactor);
+                        sprite.material.opacity = Math.max(0, ud.life * 0.85); // Fade in/out suave
+                    } else {
+                        sprite.position.y = -100;
+                    }
                 }
-                realisticClouds.geometry.attributes.position.needsUpdate = true;
+            } else {
+                realisticSprites.forEach(s => s.position.y = -100);
             }
 
             // ---- ACTUALIZAR RADAR (Radar SMN) ----
