@@ -35,7 +35,6 @@
             transform: translateZ(0);
         }
 
-        /* SIDEBAR ADMIN */
         #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; overflow-y: auto; border-right: 5px solid var(--unlp-blue); }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0 10px; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
@@ -54,7 +53,6 @@
         .btn-clear { background: #6c757d; padding: 8px; font-size: 0.8em; border-bottom: 3px solid #5a6268; margin-top: 5px; }
         .btn-clear:hover { background: #5a6268; }
 
-        /* VIEWER */
         #viewer { 
             flex-grow: 1; 
             padding: 20px; 
@@ -66,12 +64,10 @@
             gap: 60px; 
         }
         
-        /* ESTRUCTURA PROTEGIDA PARA EXPORTACIÓN PERFECTA */
         .placa-preview {
             width: 540px;
         }
 
-        /* PLACAS 1080x1350 - Tamaño físico real sin distorsión */
         .placa-box { 
             width: 1080px; 
             height: 1350px; 
@@ -84,7 +80,6 @@
             box-sizing: border-box;
         }
 
-        /* HEADER INSTITUCIONAL */
         .header-container { 
             width: 100%;
             height: 130px;
@@ -109,226 +104,93 @@
             align-items: center;
             gap: 20px; 
             z-index: 2;
-            transform: translateY(8px); /* VISIÓN NORMAL: centrado en pantalla */
+            transform: translateY(8px);
         }
         .exporting .header-left-logos {
-            transform: translateY(-2px); /* TRAMPA EXPORTACIÓN: Sube los logos y la ciudad a una posición intermedia perfecta */
+            transform: translateY(-2px);
         }
         
-        .logo-fcag { 
-            height: 65px; 
-            object-fit: contain; 
-            flex-shrink: 0; 
-        }
-        .logo-prono { 
-            height: 80px; 
-            width: 80px; 
-            object-fit: contain; 
-            border-radius: 50%; 
-            flex-shrink: 0; 
-        }
-        .logo-unlp { 
-            height: 75px; 
-            object-fit: contain; 
-            flex-shrink: 0; 
-            z-index: 2; 
-        }
+        .logo-fcag { height: 65px; object-fit: contain; flex-shrink: 0; }
+        .logo-prono { height: 80px; width: 80px; object-fit: contain; border-radius: 50%; flex-shrink: 0; }
+        .logo-unlp { height: 75px; object-fit: contain; flex-shrink: 0; z-index: 2; }
+        
         .header-capsule h1 { 
-            font-size: 58px; 
-            font-weight: 900; 
-            margin: 0; /* VISIÓN NORMAL: sin margen */
-            color: var(--unlp-blue); 
-            text-transform: uppercase; 
-            letter-spacing: -1px; 
-            line-height: 1;
-            z-index: 1;
+            font-size: 58px; font-weight: 900; margin: 0; 
+            color: var(--unlp-blue); text-transform: uppercase; 
+            letter-spacing: -1px; line-height: 1; z-index: 1;
         }
-        .exporting .header-capsule h1 {
-            margin: -8px 0 0 0; /* TRAMPA EXPORTACIÓN: Un empuje extra leve hacia arriba solo para la tipografía de la ciudad */
-        }
+        .exporting .header-capsule h1 { margin: -8px 0 0 0; }
 
         .title-pill { 
             background: var(--unlp-blue); color: white; padding: 8px 60px; 
             border-radius: 40px; font-weight: 800; font-size: 20px; 
             position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); 
             text-transform: uppercase; z-index: 100; white-space: nowrap;
-            border: 3px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
-        .exporting .title-pill {
-            padding-top: 4px; /* TRAMPA EXPORTACIÓN: empuja el texto más al centro-arriba */
-            padding-bottom: 12px;
-        }
+        .exporting .title-pill { padding-top: 4px; padding-bottom: 12px; }
 
-        /* CAPSULA FECHA Y EMISIÓN */
         .date-emission-pill { 
             background: var(--unlp-bg-pill); border-radius: 50px; 
-            padding: 8px 50px; /* VISIÓN NORMAL: padding uniforme */
-            display: inline-flex;
+            padding: 8px 50px; display: inline-flex;
             align-items: center; gap: 50px; color: var(--unlp-blue); 
-            border: 3px solid white; 
-            margin: 0 auto -20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            position: relative; z-index: 10;
+            border: 3px solid white; margin: 0 auto -20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; z-index: 10;
         }
-        .exporting .date-emission-pill {
-            padding: 4px 50px 12px; /* TRAMPA EXPORTACIÓN */
-        }
+        .exporting .date-emission-pill { padding: 4px 50px 12px; }
         
         .date-val { font-size: 28px; font-weight: 900; }
         .issuance-block { display: flex; align-items: center; gap: 10px; text-transform: uppercase; border-left: 2px solid rgba(0,49,90,0.25); padding-left: 20px; }
         .issuance-label { font-size: 13px; font-weight: 800; max-width: 140px; line-height: 1.1; }
         .issuance-time { font-size: 24px; font-weight: 900; }
 
-        /* DÍAS PLACA 1 */
         .day-block { 
-            border-radius: 45px; 
-            margin-bottom: 6px; 
-            position: relative; 
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            justify-content: space-between; 
-            padding-bottom: 0px; 
+            border-radius: 45px; margin-bottom: 6px; position: relative; 
+            width: 100%; display: flex; flex-direction: column; 
+            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            justify-content: space-between; padding-bottom: 0px; 
         }
         
         .day-1 { background: var(--unlp-blue); padding-top: 25px; height: 630px; }
         .day-2 { background: var(--unlp-accent-blue); padding-top: 25px; margin-bottom: 0; height: 630px; }
         
-        .day-header { 
-            display: flex; 
-            align-items: flex-start; 
-            padding: 0px 25px 0px; 
-            color: white; 
-            gap: 15px;
-        }
-        .day-header h2 { 
-            font-size: 34px; 
-            font-weight: 800; 
-            margin: -5px 0 0 0; 
-            text-transform: uppercase; 
-            width: 230px; 
-            letter-spacing: -0.5px; 
-            flex-shrink: 0; 
-            line-height: 1; 
-        }
-        .periods-pill { 
-            background: rgba(255,255,255,0.2); 
-            border-radius: 20px; 
-            display: flex; 
-            flex-grow: 1; 
-            justify-content: space-around; 
-            padding: 4px 0; /* VISIÓN NORMAL */
-            font-weight: 800; 
-            font-size: 24px; 
-            margin-right: 15px; 
-        }
+        .day-header { display: flex; align-items: flex-start; padding: 0px 25px 0px; color: white; gap: 15px; }
+        .day-header h2 { font-size: 34px; font-weight: 800; margin: -5px 0 0 0; text-transform: uppercase; width: 230px; letter-spacing: -0.5px; flex-shrink: 0; line-height: 1; }
+        
+        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 4px 0; font-weight: 800; font-size: 24px; margin-right: 15px; }
         .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 4px 10px; margin-right: 0; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 22px; }
         
         .exporting .periods-pill { padding: 0px 0 8px; }
         .exporting .periods-pill-4 { padding: 0px 10px 8px; }
         
-        .periods-pill span, .periods-pill-4 span {
-            display: inline-block;
-            margin-top: 0; /* VISIÓN NORMAL */
-        }
-        .exporting .periods-pill span, .exporting .periods-pill-4 span {
-            margin-top: -3px; /* TRAMPA EXPORTACIÓN */
-        }
+        .periods-pill span, .periods-pill-4 span { display: inline-block; margin-top: 0; }
+        .exporting .periods-pill span, .exporting .periods-pill-4 span { margin-top: -3px; }
 
-        .day-main-grid { 
-            display: grid; 
-            grid-template-columns: 285px 1fr 1fr 1fr; 
-            color: white; 
-            align-items: flex-start; 
-            padding: 5px 15px 0px 15px; 
-            position: relative; 
-            flex: 1; 
-            min-height: 0; 
-        }
+        .day-main-grid { display: grid; grid-template-columns: 285px 1fr 1fr 1fr; color: white; align-items: flex-start; padding: 5px 15px 0px 15px; position: relative; flex: 1; min-height: 0; }
         .day-main-grid-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         
-        .temp-side-col { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: stretch; 
-            justify-content: flex-end;
-            align-self: stretch; 
-            border-right: none; 
-            padding-right: 15px; 
-        }
+        .temp-side-col { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; align-self: stretch; border-right: none; padding-right: 15px; }
         
-        .temp-v-box { 
-            border-radius: 0 40px 0 0; 
-            padding: 24px 20px 22px 28px; 
-            margin-left: -15px; 
-            width: calc(100% + 15px); 
-            height: 180px; 
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border: none; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        
+        .temp-v-box { border-radius: 0 40px 0 0; padding: 24px 20px 22px 28px; margin-left: -15px; width: calc(100% + 15px); height: 180px; min-height: 180px; display: flex; flex-direction: column; justify-content: center; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         .day-1 .temp-v-box { background: var(--unlp-accent-blue); }
         .day-2 .temp-v-box { background: var(--unlp-blue); }
 
         .temp-v-box h4 { font-size: 26px; margin: 0 0 10px; letter-spacing: 0; text-transform: uppercase; color: rgba(255,255,255,0.9); border: none; font-weight: 800; text-align: center; }
         
-        .temp-v-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 28px; 
-            padding: 0 10px; 
-            width: 100%; 
-        }
+        .temp-v-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding: 0 10px; width: 100%; }
         .temp-v-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .temp-v-col .label { font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 5px; }
         .temp-v-item { display: flex; align-items: center; gap: 8px; }
         .temp-v-vals { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         
-        /* TRAMPA EXPORTACIÓN: Bajada sutil para que el termómetro alinee perfecto con el número (Día 1, 2, 3 y 4) */
-        .exporting .temp-v-item svg,
-        .exporting .card-temps-row svg {
-            transform: translateY(6px); 
-        }
+        .exporting .temp-v-item svg { transform: translateY(1px); }
+        .exporting .card-temps-row svg { transform: translateY(6px); }
 
-        .temp-v-urb { 
-            font-size: 28px; 
-            font-weight: 500; 
-            line-height: 1.2; 
-            color: white; 
-        } 
-        .temp-v-sub { 
-            font-size: 28px; 
-            font-weight: 500; 
-            line-height: 1.2;
-            color: rgba(255,255,255,0.9); 
-        } 
+        .temp-v-urb { font-size: 28px; font-weight: 500; line-height: 1.2; color: white; } 
+        .temp-v-sub { font-size: 28px; font-weight: 500; line-height: 1.2; color: rgba(255,255,255,0.9); } 
 
-        .forecast-item { 
-            text-align: center; 
-            padding: 0 0 5px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: flex-end; 
-            align-items: center; 
-            min-height: 0;
-            flex-shrink: 0;
-            padding-top: 10px;
-        }
-        .forecast-item img { 
-            width: auto; 
-            height: 155px; 
-            max-width: 155px; 
-            object-fit: contain; 
-            flex-shrink: 0; 
-            image-rendering: -webkit-optimize-contrast;
-        }
+        .forecast-item { text-align: center; padding: 0 0 5px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 0; flex-shrink: 0; padding-top: 10px; }
+        .forecast-item img { width: auto; height: 155px; max-width: 155px; object-fit: contain; flex-shrink: 0; image-rendering: -webkit-optimize-contrast; }
         .forecast-temp { font-size: 46px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 5px; line-height: 1; }
         
         .stripe { display: grid; align-items: stretch; width: 100%; height: 120px; position: relative; } 
@@ -336,151 +198,41 @@
         .stripe-wind-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 285px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
+        
         .stripe-label { font-size: 32px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; } 
-        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 5px 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; flex-direction: column; } 
+        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; word-break: normal; } 
         
-        /* PLACA 2: TARJETAS VERTICALES EXTENDIDAS */
-        .cards-container { 
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 35px;
-            margin-top: 20px;
-            padding: 0 40px;
-            box-sizing: border-box;
-        }
+        .cards-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 20px; padding: 0 40px; box-sizing: border-box; }
         
-        .v-card { 
-            height: 1010px;
-            border-radius: 55px; 
-            padding: 25px 35px; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: flex-start;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
+        .v-card { height: 1010px; border-radius: 55px; padding: 25px 35px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; position: relative; overflow: hidden; box-sizing: border-box; }
         .v-card.celeste { background: var(--unlp-light); }
         .v-card.oscuro { background: var(--unlp-blue); }
         
-        .v-card h2 { 
-            font-size: 72px;
-            font-weight: 900;
-            margin-bottom: 5px; 
-            text-transform: uppercase; 
-            letter-spacing: 0; 
-        }
-        .v-card .date { 
-            font-size: 46px;
-            font-weight: 300;
-            margin-bottom: 25px; 
-            opacity: 0.85; 
-        }
+        .v-card h2 { font-size: 72px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0; }
+        .v-card .date { font-size: 46px; font-weight: 300; margin-bottom: 25px; opacity: 0.85; }
         
         .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; width: 100%; }
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .card-split-title { font-size: 15px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
-        .card-split img { 
-            width: auto; 
-            height: 165px; 
-            max-width: 165px; 
-            object-fit: contain; 
-            flex-shrink: 0; 
-        }
+        .card-split img { width: auto; height: 165px; max-width: 165px; object-fit: contain; flex-shrink: 0; }
         
-        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; transform: translateX(-12px); /* Desplaza visualmente hacia la izquierda para centrar */ }
+        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
         
-        .card-temp-urb { 
-            font-size: 28px; 
-            font-weight: 500; 
-            line-height: 1.2; 
-            color: white; 
-        } 
-        .card-temp-sub { 
-            font-size: 28px; 
-            font-weight: 500; 
-            line-height: 1.2;
-            color: rgba(255,255,255,0.9); 
-        } 
+        .card-temp-urb { font-size: 28px; font-weight: 500; line-height: 1.2; color: white; } 
+        .card-temp-sub { font-size: 28px; font-weight: 500; line-height: 1.2; color: rgba(255,255,255,0.9); } 
         
-        /* Espacio delimitado para la descripción */
-        .weather-desc { 
-            height: 140px;
-            width: 100%;
-            margin-top: 15px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .weather-desc span.main-desc {
-            font-size: 28px;
-            line-height: 1.2;
-            font-weight: 800; 
-            text-align: center; 
-            padding: 0 10px;
-            display: inline-block;
-            width: 100%;
-        }
+        .weather-desc { height: 140px; width: 100%; margin-top: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .weather-desc span { font-size: 28px; line-height: 1.2; font-weight: 800; text-align: center; padding: 0 10px; display: inline-block; width: 100%; word-break: normal; }
 
-        /* Contenedor anclado al fondo para los vientos */
-        .wind-section {
-            position: absolute;
-            bottom: 65px; 
-            left: 0;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .v-card .wind-arrows { 
-            margin: 0 0 10px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            gap: 22px; 
-            min-height: 60px; 
-        }
+        .wind-section { position: absolute; bottom: 65px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .v-card .wind-arrows { margin: 0 0 10px; display: flex; justify-content: center; align-items: center; gap: 22px; min-height: 60px; }
+        .wind-legend { font-size: 28px; line-height: 1.15; font-weight: 700; text-align: center; max-width: 90%; color: rgba(255,255,255,0.95); }
         
-        .wind-legend { 
-            font-size: 28px;
-            line-height: 1.15;
-            font-weight: 700; 
-            text-align: center; 
-            max-width: 90%; 
-            color: rgba(255,255,255,0.95); 
-        }
+        .footer-note { position: absolute; bottom: 70px; left: 0; width: 100%; text-align: center; font-size: 24px; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; }
+        .bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 45px; background-color: var(--unlp-blue); }
         
-        .footer-note { 
-            position: absolute;
-            bottom: 70px; 
-            left: 0;
-            width: 100%;
-            text-align: center; 
-            font-size: 24px; 
-            font-weight: 800; 
-            color: var(--unlp-blue); 
-            text-transform: uppercase; 
-        }
-
-        .bottom-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 45px;
-            background-color: var(--unlp-blue);
-        }
-        
-        /* Fallback elegante para imágenes */
         img { display: block; position: relative; background: rgba(0,0,0,0.03); min-width: 40px; min-height: 40px; border-radius: 8px; object-fit: contain; image-rendering: auto; }
 
         .column { display: flex; flex-direction: column; flex: 1; }
@@ -489,6 +241,16 @@
         .time-input-group input { flex: 1; }
         .time-suffix { font-size: 0.9em; font-weight: 600; color: var(--unlp-blue); text-transform: uppercase; white-space: nowrap; }
         .period-no-temp { font-size: 11px; font-weight: 700; color: #7f8c8d; text-transform: uppercase; }
+
+        /* Notification Toast Styling */
+        #toast {
+            visibility: hidden;
+            min-width: 250px; background-color: #28a745; color: #fff;
+            text-align: center; border-radius: 8px; padding: 16px;
+            position: fixed; z-index: 1000; left: 50%; bottom: 30px;
+            font-size: 16px; font-weight: bold; transform: translateX(-50%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -499,7 +261,6 @@
     <div class="field-group">
         <h4>Información General</h4>
         
-        <!-- Interruptor para preparar pronóstico el día anterior -->
         <div class="row">
             <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
                 <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
@@ -536,8 +297,6 @@
     <button class="btn btn-p1" onclick="download('placa-1')">⬇ PLACA 1 (D1-D2)</button>
     <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
     <button class="btn btn-pdf" onclick="downloadPDF()">📄 DESCARGAR PDF</button>
-    
-    <!-- Botón para limpiar autoguardado -->
     <button class="btn btn-clear" onclick="clearDraft()">🗑️ Limpiar Borrador Guardado</button>
 
     <div id="dynamic-inputs"></div>
@@ -668,7 +427,6 @@
         </div>
     </div>
 
-    <!-- PLACA 2 -->
     <div class="placa-preview">
         <div id="placa-2" class="placa-box">
             <div class="header-container">
@@ -698,7 +456,6 @@
                     </div>
                     
                     <div class="card-temps-row">
-                        <!-- MIN TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -710,7 +467,6 @@
                                 <span class="card-temp-sub" id="d3-min-sub">--*</span>
                             </div>
                         </div>
-                        <!-- MAX TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -724,12 +480,10 @@
                         </div>
                     </div>
 
-                    <!-- Contenedor estricto para escalar texto (Día 3) -->
                     <div class="weather-desc" id="d3-desc-container">
-                        <span id="d3-w1" class="main-desc">--</span>
+                        <span id="d3-w1">--</span>
                     </div>
                     
-                    <!-- Sección de vientos fija al fondo -->
                     <div class="wind-section">
                         <div class="wind-arrows" id="d3-arrows-container"></div>
                         <div class="wind-legend" id="d3-wind-legend">--</div>
@@ -751,7 +505,6 @@
                     </div>
                     
                     <div class="card-temps-row">
-                        <!-- MIN TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -763,7 +516,6 @@
                                 <span class="card-temp-sub" id="d4-min-sub">--*</span>
                             </div>
                         </div>
-                        <!-- MAX TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -777,12 +529,10 @@
                         </div>
                     </div>
 
-                    <!-- Contenedor estricto para escalar texto (Día 4) -->
                     <div class="weather-desc" id="d4-desc-container">
-                        <span id="d4-w1" class="main-desc">--</span>
+                        <span id="d4-w1">--</span>
                     </div>
                     
-                    <!-- Sección de vientos fija al fondo -->
                     <div class="wind-section">
                         <div class="wind-arrows" id="d4-arrows-container"></div>
                         <div class="wind-legend" id="d4-wind-legend">--</div>
@@ -790,25 +540,30 @@
                 </div>
             </div>
             
-            <!-- Agregados para la Placa 2 -->
             <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
             <div class="bottom-bar"></div>
-            
         </div>
     </div>
 </div>
 
+<div id="toast"></div>
+
 <script>
-        // Opciones de Probabilidad de Precipitación
         const POP_OPTS = ["0 %", "10 a 40 %", "40 a 70 %", "70 a 100 %"];
 
-        // Función auxiliar para forzar la primera letra en mayúscula (capitalizar)
         function capitalizeFirst(str) {
             if (!str) return '';
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
         }
 
-        // Manejador global de errores de imagen para evitar fallos en html2canvas
+        function showToast(message, isError = false) {
+            const toast = document.getElementById("toast");
+            toast.style.backgroundColor = isError ? "#e74c3c" : "#28a745";
+            toast.innerText = message;
+            toast.style.visibility = "visible";
+            setTimeout(() => { toast.style.visibility = "hidden"; }, 3500);
+        }
+
         window.addEventListener('error', function(e) {
             if (e.target && e.target.tagName === 'IMG') {
                 const src = e.target.getAttribute('src');
@@ -819,14 +574,12 @@
             }
         }, true);
 
-        // LISTA UNIFICADA: Cielo + Tormentas/Lluvias (sin "nublado")
         const COMBINED_WEATHER_OPTS = [
             "despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", 
             "cubierto", "neblinas", "nieblas", 
             "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"
         ];
         
-        // Intensidades actualizadas
         const WIND_INT = ["leves", "moderados", "regulares", "fuertes o muy fuertes"];
         const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
         
@@ -856,19 +609,15 @@
             return 'dia'; 
         }
 
-        // NUEVO: Función para achicar toda la fila de forma pareja y simétrica
         function syncRowFontSize(elements, maxSize, minSize) {
             if (!elements || elements.length === 0) return;
-            
             let currentSize = maxSize;
             elements.forEach(el => el.style.fontSize = currentSize + 'px');
             
-            // Función interna para detectar si ALGÚN elemento de la fila se desborda milimétricamente
             let isOverflowing = () => {
                 return elements.some(el => el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth);
             };
 
-            // Achicamos progresivamente todos a la vez hasta que ninguno se desborde
             while (isOverflowing() && currentSize > minSize) {
                 currentSize--;
                 elements.forEach(el => el.style.fontSize = currentSize + 'px');
@@ -890,22 +639,10 @@
                 html += `<div class="field-group">
                     <h4>Temperaturas Mín / Máx (Urbana / Suburbana)</h4>
                     <div class="row">
-                        <div class="column">
-                            <label>Mín Urbana</label>
-                            <input type="number" id="in-${conf.id}-min-urb" placeholder="Min Urbana" oninput="updateTempField('${conf.id}', 'min', 'urb')">
-                        </div>
-                        <div class="column">
-                            <label>Mín Suburbana</label>
-                            <input type="number" id="in-${conf.id}-min-sub" placeholder="Min Suburbana" oninput="updateTempField('${conf.id}', 'min', 'sub')">
-                        </div>
-                        <div class="column">
-                            <label>Máx Urbana</label>
-                            <input type="number" id="in-${conf.id}-max-urb" placeholder="Máx Urbana" oninput="updateTempField('${conf.id}', 'max', 'urb')">
-                        </div>
-                        <div class="column">
-                            <label>Máx Suburbana</label>
-                            <input type="number" id="in-${conf.id}-max-sub" placeholder="Máx Suburbana" oninput="updateTempField('${conf.id}', 'max', 'sub')">
-                        </div>
+                        <div class="column"><label>Mín Urbana</label><input type="number" id="in-${conf.id}-min-urb" oninput="updateTempField('${conf.id}', 'min', 'urb')"></div>
+                        <div class="column"><label>Mín Suburbana</label><input type="number" id="in-${conf.id}-min-sub" oninput="updateTempField('${conf.id}', 'min', 'sub')"></div>
+                        <div class="column"><label>Máx Urbana</label><input type="number" id="in-${conf.id}-max-urb" oninput="updateTempField('${conf.id}', 'max', 'urb')"></div>
+                        <div class="column"><label>Máx Suburbana</label><input type="number" id="in-${conf.id}-max-sub" oninput="updateTempField('${conf.id}', 'max', 'sub')"></div>
                     </div>
                 </div>`;
                 
@@ -959,600 +696,550 @@
                     </div>`;
                 });
                 if(conf.id.startsWith('d')) {
-                    html += `<textarea id="${conf.id}-custom-desc" placeholder="Descripción extendida del día..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
+                    html += `<textarea id="${conf.id}-custom-desc" placeholder="Descripción extendida del día (el selector PoP sumará texto aquí automáticamente)..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
                 }
             });
             document.getElementById('dynamic-inputs').innerHTML = html;
         }
 
-    // Función para calcular o re-calcular fechas basado en el checkbox
-    function recalculateDates() {
-        const today = new Date();
-        const isTomorrow = document.getElementById('chk-tomorrow').checked;
-        
-        // Si activaron el switch, la fecha base de cálculo es "mañana"
-        if (isTomorrow) {
-            today.setDate(today.getDate() + 1);
-        }
+        function recalculateDates() {
+            const today = new Date();
+            const isTomorrow = document.getElementById('chk-tomorrow').checked;
+            if (isTomorrow) { today.setDate(today.getDate() + 1); }
 
-        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+            const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+            const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
 
-        // Actualizar la cápsula de fecha de emisión
-        const dStr = String(today.getDate()).padStart(2, '0');
-        const moStr = ms[today.getMonth()];
-        const yStr = String(today.getFullYear()).slice(-2);
-        const specificDateStr = `${dStr}/${moStr}/${yStr}`;
+            const dStr = String(today.getDate()).padStart(2, '0');
+            const moStr = ms[today.getMonth()];
+            const yStr = String(today.getFullYear()).slice(-2);
+            const specificDateStr = `${dStr}/${moStr}/${yStr}`;
 
-        const dateInput = document.getElementById('in-fecha-emision');
-        if (dateInput) {
-            dateInput.value = specificDateStr;
-            updateDateVal(specificDateStr);
-        }
+            const dateInput = document.getElementById('in-fecha-emision');
+            if (dateInput) { dateInput.value = specificDateStr; updateDateVal(specificDateStr); }
 
-        // Calcular los nombres y fechas de los 4 días
-        for(let i=0; i<4; i++) {
-            let iterDate = new Date(today); 
-            iterDate.setDate(today.getDate() + i);
-            document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
-            
-            let iterD = String(iterDate.getDate()).padStart(2, '0');
-            let iterM = ms[iterDate.getMonth()];
-            let iterY = String(iterDate.getFullYear()).slice(-2);
-            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${iterD}/${iterM}/${iterY}`);
-        }
-    }
-
-    function updateTempField(dia, tipo, zona) {
-        const value = document.getElementById(`in-${dia}-${tipo}-${zona}`).value;
-        const targetId = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`;
-        up(targetId, value);
-    }
-
-    function updatePeriodTemp(dia, idx) {
-        const value = document.getElementById(`${dia}-temp-${idx}`).value;
-        up(`${dia}-t${idx}`, value);
-    }
-
-    // Diseño de flecha blindado contra errores de html2canvas (con wrapper y rotación nativa SVG)
-    function getWindArrowSVG(dir) {
-        const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
-        return `
-        <div style="width: 58px; height: 58px; margin: 0 8px; flex-shrink: 0;">
-            <svg viewBox="0 0 100 100" width="58" height="58" style="display: block;">
-                <g transform="rotate(${angle} 50 50)">
-                    <!-- Sombra dibujada de forma rígida -->
-                    <path d="M 50 17 L 85 87 L 50 72 L 15 87 Z" fill="rgba(0,0,0,0.15)" />
-                    <!-- Flecha principal -->
-                    <path d="M 50 15 L 85 85 L 50 70 L 15 85 Z" fill="#ffffff" />
-                </g>
-            </svg>
-        </div>
-        `;
-    }
-
-    function updateWindLegendAndArrows(dia) {
-        const legend = document.getElementById(`${dia}-wind-legend`);
-        const arrowContainer = document.getElementById(`${dia}-arrows-container`);
-        if(!legend || !arrowContainer) return;
-        
-        let arrowsHTML = '';
-        
-        const i1 = document.getElementById(`${dia}-v-i1`).value;
-        const d1 = document.getElementById(`${dia}-v-d1`).value;
-        let r1 = document.getElementById(`${dia}-rafagas-1`).value;
-        if (r1 && !r1.toLowerCase().includes('km/h')) r1 += ' km/h';
-
-        const i2 = document.getElementById(`${dia}-v-i2`).value;
-        const d2 = document.getElementById(`${dia}-v-d2`).value;
-        let r2 = document.getElementById(`${dia}-rafagas-2`).value;
-        if (r2 && !r2.toLowerCase().includes('km/h')) r2 += ' km/h';
-        
-        if(i1 && d1) arrowsHTML += getWindArrowSVG(d1);
-        if(i2 && d2) arrowsHTML += getWindArrowSVG(d2);
-        
-        if (!i1 || !d1) {
-            legend.innerText = '--';
-            arrowContainer.innerHTML = '';
-            return;
-        }
-
-        // LÓGICA DE VIENTOS: Ráfagas reemplazan u ocultan al viento medio
-        let desc1 = r1 ? `ráfagas de ${r1}` : `vientos ${i1} del ${d1}`;
-        let desc2 = r2 ? `ráfagas de ${r2}` : (i2 && d2 ? `vientos ${i2} del ${d2}` : "");
-
-        if (desc2) {
-            if (desc1 === desc2) {
-                legend.innerText = capitalizeFirst(`${desc1}.`);
-            } else {
-                legend.innerText = capitalizeFirst(`${desc1} rotando a ${desc2}.`);
+            for(let i=0; i<4; i++) {
+                let iterDate = new Date(today); 
+                iterDate.setDate(today.getDate() + i);
+                document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
+                
+                let iterD = String(iterDate.getDate()).padStart(2, '0');
+                let iterM = ms[iterDate.getMonth()];
+                let iterY = String(iterDate.getFullYear()).slice(-2);
+                document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${iterD}/${iterM}/${iterY}`);
             }
-        } else {
-            legend.innerText = capitalizeFirst(`${desc1}.`);
         }
-        
-        arrowContainer.innerHTML = arrowsHTML;
-    }
 
-    function updateSky(dia, tramo) {
-        try {
-            const skySelect = document.getElementById(`${dia}-sky-select-${tramo}`);
-            const valor = skySelect ? skySelect.value : "";
+        function updateTempField(dia, tipo, zona) {
+            const value = document.getElementById(`in-${dia}-${tipo}-${zona}`).value;
+            const targetId = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`;
+            up(targetId, value);
+        }
+
+        function updatePeriodTemp(dia, idx) {
+            const value = document.getElementById(`${dia}-temp-${idx}`).value;
+            up(`${dia}-t${idx}`, value);
+        }
+
+        function getWindArrowSVG(dir) {
+            const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
+            return `
+            <div style="width: 58px; height: 58px; margin: 0 8px; flex-shrink: 0;">
+                <svg viewBox="0 0 100 100" width="58" height="58" style="display: block;">
+                    <g transform="rotate(${angle} 50 50)">
+                        <path d="M 50 17 L 85 87 L 50 72 L 15 87 Z" fill="rgba(0,0,0,0.15)" />
+                        <path d="M 50 15 L 85 85 L 50 70 L 15 85 Z" fill="#ffffff" />
+                    </g>
+                </svg>
+            </div>
+            `;
+        }
+
+        function updateWindLegendAndArrows(dia) {
+            const legend = document.getElementById(`${dia}-wind-legend`);
+            const arrowContainer = document.getElementById(`${dia}-arrows-container`);
+            if(!legend || !arrowContainer) return;
             
-            const popSelect = document.getElementById(`${dia}-pop-${tramo}`);
-            const pop = popSelect ? popSelect.value : "";
+            let arrowsHTML = '';
+            
+            const i1 = document.getElementById(`${dia}-v-i1`).value;
+            const d1 = document.getElementById(`${dia}-v-d1`).value;
+            let r1 = document.getElementById(`${dia}-rafagas-1`).value;
+            if (r1 && !r1.toLowerCase().includes('km/h')) r1 += ' km/h';
 
-            // Para los Días 1 y 2, impactamos en las tiras (.stripe-time)
-            if(!dia.startsWith('d')) {
-                const target = document.getElementById(`${dia}-w${tramo}`);
-                if(target) {
-                    let baseText = valor ? capitalizeFirst(valor) : "--";
-                    
-                    // Sumamos la probabilidad en un bloque más chico y que no se rompa (nowrap)
-                    if (pop) {
-                        target.innerHTML = `${baseText}<span style="display: block; font-size: 0.65em; white-space: nowrap; margin-top: 4px; color: rgba(255,255,255,0.85);">(Prob: ${pop})</span>`;
+            const i2 = document.getElementById(`${dia}-v-i2`).value;
+            const d2 = document.getElementById(`${dia}-v-d2`).value;
+            let r2 = document.getElementById(`${dia}-rafagas-2`).value;
+            if (r2 && !r2.toLowerCase().includes('km/h')) r2 += ' km/h';
+            
+            if(i1 && d1) arrowsHTML += getWindArrowSVG(d1);
+            if(i2 && d2) arrowsHTML += getWindArrowSVG(d2);
+            
+            if (!i1 || !d1) {
+                legend.innerText = '--';
+                arrowContainer.innerHTML = '';
+                return;
+            }
+
+            if (i1 && d1 && i2 && d2) {
+                if (d1 === d2) {
+                    legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''}.`);
+                } else {
+                    legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''} rotando a ${i2} del ${d2}${r2 ? ' con ráfagas de ' + r2 : ''}.`);
+                }
+            } else if (i1 && d1) {
+                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''}.`);
+            }
+            
+            arrowContainer.innerHTML = arrowsHTML;
+        }
+
+        function updateSky(dia, tramo) {
+            try {
+                const skySelect = document.getElementById(`${dia}-sky-select-${tramo}`);
+                const valor = skySelect ? skySelect.value : "";
+                
+                const popSelect = document.getElementById(`${dia}-pop-${tramo}`);
+                const pop = popSelect ? popSelect.value : "";
+
+                if(!dia.startsWith('d')) {
+                    const target = document.getElementById(`${dia}-w${tramo}`);
+                    if(target) {
+                        let text = "--";
+                        
+                        if (valor) {
+                            if (pop) {
+                                // Formateo directo a la oración como se requirió: "40-70% prob. de lluvias"
+                                let cleanPop = pop.replace(" a ", "-").replace(" %", "%");
+                                text = `${cleanPop} prob. de ${valor.toLowerCase()}`;
+                            } else {
+                                text = capitalizeFirst(valor);
+                            }
+                        }
+                        
+                        target.innerText = text;
+                        
+                        target.style.fontSize = '32px';
+                        let currentSize = 32;
+                        while ((target.scrollHeight > target.clientHeight || target.scrollWidth > target.clientWidth) && currentSize > 14) {
+                            currentSize--;
+                            target.style.fontSize = currentSize + 'px';
+                        }
+                        
+                        const count = (dia === 'h') ? 3 : 4;
+                        const elements = [];
+                        for (let i = 1; i <= count; i++) {
+                            const el = document.getElementById(`${dia}-w${i}`);
+                            if (el) elements.push(el);
+                        }
+                        syncRowFontSize(elements, 32, 12);
+                    }
+                } else {
+                    updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`).value);
+                }
+                
+                const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
+                if(imgEl && imgEl.tagName === 'IMG') {
+                    if(valor && iconMap[valor]) {
+                        const momento = getMomentoDia(dia, tramo);
+                        const fileName = iconMap[valor][momento];
+                        imgEl.src = `images/${fileName}`;
+                        imgEl.style.transform = (valor === "despejado") ? "scale(1)" : "scale(1.25)";
                     } else {
-                        target.innerHTML = baseText;
+                        imgEl.src = `images/default.png`;
+                        imgEl.style.transform = "scale(1)";
+                    }
+                }
+            } catch (e) {
+                console.error('Error en updateSky:', e);
+            }
+        }
+
+        function updateWind(dia, tramo) {
+            const i = document.getElementById(`${dia}-v-i${tramo}`).value;
+            const d = document.getElementById(`${dia}-v-d${tramo}`).value;
+            let r = document.getElementById(`${dia}-rafagas-${tramo}`).value;
+            if (r && !r.toLowerCase().includes('km/h')) r += ' km/h';
+            
+            if(!dia.startsWith('d')) {
+                const target = document.getElementById(`${dia}-v${tramo}`);
+                if(target) {
+                    let text = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
+                    if (r) {
+                        text = `Ráfagas: ${r}`;
                     }
                     
-                    // Auto-escalado Dinámico SIMÉTRICO para toda la fila Tiempo
+                    target.innerText = text;
+                    
                     const count = (dia === 'h') ? 3 : 4;
                     const elements = [];
-                    for (let i = 1; i <= count; i++) {
-                        const el = document.getElementById(`${dia}-w${i}`);
+                    for (let idx = 1; idx <= count; idx++) {
+                        const el = document.getElementById(`${dia}-v${idx}`);
                         if (el) elements.push(el);
                     }
                     syncRowFontSize(elements, 32, 12);
                 }
-            } else {
-                // Para los días 3 y 4, llamamos a la función de refresco del texto custom
-                updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`).value);
             }
             
-            const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
-            if(imgEl && imgEl.tagName === 'IMG') {
-                if(valor && iconMap[valor]) {
-                    const momento = getMomentoDia(dia, tramo);
-                    const fileName = iconMap[valor][momento];
-                    imgEl.src = `images/${fileName}`;
-                    
-                    if (valor === "despejado") {
-                        imgEl.style.transform = "scale(1)";
-                    } else {
-                        imgEl.style.transform = "scale(1.25)";
-                    }
-                } else {
-                    imgEl.src = `images/default.png`;
-                    imgEl.style.transform = "scale(1)";
-                }
+            if(dia === 'd3' || dia === 'd4') {
+                updateWindLegendAndArrows(dia);
             }
-        } catch (e) {
-            console.error('Error en updateSky:', e);
         }
-    }
 
-    function updateWind(dia, tramo) {
-        const i = document.getElementById(`${dia}-v-i${tramo}`).value;
-        const d = document.getElementById(`${dia}-v-d${tramo}`).value;
-        let r = document.getElementById(`${dia}-rafagas-${tramo}`).value;
-        if (r && !r.toLowerCase().includes('km/h')) r += ' km/h';
-        
-        if(!dia.startsWith('d')) {
-            const target = document.getElementById(`${dia}-v${tramo}`);
-            if(target) {
-                // Ráfagas reemplaza al texto base (viento medio)
-                if (r) {
-                    target.innerText = `Ráfagas: ${r}`;
-                } else {
-                    target.innerText = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
+        function up(id, v) { 
+            let val = v ? v.trim() : '--';
+            if((id.includes('min') || id.includes('max') || id.includes('t')) && !id.includes('sub') && val !== '--') val += '°';
+            if(id.includes('sub') && val !== '--') val += '*';
+            const el = document.getElementById(id);
+            if(el) el.innerText = val; 
+        }
+
+        function updateFullDesc(dia, v) {
+            const target = document.getElementById(`${dia}-w1`);
+            const container = document.getElementById(`${dia}-desc-container`);
+            
+            const pop1 = document.getElementById(`${dia}-pop-1`)?.value;
+            const pop2 = document.getElementById(`${dia}-pop-2`)?.value;
+            
+            let p1 = pop1 ? pop1.replace(" a ", "-").replace(" %", "%") : "";
+            let p2 = pop2 ? pop2.replace(" a ", "-").replace(" %", "%") : "";
+            
+            let popText = "";
+            if (p1 && p2 && p1 === p2) popText = `${p1} prob. de `;
+            else if (p1 && p2) popText = `${p1} luego ${p2} prob. de `;
+            else if (p1) popText = `${p1} prob. de `;
+            else if (p2) popText = `${p2} prob. de `;
+
+            let finalDesc = v || "--";
+            if (popText && v) {
+                finalDesc = popText + v.charAt(0).toLowerCase() + v.slice(1);
+            } else if (popText) {
+                finalDesc = popText + "--";
+            }
+
+            if (target && container) {
+                target.innerText = finalDesc;
+                
+                target.style.fontSize = '28px';
+                let currentSize = 28;
+                while (target.offsetHeight > container.offsetHeight && currentSize > 12) {
+                    currentSize--;
+                    target.style.fontSize = currentSize + 'px';
+                }
+            } else if (target) {
+                target.innerText = finalDesc;
+            }
+        }
+
+        function updateCity(v) { 
+            document.querySelectorAll('.city-label').forEach(el => {
+                el.innerText = v.toUpperCase();
+                if (v.toUpperCase() === 'MAR DEL PLATA') {
+                    el.style.fontSize = '46px'; el.style.letterSpacing = '-1.5px'; el.style.marginLeft = '0px';
+                } else if (v.toUpperCase() === 'JUNÍN') {
+                    el.style.fontSize = '58px'; el.style.letterSpacing = '-1px'; el.style.marginLeft = '70px'; 
+                } else { 
+                    el.style.fontSize = '58px'; el.style.letterSpacing = '-1px'; el.style.marginLeft = '10px';
+                }
+            }); 
+        }
+
+        function updateDateVal(v) { document.querySelectorAll('.f0').forEach(el => el.innerText = v.toUpperCase()); }
+
+        function formatTimeInput(input) {
+            let value = input.value.replace(/[^\d]/g, '');
+            if (value.length >= 2) {
+                const hours = value.substring(0, 2);
+                const minutes = value.substring(2, 4);
+                if (parseInt(hours) > 23) value = '23' + minutes;
+                if (minutes.length > 0 && parseInt(minutes) > 59) value = hours + '59';
+                value = value.substring(0, 2) + ':' + value.substring(2, 4);
+            }
+            input.value = value;
+            up('out-hora', value + ' hs');
+        }
+
+        function validateTime(input) {
+            const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+            if (!timeRegex.test(input.value) && input.value !== '') {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                input.value = `${hours}:${minutes}`;
+                up('out-hora', `${hours}:${minutes} hs`);
+            }
+        }
+
+        function getFilename(type) {
+            const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
+            const cleanDate = document.getElementById('in-fecha-emision').value.replace(/\//g, ''); 
+            if (type === 'placa-1') {
+                return `Pronostico_${city}_${cleanDate}_${document.querySelector('.n0').innerText}_${document.querySelector('.n1').innerText}`;
+            } else if (type === 'placa-2') {
+                return `Pronostico_${city}_${cleanDate}_${document.querySelector('.n2').innerText}_${document.querySelector('.n3').innerText}`;
+            }
+            return `Pronostico_${city}_${cleanDate}`;
+        }
+
+        async function download(id) {
+            await document.fonts.ready;
+            const el = document.getElementById(id);
+            
+            el.classList.add('exporting');
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            const images = el.querySelectorAll("img");
+            await Promise.all([...images].map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+            }));
+
+            const canvas = await html2canvas(el, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
+            el.classList.remove('exporting');
+
+            const link = document.createElement("a");
+            link.download = getFilename(id) + `.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        }
+
+        async function downloadPDF() {
+            await document.fonts.ready;
+            const pdfName = getFilename('placa-2').replace('_' + document.querySelector('.n2').innerText, '_' + document.querySelector('.n0').innerText + '_a') + '.pdf';
+
+            const el1 = document.getElementById('placa-1');
+            const el2 = document.getElementById('placa-2');
+            
+            el1.classList.add('exporting');
+            el2.classList.add('exporting');
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            const images = document.querySelectorAll("img");
+            await Promise.all([...images].map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+            }));
+
+            const canvas1 = await html2canvas(el1, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
+            const canvas2 = await html2canvas(el2, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
+
+            el1.classList.remove('exporting');
+            el2.classList.remove('exporting');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
+
+            doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
+            doc.addPage();
+            doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
+            
+            doc.save(pdfName);
+        }
+
+        function saveDraft() {
+            const data = {};
+            const excludeIds = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision'];
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                if(el.id && !excludeIds.includes(el.id)) {
+                    data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+                }
+            });
+            localStorage.setItem('pronoDraft', JSON.stringify(data));
+        }
+
+        function loadDraft() {
+            try {
+                const draft = JSON.parse(localStorage.getItem('pronoDraft'));
+                if (!draft) return;
+                
+                for(let key in draft) {
+                    const el = document.getElementById(key);
+                    if(el) {
+                        if(el.type === 'checkbox') el.checked = draft[key];
+                        else el.value = draft[key];
+                    }
                 }
                 
-                // Auto-escalado Dinámico SIMÉTRICO para toda la fila Vientos
-                const count = (dia === 'h') ? 3 : 4;
-                const elements = [];
-                for (let idx = 1; idx <= count; idx++) {
-                    const el = document.getElementById(`${dia}-v${idx}`);
-                    if (el) elements.push(el);
-                }
-                syncRowFontSize(elements, 32, 12);
+                updateCity(document.getElementById('city-selector').value);
+                
+                ['h','m','d3','d4'].forEach(dia => {
+                    updateTempField(dia, 'min', 'urb'); updateTempField(dia, 'min', 'sub');
+                    updateTempField(dia, 'max', 'urb'); updateTempField(dia, 'max', 'sub');
+                });
+                
+                [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i); updateWind('h', i); });
+                [1,2,3,4].forEach(i => { updatePeriodTemp('m', i); updateSky('m', i); updateWind('m', i); });
+                [1,2].forEach(i => { updateSky('d3', i); updateWind('d3', i); });
+                updateFullDesc('d3', document.getElementById('d3-custom-desc').value);
+                [1,2].forEach(i => { updateSky('d4', i); updateWind('d4', i); });
+                updateFullDesc('d4', document.getElementById('d4-custom-desc').value);
+
+            } catch (e) {
+                console.error("Error al cargar borrador", e);
             }
         }
-        
-        if(dia === 'd3' || dia === 'd4') {
-            updateWindLegendAndArrows(dia);
-        }
-    }
 
-    function up(id, v) { 
-        let val = v ? v.trim() : '--';
-        if((id.includes('min') || id.includes('max') || id.includes('t')) && !id.includes('sub') && val !== '--') val += '°';
-        if(id.includes('sub') && val !== '--') val += '*';
-        const el = document.getElementById(id);
-        if(el) el.innerText = val; 
-    }
-
-    function updateFullDesc(dia, v) {
-        const target = document.getElementById(`${dia}-w1`);
-        const container = document.getElementById(`${dia}-desc-container`);
-        
-        // Sumamos las probabilidades para D3/D4 automáticamente al texto
-        const pop1 = document.getElementById(`${dia}-pop-1`)?.value;
-        const pop2 = document.getElementById(`${dia}-pop-2`)?.value;
-        
-        let popText = "";
-        if (pop1 && pop2 && pop1 === pop2) popText = `(Prob: ${pop1})`;
-        else if (pop1 && pop2) popText = `(Prob: ${pop1} luego ${pop2})`;
-        else if (pop1) popText = `(Prob: ${pop1})`;
-        else if (pop2) popText = `(Prob: ${pop2})`;
-
-        if (target && container) {
-            // Aplicar letra compacta y de una línea a la probabilidad
-            if (popText) {
-                target.innerHTML = `${v || "--"}<span style="display: block; font-size: 0.65em; white-space: nowrap; margin-top: 6px; color: rgba(255,255,255,0.9);">${popText}</span>`;
-            } else {
-                target.innerHTML = v || "--";
-            }
-            
-            target.style.fontSize = '28px';
-            
-            let currentSize = 28;
-            while (target.scrollHeight > container.clientHeight && currentSize > 12) {
-                currentSize--;
-                target.style.fontSize = currentSize + 'px';
-            }
-        } else if (target) {
-            target.innerHTML = v || "--";
-        }
-    }
-
-    function updateCity(v) { 
-        document.querySelectorAll('.city-label').forEach(el => {
-            el.innerText = v.toUpperCase();
-            if (v.toUpperCase() === 'MAR DEL PLATA') {
-                el.style.fontSize = '46px'; 
-                el.style.letterSpacing = '-1.5px';
-                el.style.marginLeft = '0px';
-            } else if (v.toUpperCase() === 'JUNÍN') {
-                el.style.fontSize = '58px';
-                el.style.letterSpacing = '-1px';
-                el.style.marginLeft = '70px'; 
-            } else { 
-                el.style.fontSize = '58px';
-                el.style.letterSpacing = '-1px';
-                el.style.marginLeft = '10px';
-            }
-        }); 
-    }
-
-    function updateDateVal(v) {
-        document.querySelectorAll('.f0').forEach(el => el.innerText = v.toUpperCase());
-    }
-
-    function formatTimeInput(input) {
-        let value = input.value.replace(/[^\d]/g, '');
-        if (value.length >= 2) {
-            const hours = value.substring(0, 2);
-            const minutes = value.substring(2, 4);
-            if (parseInt(hours) > 23) {
-                value = '23' + minutes;
-            }
-            if (minutes.length > 0 && parseInt(minutes) > 59) {
-                value = hours + '59';
-            }
-            value = value.substring(0, 2) + ':' + value.substring(2, 4);
-        }
-        input.value = value;
-        up('out-hora', value + ' hs');
-    }
-
-    function validateTime(input) {
-        const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-        if (!timeRegex.test(input.value) && input.value !== '') {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            input.value = `${hours}:${minutes}`;
-            up('out-hora', `${hours}:${minutes} hs`);
-        }
-    }
-
-    function getFilename(type) {
-        const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
-        const rawDate = document.getElementById('in-fecha-emision').value; 
-        const cleanDate = rawDate.replace(/\//g, ''); 
-        
-        if (type === 'placa-1') {
-            const d1 = document.querySelector('.n0').innerText;
-            const d2 = document.querySelector('.n1').innerText;
-            return `Pronostico_${city}_${cleanDate}_${d1}_${d2}`;
-        } else if (type === 'placa-2') {
-            const d3 = document.querySelector('.n2').innerText;
-            const d4 = document.querySelector('.n3').innerText;
-            return `Pronostico_${city}_${cleanDate}_${d3}_${d4}`;
-        }
-        return `Pronostico_${city}_${cleanDate}`;
-    }
-
-    async function download(id) {
-        await document.fonts.ready;
-        const el = document.getElementById(id);
-        
-        el.classList.add('exporting');
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-        const images = el.querySelectorAll("img");
-        await Promise.all([...images].map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-        }));
-
-        const canvas = await html2canvas(el, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
-        
-        el.classList.remove('exporting');
-
-        const link = document.createElement("a");
-        link.download = getFilename(id) + `.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-    }
-
-    async function downloadPDF() {
-        await document.fonts.ready;
-        
-        const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
-        const rawDate = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
-        const d1 = document.querySelector('.n0').innerText;
-        const d4 = document.querySelector('.n3').innerText;
-        const pdfName = `Pronostico_${city}_${rawDate}_${d1}_a_${d4}.pdf`;
-
-        const el1 = document.getElementById('placa-1');
-        const el2 = document.getElementById('placa-2');
-        
-        el1.classList.add('exporting');
-        el2.classList.add('exporting');
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-        const images = document.querySelectorAll("img");
-        await Promise.all([...images].map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-        }));
-
-        const canvas1 = await html2canvas(el1, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
-        const canvas2 = await html2canvas(el2, { scale: 2, useCORS: true, logging: false, backgroundColor: null });
-
-        el1.classList.remove('exporting');
-        el2.classList.remove('exporting');
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
-
-        doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
-        doc.addPage();
-        doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
-        
-        doc.save(pdfName);
-    }
-
-    // SISTEMA DE AUTOGUARDADO (LOCAL STORAGE)
-    function saveDraft() {
-        const data = {};
-        const excludeIds = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision']; // La hora y fecha siempre son reales/frescas al abrir la app
-        
-        document.querySelectorAll('input, select, textarea').forEach(el => {
-            if(el.id && !excludeIds.includes(el.id)) {
-                data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
-            }
-        });
-        localStorage.setItem('pronoDraft', JSON.stringify(data));
-    }
-
-    function loadDraft() {
-        try {
-            const draft = JSON.parse(localStorage.getItem('pronoDraft'));
-            if (!draft) return;
-            
-            // Llenar inputs con datos guardados
-            for(let key in draft) {
-                const el = document.getElementById(key);
-                if(el) {
-                    if(el.type === 'checkbox') el.checked = draft[key];
-                    else el.value = draft[key];
-                }
-            }
-            
-            // Disparar las visuales correspondientes
-            updateCity(document.getElementById('city-selector').value);
-            
-            ['h','m','d3','d4'].forEach(dia => {
-                updateTempField(dia, 'min', 'urb'); updateTempField(dia, 'min', 'sub');
-                updateTempField(dia, 'max', 'urb'); updateTempField(dia, 'max', 'sub');
-            });
-            
-            [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i); updateWind('h', i); });
-            [1,2,3,4].forEach(i => { updatePeriodTemp('m', i); updateSky('m', i); updateWind('m', i); });
-            [1,2].forEach(i => { updateSky('d3', i); updateWind('d3', i); });
-            updateFullDesc('d3', document.getElementById('d3-custom-desc').value);
-            [1,2].forEach(i => { updateSky('d4', i); updateWind('d4', i); });
-            updateFullDesc('d4', document.getElementById('d4-custom-desc').value);
-
-        } catch (e) {
-            console.error("Error al cargar borrador", e);
-        }
-    }
-
-    function clearDraft() {
-        if(confirm("¿Estás seguro de borrar todo el progreso guardado y empezar de cero?")) {
+        function clearDraft() {
             localStorage.removeItem('pronoDraft');
-            location.reload();
+            showToast("🧹 Borrador limpiado. Empezando de cero...");
+            setTimeout(() => { location.reload(); }, 1500);
         }
-    }
 
-    function populateDummyData() {
-        try {
-            // LUNES
-            document.getElementById('in-h-min-urb').value = '5'; document.getElementById('in-h-min-sub').value = '3';
-            document.getElementById('in-h-max-urb').value = '15'; document.getElementById('in-h-max-sub').value = '15';
-            updateTempField('h', 'min', 'urb'); updateTempField('h', 'min', 'sub'); updateTempField('h', 'max', 'urb'); updateTempField('h', 'max', 'sub');
-            document.getElementById('h-temp-1').value = '5'; document.getElementById('h-temp-2').value = '15'; document.getElementById('h-temp-3').value = '8';
-            updatePeriodTemp('h', 1); updatePeriodTemp('h', 2); updatePeriodTemp('h', 3);
-            document.getElementById('h-sky-select-1').value = 'despejado'; document.getElementById('h-sky-select-2').value = 'despejado'; document.getElementById('h-sky-select-3').value = 'despejado';
-            updateSky('h', 1); updateSky('h', 2); updateSky('h', 3);
-            document.getElementById('h-v-i1').value = 'leves'; document.getElementById('h-v-d1').value = 'oeste'; document.getElementById('h-v-i2').value = 'leves'; document.getElementById('h-v-d2').value = 'oeste'; document.getElementById('h-v-i3').value = 'leves'; document.getElementById('h-v-d3').value = 'oeste';
-            updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
+        function populateDummyData() {
+            try {
+                document.getElementById('in-h-min-urb').value = '5'; document.getElementById('in-h-min-sub').value = '3';
+                document.getElementById('in-h-max-urb').value = '15'; document.getElementById('in-h-max-sub').value = '15';
+                updateTempField('h', 'min', 'urb'); updateTempField('h', 'min', 'sub'); updateTempField('h', 'max', 'urb'); updateTempField('h', 'max', 'sub');
+                document.getElementById('h-temp-1').value = '5'; document.getElementById('h-temp-2').value = '15'; document.getElementById('h-temp-3').value = '8';
+                updatePeriodTemp('h', 1); updatePeriodTemp('h', 2); updatePeriodTemp('h', 3);
+                document.getElementById('h-sky-select-1').value = 'despejado'; document.getElementById('h-sky-select-2').value = 'despejado'; document.getElementById('h-sky-select-3').value = 'despejado';
+                updateSky('h', 1); updateSky('h', 2); updateSky('h', 3);
+                document.getElementById('h-v-i1').value = 'leves'; document.getElementById('h-v-d1').value = 'oeste'; document.getElementById('h-v-i2').value = 'leves'; document.getElementById('h-v-d2').value = 'oeste'; document.getElementById('h-v-i3').value = 'leves'; document.getElementById('h-v-d3').value = 'oeste';
+                updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
+                
+                document.getElementById('in-m-min-urb').value = '4'; document.getElementById('in-m-min-sub').value = '3';
+                document.getElementById('in-m-max-urb').value = '16'; document.getElementById('in-m-max-sub').value = '16';
+                updateTempField('m', 'min', 'urb'); updateTempField('m', 'min', 'sub'); updateTempField('m', 'max', 'urb'); updateTempField('m', 'max', 'sub');
+                document.getElementById('m-temp-1').value = '7'; document.getElementById('m-temp-2').value = '4'; document.getElementById('m-temp-3').value = '16'; document.getElementById('m-temp-4').value = '9';
+                updatePeriodTemp('m', 1); updatePeriodTemp('m', 2); updatePeriodTemp('m', 3); updatePeriodTemp('m', 4);
+                document.getElementById('m-sky-select-1').value = 'lluvias y tormentas aisladas'; document.getElementById('m-pop-1').value = '40 a 70 %'; document.getElementById('m-sky-select-2').value = 'despejado'; document.getElementById('m-sky-select-3').value = 'despejado'; document.getElementById('m-sky-select-4').value = 'despejado';
+                updateSky('m', 1); updateSky('m', 2); updateSky('m', 3); updateSky('m', 4);
+                document.getElementById('m-v-i1').value = 'leves'; document.getElementById('m-v-d1').value = 'oeste'; document.getElementById('m-v-i2').value = 'leves'; document.getElementById('m-v-d2').value = 'oeste'; document.getElementById('m-v-i3').value = 'leves'; document.getElementById('m-v-d3').value = 'oeste'; document.getElementById('m-v-i4').value = 'leves'; document.getElementById('m-v-d4').value = 'oeste';
+                updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
+
+                document.getElementById('in-d3-min-urb').value = '7'; document.getElementById('in-d3-min-sub').value = '6';
+                document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
+                updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub'); updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
+                document.getElementById('d3-sky-select-1').value = 'algo nublado'; document.getElementById('d3-sky-select-2').value = 'algo nublado';
+                updateSky('d3', 1); updateSky('d3', 2);
+                document.getElementById('d3-v-i1').value = 'leves'; document.getElementById('d3-v-d1').value = 'sudoeste'; document.getElementById('d3-v-i2').value = 'leves'; document.getElementById('d3-v-d2').value = 'sur';
+                updateWind('d3', 1); updateWind('d3', 2);
+                document.getElementById('d3-custom-desc').value = 'Cielo algo nublado.'; updateFullDesc('d3', 'Cielo algo nublado.');
+
+                document.getElementById('in-d4-min-urb').value = '4'; document.getElementById('in-d4-min-sub').value = '3';
+                document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
+                updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub'); updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
+                document.getElementById('d4-sky-select-1').value = 'ligeramente nublado'; document.getElementById('d4-sky-select-2').value = 'algo nublado';
+                updateSky('d4', 1); updateSky('d4', 2);
+                document.getElementById('d4-v-i1').value = 'leves'; document.getElementById('d4-v-d1').value = 'sur'; document.getElementById('d4-v-i2').value = 'leves'; document.getElementById('d4-v-d2').value = 'sudeste';
+                updateWind('d4', 1); updateWind('d4', 2);
+                document.getElementById('d4-custom-desc').value = 'Cielo ligeramente a algo nublado.'; updateFullDesc('d4', 'Cielo ligeramente a algo nublado.');
+            } catch (e) {
+                console.error('Error auto-población', e);
+            }
+        }
+
+        window.onload = function() {
+            renderSidebar();
             
-            // MARTES
-            document.getElementById('in-m-min-urb').value = '4'; document.getElementById('in-m-min-sub').value = '3';
-            document.getElementById('in-m-max-urb').value = '16'; document.getElementById('in-m-max-sub').value = '16';
-            updateTempField('m', 'min', 'urb'); updateTempField('m', 'min', 'sub'); updateTempField('m', 'max', 'urb'); updateTempField('m', 'max', 'sub');
-            document.getElementById('m-temp-1').value = '7'; document.getElementById('m-temp-2').value = '4'; document.getElementById('m-temp-3').value = '16'; document.getElementById('m-temp-4').value = '9';
-            updatePeriodTemp('m', 1); updatePeriodTemp('m', 2); updatePeriodTemp('m', 3); updatePeriodTemp('m', 4);
-            document.getElementById('m-sky-select-1').value = 'despejado'; document.getElementById('m-sky-select-2').value = 'despejado'; document.getElementById('m-sky-select-3').value = 'despejado'; document.getElementById('m-sky-select-4').value = 'despejado';
-            updateSky('m', 1); updateSky('m', 2); updateSky('m', 3); updateSky('m', 4);
-            document.getElementById('m-v-i1').value = 'leves'; document.getElementById('m-v-d1').value = 'oeste'; document.getElementById('m-v-i2').value = 'leves'; document.getElementById('m-v-d2').value = 'oeste'; document.getElementById('m-v-i3').value = 'leves'; document.getElementById('m-v-d3').value = 'oeste'; document.getElementById('m-v-i4').value = 'leves'; document.getElementById('m-v-d4').value = 'oeste';
-            updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
-
-            // MIÉRCOLES
-            document.getElementById('in-d3-min-urb').value = '7'; document.getElementById('in-d3-min-sub').value = '6';
-            document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
-            updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub'); updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
-            document.getElementById('d3-sky-select-1').value = 'algo nublado'; document.getElementById('d3-sky-select-2').value = 'algo nublado';
-            updateSky('d3', 1); updateSky('d3', 2);
-            document.getElementById('d3-v-i1').value = 'leves'; document.getElementById('d3-v-d1').value = 'sudoeste'; document.getElementById('d3-v-i2').value = 'leves'; document.getElementById('d3-v-d2').value = 'sur';
-            updateWind('d3', 1); updateWind('d3', 2);
-            document.getElementById('d3-custom-desc').value = 'Cielo algo nublado.'; updateFullDesc('d3', 'Cielo algo nublado.');
-
-            // JUEVES
-            document.getElementById('in-d4-min-urb').value = '4'; document.getElementById('in-d4-min-sub').value = '3';
-            document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
-            updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub'); updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
-            document.getElementById('d4-sky-select-1').value = 'ligeramente nublado'; document.getElementById('d4-sky-select-2').value = 'algo nublado';
-            updateSky('d4', 1); updateSky('d4', 2);
-            document.getElementById('d4-v-i1').value = 'leves'; document.getElementById('d4-v-d1').value = 'sur'; document.getElementById('d4-v-i2').value = 'leves'; document.getElementById('d4-v-d2').value = 'sudeste';
-            updateWind('d4', 1); updateWind('d4', 2);
-            document.getElementById('d4-custom-desc').value = 'Cielo ligeramente a algo nublado.'; updateFullDesc('d4', 'Cielo ligeramente a algo nublado.');
-        } catch (e) {
-            console.error('Error auto-población', e);
-        }
-    }
-
-    window.onload = function() {
-        renderSidebar();
-        
-        // La hora se setea SIEMPRE con el momento exacto en el que abrís la página (no se saca del borrador)
-        const today = new Date();
-        const h = String(today.getHours()).padStart(2, '0');
-        const m = String(today.getMinutes()).padStart(2, '0');
-        const specificTime = `${h}:${m}`;
-        const timeInput = document.getElementById('in-hora-emision');
-        
-        if (timeInput) {
-            timeInput.value = specificTime;
-            up('out-hora', specificTime + ' hs');
-        }
-        
-        recalculateDates();
-        
-        const initialCity = document.getElementById('city-selector');
-        if (initialCity) updateCity(initialCity.value);
-        
-        setTimeout(() => {
-            // Lógica de recuperación:
-            if(localStorage.getItem('pronoDraft')) {
-                // Si existe un borrador, se carga por encima (no sobreescribe la hora y fecha correcta de hoy)
-                loadDraft();
-            } else {
-                // Si es la primera vez que entra, llena datos de prueba
-                populateDummyData();
+            const today = new Date();
+            const h = String(today.getHours()).padStart(2, '0');
+            const m = String(today.getMinutes()).padStart(2, '0');
+            const specificTime = `${h}:${m}`;
+            const timeInput = document.getElementById('in-hora-emision');
+            
+            if (timeInput) {
+                timeInput.value = specificTime;
+                up('out-hora', specificTime + ' hs');
             }
             
-            // Activar el autoguardado silencioso cada 2 segundos
-            setInterval(saveDraft, 2000);
-        }, 150);
-    };
-
-    async function saveToWeb() {
-        const city = document.getElementById('city-selector').value;
-        const outHora = document.getElementById('out-hora').innerText.replace('hs', '').trim();
-        const today = new Date();
-        const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-
-        const forecastPayload = {
-            city: city,
-            forecast_date: today.toISOString().split('T')[0],
-            emission_time: outHora + ":00",
-            daily_forecasts: []
+            recalculateDates();
+            
+            const initialCity = document.getElementById('city-selector');
+            if (initialCity) updateCity(initialCity.value);
+            
+            setTimeout(() => {
+                if(localStorage.getItem('pronoDraft')) {
+                    loadDraft();
+                } else {
+                    populateDummyData();
+                }
+                setInterval(saveDraft, 2000);
+            }, 150);
         };
 
-        const dayConfigs = [
-            {id: 'h', tramos: ['mañana', 'tarde', 'noche']},
-            {id: 'm', tramos: ['madrugada', 'mañana', 'tarde', 'noche']},
-            {id: 'd3', tramos: ['mañana', 'tarde']},
-            {id: 'd4', tramos: ['mañana', 'tarde']}
-        ];
+        async function saveToWeb() {
+            const city = document.getElementById('city-selector').value;
+            const outHora = document.getElementById('out-hora').innerText.replace('hs', '').trim();
+            const today = new Date();
+            const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
-        for (let i = 0; i < dayConfigs.length; i++) {
-            const conf = dayConfigs[i];
-            const dateObj = new Date(); dateObj.setDate(today.getDate() + i);
-
-            const minInput = document.getElementById(`in-${conf.id}-min-urb`);
-            const maxInput = document.getElementById(`in-${conf.id}-max-urb`);
-
-            const dailyForecast = {
-                date: dateObj.toISOString().split('T')[0],
-                day_name: dayNames[dateObj.getDay()],
-                temp_min: minInput ? parseFloat(minInput.value) || 0 : 0,
-                temp_max: maxInput ? parseFloat(maxInput.value) || 0 : 0,
-                period_forecasts: []
+            const forecastPayload = {
+                city: city,
+                forecast_date: today.toISOString().split('T')[0],
+                emission_time: outHora + ":00",
+                daily_forecasts: []
             };
 
-            conf.tramos.forEach((periodValue, index) => {
-                const tramoIdx = index + 1;
-                const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`).value;
-                const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
-                const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
-                const rafagas = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`).value;
-                const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`).value;
+            const dayConfigs = [
+                {id: 'h', tramos: ['mañana', 'tarde', 'noche']},
+                {id: 'm', tramos: ['madrugada', 'mañana', 'tarde', 'noche']},
+                {id: 'd3', tramos: ['mañana', 'tarde']},
+                {id: 'd4', tramos: ['mañana', 'tarde']}
+            ];
 
-                const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
-                const isRain = rainTypes.includes(skyCond);
+            for (let i = 0; i < dayConfigs.length; i++) {
+                const conf = dayConfigs[i];
+                const dateObj = new Date(); dateObj.setDate(today.getDate() + i);
 
-                let temp = null;
-                if (conf.id === 'h' || conf.id === 'm') {
-                    const tInput = document.getElementById(`${conf.id}-temp-${tramoIdx}`);
-                    temp = (tInput && tInput.value) ? parseFloat(tInput.value) : null;
-                }
+                const minInput = document.getElementById(`in-${conf.id}-min-urb`);
+                const maxInput = document.getElementById(`in-${conf.id}-max-urb`);
 
-                const img = document.getElementById(`${conf.id}-icon-${tramoIdx}`);
-                const iconCode = img ? img.getAttribute('src').split('/').pop().replace('.png', '') : 'default';
+                const dailyForecast = {
+                    date: dateObj.toISOString().split('T')[0],
+                    day_name: dayNames[dateObj.getDay()],
+                    temp_min: minInput ? parseFloat(minInput.value) || 0 : 0,
+                    temp_max: maxInput ? parseFloat(maxInput.value) || 0 : 0,
+                    period_forecasts: []
+                };
 
-                dailyForecast.period_forecasts.push({
-                    period: periodValue,
-                    precipitation_description: isRain ? skyCond : "",
-                    probability_of_precipitation: pop || null,
-                    sky_condition: isRain ? null : (skyCond || null),
-                    temperature: temp,
-                    weather_icon_code: iconCode,
-                    wind_direction: windDir || null,
-                    wind_intensity: windInt || null,
-                    wind_gusts: rafagas || null
+                conf.tramos.forEach((periodValue, index) => {
+                    const tramoIdx = index + 1;
+                    const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`).value;
+                    const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
+                    const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
+                    const rafagas = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`).value;
+                    const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`).value;
+
+                    const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
+                    const isRain = rainTypes.includes(skyCond);
+
+                    let temp = null;
+                    if (conf.id === 'h' || conf.id === 'm') {
+                        const tInput = document.getElementById(`${conf.id}-temp-${tramoIdx}`);
+                        temp = (tInput && tInput.value) ? parseFloat(tInput.value) : null;
+                    }
+
+                    const img = document.getElementById(`${conf.id}-icon-${tramoIdx}`);
+                    const iconCode = img ? img.getAttribute('src').split('/').pop().replace('.png', '') : 'default';
+
+                    dailyForecast.period_forecasts.push({
+                        period: periodValue,
+                        precipitation_description: isRain ? skyCond : "",
+                        probability_of_precipitation: pop || null,
+                        sky_condition: isRain ? null : (skyCond || null),
+                        temperature: temp,
+                        weather_icon_code: iconCode,
+                        wind_direction: windDir || null,
+                        wind_intensity: windInt || null,
+                        wind_gusts: rafagas || null
+                    });
                 });
-            });
-            forecastPayload.daily_forecasts.push(dailyForecast);
-        }
+                forecastPayload.daily_forecasts.push(dailyForecast);
+            }
 
-        try {
-            const response = await fetch('https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(forecastPayload)
-            });
-            if (response.ok) alert("✅ ¡Pronóstico publicado con éxito!");
-            else alert("❌ Error al publicar.");
-        } catch (e) {
-            alert("❌ Error de red.");
+            try {
+                const response = await fetch('https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(forecastPayload)
+                });
+                if (response.ok) showToast("✅ ¡Pronóstico publicado con éxito!");
+                else showToast("❌ Error al publicar en la API.", true);
+            } catch (e) {
+                showToast("❌ Error de red al intentar publicar.", true);
+            }
         }
-    }
 </script>
 </body>
 </html>
