@@ -337,8 +337,7 @@
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 285px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 285px 1fr 1fr 1fr 1fr; }
         .stripe-label { font-size: 32px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; } 
-        /* REMOVIMOS el word-break: break-word para evitar que corte letras como "Despejad-o" */
-        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 5px 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; } 
+        .stripe-data { font-size: 32px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 5px 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; flex-direction: column; } 
         
         /* PLACA 2: TARJETAS VERTICALES EXTENDIDAS */
         .cards-container { 
@@ -416,11 +415,12 @@
             width: 100%;
             margin-top: 15px; 
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
-        .weather-desc span {
+        .weather-desc span.main-desc {
             font-size: 28px;
             line-height: 1.2;
             font-weight: 800; 
@@ -726,7 +726,7 @@
 
                     <!-- Contenedor estricto para escalar texto (Día 3) -->
                     <div class="weather-desc" id="d3-desc-container">
-                        <span id="d3-w1">--</span>
+                        <span id="d3-w1" class="main-desc">--</span>
                     </div>
                     
                     <!-- Sección de vientos fija al fondo -->
@@ -779,7 +779,7 @@
 
                     <!-- Contenedor estricto para escalar texto (Día 4) -->
                     <div class="weather-desc" id="d4-desc-container">
-                        <span id="d4-w1">--</span>
+                        <span id="d4-w1" class="main-desc">--</span>
                     </div>
                     
                     <!-- Sección de vientos fija al fondo -->
@@ -861,12 +861,9 @@
             if (!elements || elements.length === 0) return;
             
             let currentSize = maxSize;
-            elements.forEach(el => {
-                el.style.fontSize = currentSize + 'px';
-                el.style.wordBreak = 'normal'; // Aseguramos comportamiento natural y prevenimos que se corte la palabra
-            });
+            elements.forEach(el => el.style.fontSize = currentSize + 'px');
             
-            // Función interna mejorada para detectar desbordes
+            // Función interna para detectar si ALGÚN elemento de la fila se desborda milimétricamente
             let isOverflowing = () => {
                 return elements.some(el => el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth);
             };
@@ -962,7 +959,7 @@
                     </div>`;
                 });
                 if(conf.id.startsWith('d')) {
-                    html += `<textarea id="${conf.id}-custom-desc" placeholder="Descripción extendida del día (el selector PoP sumará texto aquí automáticamente)..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
+                    html += `<textarea id="${conf.id}-custom-desc" placeholder="Descripción extendida del día..." oninput="updateFullDesc('${conf.id}', this.value)"></textarea>`;
                 }
             });
             document.getElementById('dynamic-inputs').innerHTML = html;
@@ -1060,15 +1057,18 @@
             return;
         }
 
-        // Lógica de redacción de vientos con ráfagas
-        if (i1 && d1 && i2 && d2) {
-            if (d1 === d2) {
-                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''}.`);
+        // LÓGICA DE VIENTOS: Ráfagas reemplazan u ocultan al viento medio
+        let desc1 = r1 ? `ráfagas de ${r1}` : `vientos ${i1} del ${d1}`;
+        let desc2 = r2 ? `ráfagas de ${r2}` : (i2 && d2 ? `vientos ${i2} del ${d2}` : "");
+
+        if (desc2) {
+            if (desc1 === desc2) {
+                legend.innerText = capitalizeFirst(`${desc1}.`);
             } else {
-                legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''} rotando a ${i2} del ${d2}${r2 ? ' con ráfagas de ' + r2 : ''}.`);
+                legend.innerText = capitalizeFirst(`${desc1} rotando a ${desc2}.`);
             }
-        } else if (i1 && d1) {
-            legend.innerText = capitalizeFirst(`vientos ${i1} del ${d1}${r1 ? ' con ráfagas de ' + r1 : ''}.`);
+        } else {
+            legend.innerText = capitalizeFirst(`${desc1}.`);
         }
         
         arrowContainer.innerHTML = arrowsHTML;
@@ -1086,11 +1086,14 @@
             if(!dia.startsWith('d')) {
                 const target = document.getElementById(`${dia}-w${tramo}`);
                 if(target) {
-                    let text = valor ? capitalizeFirst(valor) : "--";
+                    let baseText = valor ? capitalizeFirst(valor) : "--";
+                    
+                    // Sumamos la probabilidad en un bloque más chico y que no se rompa (nowrap)
                     if (pop) {
-                        text += ` (Prob: ${pop})`;
+                        target.innerHTML = `${baseText}<span style="display: block; font-size: 0.65em; white-space: nowrap; margin-top: 4px; color: rgba(255,255,255,0.85);">(Prob: ${pop})</span>`;
+                    } else {
+                        target.innerHTML = baseText;
                     }
-                    target.innerText = text;
                     
                     // Auto-escalado Dinámico SIMÉTRICO para toda la fila Tiempo
                     const count = (dia === 'h') ? 3 : 4;
@@ -1137,12 +1140,12 @@
         if(!dia.startsWith('d')) {
             const target = document.getElementById(`${dia}-v${tramo}`);
             if(target) {
-                let text = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
-                if (r && text !== "--") {
-                    text += ` (Ráf: ${r})`;
+                // Ráfagas reemplaza al texto base (viento medio)
+                if (r) {
+                    target.innerText = `Ráfagas: ${r}`;
+                } else {
+                    target.innerText = (i && d) ? capitalizeFirst(`${i} del ${d}`) : "--";
                 }
-                
-                target.innerText = text;
                 
                 // Auto-escalado Dinámico SIMÉTRICO para toda la fila Vientos
                 const count = (dia === 'h') ? 3 : 4;
@@ -1177,23 +1180,28 @@
         const pop2 = document.getElementById(`${dia}-pop-2`)?.value;
         
         let popText = "";
-        if (pop1 && pop2 && pop1 === pop2) popText = ` (Prob: ${pop1})`;
-        else if (pop1 && pop2) popText = ` (Prob: ${pop1} luego ${pop2})`;
-        else if (pop1) popText = ` (Prob: ${pop1})`;
-        else if (pop2) popText = ` (Prob: ${pop2})`;
+        if (pop1 && pop2 && pop1 === pop2) popText = `(Prob: ${pop1})`;
+        else if (pop1 && pop2) popText = `(Prob: ${pop1} luego ${pop2})`;
+        else if (pop1) popText = `(Prob: ${pop1})`;
+        else if (pop2) popText = `(Prob: ${pop2})`;
 
         if (target && container) {
-            target.innerText = (v || "--") + popText;
+            // Aplicar letra compacta y de una línea a la probabilidad
+            if (popText) {
+                target.innerHTML = `${v || "--"}<span style="display: block; font-size: 0.65em; white-space: nowrap; margin-top: 6px; color: rgba(255,255,255,0.9);">${popText}</span>`;
+            } else {
+                target.innerHTML = v || "--";
+            }
             
             target.style.fontSize = '28px';
             
             let currentSize = 28;
-            while (target.offsetHeight > container.offsetHeight && currentSize > 12) {
+            while (target.scrollHeight > container.clientHeight && currentSize > 12) {
                 currentSize--;
                 target.style.fontSize = currentSize + 'px';
             }
         } else if (target) {
-            target.innerText = (v || "--") + popText;
+            target.innerHTML = v || "--";
         }
     }
 
