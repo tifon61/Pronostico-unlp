@@ -3,877 +3,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio de Convección Profunda - SMN / La Plata</title>
+    <title>Comparativa de Pluviómetros - UNLP</title>
+    <!-- Tailwind CSS para diseño moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para visualización de datos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
-        body { margin: 0; overflow: hidden; background-color: #0f172a; font-family: 'Inter', system-ui, sans-serif; color: white; user-select: none; }
-        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 1rem; }
-        .panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(100,116,139,0.3); border-radius: 0.75rem; padding: 1.2rem; pointer-events: auto; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); border-radius: 3px; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #f1f5f9; 
+            margin: 0; 
+            overflow-x: hidden;
+        }
 
-        /* Botones de Modo */
-        .mode-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
-        .mode-btn.active { background-color: #2563eb; border-color: #60a5fa; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); transform: translateY(-2px); }
-        
-        #top-bar { display: flex; justify-content: center; gap: 0.5rem; pointer-events: auto; flex-wrap: wrap; }
-        #bottom-bar { pointer-events: auto; width: 100%; max-width: 800px; margin: 0 auto; }
-        
-        .dbz-legend { background: linear-gradient(to right, #00FF00, #008800, #FFFF00, #FF8800, #FF0000, #FF00FF, #FFFFFF); height: 10px; width: 100%; border-radius: 5px; margin-top: 5px;}
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        .card-title { 
+            color: #94a3b8; 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+        }
+
+        .stat-value { 
+            font-size: 2.5rem; 
+            font-weight: 700; 
+            color: #38bdf8; 
+        }
+
+        .iframe-container { 
+            height: 500px; 
+            width: 100%; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: none; 
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active { 
+            background-color: #0ea5e9; 
+            color: white; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-    <!-- Contenedor WebGL -->
-    <div id="canvas-container"></div>
+    <div class="max-w-7xl mx-auto">
+        <!-- Encabezado -->
+        <header class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-6">
+            <div class="text-center lg:text-left">
+                <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
+                <p class="text-slate-400">Análisis Calibrado: EMA Violeta vs Campbell</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <!-- Selector de Rango -->
+                <div class="glass p-1 rounded-xl flex gap-1">
+                    <button onclick="setRange('day')" id="btn-day" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold transition-all">Día</button>
+                    <button onclick="setRange('week')" id="btn-week" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all">Semana</button>
+                    <button onclick="setRange('month')" id="btn-month" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all">Mes</button>
+                </div>
 
-    <div id="ui-layer">
-        
-        <!-- BARRA SUPERIOR: Controles de Visualización -->
-        <div id="top-bar" class="w-full">
-            <div class="bg-slate-900/80 backdrop-blur-md p-2 rounded-full border border-slate-700 flex gap-2 shadow-lg">
-                <button id="btn-toggle-ui" class="px-4 py-2 rounded-full bg-slate-700 hover:bg-slate-600 text-sm font-bold flex items-center gap-2">
-                    👁️ <span class="hidden md:inline">Ocultar UI</span>
-                </button>
-                <div class="w-px bg-slate-600 my-1 mx-1"></div>
-                <button id="mode-conceptual" class="mode-btn active px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold">📐 Conceptual</button>
-                <button id="mode-realista" class="mode-btn px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold">☁️ Realista</button>
-                <button id="mode-corte" class="mode-btn px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold">✂️ Corte Vertical</button>
-                <button id="mode-radar" class="mode-btn px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold">📡 Radar (SMN)</button>
+                <!-- Selector de Fecha -->
+                <div class="glass p-4 rounded-2xl flex items-center gap-4">
+                    <label for="dateSelector" class="font-medium text-sm text-slate-300">Fecha:</label>
+                    <input type="date" id="dateSelector" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white outline-none focus:border-sky-500">
+                    <button onclick="updateDashboard()" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg">
+                        <i class="fa-solid fa-sync-alt mr-2"></i>Sincronizar
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tarjetas de Totales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- EMA Violeta: Cada registro es un pulso de 0.34mm -->
+            <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="card-title">EMA VIOLETA (0.34mm/p)</p>
+                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Sincronizando...</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <p class="stat-value" id="accumVioleta">0.00</p>
+                    <span class="text-slate-500 font-bold text-xl">mm</span>
+                </div>
+                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Procesando pulsos únicos...</p>
+            </div>
+
+            <!-- Campbell: Los valores del field son mm directos -->
+            <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="card-title">CAMPBELL (Lectura Directa)</p>
+                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <p class="stat-value" id="accumCampbell">0.00</p>
+                    <span class="text-slate-500 font-bold text-xl">mm</span>
+                </div>
+                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sumando mm del datalogger...</p>
             </div>
         </div>
 
-        <div class="flex justify-between items-start h-full mt-4 gap-4">
-            
-            <!-- PANEL IZQUIERDO: Configuración del Entorno -->
-            <div id="left-panel" class="panel w-full max-w-[320px] flex flex-col gap-4">
-                <div>
-                    <h1 class="text-xl font-extrabold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">Meteorología Convectiva</h1>
-                    <p class="text-xs text-slate-400 mt-1">Laboratorio 3D - Entorno: La Plata, BA</p>
-                </div>
-                
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-blue-300 uppercase tracking-wider">Modo Convectivo</label>
-                    <select id="stormType" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer shadow-inner">
-                        <option value="unicelular">1. Unicelular (Masa de Aire)</option>
-                        <option value="multicelular">2. Multicelular (RKW 1988)</option>
-                        <option value="supercelda" selected>3. Supercelda (Lemon & Doswell)</option>
-                    </select>
-                </div>
-
-                <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50 space-y-2">
-                    <span class="block text-xs font-bold text-slate-300 mb-2">Visibilidad de Capas</span>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white transition"><input type="checkbox" id="tog-niveles" checked class="accent-blue-500 w-4 h-4"> Niveles (0°C y Tropo)</label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white transition"><input type="checkbox" id="tog-corrientes" checked class="accent-red-500 w-4 h-4"> Corrientes (UD/FFD/RFD)</label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white transition"><input type="checkbox" id="tog-flujo" checked class="accent-orange-500 w-4 h-4"> Líneas de Flujo (Streamlines)</label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white transition"><input type="checkbox" id="tog-lluvia" checked class="accent-cyan-500 w-4 h-4"> Hidrometeoros (Lluvia/Granizo)</label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white transition"><input type="checkbox" id="tog-frente" checked class="accent-purple-500 w-4 h-4"> Frentes de Ráfagas en sfc</label>
-                </div>
-
-                <div id="radar-legend" class="hidden bg-slate-900/80 p-3 rounded-lg border border-slate-700">
-                    <span class="block text-xs font-bold text-slate-300 mb-1">Reflectividad (dBZ)</span>
-                    <div class="dbz-legend"></div>
-                    <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
-                        <span>20</span><span>30</span><span>40</span><span>50</span><span>60+</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PANEL DERECHO: Dinámica y Teoría (RKW, Lemon & Doswell) -->
-            <div id="right-panel" class="panel w-full max-w-[340px] hidden md:flex flex-col gap-3">
-                <h2 id="theoryTitle" class="text-lg font-bold text-purple-400 border-b border-slate-600 pb-2">Supercelda Clásica</h2>
-                
-                <div class="bg-slate-900/50 p-2.5 rounded border border-slate-700 font-mono text-xs text-slate-300 space-y-1">
-                    <div class="flex justify-between"><span>Cortante (Shear):</span> <strong id="dataShear" class="text-orange-400">> 20 m/s (Fuerte)</strong></div>
-                    <div class="flex justify-between"><span>Bulk Richardson (BRN):</span> <strong id="dataBRN" class="text-yellow-400">10 - 45 (Óptimo)</strong></div>
-                    <div class="flex justify-between"><span>Forzante Dominante:</span> <strong id="dataForce" class="text-blue-400">Dinámico (Presión)</strong></div>
-                </div>
-
-                <p id="theoryDesc" class="text-[13px] text-slate-300 leading-relaxed text-justify">
-                    Modelo de <strong class="text-white">Lemon & Doswell (1979)</strong>. La fuerte cortante direccional inclina y hace rotar la corriente ascendente (<strong class="text-red-400">Mesociclón</strong>). El flujo de niveles medios incide por detrás, forzando el descenso del <strong class="text-purple-400">RFD</strong>, el cual envuelve el centro de rotación generando la oclusión y el posible tornado.
-                </p>
-
-                <div class="space-y-1.5 text-xs mt-1">
-                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full"></span> <span><strong class="text-slate-200">Updraft (UD):</strong> Ascendente principal.</span></div>
-                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-blue-500 rounded-full"></span> <span><strong class="text-slate-200">FFD:</strong> Flanco delantero (Lluvia fuerte).</span></div>
-                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-purple-500 rounded-full"></span> <span><strong class="text-slate-200">RFD:</strong> Flanco trasero (Seco/Tornado).</span></div>
-                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-white border border-slate-500 rounded-full"></span> <span><strong class="text-slate-200">Granizo:</strong> Cae junto a la BWER.</span></div>
+        <!-- Gráfico Principal -->
+        <div class="grid grid-cols-1 gap-6 mb-8">
+            <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
+                <h3 class="text-lg font-bold mb-6 text-slate-200" id="chartTitle">Curva de Precipitación Acumulada</h3>
+                <div id="chartParent" class="relative w-full h-[380px]">
+                    <canvas id="precipChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- BARRA INFERIOR: Ciclo de Vida -->
-        <div id="bottom-bar" class="panel flex flex-col gap-2 p-4">
-            <div class="flex justify-between items-end mb-1">
-                <span class="text-sm font-bold text-slate-300 flex items-center gap-2">
-                    <span id="faseIcon">🌩️</span> Fase: <span id="faseText" class="text-blue-400 uppercase tracking-wide">Madurez</span>
-                </span>
-                <span id="timeDisplay" class="text-xs font-mono text-slate-500">T=0.50</span>
+        <!-- Dashboards Externos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="glass p-4 rounded-2xl">
+                <h3 class="font-bold mb-4 text-sm text-slate-400"><i class="fa-solid fa-cloud-sun-rain mr-2"></i>Wunderground ILAPLA66</h3>
+                <iframe src="https://www.wunderground.com/dashboard/pws/ILAPLA66" class="iframe-container bg-white"></iframe>
             </div>
-            
-            <div class="flex items-center gap-4">
-                <button id="btnPlay" class="bg-blue-600 hover:bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center transition shadow-[0_0_10px_rgba(37,99,235,0.4)]">
-                    ▶
-                </button>
-                <input type="range" id="timeSlider" min="0" max="1" step="0.001" value="0.5" class="w-full accent-blue-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+            <div class="glass p-4 rounded-2xl">
+                <h3 class="font-bold mb-4 text-sm text-slate-400"><i class="fa-solid fa-building-columns mr-2"></i>Meteo FCAGLP UNLP</h3>
+                <iframe src="https://meteo.fcaglp.unlp.edu.ar/" class="iframe-container bg-white"></iframe>
             </div>
-            
-            <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase mt-1 px-12">
-                <span class="w-1/4 text-left">Cúmulus</span>
-                <span class="w-1/4 text-center">Congestus</span>
-                <span class="w-1/4 text-center">Madurez (Cb)</span>
-                <span class="w-1/4 text-right">Disipación</span>
-            </div>
+        </div>
+
+        <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
+            v3.0 - Calibración Dual (EMA: Pulsos | Campbell: mm Directos)
         </div>
     </div>
 
-    <script type="importmap">
-        { 
-            "imports": { 
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            } 
-        }
-    </script>
+    <script>
+        /**
+         * CONFIGURACIÓN DE LOS CANALES DE THINGSPEAK
+         */
+        const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.34, field: 5 };
+        const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.34, field: 5 }; 
+        const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        let myChart = null;
+        let currentRange = 'day';
 
-        // --------------------------------------------------------
-        // 1. ESTADO GLOBAL DE LA APLICACIÓN
-        // --------------------------------------------------------
-        const STATE = {
-            t: 0.5,
-            isPlaying: false,
-            stormType: 'supercelda', // 'unicelular', 'multicelular', 'supercelda'
-            mode: 'conceptual',      // 'conceptual', 'realista', 'radar', 'corte'
-            layers: { niveles: true, corrientes: true, flujo: true, lluvia: true, frente: true },
-            cameraTarget: new THREE.Vector3(0, 5, 0),
-            cameraPos: new THREE.Vector3(25, 12, 25),
-            uiHidden: false
-        };
+        // Fecha de hoy local argentina
+        const d = new Date();
+        const localDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        document.getElementById('dateSelector').value = localDate;
 
-        // --------------------------------------------------------
-        // 2. CONFIGURACIÓN DE THREE.JS Y ESCENA
-        // --------------------------------------------------------
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0f172a);
-        scene.fog = new THREE.FogExp2(0x0f172a, 0.008);
-
-        const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.position.copy(STATE.cameraPos);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimización
-        renderer.localClippingEnabled = true; // Fundamental para el Modo Corte
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 - 0.1; // No bajar del suelo
-        controls.target.copy(STATE.cameraTarget);
-
-        // Luces
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xfff0dd, 1.5);
-        dirLight.position.set(20, 40, 20);
-        scene.add(dirLight);
-        const fillLight = new THREE.DirectionalLight(0xaaccff, 0.5);
-        fillLight.position.set(-20, 10, -20);
-        scene.add(fillLight);
-
-        // Plano de Corte (Clipping Plane)
-        const globalClipPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0); // Corta por X=0
-
-        // --------------------------------------------------------
-        // 3. GENERADORES PROCEDURALES (TEXTURAS Y MAPAS)
-        // --------------------------------------------------------
-
-        // Generar Textura Suave para Nubes Volumétricas
-        function createSoftParticleTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 64; canvas.height = 64;
-            const ctx = canvas.getContext('2d');
-            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-            grad.addColorStop(0, 'rgba(255,255,255,1)');
-            grad.addColorStop(0.3, 'rgba(255,255,255,0.8)');
-            grad.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 64, 64);
-            return new THREE.CanvasTexture(canvas);
-        }
-        const cloudTexture = createSoftParticleTexture();
-
-        // Generar Mapa de Superficie (La Plata y Río de la Plata)
-        function createMapTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1024; canvas.height = 1024;
-            const ctx = canvas.getContext('2d');
-            
-            // Tierra (Verde oscuro/Marrón)
-            ctx.fillStyle = '#1e293b'; 
-            ctx.fillRect(0, 0, 1024, 1024);
-            
-            // Río de la Plata (Azul muy oscuro) cortando en diagonal
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath();
-            ctx.moveTo(1024, 0);
-            ctx.lineTo(1024, 1024);
-            ctx.lineTo(300, 1024);
-            ctx.lineTo(600, 0);
-            ctx.fill();
-
-            // Línea de costa
-            ctx.strokeStyle = '#334155';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            // Marcador La Plata
-            ctx.fillStyle = '#ef4444';
-            ctx.beginPath();
-            ctx.arc(450, 600, 8, 0, Math.PI*2);
-            ctx.fill();
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '24px Inter, sans-serif';
-            ctx.fillText('La Plata', 465, 610);
-            
-            // Escala (10 km)
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(50, 950, 100, 4);
-            ctx.fillText('10 km', 50, 940);
-
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.colorSpace = THREE.SRGBColorSpace;
-            return tex;
+        function setRange(range) {
+            currentRange = range;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + range).classList.add('active');
+            updateDashboard();
         }
 
-        // Lienzo para el Radar Dinámico (dBZ)
-        const radarCanvas = document.createElement('canvas');
-        radarCanvas.width = 512; radarCanvas.height = 512;
-        const radarCtx = radarCanvas.getContext('2d');
-        const radarTexture = new THREE.CanvasTexture(radarCanvas);
-
-        // --------------------------------------------------------
-        // 4. CONSTRUCCIÓN DEL ENTORNO Y CAPAS
-        // --------------------------------------------------------
-        
-        const envGroup = new THREE.Group();
-        scene.add(envGroup);
-
-        // Suelo Geográfico
-        const groundGeo = new THREE.PlaneGeometry(80, 80);
-        const groundMat = new THREE.MeshStandardMaterial({ 
-            map: createMapTexture(), 
-            roughness: 0.9, 
-            clippingPlanes: [globalClipPlane] 
-        });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI / 2;
-        envGroup.add(ground);
-
-        // Plano Radar (Superpuesto al suelo)
-        const radarMat = new THREE.MeshBasicMaterial({
-            map: radarTexture,
-            transparent: true,
-            opacity: 0.8,
-            depthWrite: false,
-            clippingPlanes: [globalClipPlane]
-        });
-        const radarPlane = new THREE.Mesh(groundGeo, radarMat);
-        radarPlane.rotation.x = -Math.PI / 2;
-        radarPlane.position.y = 0.1;
-        radarPlane.visible = false;
-        envGroup.add(radarPlane);
-
-        // Nivel de Congelación (0°C) ~ 4km
-        const planeZeroMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false, clippingPlanes: [globalClipPlane] });
-        const planeZero = new THREE.Mesh(groundGeo, planeZeroMat);
-        planeZero.rotation.x = -Math.PI / 2;
-        planeZero.position.y = 4;
-        envGroup.add(planeZero);
-
-        // Tropopausa ~ 12km
-        const planeTropoMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false, clippingPlanes: [globalClipPlane] });
-        const planeTropo = new THREE.Mesh(groundGeo, planeTropoMat);
-        planeTropo.rotation.x = -Math.PI / 2;
-        planeTropo.position.y = 12;
-        envGroup.add(planeTropo);
-
-        // --------------------------------------------------------
-        // 5. OBJETOS ESQUEMÁTICOS (Tubos translúcidos)
-        // --------------------------------------------------------
-        const conceptualGroup = new THREE.Group();
-        scene.add(conceptualGroup);
-
-        // Materiales Físicos con transmisión (Efecto Vidrio)
-        const matUpdraft = new THREE.MeshPhysicalMaterial({ color: 0xef4444, transparent: true, opacity: 0.3, transmission: 0.6, roughness: 0.2, clippingPlanes: [globalClipPlane] });
-        const matFFD = new THREE.MeshPhysicalMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.3, transmission: 0.6, roughness: 0.2, clippingPlanes: [globalClipPlane] });
-        const matRFD = new THREE.MeshPhysicalMaterial({ color: 0xa855f7, transparent: true, opacity: 0.3, transmission: 0.6, roughness: 0.2, clippingPlanes: [globalClipPlane] });
-        
-        // Updraft (UD)
-        const udGeo = new THREE.CylinderGeometry(2, 2.5, 12, 32);
-        udGeo.translate(0, 6, 0);
-        const meshUD = new THREE.Mesh(udGeo, matUpdraft);
-        conceptualGroup.add(meshUD);
-
-        // Forward Flank Downdraft (FFD)
-        const ffdGeo = new THREE.ConeGeometry(5, 10, 32);
-        ffdGeo.translate(0, 5, 0);
-        const meshFFD = new THREE.Mesh(ffdGeo, matFFD);
-        conceptualGroup.add(meshFFD);
-
-        // Rear Flank Downdraft (RFD)
-        const rfdGeo = new THREE.CylinderGeometry(1.5, 3, 6, 32, 1, false, 0, Math.PI);
-        rfdGeo.translate(0, 3, 0);
-        const meshRFD = new THREE.Mesh(rfdGeo, matRFD);
-        conceptualGroup.add(meshRFD);
-
-        // Yunque Conceptual (Anvil)
-        const anvilGeo = new THREE.CylinderGeometry(8, 2, 2, 32);
-        const matAnvil = new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.2, clippingPlanes: [globalClipPlane]});
-        const meshAnvil = new THREE.Mesh(anvilGeo, matAnvil);
-        meshAnvil.position.y = 12;
-        conceptualGroup.add(meshAnvil);
-
-        // --------------------------------------------------------
-        // 6. NUBE VOLUMÉTRICA (Modo Realista)
-        // --------------------------------------------------------
-        const realisticGroup = new THREE.Group();
-        scene.add(realisticGroup);
-
-        const cloudParticlesCount = 300;
-        const realisticSprites = []; // Declarando el arreglo esperado por updatePhysics
-        
-        // Material base con soporte para recortes (Modo Corte Vertical)
-        const baseSpriteMat = new THREE.SpriteMaterial({
-            map: cloudTexture,
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.NormalBlending,
-            clippingPlanes: [globalClipPlane]
-        });
-
-        // Instanciar sprites de nube individualmente
-        for(let i=0; i<cloudParticlesCount; i++) {
-            const spriteMat = baseSpriteMat.clone(); // Necesitamos opacidad y color individual por altura
-            const sprite = new THREE.Sprite(spriteMat);
-            
-            let scale = Math.random() * 4 + 3; 
-            sprite.scale.set(scale, scale, scale);
-            sprite.position.y = -100; // Esconder bajo tierra por defecto
-            
-            // Datos físicos para el sistema de partículas
-            sprite.userData = {
-                life: 0,
-                phase: Math.random() * Math.PI * 2,
-                speed: 0.02 + Math.random() * 0.03,
-                radius: 1.5 + Math.random() * 2.5,
-                role: 'HIDDEN'
-            };
-            
-            realisticSprites.push(sprite);
-            realisticGroup.add(sprite);
+        async function fetchFeeds(station, startDate, endDate) {
+            const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${startDate}%2000:00:00&end=${endDate}%2023:59:59&timezone=America/Argentina/Buenos_Aires&results=8000`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                return { feeds: data.feeds || [], field: station.field, id: station.id };
+            } catch (e) {
+                console.error("Error consultando ThingSpeak:", e);
+                return { feeds: [], field: station.field, id: station.id };
+            }
         }
 
-        // --------------------------------------------------------
-        // 7. FLUJOS, HIDROMETEOROS Y FRENTES EN SUPERFICIE
-        // --------------------------------------------------------
-        const dynamicGroup = new THREE.Group();
-        scene.add(dynamicGroup);
+        function processStationData(allFeedsData, mult, range, endDate) {
+            let totalPeriod = 0;
+            let recordsCount = 0;
+            const daysCount = range === 'day' ? 1 : (range === 'week' ? 7 : 30);
+            
+            const dailyTotals = {};
+            const hourly = Array(24).fill(0);
+            const labels = [];
+            const seenTimestamps = new Set();
 
-        // Función Helper para crear sistemas de partículas dinámicos
-        function createParticles(count, size, color, isLine=false) {
-            const geo = new THREE.BufferGeometry();
-            const pos = new Float32Array(count * 3);
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            let mat, mesh;
-            if(isLine) {
-                mat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.6, clippingPlanes: [globalClipPlane] });
-                mesh = new THREE.LineSegments(geo, mat);
+            // Inicialización
+            if (range === 'day') {
+                for(let i=0; i<24; i++) labels.push(`${i}:00`);
             } else {
-                mat = new THREE.PointsMaterial({ size: size, color: color, transparent: true, opacity: 0.8, clippingPlanes: [globalClipPlane] });
-                mesh = new THREE.Points(geo, mat);
-            }
-            return { mesh, pos, data: Array(count).fill().map(()=>({p: Math.random(), s: 0.005+Math.random()*0.01})), count };
-        }
-
-        const flowInflow = createParticles(300, 0.3, 0xf97316); // Naranja (SFC)
-        const flowMid = createParticles(200, 0.3, 0xd8b4fe);    // Morado (4km)
-        const rain = createParticles(1500, 0, 0x3b82f6, true);  // Líneas Azules
-        const hail = createParticles(300, 0.2, 0xffffff);       // Esferas Blancas
-
-        dynamicGroup.add(flowInflow.mesh, flowMid.mesh, rain.mesh, hail.mesh);
-
-        // Gust Fronts (Frentes de Ráfagas) - Círculos en superficie
-        const gustGeo = new THREE.RingGeometry(0.8, 1, 64);
-        const gustMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6, side: THREE.DoubleSide, transparent: true, opacity: 0.5, clippingPlanes: [globalClipPlane] });
-        const meshGustFFD = new THREE.Mesh(gustGeo, gustMat);
-        const meshGustRFD = new THREE.Mesh(gustGeo, new THREE.MeshBasicMaterial({ color: 0xa855f7, side: THREE.DoubleSide, transparent: true, opacity: 0.5, clippingPlanes: [globalClipPlane] }));
-        meshGustFFD.rotation.x = -Math.PI/2; meshGustFFD.position.y = 0.05;
-        meshGustRFD.rotation.x = -Math.PI/2; meshGustRFD.position.y = 0.06;
-        dynamicGroup.add(meshGustFFD, meshGustRFD);
-
-        // --------------------------------------------------------
-        // 8. LÓGICA FÍSICA Y CINEMÁTICA
-        // --------------------------------------------------------
-        
-        function updatePhysics() {
-            const t = STATE.t;
-            const type = STATE.stormType;
-
-            // Resetear escalas y ocultar por defecto
-            meshUD.scale.set(0,0,0); meshFFD.scale.set(0,0,0); meshRFD.scale.set(0,0,0); meshAnvil.scale.set(0,0,0);
-            meshGustFFD.scale.set(0,0,0); meshGustRFD.scale.set(0,0,0);
-            meshUD.rotation.set(0,0,0); meshRFD.rotation.set(0,0,0);
-            
-            let udHeight = 0;
-            let moveX = 0; // Para multicelulares
-            
-            // CENTROS DE MASA PARA RADAR Y NUBES
-            let centerUD = {x:0, z:0};
-            let centerFFD = {x:-100, z:0}; // Lejos por defecto
-            let centerRFD = {x:-100, z:0};
-            let newCellX = -100;
-
-            // ---- A) LÓGICA UNICELULAR ----
-            if (type === 'unicelular') {
-                udHeight = t < 0.5 ? t * 24 : Math.max(0, 12 - (t-0.5)*24); // Sube hasta 12 y colapsa
-                meshUD.scale.set(1.5, udHeight/12, 1.5);
-                meshUD.position.set(0,0,0);
-                
-                if (t > 0.3) {
-                    // Lluvia cae por el mismo ducto (Autodestrucción)
-                    let ffdHeight = (t-0.3)*15;
-                    meshFFD.scale.set(1.5, Math.min(1, ffdHeight/10), 1.5);
-                    meshFFD.position.set(0,0,0);
-                    centerFFD = {x:0, z:0};
-                    
-                    // Pileta fría simétrica
-                    let gustRad = (t-0.3)*15;
-                    meshGustFFD.scale.set(gustRad, gustRad, 1);
-                    meshGustFFD.position.set(0,0.05,0);
+                for(let i = daysCount - 1; i >= 0; i--) {
+                    const tempDate = new Date(endDate);
+                    tempDate.setDate(tempDate.getDate() - i);
+                    const ds = tempDate.toISOString().split('T')[0];
+                    dailyTotals[ds] = 0;
+                    labels.push(ds.split('-').reverse().slice(0,2).join('/'));
                 }
-
-                updateFlow(flowInflow, p => [Math.cos(p*Math.PI*2)*6*(1-p), 0.5, Math.sin(p*Math.PI*2)*6*(1-p)]); // Convergencia radial
-                updateFlow(flowMid, p => [0,-100,0]); // Sin cizalladura media
-                updateRain(centerFFD.x, centerFFD.z, 2, t > 0.3 && t < 0.9);
-                updateHail(0,0,0, false);
-            }
-            
-            // ---- B) LÓGICA MULTICELULAR (RKW 1988) ----
-            else if (type === 'multicelular') {
-                moveX = t * 20 - 10; // El sistema se propaga
-                
-                // Celda Madura (Centro)
-                udHeight = t < 0.8 ? 12 : Math.max(0, 12 - (t-0.8)*40);
-                meshUD.scale.set(1.5, udHeight/12, 1.5);
-                meshUD.position.set(moveX, 0, 0);
-                centerUD = {x: moveX, z: 0};
-                
-                if(t > 0.3) {
-                    // Lluvia cae rezagada
-                    meshFFD.scale.set(1.5, 1, 1.5);
-                    meshFFD.position.set(moveX - 3, 0, 0);
-                    centerFFD = {x: moveX - 3, z: 0};
-                    
-                    // Frente de Ráfagas empuja hacia adelante
-                    let gustScale = 3 + (t-0.3)*10;
-                    meshGustFFD.scale.set(gustScale, 8, 1);
-                    meshGustFFD.position.set(moveX + 1, 0.05, 0);
-                }
-
-                // Nueva Celda (Discreta) formándose sobre el gust front (Forzante mecánico)
-                if(t > 0.4) {
-                    newCellX = moveX + 5;
-                    let newUdH = (t-0.4)*15;
-                    meshRFD.geometry = udGeo; // Reusamos meshRFD como segunda UD
-                    meshRFD.material = matUpdraft;
-                    meshRFD.scale.set(1, newUdH/12, 1);
-                    meshRFD.position.set(newCellX, 0, 0);
-                }
-
-                updateFlow(flowInflow, p => [moveX + 8 - p*8, 0.5 + p*p*5, 0]); // Inflow levantado por pileta fría
-                updateFlow(flowMid, p => [-100,-100,0]);
-                updateRain(centerFFD.x, centerFFD.z, 3, t > 0.3);
-                updateHail(0,0,0, false);
             }
 
-            // ---- C) LÓGICA SUPERCELDA (Lemon & Doswell) ----
-            else if (type === 'supercelda') {
-                udHeight = Math.min(12, t * 30);
-                
-                // UD Rotante e Inclinado (Mesociclón)
-                meshUD.scale.set(1.5, udHeight/12, 1.5);
-                meshUD.rotation.z = -0.2; // Inclinación por cizalladura
-                meshUD.rotation.y = Date.now() * -0.002;
-                centerUD = {x: 0, z: 0};
-                
-                if(udHeight > 10) {
-                    meshAnvil.scale.set(1 + t*2, 1, 1 + t*1.5);
-                    meshAnvil.position.set(3, 12, 0);
-                }
+            allFeedsData.forEach(source => {
+                const fieldKey = "field" + source.field;
+                source.feeds.forEach(f => {
+                    const val = parseFloat(f[fieldKey]);
+                    const ts = f.created_at;
 
-                if(t > 0.3) {
-                    // FFD
-                    meshFFD.scale.set(2, 1, 2);
-                    meshFFD.position.set(4, 0, 3);
-                    centerFFD = {x: 4, z: 3};
-                    meshGustFFD.scale.set(6 + t*5, 8 + t*5, 1);
-                    meshGustFFD.position.set(3, 0.05, 4);
-                }
-
-                if(t > 0.5) {
-                    // RFD desciende y envuelve
-                    let rfdDrop = Math.max(0, 6 - (t-0.5)*20);
-                    meshRFD.geometry = rfdGeo;
-                    meshRFD.material = matRFD;
-                    meshRFD.scale.set(1.5, (8-rfdDrop)/6, 1.5);
-                    meshRFD.position.set(-2, rfdDrop, -2);
-                    meshRFD.rotation.y = (t-0.5)*3; // Envuelve (Oclusión)
-                    centerRFD = {x: -2, z: -2};
-
-                    if(rfdDrop === 0) {
-                        meshGustRFD.scale.set(3 + (t-0.7)*5, 3 + (t-0.7)*5, 1);
-                        meshGustRFD.position.set(-2, 0.06, -2);
-                    }
-                }
-
-                updateFlow(flowInflow, p => [6 - Math.sin(p*Math.PI/2)*6, 0.5, 6 - Math.cos(p*Math.PI/2)*6]); 
-                updateFlow(flowMid, p => [-6 + p*5, 5 - p*5, -2 + Math.sin(p*Math.PI)*2], t>0.5); // 4km flow
-                updateRain(centerFFD.x, centerFFD.z, 4, t > 0.3);
-                updateHail(1, 1, 1.5, t > 0.5 && t < 0.9); // BWER
-            }
-
-            // ---- ACTUALIZAR NUBES VOLUMÉTRICAS (Realista) ----
-            if(STATE.mode === 'realista' || STATE.mode === 'corte') {
-                const baseColor = new THREE.Color(0x2d3748); // Gris oscuro (Agua)
-                const topColor = new THREE.Color(0xf0f4f8);  // Blanco (Hielo)
-
-                for(let i=0; i<realisticSprites.length; i++) {
-                    let sprite = realisticSprites[i];
-                    let ud = sprite.userData;
-                    let px = sprite.position.x, py = sprite.position.y, pz = sprite.position.z;
-
-                    // Reiniciar sprite si muere o sale de escena
-                    if(ud.life <= 0 || isNaN(py) || py < -10) {
-                        ud.life = 1.0;
-                        let r = Math.random();
-                        if(r < 0.35 && udHeight > 0) ud.role = 'UD';
-                        else if(r < 0.55 && newCellX !== -100) ud.role = 'NEW_UD'; // Para Multicelular
-                        else if(r < 0.75 && t > 0.3 && centerFFD.x > -50) ud.role = 'FFD';
-                        else if(r < 0.9 && udHeight > 9) ud.role = 'ANVIL';
-                        else if(type === 'supercelda' && t > 0.5) ud.role = 'RFD';
-                        else ud.role = 'HIDDEN';
-
-                        // Coordenadas de nacimiento según rol
-                        if(ud.role === 'UD') {
-                            px = centerUD.x + (Math.random()-0.5)*5; py = Math.random() * 2; pz = centerUD.z + (Math.random()-0.5)*5;
-                        } else if(ud.role === 'NEW_UD') {
-                            px = newCellX + (Math.random()-0.5)*4; py = Math.random() * 2; pz = (Math.random()-0.5)*4;
-                        } else if(ud.role === 'FFD') {
-                            px = centerFFD.x + (Math.random()-0.5)*7; py = 6 + Math.random() * 4; pz = centerFFD.z + (Math.random()-0.5)*7;
-                        } else if(ud.role === 'RFD') {
-                            px = centerRFD.x + (Math.random()-0.5)*4; py = 3 + Math.random() * 3; pz = centerRFD.z + (Math.random()-0.5)*4;
-                        } else if(ud.role === 'ANVIL') {
-                            px = centerUD.x + (Math.random()-0.5)*5; py = 10 + Math.random() * 2; pz = centerUD.z + (Math.random()-0.5)*5;
+                    if (!isNaN(val) && val > 0 && !seenTimestamps.has(ts)) {
+                        seenTimestamps.add(ts);
+                        
+                        let amount = 0;
+                        if (source.id === "2823820") {
+                            // CAMPBELL: El valor enviado ya son mm acumulados en el intervalo
+                            amount = val; 
                         } else {
-                            py = -100;
+                            // EMA VIOLETA: Cada renglón es 1 pulso de 0.34mm
+                            amount = mult; 
                         }
-                    }
-
-                    // Movimiento Físico
-                    ud.life -= 0.006; // Envejecimiento
-                    ud.phase += ud.speed;
-
-                    if(ud.role === 'UD' && udHeight > 0) {
-                        py += 0.2; // Ascenso
-                        if(type === 'supercelda') {
-                            px = centerUD.x + Math.cos(ud.phase) * ud.radius;
-                            pz = centerUD.z + Math.sin(ud.phase) * ud.radius;
+                        
+                        totalPeriod += amount;
+                        recordsCount++;
+                        
+                        if (range === 'day') {
+                            const dateObj = new Date(ts);
+                            hourly[dateObj.getHours()] += amount;
                         } else {
-                            px += (centerUD.x - px) * 0.05; pz += (centerUD.z - pz) * 0.05;
+                            const ds = ts.split('T')[0];
+                            if (dailyTotals[ds] !== undefined) dailyTotals[ds] += amount;
                         }
-                        if(py > udHeight) ud.life = 0;
-                    } else if(ud.role === 'NEW_UD') {
-                        py += 0.2; px += (newCellX - px) * 0.05;
-                        if(py > (t-0.4)*15) ud.life = 0;
-                    } else if(ud.role === 'FFD') {
-                        py -= 0.15; // Descenso pluvial
-                        px += (centerFFD.x - px) * 0.02; pz += (centerFFD.z - pz) * 0.02;
-                        if(py < 0) ud.life = 0;
-                    } else if(ud.role === 'RFD') {
-                        py -= 0.15; // Descenso envolvente
-                        if(type === 'supercelda') {
-                            px = centerUD.x + Math.cos(ud.phase + Math.PI) * (ud.radius + 1.5);
-                            pz = centerUD.z + Math.sin(ud.phase + Math.PI) * (ud.radius + 1.5);
-                        }
-                        if(py < 0) ud.life = 0;
-                    } else if(ud.role === 'ANVIL') {
-                        px += 0.08; // Arrastre horizontal por viento
-                        pz += (Math.random() - 0.5) * 0.1;
-                        if(px > centerUD.x + 15) ud.life = 0;
                     }
-
-                    // Asignación y Glaciación (Interpolación de Color)
-                    if(ud.role !== 'HIDDEN' && !isNaN(px) && !isNaN(py) && !isNaN(pz)) {
-                        sprite.position.set(px, py, pz);
-                        let heightFactor = THREE.MathUtils.clamp(py / 4.0, 0, 1); // 0 a 4km (Freezing level)
-                        sprite.material.color.copy(baseColor).lerp(topColor, heightFactor);
-                        sprite.material.opacity = Math.max(0, ud.life * 0.85); // Fade in/out suave
-                    } else {
-                        sprite.position.y = -100;
-                    }
-                }
-            } else {
-                realisticSprites.forEach(s => s.position.y = -100);
-            }
-
-            // ---- ACTUALIZAR RADAR (Radar SMN) ----
-            if(STATE.mode === 'radar') updateRadarCanvas(type, t, centerUD, centerFFD, centerRFD);
-
-            // ---- GESTIÓN DE VISIBILIDAD DE CAPAS UI ----
-            planeZero.visible = STATE.layers.niveles;
-            planeTropo.visible = STATE.layers.niveles;
-            conceptualGroup.visible = (STATE.mode === 'conceptual' || STATE.mode === 'corte') && STATE.layers.corrientes;
-            realisticGroup.visible = (STATE.mode === 'realista' || STATE.mode === 'corte');
-            flowInflow.mesh.visible = STATE.layers.flujo && STATE.mode !== 'radar';
-            flowMid.mesh.visible = STATE.layers.flujo && STATE.mode !== 'radar';
-            rain.mesh.visible = STATE.layers.lluvia && STATE.mode !== 'radar';
-            hail.mesh.visible = STATE.layers.lluvia && STATE.mode !== 'radar';
-            meshGustFFD.visible = STATE.layers.frente && STATE.mode !== 'radar';
-            meshGustRFD.visible = STATE.layers.frente && STATE.mode !== 'radar';
-            radarPlane.visible = (STATE.mode === 'radar');
-        }
-
-        // Helpers de Lluvia y Flujo
-        function updateFlow(fObj, pathFn, active=true) {
-            for(let i=0; i<fObj.count; i++) {
-                if(!active) { fObj.pos[i*3+1] = -10; continue; }
-                let d = fObj.data[i];
-                d.p += d.s; if(d.p > 1) d.p = 0;
-                let coords = pathFn(d.p);
-                // Evitar inyección de NaN si la función de ruta falla
-                if (coords && !isNaN(coords[0]) && !isNaN(coords[1]) && !isNaN(coords[2])) {
-                    fObj.pos[i*3]=coords[0]; fObj.pos[i*3+1]=coords[1]; fObj.pos[i*3+2]=coords[2];
-                }
-            }
-            fObj.mesh.geometry.attributes.position.needsUpdate = true;
-        }
-
-        function updateRain(cx, cz, rad, active) {
-            for(let i=0; i<rain.count; i++) {
-                let idx = i*3;
-                if(!active || isNaN(rain.pos[idx+1])) { rain.pos[idx+1] = -10; continue; }
-                rain.pos[idx+1] -= 0.6; // Caída
-                if(rain.pos[idx+1] < 0) {
-                    rain.pos[idx] = (cx || 0) + (Math.random()-0.5)*rad*2;
-                    rain.pos[idx+1] = 4 + Math.random()*6;
-                    rain.pos[idx+2] = (cz || 0) + (Math.random()-0.5)*rad*2;
-                }
-            }
-            rain.mesh.geometry.attributes.position.needsUpdate = true;
-        }
-
-        function updateHail(cx, cz, rad, active) {
-            for(let i=0; i<hail.count; i++) {
-                let idx = i*3;
-                if(!active || isNaN(hail.pos[idx+1])) { hail.pos[idx+1] = -10; continue; }
-                hail.pos[idx+1] -= 0.9;
-                if(hail.pos[idx+1] < 0) {
-                    hail.pos[idx] = (cx || 0) + (Math.random()-0.5)*rad;
-                    hail.pos[idx+1] = 8 + Math.random()*4;
-                    hail.pos[idx+2] = (cz || 0) + (Math.random()-0.5)*rad;
-                }
-            }
-            hail.mesh.geometry.attributes.position.needsUpdate = true;
-        }
-
-        function updateRadarCanvas(type, t, cUD, cFFD, cRFD) {
-            radarCtx.clearRect(0,0,512,512);
-            if(t < 0.2) return; // Sin ecos aún
-
-            // Helper para convertir coords 3D a Canvas (Escala y Centro)
-            const mapX = (x) => 256 + (x * 8);
-            const mapZ = (z) => 256 + (z * 8);
-
-            // Dibujar Ecos (Gradientes radiales simulando dBZ)
-            function drawEcho(x, z, radius, intensity) {
-                const cx = mapX(x); const cz = mapZ(z); const cr = radius * 8;
-                const grad = radarCtx.createRadialGradient(cx, cz, 0, cx, cz, cr);
-                
-                // Colores SMN: 60+ (Magenta), 50 (Rojo), 40 (Naranja), 30 (Amarillo), 20 (Verde)
-                if(intensity > 5) {
-                    grad.addColorStop(0, '#FF00FF'); grad.addColorStop(0.2, '#FF0000'); grad.addColorStop(0.5, '#FFFF00'); grad.addColorStop(1, 'rgba(0,255,0,0)');
-                } else if(intensity > 3) {
-                    grad.addColorStop(0, '#FF0000'); grad.addColorStop(0.4, '#FFFF00'); grad.addColorStop(1, 'rgba(0,255,0,0)');
-                } else {
-                    grad.addColorStop(0, '#FFFF00'); grad.addColorStop(0.5, '#00FF00'); grad.addColorStop(1, 'rgba(0,255,0,0)');
-                }
-                radarCtx.fillStyle = grad;
-                radarCtx.beginPath(); radarCtx.arc(cx, cz, cr, 0, Math.PI*2); radarCtx.fill();
-            }
-
-            if(type === 'unicelular') {
-                drawEcho(cFFD.x, cFFD.z, (t-0.2)*8, t < 0.8 ? 4 : 2);
-            } else if (type === 'multicelular') {
-                drawEcho(cFFD.x, cFFD.z, 6, 4); // Celda madura
-                if(t > 0.5) drawEcho(cFFD.x - 6, cFFD.z, 4, 2); // Celda disipando
-                if(t > 0.6) drawEcho(cFFD.x + 6, cFFD.z, 3, 5); // Nueva celda fuerte
-            } else if (type === 'supercelda') {
-                // Hook Echo clásico
-                drawEcho(cFFD.x, cFFD.z, 7, 3); // FFD amplio (Verde/Amarillo)
-                drawEcho(cUD.x + 2, cUD.z + 1, 4, 6); // Núcleo cerca de UD (Rojo/Magenta)
-                if(t > 0.5) {
-                    // Dibujar el gancho (RFD)
-                    radarCtx.strokeStyle = '#FF0000';
-                    radarCtx.lineWidth = 15;
-                    radarCtx.lineCap = 'round';
-                    radarCtx.beginPath();
-                    radarCtx.arc(mapX(cUD.x), mapZ(cUD.z), 25, 0, (t-0.5)*4);
-                    radarCtx.stroke();
-                }
-            }
-            radarTexture.needsUpdate = true;
-        }
-
-        // --------------------------------------------------------
-        // 9. INTERFAZ Y EVENTOS
-        // --------------------------------------------------------
-        
-        const elSlider = document.getElementById('timeSlider');
-        const elTime = document.getElementById('timeDisplay');
-        const elBtnPlay = document.getElementById('btnPlay');
-        const elFaseText = document.getElementById('faseText');
-        const elFaseIcon = document.getElementById('faseIcon');
-
-        // Textos Dinámicos
-        const textData = {
-            unicelular: { t: "Ordinaria (Masa de Aire)", sh: "< 10 m/s (Débil)", brn: "> 45", fz: "Térmico (Empuje)", d: "Corriente ascendente recta. La precipitación cae por el mismo ducto cortando el inflow. Ciclo corto (~30m)." },
-            multicelular: { t: "Sistema Multicelular", sh: "10-20 m/s (Uni)", brn: "> 45", fz: "Mecánico (RKW)", d: "El frente de ráfagas levanta el aire cálido por delante, generando nuevas celdas discretas mientras las traseras mueren (Propagación)." },
-            supercelda: { t: "Supercelda Clásica", sh: "> 20 m/s (Giro)", brn: "10-45 (Óptimo)", fz: "Dinámico (Presión)", d: "Ascendente rota y se inclina. FFD adelante, RFD envuelve por detrás formando el gancho y permitiendo larga vida y severidad." }
-        };
-
-        document.getElementById('stormType').addEventListener('change', (e) => {
-            STATE.stormType = e.target.value;
-            STATE.t = 0.5; elSlider.value = 0.5;
-            
-            const d = textData[STATE.stormType];
-            document.getElementById('theoryTitle').innerText = d.t;
-            document.getElementById('dataShear').innerText = d.sh;
-            document.getElementById('dataBRN').innerText = d.brn;
-            document.getElementById('dataForce').innerText = d.fz;
-            document.getElementById('theoryDesc').innerHTML = d.d;
-        });
-
-        // Controles de Capas
-        ['niveles', 'corrientes', 'flujo', 'lluvia', 'frente'].forEach(k => {
-            document.getElementById(`tog-${k}`).addEventListener('change', e => STATE.layers[k] = e.target.checked);
-        });
-
-        // Botones de Modo (Conceptual, Realista, Corte, Radar)
-        const modes = ['conceptual', 'realista', 'corte', 'radar'];
-        modes.forEach(m => {
-            document.getElementById(`mode-${m}`).addEventListener('click', (e) => {
-                modes.forEach(btn => document.getElementById(`mode-${btn}`).classList.remove('active'));
-                e.target.classList.add('active');
-                STATE.mode = m;
-                
-                // Lógica de Cámara y Clipping
-                renderer.localClippingEnabled = (m === 'corte');
-                document.getElementById('radar-legend').style.display = (m === 'radar') ? 'block' : 'none';
-
-                if(m === 'radar') {
-                    STATE.cameraPos.set(0.1, 40, 0); // Cenit casi perfecto
-                    STATE.cameraTarget.set(0,0,0);
-                } else if(m === 'corte') {
-                    STATE.cameraPos.set(30, 8, 0); // Vista lateral para ver el corte
-                    STATE.cameraTarget.set(0,4,0);
-                } else {
-                    STATE.cameraPos.set(25, 12, 25); // Perspectiva clásica
-                    STATE.cameraTarget.set(0,5,0);
-                }
+                });
             });
-        });
 
-        elSlider.addEventListener('input', e => STATE.t = parseFloat(e.target.value));
+            let chartData;
+            if (range === 'day') {
+                chartData = Array(24).fill(0);
+                let sum = 0;
+                for(let i=0; i<24; i++) { 
+                    sum += hourly[i]; 
+                    chartData[i] = sum; 
+                }
+            } else {
+                chartData = Object.values(dailyTotals);
+            }
 
-        elBtnPlay.addEventListener('click', () => {
-            STATE.isPlaying = !STATE.isPlaying;
-            elBtnPlay.innerHTML = STATE.isPlaying ? '⏸' : '▶';
-            if(STATE.isPlaying && STATE.t >= 0.99) STATE.t = 0;
-        });
+            return { total: totalPeriod.toFixed(2), chartData, labels, recordsCount };
+        }
 
-        document.getElementById('btn-toggle-ui').addEventListener('click', () => {
-            STATE.uiHidden = !STATE.uiHidden;
-            document.getElementById('left-panel').style.display = STATE.uiHidden ? 'none' : 'flex';
-            document.getElementById('right-panel').style.display = STATE.uiHidden ? 'none' : 'flex';
-            document.getElementById('bottom-bar').style.display = STATE.uiHidden ? 'none' : 'flex';
-            document.querySelector('#btn-toggle-ui span').innerText = STATE.uiHidden ? 'Mostrar UI' : 'Ocultar UI';
-        });
+        async function updateDashboard() {
+            const endDate = document.getElementById('dateSelector').value;
+            const debug = document.getElementById('debugInfo');
+            const chartTitle = document.getElementById('chartTitle');
+            
+            const startDateObj = new Date(endDate);
+            const daysToSub = currentRange === 'day' ? 0 : (currentRange === 'week' ? 6 : 29);
+            startDateObj.setDate(startDateObj.getDate() - daysToSub);
+            const startDate = startDateObj.toISOString().split('T')[0];
 
-        // --------------------------------------------------------
-        // 10. BUCLE PRINCIPAL (ANIMATE)
-        // --------------------------------------------------------
-        
-        function animate() {
-            requestAnimationFrame(animate);
+            chartTitle.innerText = currentRange === 'day' ? `Curva Acumulada Diaria (${endDate})` : `Lluvia Diaria (${startDate} al ${endDate})`;
+            debug.innerText = "Sincronizando datos meteorológicos...";
 
-            // Sanitización Global Failsafe: Evita que un cálculo NaN congele WebGL
-            scene.traverse((child) => {
-                if (child.geometry && child.geometry.attributes && child.geometry.attributes.position) {
-                    const pos = child.geometry.attributes.position.array;
-                    let needsFix = false;
-                    for (let i = 0; i < pos.length; i++) {
-                        if (isNaN(pos[i])) {
-                            // Si detecta un NaN, mueve la partícula a un eje seguro y la oculta bajo tierra
-                            pos[i] = (i % 3 === 1) ? -10 : 0; 
-                            needsFix = true;
+            const [resVActual, resVHist, resC_raw] = await Promise.all([
+                fetchFeeds(V_ACTUAL, startDate, endDate),
+                fetchFeeds(V_HISTORICO, startDate, endDate),
+                fetchFeeds(C_STATION, startDate, endDate)
+            ]);
+
+            const resV = processStationData([resVActual, resVHist], 0.34, currentRange, endDate);
+            const resC = processStationData([resC_raw], 1.0, currentRange, endDate);
+
+            document.getElementById('accumVioleta').innerText = resV.total;
+            document.getElementById('accumCampbell').innerText = resC.total;
+            document.getElementById('msgVioleta').innerText = `Registros con lluvia: ${resV.recordsCount}`;
+            document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
+            
+            const badge = document.getElementById('channelBadge');
+            if (resVActual.feeds.length > 0) {
+                badge.innerText = "CANAL ACTUAL";
+                badge.className = "bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded tracking-wider";
+            } else if (resVHist.feeds.length > 0) {
+                badge.innerText = "CANAL HISTÓRICO";
+                badge.className = "bg-yellow-500/20 text-yellow-400 text-[10px] px-2 py-1 rounded tracking-wider";
+            } else {
+                badge.innerText = "SIN DATOS";
+                badge.className = "bg-red-500/20 text-red-400 text-[10px] px-2 py-1 rounded tracking-wider";
+            }
+
+            debug.innerText = `Actualización finalizada.`;
+            
+            if (typeof Chart !== 'undefined') renderChart(resV, resC);
+        }
+
+        function renderChart(resV, resC) {
+            const ctx = document.getElementById('precipChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: resV.labels,
+                    datasets: [
+                        {
+                            label: 'EMA Violeta (mm)',
+                            data: resV.chartData,
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: currentRange === 'day' ? 1 : 4
+                        },
+                        {
+                            label: 'Campbell (mm)',
+                            data: resC.chartData,
+                            borderColor: '#0ea5e9',
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: currentRange === 'day' ? 1 : 4
                         }
-                    }
-                    if (needsFix) {
-                        child.geometry.attributes.position.needsUpdate = true;
-                        // Forzar a Three.js a recalcular la esfera delimitadora de forma segura
-                        if (child.geometry.boundingSphere) child.geometry.computeBoundingSphere();
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { 
+                            display: true, 
+                            labels: { color: '#94a3b8', font: { weight: 'bold' } } 
+                        },
+                        tooltip: { 
+                            mode: 'index', 
+                            intersect: false,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { 
+                                color: '#94a3b8', 
+                                callback: (v) => v.toFixed(1) + ' mm' 
+                            }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
                     }
                 }
             });
-
-            if(STATE.isPlaying) {
-                STATE.t += 0.001;
-                if(STATE.t > 1) { STATE.t = 1; STATE.isPlaying = false; elBtnPlay.innerHTML = '▶'; }
-                elSlider.value = STATE.t;
-            }
-
-            elTime.innerText = `T=${STATE.t.toFixed(2)}`;
-            if(STATE.t < 0.2) { elFaseText.innerText = "Cúmulus"; elFaseIcon.innerText = "☁️"; }
-            else if(STATE.t < 0.4) { elFaseText.innerText = "Congestus"; elFaseIcon.innerText = "🌧️"; }
-            else if(STATE.t < 0.8) { elFaseText.innerText = "Madurez (Cb)"; elFaseIcon.innerText = "⛈️"; }
-            else { elFaseText.innerText = "Disipación"; elFaseIcon.innerText = "💨"; }
-
-            // Transición suave de cámara
-            camera.position.lerp(STATE.cameraPos, 0.05);
-            controls.target.lerp(STATE.cameraTarget, 0.05);
-
-            updatePhysics();
-            controls.update();
-            renderer.render(scene, camera);
         }
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // Ejecución Segura tras carga de librerías
+        window.addEventListener('load', () => {
+            const checkChart = setInterval(() => {
+                if (typeof Chart !== 'undefined') {
+                    clearInterval(checkChart);
+                    updateDashboard();
+                }
+            }, 100);
         });
-
-        animate();
     </script>
 </body>
 </html>
