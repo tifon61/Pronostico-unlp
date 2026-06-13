@@ -200,8 +200,8 @@
             padding-bottom: 0px; 
         }
         
-        .day-1 { background: var(--unlp-blue); padding-top: 40px; height: 630px; }
-        .day-2 { background: var(--unlp-accent-blue); padding-top: 40px; margin-bottom: 0; height: 630px; }
+        .day-1 { background: var(--unlp-blue); padding-top: 35px; height: 630px; }
+        .day-2 { background: var(--unlp-accent-blue); padding-top: 35px; margin-bottom: 0; height: 630px; }
         
         .day-header { 
             display: flex; 
@@ -209,6 +209,7 @@
             padding: 0px 25px 0px; 
             color: white; 
             gap: 15px;
+            margin-bottom: -5px; /* Tira un poco la grilla hacia arriba para que no se separe tanto del título */
         }
         .day-header h2 { 
             font-size: 34px; 
@@ -250,7 +251,7 @@
             grid-template-columns: 250px 1fr 1fr 1fr; 
             color: white; 
             align-items: flex-start; 
-            padding: 5px 15px 0px 15px; 
+            padding: 0px 15px 0px 15px; /* Restamos el padding top original */
             position: relative; 
             flex: 1; 
             min-height: 0; 
@@ -269,11 +270,11 @@
         
         .temp-v-box { 
             border-radius: 0 40px 0 0; 
-            padding: 24px 10px 22px 20px; 
+            padding: 22px 10px 20px 20px; 
             margin-left: -15px; 
             width: calc(100% + 15px); 
-            height: 180px; 
-            min-height: 180px;
+            height: 175px; 
+            min-height: 175px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -343,8 +344,8 @@
         }
         .forecast-item img { 
             width: auto; 
-            height: 180px; 
-            max-width: 180px; 
+            height: 165px; 
+            max-width: 165px; 
             object-fit: contain; 
             flex-shrink: 0; 
             image-rendering: -webkit-optimize-contrast;
