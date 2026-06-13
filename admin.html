@@ -1295,15 +1295,15 @@
         document.querySelectorAll('.city-label').forEach(el => {
             el.innerText = v.toUpperCase();
             if (v.toUpperCase() === 'MAR DEL PLATA') {
-                el.style.fontSize = '46px'; 
+                el.style.fontSize = '54px';  /* Aumentado para que encaje MDP */
                 el.style.letterSpacing = '-1.5px';
                 el.style.marginLeft = '0px';
             } else if (v.toUpperCase() === 'JUNÍN') {
-                el.style.fontSize = '58px';
+                el.style.fontSize = '72px';  /* Nuevo tamaño grande */
                 el.style.letterSpacing = '-2px';
                 el.style.marginLeft = '70px'; 
             } else { 
-                el.style.fontSize = '58px';
+                el.style.fontSize = '72px';  /* Nuevo tamaño grande */
                 el.style.letterSpacing = '-2px';
                 el.style.marginLeft = '10px';
             }
