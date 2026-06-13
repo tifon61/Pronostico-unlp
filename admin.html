@@ -296,11 +296,15 @@
         .temp-v-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .temp-v-col .label { font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 5px; }
         .temp-v-item { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        /* Centrado visual permanente de los termómetros en la app (D1 y D2) */
+        .temp-v-item svg { transform: translateY(5px); } 
+
         .temp-v-vals { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         
         /* TRAMPA EXPORTACIÓN: Bajada sutil para que el termómetro alinee perfecto con el número (Día 1 y 2) */
         .exporting .temp-v-item svg {
-            transform: translateY(1px); 
+            transform: translateY(7px); 
         }
         /* Día 3 y 4 (placa 2) */
         .exporting .card-temps-row svg {
@@ -479,11 +483,12 @@
             text-align: center; 
             max-width: 90%; 
             color: rgba(255,255,255,0.95);
-            max-height: 68px; /* Límite para evitar que empuje las flechas */
+            max-height: 85px; /* Ampliado para evitar que se corte la parte baja de letras como g, y, j */
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding-bottom: 6px; /* Respiro extra indispensable para html2canvas al exportar */
         }
         
         .footer-note { 
