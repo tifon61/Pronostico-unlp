@@ -302,9 +302,9 @@
 
         .temp-v-vals { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         
-        /* TRAMPA EXPORTACIÓN: Bajada sutil para que el termómetro alinee perfecto con el número (Día 1 y 2) */
+        /* TRAMPA EXPORTACIÓN: Corrección para contrarrestar la caída en la foto (Día 1 y 2) */
         .exporting .temp-v-item svg {
-            transform: translateY(7px); 
+            transform: translateY(1px); 
         }
         /* Día 3 y 4 (placa 2) */
         .exporting .card-temps-row svg {
