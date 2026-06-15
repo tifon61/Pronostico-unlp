@@ -1566,12 +1566,23 @@
     async function saveToWeb() {
         const city = document.getElementById('city-selector').value;
         const outHora = document.getElementById('out-hora').innerText.replace('hs', '').trim();
-        const today = new Date();
+        
+        // 1. SOLUCIÓN AL CHECKBOX DE "MAÑANA"
+        const baseDate = new Date();
+        if (document.getElementById('chk-tomorrow').checked) {
+            baseDate.setDate(baseDate.getDate() + 1);
+        }
+
+        // 2. SOLUCIÓN AL DESFASE HORARIO DE ARGENTINA (Evita que toISOString salte de día)
+        const getLocalDateString = (d) => {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        };
+
         const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
         const forecastPayload = {
             city: city,
-            forecast_date: today.toISOString().split('T')[0],
+            forecast_date: getLocalDateString(baseDate),
             emission_time: outHora + ":00",
             daily_forecasts: []
         };
@@ -1585,26 +1596,29 @@
 
         for (let i = 0; i < dayConfigs.length; i++) {
             const conf = dayConfigs[i];
-            const dateObj = new Date(); dateObj.setDate(today.getDate() + i);
+            const dateObj = new Date(baseDate); 
+            dateObj.setDate(baseDate.getDate() + i);
 
             const minInput = document.getElementById(`in-${conf.id}-min-urb`);
             const maxInput = document.getElementById(`in-${conf.id}-max-urb`);
 
             const dailyForecast = {
-                date: dateObj.toISOString().split('T')[0],
+                date: getLocalDateString(dateObj),
                 day_name: dayNames[dateObj.getDay()],
-                temp_min: minInput ? parseFloat(minInput.value) || 0 : 0,
-                temp_max: maxInput ? parseFloat(maxInput.value) || 0 : 0,
+                temp_min: (minInput && minInput.value !== "") ? parseFloat(minInput.value) : null,
+                temp_max: (maxInput && maxInput.value !== "") ? parseFloat(maxInput.value) : null,
                 period_forecasts: []
             };
 
             conf.tramos.forEach((periodValue, index) => {
                 const tramoIdx = index + 1;
-                const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`).value;
-                const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`).value;
-                const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`).value;
-                const rafagas = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`).value;
-                const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`).value;
+                
+                // Extracción segura (evita errores si el campo no existe)
+                const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`)?.value || "";
+                const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`)?.value || null;
+                const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`)?.value || null;
+                const rafagasStr = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`)?.value || "";
+                const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`)?.value || null;
 
                 const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
                 const isRain = rainTypes.includes(skyCond);
@@ -1612,7 +1626,7 @@
                 let temp = null;
                 if (conf.id === 'h' || conf.id === 'm') {
                     const tInput = document.getElementById(`${conf.id}-temp-${tramoIdx}`);
-                    temp = (tInput && tInput.value) ? parseFloat(tInput.value) : null;
+                    temp = (tInput && tInput.value !== "") ? parseFloat(tInput.value) : null;
                 }
 
                 const img = document.getElementById(`${conf.id}-icon-${tramoIdx}`);
@@ -1620,18 +1634,21 @@
 
                 dailyForecast.period_forecasts.push({
                     period: periodValue,
-                    precipitation_description: isRain ? skyCond : "",
-                    probability_of_precipitation: pop || null,
+                    precipitation_description: isRain ? skyCond : null,
+                    probability_of_precipitation: pop,
                     sky_condition: isRain ? null : (skyCond || null),
                     temperature: temp,
                     weather_icon_code: iconCode,
-                    wind_direction: windDir || null,
-                    wind_intensity: windInt || null,
-                    wind_gusts: rafagas || null
+                    wind_direction: windDir,
+                    wind_intensity: windInt,
+                    // 3. PARSEO SEGURO DE RÁFAGAS: Extrae solo el número (ej: de "50 km/h" saca 50)
+                    wind_gusts: rafagasStr ? parseInt(rafagasStr.replace(/\D/g, '')) || null : null
                 });
             });
             forecastPayload.daily_forecasts.push(dailyForecast);
         }
+
+        console.log("Enviando JSON a la API:", forecastPayload);
 
         try {
             const response = await fetch('https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts', {
@@ -1639,10 +1656,18 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(forecastPayload)
             });
-            if (response.ok) showToast("¡Pronóstico publicado con éxito!");
-            else showToast("Error al publicar", true);
+            
+            if (response.ok) {
+                showToast("¡Pronóstico publicado en la API con éxito!");
+            } else {
+                // Capturamos el mensaje de error real del servidor para ayudar a depurar
+                const errData = await response.text();
+                console.error("Fallo en la API. Código:", response.status, "Detalle:", errData);
+                showToast(`Error de la API (${response.status}). Revisá la consola.`, true);
+            }
         } catch (e) {
-            showToast("Error de red", true);
+            console.error("Error crítico de red:", e);
+            showToast("Error de conexión con el servidor", true);
         }
     }
 </script>
