@@ -1086,17 +1086,15 @@
         up(`${dia}-t${idx}`, value);
     }
 
-    // Diseño de flecha blindado contra errores de html2canvas (con wrapper y rotación nativa SVG)
+    // Diseño de flecha robusta (block arrow) idéntica a la imagen original
     function getWindArrowSVG(dir) {
         const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
         return `
         <div style="width: 58px; height: 58px; margin: 0 8px; flex-shrink: 0;">
             <svg viewBox="0 0 100 100" width="58" height="58" style="display: block;">
                 <g transform="rotate(${angle} 50 50)">
-                    <!-- Sombra dibujada de forma rígida -->
-                    <path d="M 50 17 L 85 87 L 50 72 L 15 87 Z" fill="rgba(0,0,0,0.15)" />
-                    <!-- Flecha principal -->
-                    <path d="M 50 15 L 85 85 L 50 70 L 15 85 Z" fill="#ffffff" />
+                    <!-- Flecha gruesa (cuerpo + punta) -->
+                    <path d="M 35 75 L 65 75 L 65 40 L 85 40 L 50 10 L 15 40 L 35 40 Z" fill="#ffffff" />
                 </g>
             </svg>
         </div>
