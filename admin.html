@@ -888,6 +888,28 @@
             "tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" }
         };
 
+        // ✅ CORRECCIÓN: Mapeo de valores visuales de la app → valores válidos que acepta la API
+        // Si la API agrega o cambia valores, solo hay que editar este objeto.
+        const SKY_CONDITION_API_MAP = {
+            "despejado":                    "despejado",
+            "ligeramente nublado":          "ligeramente nublado",
+            "algo nublado":                 "algo nublado",
+            "parcialmente nublado":         "parcialmente nublado",
+            "cubierto":                     "cubierto",
+            "neblinas":                     "neblinas",
+            "nieblas":                      "neblinas",   // 'nieblas' no es válido en la API → se unifica a 'neblinas'
+            "lluvias aisladas":             "lluvias aisladas",
+            "lloviznas":                    "lloviznas",
+            "lluvias y tormentas aisladas": "lluvias y tormentas aisladas",
+            "tormentas aisladas":           "tormentas aisladas"
+        };
+
+        // Devuelve el valor canónico para la API, o null si está vacío
+        function toApiSkyCondition(val) {
+            if (!val) return null;
+            return SKY_CONDITION_API_MAP[val] ?? val;
+        }
+
         const windDirectionsAngles = {
             "norte": 180, "noreste": 225, "este": 270, "sudeste": 315,
             "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135
@@ -1533,9 +1555,9 @@
 
                 dailyForecast.period_forecasts.push({
                     period: periodValue,
-                    precipitation_description: isRain ? skyCond : null,
+                    precipitation_description: isRain ? toApiSkyCondition(skyCond) : null,
                     probability_of_precipitation: pop,
-                    sky_condition: isRain ? null : (skyCond || null),
+                    sky_condition: isRain ? null : toApiSkyCondition(skyCond),
                     temperature: temp,
                     weather_icon_code: iconCode,
                     wind_direction: windDir,
