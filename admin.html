@@ -110,10 +110,10 @@
             align-items: center;
             gap: 20px; 
             z-index: 2;
-            transform: translateY(8px); /* VISIÓN NORMAL: centrado en pantalla */
+            transform: translateY(8px);
         }
         .exporting .header-left-logos {
-            transform: translateY(-2px); /* TRAMPA EXPORTACIÓN: Sube los logos y la ciudad a una posición intermedia perfecta */
+            transform: translateY(-2px);
         }
         
         .logo-fcag { 
@@ -127,14 +127,14 @@
             object-fit: contain; 
             border-radius: 50%; 
             flex-shrink: 0; 
-            transform: translateY(3px); /* Alineamiento óptico fino */
+            transform: translateY(3px);
         }
         .logo-unlp { 
             height: 75px; 
             object-fit: contain; 
             flex-shrink: 0; 
             z-index: 2; 
-            transform: translateY(2px); /* Alineamiento óptico fino */
+            transform: translateY(2px);
         }
         .header-capsule h1 { 
             font-size: 58px; 
@@ -147,10 +147,10 @@
             z-index: 1;
         }
         .city-label {
-            transform: translateY(-2px); /* Alineamiento óptico fino */
+            transform: translateY(-2px);
         }
         .exporting .header-capsule h1 {
-            margin: -8px 0 0 0; /* TRAMPA EXPORTACIÓN: Un empuje extra leve hacia arriba solo para la tipografía de la ciudad */
+            margin: -8px 0 0 0;
         }
 
         .title-pill { 
@@ -162,14 +162,14 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         .exporting .title-pill {
-            padding-top: 4px; /* TRAMPA EXPORTACIÓN: empuja el texto más al centro-arriba */
+            padding-top: 4px;
             padding-bottom: 12px;
         }
 
         /* CAPSULA FECHA Y EMISIÓN */
         .date-emission-pill { 
             background: var(--unlp-bg-pill); border-radius: 50px; 
-            padding: 8px 50px; /* VISIÓN NORMAL: padding uniforme */
+            padding: 8px 50px;
             display: inline-flex;
             align-items: center; gap: 50px; color: var(--unlp-blue); 
             border: 3px solid white; 
@@ -178,7 +178,7 @@
             position: relative; z-index: 10;
         }
         .exporting .date-emission-pill {
-            padding: 4px 50px 12px; /* TRAMPA EXPORTACIÓN */
+            padding: 4px 50px 12px;
         }
         
         .date-val { font-size: 32px; font-weight: 900; }
@@ -209,7 +209,7 @@
             padding: 0px 25px 0px; 
             color: white; 
             gap: 15px;
-            margin-bottom: -5px; /* Tira un poco la grilla hacia arriba para que no se separe tanto del título */
+            margin-bottom: -5px;
         }
         .day-header h2 { 
             font-size: 34px; 
@@ -227,7 +227,7 @@
             display: flex; 
             flex-grow: 1; 
             justify-content: space-around; 
-            padding: 4px 0; /* VISIÓN NORMAL */
+            padding: 4px 0;
             font-weight: 800; 
             font-size: 24px; 
             margin-right: 15px; 
@@ -239,10 +239,10 @@
         
         .periods-pill span, .periods-pill-4 span {
             display: inline-block;
-            margin-top: 0; /* VISIÓN NORMAL */
+            margin-top: 0;
         }
         .exporting .periods-pill span, .exporting .periods-pill-4 span {
-            margin-top: -3px; /* TRAMPA EXPORTACIÓN */
+            margin-top: -3px;
         }
 
         /* GRID ESTRICTO DE 250px */
@@ -251,7 +251,7 @@
             grid-template-columns: 250px 1fr 1fr 1fr; 
             color: white; 
             align-items: flex-start; 
-            padding: 0px 15px 0px 15px; /* Restamos el padding top original */
+            padding: 0px 15px 0px 15px;
             position: relative; 
             flex: 1; 
             min-height: 0; 
@@ -298,22 +298,18 @@
         .temp-v-col .label { font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 5px; }
         .temp-v-item { display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        /* Centrado visual permanente de los termómetros en la app (D1 y D2) */
         .temp-v-item svg { transform: translateY(5px); } 
 
         .temp-v-vals { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         
-        /* TRAMPA EXPORTACIÓN: Corrección para contrarrestar la caída en la foto (Día 1 y 2) */
         .exporting .temp-v-item svg {
             transform: translateY(1px); 
         }
 
-        /* NUEVA TRAMPA: Subir los números de temperatura del día 1 y 2 exclusivamente al descargar */
         .exporting .temp-v-vals {
             transform: translateY(-6px);
         }
         
-        /* Día 3 y 4 (placa 2) */
         .exporting .card-temps-row svg {
             transform: translateY(6px); 
         }
@@ -426,7 +422,7 @@
             flex-shrink: 0; 
         }
         
-        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; transform: translateX(-12px); /* Desplaza visualmente hacia la izquierda para centrar */ }
+        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
         
@@ -443,7 +439,6 @@
             color: rgba(255,255,255,0.9); 
         } 
         
-        /* Espacio delimitado para la descripción */
         .weather-desc { 
             height: 140px;
             width: 100%;
@@ -463,7 +458,6 @@
             width: 100%;
         }
 
-        /* Contenedor anclado al fondo para los vientos */
         .wind-section {
             position: absolute;
             bottom: 65px; 
@@ -490,12 +484,12 @@
             text-align: center; 
             max-width: 90%; 
             color: rgba(255,255,255,0.95);
-            max-height: 85px; /* Ampliado para evitar que se corte la parte baja de letras como g, y, j */
+            max-height: 85px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-bottom: 6px; /* Respiro extra indispensable para html2canvas al exportar */
+            padding-bottom: 6px;
         }
         
         .footer-note { 
@@ -519,7 +513,6 @@
             background-color: var(--unlp-blue);
         }
         
-        /* Fallback elegante para imágenes */
         img { display: block; position: relative; background: transparent; min-width: 40px; min-height: 40px; object-fit: contain; image-rendering: auto; }
 
         .column { display: flex; flex-direction: column; flex: 1; }
@@ -529,7 +522,6 @@
         .time-suffix { font-size: 0.9em; font-weight: 600; color: var(--unlp-blue); text-transform: uppercase; white-space: nowrap; }
         .period-no-temp { font-size: 11px; font-weight: 700; color: #7f8c8d; text-transform: uppercase; }
 
-        /* Estilo Notificación */
         #notification-toast {
             position: fixed;
             bottom: 20px;
@@ -556,7 +548,6 @@
     <div class="field-group">
         <h4>Información General</h4>
         
-        <!-- Interruptor para preparar pronóstico el día anterior -->
         <div class="row">
             <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
                 <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
@@ -594,7 +585,6 @@
     <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
     <button class="btn btn-pdf" onclick="downloadPDF()">📄 DESCARGAR PDF</button>
     
-    <!-- Botón para limpiar autoguardado -->
     <button class="btn btn-clear" onclick="clearDraft()">🗑️ Limpiar Borrador Guardado</button>
 
     <div id="dynamic-inputs"></div>
@@ -755,7 +745,6 @@
                     </div>
                     
                     <div class="card-temps-row">
-                        <!-- MIN TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -767,7 +756,6 @@
                                 <span class="card-temp-sub" id="d3-min-sub">--*</span>
                             </div>
                         </div>
-                        <!-- MAX TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -781,12 +769,10 @@
                         </div>
                     </div>
 
-                    <!-- Contenedor estricto para escalar texto (Día 3) -->
                     <div class="weather-desc" id="d3-desc-container">
                         <span id="d3-w1">--</span>
                     </div>
                     
-                    <!-- Sección de vientos fija al fondo -->
                     <div class="wind-section">
                         <div class="wind-arrows" id="d3-arrows-container"></div>
                         <div class="wind-legend" id="d3-wind-legend"><span id="d3-wind-text">--</span></div>
@@ -808,7 +794,6 @@
                     </div>
                     
                     <div class="card-temps-row">
-                        <!-- MIN TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -820,7 +805,6 @@
                                 <span class="card-temp-sub" id="d4-min-sub">--*</span>
                             </div>
                         </div>
-                        <!-- MAX TEMP -->
                         <div class="card-temp-item">
                             <svg viewBox="0 0 30 90" width="26" height="78">
                                 <path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
@@ -834,12 +818,10 @@
                         </div>
                     </div>
 
-                    <!-- Contenedor estricto para escalar texto (Día 4) -->
                     <div class="weather-desc" id="d4-desc-container">
                         <span id="d4-w1">--</span>
                     </div>
                     
-                    <!-- Sección de vientos fija al fondo -->
                     <div class="wind-section">
                         <div class="wind-arrows" id="d4-arrows-container"></div>
                         <div class="wind-legend" id="d4-wind-legend"><span id="d4-wind-text">--</span></div>
@@ -847,7 +829,6 @@
                 </div>
             </div>
             
-            <!-- Agregados para la Placa 2 -->
             <div class="footer-note">* TEMPERATURA EN ZONA SUBURBANA</div>
             <div class="bottom-bar"></div>
             
@@ -855,33 +836,25 @@
     </div>
 </div>
 
-<!-- TOAST de notificación moderno -->
 <div id="notification-toast">✅ Operación exitosa</div>
 
 <script>
-        // Opciones de Probabilidad de Precipitación
         const POP_OPTS = ["0 %", "10 a 40 %", "40 a 70 %", "70 a 100 %"];
 
-        // Función auxiliar para forzar la primera letra en mayúscula (capitalizar)
         function capitalizeFirst(str) {
             if (!str) return '';
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
         }
 
-        // Sistema de notificaciones
         function showToast(message, isError = false) {
             const toast = document.getElementById('notification-toast');
             toast.innerText = message;
             if (isError) toast.classList.add('error');
             else toast.classList.remove('error');
-            
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // Manejador global de errores de imagen para evitar fallos en html2canvas
         window.addEventListener('error', function(e) {
             if (e.target && e.target.tagName === 'IMG') {
                 const src = e.target.getAttribute('src');
@@ -892,14 +865,12 @@
             }
         }, true);
 
-        // LISTA UNIFICADA: Cielo + Tormentas/Lluvias (sin "nublado")
         const COMBINED_WEATHER_OPTS = [
             "despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado", 
             "cubierto", "neblinas", "nieblas", 
             "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"
         ];
         
-        // Intensidades actualizadas
         const WIND_INT = ["leves", "moderados", "regulares", "fuertes o muy fuertes"];
         const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
         
@@ -929,18 +900,11 @@
             return 'dia'; 
         }
 
-        // NUEVO: Función para achicar toda la fila de forma pareja y simétrica
         function syncRowFontSize(elements, maxSize, minSize) {
             if (!elements || elements.length === 0) return;
-            
             let currentSize = maxSize;
             elements.forEach(el => el.style.fontSize = currentSize + 'px');
-            
-            // Función interna estricta: si toca los bordes, se achica.
-            let isOverflowing = () => {
-                return elements.some(el => el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth);
-            };
-
+            let isOverflowing = () => elements.some(el => el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth);
             while (isOverflowing() && currentSize > minSize) {
                 currentSize--;
                 elements.forEach(el => el.style.fontSize = currentSize + 'px');
@@ -1037,20 +1001,14 @@
             document.getElementById('dynamic-inputs').innerHTML = html;
         }
 
-    // Función para calcular o re-calcular fechas basado en el checkbox
     function recalculateDates() {
         const today = new Date();
         const isTomorrow = document.getElementById('chk-tomorrow').checked;
-        
-        // Si activaron el switch, la fecha base de cálculo es "mañana"
-        if (isTomorrow) {
-            today.setDate(today.getDate() + 1);
-        }
+        if (isTomorrow) today.setDate(today.getDate() + 1);
 
         const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
         const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
 
-        // Actualizar la cápsula de fecha de emisión
         const dStr = String(today.getDate()).padStart(2, '0');
         const moStr = ms[today.getMonth()];
         const yStr = String(today.getFullYear()).slice(-2);
@@ -1062,12 +1020,10 @@
             updateDateVal(specificDateStr);
         }
 
-        // Calcular los nombres y fechas de los 4 días
         for(let i=0; i<4; i++) {
             let iterDate = new Date(today); 
             iterDate.setDate(today.getDate() + i);
             document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
-            
             let iterD = String(iterDate.getDate()).padStart(2, '0');
             let iterM = ms[iterDate.getMonth()];
             let iterY = String(iterDate.getFullYear()).slice(-2);
@@ -1086,14 +1042,12 @@
         up(`${dia}-t${idx}`, value);
     }
 
-    // Diseño de flecha robusta (block arrow) idéntica a la imagen original, tamaño aumentado
     function getWindArrowSVG(dir) {
         const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
         return `
         <div style="width: 72px; height: 72px; margin: 0 8px; flex-shrink: 0;">
             <svg viewBox="0 0 100 100" width="72" height="72" style="display: block;">
                 <g transform="rotate(${angle} 50 50)">
-                    <!-- Flecha gruesa (cuerpo + punta) -->
                     <path d="M 35 75 L 65 75 L 65 40 L 85 40 L 50 10 L 15 40 L 35 40 Z" fill="#ffffff" />
                 </g>
             </svg>
@@ -1127,12 +1081,11 @@
             return;
         }
 
-        // Lógica de redacción (Si hay ráfagas, oculta el viento medio)
         let w1_desc = r1 ? `ráfagas de ${r1}` : `vientos ${i1} del ${d1}`;
         let w2_desc = r2 ? `ráfagas de ${r2}` : `vientos ${i2} del ${d2}`;
         if (r2 && !r1) w2_desc = `ráfagas de ${r2}`; 
-        else if (r2 && r1) w2_desc = `ráfagas de ${r2}`; // Si ambos son ráfagas
-        else if (!r2 && r1) w2_desc = `vientos ${i2} del ${d2}`; // Pasa de rafaga a viento
+        else if (r2 && r1) w2_desc = `ráfagas de ${r2}`;
+        else if (!r2 && r1) w2_desc = `vientos ${i2} del ${d2}`;
 
         if ((i1 && d1) || r1) {
             if ((i2 && d2) || r2) {
@@ -1148,7 +1101,6 @@
         
         arrowContainer.innerHTML = arrowsHTML;
 
-        // Auto escalar texto del viento para que no empuje todo
         const legendContainer = document.getElementById(`${dia}-wind-legend`);
         textWrapper.style.fontSize = '28px';
         let currentSize = 28;
@@ -1162,11 +1114,9 @@
         try {
             const skySelect = document.getElementById(`${dia}-sky-select-${tramo}`);
             const valor = skySelect ? skySelect.value : "";
-            
             const popSelect = document.getElementById(`${dia}-pop-${tramo}`);
             const pop = popSelect ? popSelect.value : "";
 
-            // Para los Días 1 y 2, impactamos en las tiras (.stripe-time)
             if(!dia.startsWith('d')) {
                 const target = document.getElementById(`${dia}-w${tramo}`);
                 if(target) {
@@ -1177,18 +1127,15 @@
                         text = `${pop} prob. precipitaciones`;
                     }
                     target.innerText = text;
-                    
-                    // Auto-escalado Dinámico SIMÉTRICO para toda la fila Tiempo
                     const count = (dia === 'h') ? 3 : 4;
                     const elements = [];
                     for (let i = 1; i <= count; i++) {
                         const el = document.getElementById(`${dia}-w${i}`);
                         if (el) elements.push(el);
                     }
-                    syncRowFontSize(elements, 26, 12); // Max size bajado a 26px
+                    syncRowFontSize(elements, 26, 12);
                 }
             } else {
-                // Para los días 3 y 4, llamamos a la función de refresco del texto custom
                 updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`).value);
             }
             
@@ -1198,12 +1145,7 @@
                     const momento = getMomentoDia(dia, tramo);
                     const fileName = iconMap[valor][momento];
                     imgEl.src = `images/${fileName}`;
-                    
-                    if (valor === "despejado") {
-                        imgEl.style.transform = "scale(1)";
-                    } else {
-                        imgEl.style.transform = "scale(1.25)";
-                    }
+                    imgEl.style.transform = valor === "despejado" ? "scale(1)" : "scale(1.25)";
                 } else {
                     imgEl.src = `images/default.png`;
                     imgEl.style.transform = "scale(1)";
@@ -1223,24 +1165,20 @@
         if(!dia.startsWith('d')) {
             const target = document.getElementById(`${dia}-v${tramo}`);
             if(target) {
-                // Si hay ráfagas, oculta el viento medio (leves del oeste, etc)
                 let text = "--";
                 if (r) {
                     text = `Ráfagas: ${r}`;
                 } else if (i && d) {
                     text = capitalizeFirst(`${i} del ${d}`);
                 }
-                
                 target.innerText = text;
-                
-                // Auto-escalado Dinámico SIMÉTRICO para toda la fila Vientos
                 const count = (dia === 'h') ? 3 : 4;
                 const elements = [];
                 for (let j = 1; j <= count; j++) {
                     const el = document.getElementById(`${dia}-v${j}`);
                     if (el) elements.push(el);
                 }
-                syncRowFontSize(elements, 26, 12); // Max size bajado a 26px
+                syncRowFontSize(elements, 26, 12);
             }
         }
         
@@ -1251,7 +1189,9 @@
 
     function up(id, v) { 
         let val = v ? v.trim() : '--';
-        if((id.includes('min') || id.includes('max') || id.includes('t')) && !id.includes('sub') && val !== '--') val += '°';
+        // ✅ CORRECCIÓN: Se eliminó 't' de la condición para que 'out-hora' no reciba el símbolo °
+        if((id.includes('min') || id.includes('max')) && !id.includes('sub') && val !== '--') val += '°';
+        if(id.includes('-t') && !id.includes('sub') && val !== '--') val += '°';
         if(id.includes('sub') && val !== '--') val += '*';
         const el = document.getElementById(id);
         if(el) el.innerText = val; 
@@ -1261,7 +1201,6 @@
         const target = document.getElementById(`${dia}-w1`);
         const container = document.getElementById(`${dia}-desc-container`);
         
-        // Sumamos las probabilidades para D3/D4 automáticamente al texto base
         const pop1 = document.getElementById(`${dia}-pop-1`)?.value;
         const pop2 = document.getElementById(`${dia}-pop-2`)?.value;
         
@@ -1272,14 +1211,11 @@
         else if (pop2) popText = `${pop2} prob. `;
 
         let fullString = (v || "--");
-        if (popText) {
-            fullString = capitalizeFirst(popText + fullString.toLowerCase());
-        }
+        if (popText) fullString = capitalizeFirst(popText + fullString.toLowerCase());
 
         if (target && container) {
             target.innerText = fullString;
             target.style.fontSize = '28px';
-            
             let currentSize = 28;
             while (target.scrollHeight > container.clientHeight && currentSize > 12) {
                 currentSize--;
@@ -1294,15 +1230,15 @@
         document.querySelectorAll('.city-label').forEach(el => {
             el.innerText = v.toUpperCase();
             if (v.toUpperCase() === 'MAR DEL PLATA') {
-                el.style.fontSize = '54px';  /* Aumentado para que encaje MDP */
+                el.style.fontSize = '54px';
                 el.style.letterSpacing = '-1.5px';
                 el.style.marginLeft = '0px';
             } else if (v.toUpperCase() === 'JUNÍN') {
-                el.style.fontSize = '72px';  /* Nuevo tamaño grande */
+                el.style.fontSize = '72px';
                 el.style.letterSpacing = '-2px';
                 el.style.marginLeft = '70px'; 
             } else { 
-                el.style.fontSize = '72px';  /* Nuevo tamaño grande */
+                el.style.fontSize = '72px';
                 el.style.letterSpacing = '-2px';
                 el.style.marginLeft = '10px';
             }
@@ -1318,16 +1254,14 @@
         if (value.length >= 2) {
             const hours = value.substring(0, 2);
             const minutes = value.substring(2, 4);
-            if (parseInt(hours) > 23) {
-                value = '23' + minutes;
-            }
-            if (minutes.length > 0 && parseInt(minutes) > 59) {
-                value = hours + '59';
-            }
+            if (parseInt(hours) > 23) value = '23' + minutes;
+            if (minutes.length > 0 && parseInt(minutes) > 59) value = hours + '59';
             value = value.substring(0, 2) + ':' + value.substring(2, 4);
         }
         input.value = value;
-        up('out-hora', value + ' hs');
+        // ✅ CORRECCIÓN: Se actualiza el elemento visual directamente, sin pasar por up()
+        const el = document.getElementById('out-hora');
+        if (el) el.innerText = value + ' hs';
     }
 
     function validateTime(input) {
@@ -1337,7 +1271,8 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             input.value = `${hours}:${minutes}`;
-            up('out-hora', `${hours}:${minutes} hs`);
+            const el = document.getElementById('out-hora');
+            if (el) el.innerText = `${hours}:${minutes} hs`;
         }
     }
 
@@ -1345,7 +1280,6 @@
         const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
         const rawDate = document.getElementById('in-fecha-emision').value; 
         const cleanDate = rawDate.replace(/\//g, ''); 
-        
         if (type === 'placa-1') {
             const d1 = document.querySelector('.n0').innerText;
             const d2 = document.querySelector('.n1').innerText;
@@ -1361,74 +1295,55 @@
     async function download(id) {
         await document.fonts.ready;
         const el = document.getElementById(id);
-        
         el.classList.add('exporting');
         await new Promise(resolve => setTimeout(resolve, 50));
-        
         const images = el.querySelectorAll("img");
         await Promise.all([...images].map(img => {
             if (img.complete) return Promise.resolve();
             return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
         }));
-
-        // Exportación HD a escala 4x
         const canvas = await html2canvas(el, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
-        
         el.classList.remove('exporting');
-
         const link = document.createElement("a");
         link.download = getFilename(id) + `.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
-        
         showToast(`Placa descargada correctamente`);
     }
 
     async function downloadPDF() {
         await document.fonts.ready;
-        
         const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
         const rawDate = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
         const d1 = document.querySelector('.n0').innerText;
         const d4 = document.querySelector('.n3').innerText;
         const pdfName = `Pronostico_${city}_${rawDate}_${d1}_a_${d4}.pdf`;
-
         const el1 = document.getElementById('placa-1');
         const el2 = document.getElementById('placa-2');
-        
         el1.classList.add('exporting');
         el2.classList.add('exporting');
         await new Promise(resolve => setTimeout(resolve, 50));
-        
         const images = document.querySelectorAll("img");
         await Promise.all([...images].map(img => {
             if (img.complete) return Promise.resolve();
             return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
         }));
-
-        // Escala 4x para excelente resolución en PDF
         const canvas1 = await html2canvas(el1, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
         const canvas2 = await html2canvas(el2, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
-
         el1.classList.remove('exporting');
         el2.classList.remove('exporting');
-
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
-
         doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
         doc.addPage();
         doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
-        
         doc.save(pdfName);
         showToast(`PDF generado exitosamente`);
     }
 
-    // SISTEMA DE AUTOGUARDADO (LOCAL STORAGE)
     function saveDraft() {
         const data = {};
-        const excludeIds = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision']; // La hora y fecha siempre son reales/frescas al abrir la app
-        
+        const excludeIds = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision'];
         document.querySelectorAll('input, select, textarea').forEach(el => {
             if(el.id && !excludeIds.includes(el.id)) {
                 data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
@@ -1441,8 +1356,6 @@
         try {
             const draft = JSON.parse(localStorage.getItem('pronoDraft'));
             if (!draft) return;
-            
-            // Llenar inputs con datos guardados
             for(let key in draft) {
                 const el = document.getElementById(key);
                 if(el) {
@@ -1450,22 +1363,17 @@
                     else el.value = draft[key];
                 }
             }
-            
-            // Disparar las visuales correspondientes
             updateCity(document.getElementById('city-selector').value);
-            
             ['h','m','d3','d4'].forEach(dia => {
                 updateTempField(dia, 'min', 'urb'); updateTempField(dia, 'min', 'sub');
                 updateTempField(dia, 'max', 'urb'); updateTempField(dia, 'max', 'sub');
             });
-            
             [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i); updateWind('h', i); });
             [1,2,3,4].forEach(i => { updatePeriodTemp('m', i); updateSky('m', i); updateWind('m', i); });
             [1,2].forEach(i => { updateSky('d3', i); updateWind('d3', i); });
             updateFullDesc('d3', document.getElementById('d3-custom-desc').value);
             [1,2].forEach(i => { updateSky('d4', i); updateWind('d4', i); });
             updateFullDesc('d4', document.getElementById('d4-custom-desc').value);
-
         } catch (e) {
             console.error("Error al cargar borrador", e);
         }
@@ -1481,7 +1389,6 @@
 
     function populateDummyData() {
         try {
-            // LUNES
             document.getElementById('in-h-min-urb').value = '5'; document.getElementById('in-h-min-sub').value = '3';
             document.getElementById('in-h-max-urb').value = '15'; document.getElementById('in-h-max-sub').value = '15';
             updateTempField('h', 'min', 'urb'); updateTempField('h', 'min', 'sub'); updateTempField('h', 'max', 'urb'); updateTempField('h', 'max', 'sub');
@@ -1492,7 +1399,6 @@
             document.getElementById('h-v-i1').value = 'leves'; document.getElementById('h-v-d1').value = 'oeste'; document.getElementById('h-v-i2').value = 'leves'; document.getElementById('h-v-d2').value = 'oeste'; document.getElementById('h-v-i3').value = 'leves'; document.getElementById('h-v-d3').value = 'oeste';
             updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
             
-            // MARTES
             document.getElementById('in-m-min-urb').value = '4'; document.getElementById('in-m-min-sub').value = '3';
             document.getElementById('in-m-max-urb').value = '16'; document.getElementById('in-m-max-sub').value = '16';
             updateTempField('m', 'min', 'urb'); updateTempField('m', 'min', 'sub'); updateTempField('m', 'max', 'urb'); updateTempField('m', 'max', 'sub');
@@ -1503,7 +1409,6 @@
             document.getElementById('m-v-i1').value = 'leves'; document.getElementById('m-v-d1').value = 'oeste'; document.getElementById('m-v-i2').value = 'leves'; document.getElementById('m-v-d2').value = 'oeste'; document.getElementById('m-v-i3').value = 'leves'; document.getElementById('m-v-d3').value = 'oeste'; document.getElementById('m-v-i4').value = 'leves'; document.getElementById('m-v-d4').value = 'oeste';
             updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
 
-            // MIÉRCOLES
             document.getElementById('in-d3-min-urb').value = '7'; document.getElementById('in-d3-min-sub').value = '6';
             document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
             updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub'); updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
@@ -1513,7 +1418,6 @@
             updateWind('d3', 1); updateWind('d3', 2);
             document.getElementById('d3-custom-desc').value = 'Cielo algo nublado.'; updateFullDesc('d3', 'Cielo algo nublado.');
 
-            // JUEVES
             document.getElementById('in-d4-min-urb').value = '4'; document.getElementById('in-d4-min-sub').value = '3';
             document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
             updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub'); updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
@@ -1530,7 +1434,6 @@
     window.onload = function() {
         renderSidebar();
         
-        // La hora se setea SIEMPRE con el momento exacto en el que abrís la página (no se saca del borrador)
         const today = new Date();
         const h = String(today.getHours()).padStart(2, '0');
         const m = String(today.getMinutes()).padStart(2, '0');
@@ -1539,41 +1442,38 @@
         
         if (timeInput) {
             timeInput.value = specificTime;
-            up('out-hora', specificTime + ' hs');
+            // ✅ CORRECCIÓN: Actualización directa del display, sin pasar por up()
+            const outHoraEl = document.getElementById('out-hora');
+            if (outHoraEl) outHoraEl.innerText = specificTime + ' hs';
         }
         
         recalculateDates();
-        
         const initialCity = document.getElementById('city-selector');
         if (initialCity) updateCity(initialCity.value);
         
         setTimeout(() => {
-            // Lógica de recuperación:
             if(localStorage.getItem('pronoDraft')) {
-                // Si existe un borrador, se carga por encima (no sobreescribe la hora y fecha correcta de hoy)
                 loadDraft();
                 showToast("Borrador recuperado");
             } else {
-                // Si es la primera vez que entra, llena datos de prueba
                 populateDummyData();
             }
-            
-            // Activar el autoguardado silencioso cada 2 segundos
             setInterval(saveDraft, 2000);
         }, 150);
     };
 
     async function saveToWeb() {
         const city = document.getElementById('city-selector').value;
-        const outHora = document.getElementById('out-hora').innerText.replace('hs', '').trim();
-        
-        // 1. SOLUCIÓN AL CHECKBOX DE "MAÑANA"
+
+        // ✅ CORRECCIÓN PRINCIPAL: Se lee la hora directo del input, no del elemento visual
+        // Esto evita el bug donde up() agregaba el símbolo ° al texto de la hora
+        const outHora = document.getElementById('in-hora-emision').value;
+
         const baseDate = new Date();
         if (document.getElementById('chk-tomorrow').checked) {
             baseDate.setDate(baseDate.getDate() + 1);
         }
 
-        // 2. SOLUCIÓN AL DESFASE HORARIO DE ARGENTINA (Evita que toISOString salte de día)
         const getLocalDateString = (d) => {
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         };
@@ -1583,7 +1483,8 @@
         const forecastPayload = {
             city: city,
             forecast_date: getLocalDateString(baseDate),
-            emission_time: outHora + ":00",
+            // ✅ CORRECCIÓN: emission_time ahora es siempre limpio ("HH:MM:00")
+            emission_time: outHora ? outHora + ":00" : null,
             daily_forecasts: []
         };
 
@@ -1612,8 +1513,6 @@
 
             conf.tramos.forEach((periodValue, index) => {
                 const tramoIdx = index + 1;
-                
-                // Extracción segura (evita errores si el campo no existe)
                 const skyCond = document.getElementById(`${conf.id}-sky-select-${tramoIdx}`)?.value || "";
                 const windInt = document.getElementById(`${conf.id}-v-i${tramoIdx}`)?.value || null;
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`)?.value || null;
@@ -1641,7 +1540,6 @@
                     weather_icon_code: iconCode,
                     wind_direction: windDir,
                     wind_intensity: windInt,
-                    // 3. PARSEO SEGURO DE RÁFAGAS: Extrae solo el número (ej: de "50 km/h" saca 50)
                     wind_gusts: rafagasStr ? parseInt(rafagasStr.replace(/\D/g, '')) || null : null
                 });
             });
@@ -1660,7 +1558,6 @@
             if (response.ok) {
                 showToast("¡Pronóstico publicado en la API con éxito!");
             } else {
-                // Capturamos el mensaje de error real del servidor para ayudar a depurar
                 const errData = await response.text();
                 console.error("Fallo en la API. Código:", response.status, "Detalle:", errData);
                 showToast(`Error de la API (${response.status}). Revisá la consola.`, true);
