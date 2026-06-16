@@ -4,245 +4,296 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Meteorológico | FCAG - UNLP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
         :root { 
-            --unlp-blue: #00315a; --unlp-accent: #0079c1; --unlp-green: #00796b;
-            --unlp-light: #5899d2; --bg: #f4f7f9;
+            --unlp-blue: #003f6b; 
+            --unlp-accent: #6ba4d6; 
+            --unlp-light: #8bbce4; 
+            --smn-bg: #f4f7f9;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-light: #e2e8f0;
         }
-        body { font-family: 'Montserrat', sans-serif; margin: 0; background: var(--bg); color: #333; overflow-x: hidden; }
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            margin: 0; 
+            background: var(--smn-bg); 
+            color: var(--text-dark); 
+            overflow-x: hidden; 
+        }
         
-        /* HEADER RESPONSIVO CON ORDEN DINÁMICO */
         header { 
-            background: white; padding: 10px 5%; display: flex; 
-            justify-content: space-between; align-items: center; 
-            border-bottom: 5px solid var(--unlp-blue);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); gap: 10px;
+            background: white; 
+            padding: 15px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 4px solid var(--unlp-blue);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            gap: 15px;
+            position: sticky; 
+            top: 0; 
+            z-index: 1000;
         }
-        header img { height: 45px; width: auto; }
+        header img { height: 50px; width: auto; object-fit: contain; }
         .header-title { flex-grow: 1; text-align: center; }
-        .header-title h1 { margin: 0; font-size: 1.1em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; }
+        .header-title h1 { margin: 0; font-size: 1.3em; color: var(--unlp-blue); font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
 
         .logo-ast { order: 1; }
-        .logo-pro { order: 2; margin-right: 15px; }
+        .logo-pro { order: 2; margin-right: 15px; border-radius: 50%; height: 55px; }
         .header-title { order: 3; }
-        .logo-unlp { order: 4; }
+        .logo-unlp { order: 4; height: 55px; }
 
         main { 
-            max-width: 1400px; margin: 20px auto; 
-            display: grid; grid-template-columns: 320px 1fr; 
-            gap: 20px; padding: 0 15px; 
+            max-width: 1300px; 
+            margin: 30px auto; 
+            display: grid; 
+            grid-template-columns: 350px 1fr; 
+            gap: 30px; 
+            padding: 0 20px; 
         }
 
-        /* SIDEBAR Y MAPA */
-        .sidebar-card { 
-            background: white; border-radius: 20px; padding: 15px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; 
-            text-align: center; position: sticky; top: 20px; 
+        .tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 2px dotted #bdc3c7;
+            display: inline-block;
         }
-        #map { height: 400px; width: 100%; border-radius: 15px; border: 3px solid #007bbd; margin-bottom: 10px; z-index: 1; }
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 34, 64, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+        
+        .sidebar-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); 
+            height: fit-content; 
+            text-align: center; 
+            position: sticky; 
+            top: 100px; 
+        }
+        #map { height: 350px; width: 100%; border-radius: 12px; margin-bottom: 15px; z-index: 1; }
 
         .content-area { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
-        /* ESTACIÓN EN VIVO */
         .rt-card {
-            background: white; border-radius: 15px; padding: 15px 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 8px solid var(--unlp-accent);
+            background: white; 
+            border-radius: 16px; 
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); 
+            border-top: 4px solid var(--unlp-accent);
         }
-        .rt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .rt-header h3 { margin: 0; font-weight: 900; color: var(--unlp-blue); font-size: 0.8em; text-transform: uppercase; }
-        .live-dot { height: 10px; width: 10px; background: #ff5252; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .rt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;}
+        .rt-header h3 { margin: 0; font-weight: 800; color: var(--text-dark); font-size: 1.1em; display: flex; align-items: center; gap: 10px; }
+        .live-dot { height: 12px; width: 12px; background: #e74c3c; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); opacity: 0.8;} }
         
-        .rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
-        .rt-item { border-right: 1px solid #eee; }
-        .rt-item:last-child { border: none; }
-        .rt-value { display: block; font-size: 1.4em; font-weight: 900; color: var(--unlp-blue); }
-        .rt-label { font-size: 0.55em; font-weight: 800; color: #999; text-transform: uppercase; }
+        .rt-grid { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; text-align: center; }
+        .rt-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .rt-value { font-size: 2.2em; font-weight: 800; color: var(--unlp-blue); }
+        .rt-label { font-size: 0.8em; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
-        .city-bar { background: white; padding: 15px 25px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .city-bar h2 { margin: 0; font-size: 1.8em; font-weight: 900; color: var(--unlp-blue); text-transform: uppercase; }
-        .badge { background: var(--unlp-blue); color: white; padding: 6px 15px; border-radius: 10px; font-size: 0.75em; font-weight: 800; }
+        .city-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding: 0 10px; }
+        .city-bar h2 { margin: 0; font-size: 2.5em; font-weight: 900; color: var(--text-dark); text-transform: uppercase; letter-spacing: -1px; line-height: 1;}
+        .emission-info { font-size: 0.85em; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: flex-end;}
+        .emission-time { color: var(--unlp-blue); font-weight: 900; }
 
-        /* GRILLAS DE PRONÓSTICO */
-        .table-wrapper { width: 100%; overflow-x: auto; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 10px; }
-        .weather-grid { background: var(--unlp-blue); min-width: 600px; color: white; }
-        .weather-grid.verde { background: var(--unlp-green); }
-        .grid-header { background: rgba(0,0,0,0.2); padding: 12px 0; display: grid; font-weight: 800; font-size: 0.85em; text-align: center; }
-        .cols-3 { grid-template-columns: 160px repeat(3, 1fr); }
-        .cols-4 { grid-template-columns: 160px repeat(4, 1fr); }
-        .grid-row { display: grid; border-top: 1px solid rgba(255,255,255,0.1); }
-        .cell { padding: 15px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60px; }
-        .label-cell { background: rgba(0,0,0,0.15); font-weight: 900; font-size: 0.7em; text-transform: uppercase; align-items: flex-start; padding-left: 20px; border-right: 1px solid rgba(255,255,255,0.1); }
-        .icon-cell img { height: 50px; width: auto; }
-        .temp-val { font-size: 2em; font-weight: 300; }
-        .data-val { font-size: 0.8em; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
+        .smn-day-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            overflow: hidden;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .smn-day-header {
+            padding: 15px 25px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .smn-day-header.hoy { background: var(--unlp-blue); }
+        .smn-day-header.mañana { background: var(--unlp-accent); }
+        .smn-day-header.extendido { background: var(--unlp-light); }
+        
+        .smn-day-title { font-size: 1.2em; font-weight: 800; text-transform: uppercase; margin: 0; }
+        .smn-day-temps { font-size: 1em; font-weight: 700; display: flex; gap: 15px; }
+        .smn-day-temps span { display: flex; align-items: center; gap: 5px; }
 
-        /* TARJETAS EXTENDIDAS (Días 3 y 4) */
-        .extended-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .ex-card { border-radius: 35px; padding: 25px; color: white; text-align: center; display: flex; flex-direction: column; min-height: 250px; }
-        .ex-card.celeste { background: var(--unlp-light); }
-        .ex-card.oscuro { background: var(--unlp-blue); }
-        .ex-card h3 { margin: 0; font-size: 2.2em; font-weight: 900; text-transform: uppercase; }
-        .ex-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: 20px; }
-        .ex-temp { font-size: 2.5em; font-weight: 300; }
-        .ex-label { font-size: 0.7em; font-weight: 800; text-transform: uppercase; }
-        .ex-desc { font-size: 1.1em; font-weight: 600; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: auto; }
+        /* Flexbox horizontal (Scrollable en móviles) */
+        .smn-periods-container {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-light) transparent;
+        }
+        .smn-periods-container::-webkit-scrollbar { height: 8px; }
+        .smn-periods-container::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
 
-        #view-placeholder { background: white; border-radius: 20px; padding: 100px; text-align: center; color: #ccc; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .smn-period-col {
+            flex: 1;
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-right: 1px solid var(--border-light);
+            padding: 0 15px;
+            gap: 15px;
+        }
+        .smn-period-col:last-child { border-right: none; }
 
-        /* AJUSTES CELULAR */
-        @media (max-width: 850px) {
+        .smn-period-name { font-size: 0.85em; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        
+        .smn-icon-wrapper { position: relative; height: 90px; display: flex; align-items: center; justify-content: center; }
+        .smn-icon-wrapper img { height: 100%; width: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        
+        .smn-pop-badge {
+            position: absolute;
+            bottom: -10px;
+            background: #e1f5fe;
+            color: #0288d1;
+            border: 1px solid #b3e5fc;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .smn-temp { font-size: 2.2em; font-weight: 700; color: var(--text-dark); line-height: 1; }
+        
+        .smn-wind-block { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .smn-wind-arrow { width: 32px; height: 32px; }
+        .smn-wind-text { font-size: 0.75em; font-weight: 700; color: var(--text-muted); line-height: 1.2; }
+        .smn-rafagas { color: #d35400; font-weight: 800; background: #fdf2e9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 3px;}
+
+        .smn-desc { font-size: 0.9em; font-weight: 600; color: var(--text-dark); line-height: 1.3; margin-top: auto; }
+
+        #view-placeholder { background: white; border-radius: 16px; padding: 100px 20px; text-align: center; color: var(--text-muted); font-weight: 700; font-size: 1.2em; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+
+        @media (max-width: 950px) {
             header { padding: 10px 15px; }
-            header img { height: 35px; }
+            header img { height: 40px; }
             .logo-ast { order: 1; }
             .header-title { order: 2; flex-grow: 1; }
-            .header-title h1 { font-size: 0.85em; }
+            .header-title h1 { font-size: 0.9em; }
             .logo-pro { order: 3; margin-right: 0; } 
             .logo-unlp { display: none; } 
 
-            main { grid-template-columns: 1fr; margin: 10px auto; }
-            .sidebar-card { position: relative; top: 0; margin-bottom: 20px; }
-            #map { height: 300px; }
-            .rt-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .rt-item { border: none; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 10px; }
-            .extended-row { grid-template-columns: 1fr; }
+            main { grid-template-columns: 1fr; margin: 15px auto; padding: 0 10px;}
+            .sidebar-card { position: relative; top: 0; margin-bottom: 10px; padding: 15px; }
+            #map { height: 250px; }
+            
+            .city-bar { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+            .emission-info { align-items: center; }
+            
+            .rt-grid { gap: 15px; }
+            .rt-value { font-size: 1.8em; }
+            
+            /* En móvil, los períodos hacen scroll horizontal natural */
+            .smn-periods-container { padding: 15px 5px; }
+            .smn-period-col { min-width: 140px; padding: 0 10px; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="https://tifon61.github.io/Pronostico-unlp/images/Logo%20astronomicas%20y%20geofisicas.png" class="logo-ast" alt="FCAG">
-    <img src="https://tifon61.github.io/Pronostico-unlp/images/Logo%20pronounlp.jfif" class="logo-pro" style="border-radius: 50%;" alt="Prono UNLP">
+    <img src="images/Logo astronomicas y geofisicas.png" class="logo-ast">
+    <img src="images/Logo pronounlp.jfif" class="logo-pro">
     <div class="header-title"><h1>Portal Meteorológico UNLP</h1></div>
-    <img src="https://tifon61.github.io/Pronostico-unlp/images/Logo%20unlp.png" class="logo-unlp" alt="UNLP">
+    <img src="images/Logo unlp.png" class="logo-unlp">
 </header>
 
 <main>
     <section class="sidebar-card">
         <div id="map"></div>
-        <p style="font-size:0.75em; font-weight:900; color:var(--unlp-blue);">TOCÁ UN MARCADOR EN EL MAPA</p>
+        <p style="font-size:0.85em; font-weight:800; color:var(--text-muted); margin:0;">
+            <span class="tooltip" data-tip="Hacé clic en los marcadores del mapa para ver el pronóstico detallado.">SELECCIONÁ UNA CIUDAD</span>
+        </p>
     </section>
 
     <section class="content-area" id="main-content" style="display:none;">
-        <div class="rt-card" id="rt-section">
-            <div class="rt-header">
-                <h3><span class="live-dot"></span>Estación Automática FCAG (En Vivo)</h3>
-                <span id="rt-time" style="font-size: 0.7em; font-weight: 800; color: #aaa;">--:--</span>
-            </div>
-            <div class="rt-grid">
-                <div class="rt-item"><span class="rt-value" id="rt-temp">--°</span><span class="rt-label">Temp.</span></div>
-                <div class="rt-item"><span class="rt-value" id="rt-hum">--%</span><span class="rt-label">Hum.</span></div>
-                <div class="rt-item"><span class="rt-value" id="rt-pres">--</span><span class="rt-label">Presión</span></div>
-                <div class="rt-item"><span class="rt-value" id="rt-wind">--</span><span class="rt-label">Viento</span></div>
-            </div>
-        </div>
-
+        
         <div class="city-bar">
             <h2 id="out-city">--</h2>
-            <div class="badge">EMISIÓN: <span id="out-hora">--:--</span></div>
-        </div>
-
-        <!-- PLACA 1: HOY -->
-        <div class="table-wrapper">
-            <div class="weather-grid">
-                <div class="grid-header cols-3"><span id="name-day-0" style="text-align:left; padding-left:20px;">HOY</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
-                <div class="grid-row cols-3">
-                    <div class="cell label-cell">Icono</div>
-                    <div class="cell icon-cell"><img id="h-icon-mañana" src="https://tifon61.github.io/Pronostico-unlp/images/soleado.png"></div>
-                    <div class="cell icon-cell"><img id="h-icon-tarde" src="https://tifon61.github.io/Pronostico-unlp/images/soleado.png"></div>
-                    <div class="cell icon-cell"><img id="h-icon-noche" src="https://tifon61.github.io/Pronostico-unlp/images/soleado.png"></div>
-                    
-                    <div class="cell label-cell">Temp.</div>
-                    <div class="cell temp-val" id="h-temp-mañana">--</div>
-                    <div class="cell temp-val" id="h-temp-tarde" style="color:#ffeb3b">--</div>
-                    <div class="cell temp-val" id="h-temp-noche">--</div>
-                    
-                    <div class="cell label-cell">Viento</div>
-                    <div class="cell data-val" id="h-wind-mañana">--</div>
-                    <div class="cell data-val" id="h-wind-tarde">--</div>
-                    <div class="cell data-val" id="h-wind-noche">--</div>
-                    
-                    <div class="cell label-cell">Tiempo</div>
-                    <div class="cell data-val" id="h-sky-mañana">--</div>
-                    <div class="cell data-val" id="h-sky-tarde">--</div>
-                    <div class="cell data-val" id="h-sky-noche">--</div>
-                </div>
+            <div class="emission-info">
+                <span>ACTUALIZACIÓN</span>
+                <span class="emission-time" id="out-hora">--:--</span>
             </div>
         </div>
 
-        <!-- PLACA 1: MAÑANA -->
-        <div class="table-wrapper">
-            <div class="weather-grid verde">
-                <div class="grid-header cols-4"><span id="name-day-1" style="text-align:left; padding-left:20px;">MAÑANA</span><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
-                <div class="grid-row cols-4">
-                    <div class="cell label-cell">Icono</div>
-                    <div class="cell icon-cell"><img id="m-icon-madrugada" src="https://tifon61.github.io/Pronostico-unlp/images/soleado.png"></div>
-                    <div class="cell icon-cell"><img id="m-icon-mañana" src="https://tifon61.github.io/Pronostico-unlp/images/soleado.png"></div>
-                    <div class="cell icon-cell"><img id="m-icon-tarde" src="https://tifon61.github.io/Pronostico-unlp/images/soleado.png"></div>
-                    <div class="cell icon-cell"><img id="m-icon-noche" src="https://tifon61.github.io/Pronostico-unlp/images/soleado.png"></div>
-                    
-                    <div class="cell label-cell">Temp.</div>
-                    <div class="cell temp-val" id="m-temp-madrugada">--</div>
-                    <div class="cell temp-val" id="m-temp-mañana">--</div>
-                    <div class="cell temp-val" id="m-temp-tarde" style="color:#ffeb3b">--</div>
-                    <div class="cell temp-val" id="m-temp-noche">--</div>
-
-                    <div class="cell label-cell">Viento</div>
-                    <div class="cell data-val" id="m-wind-madrugada">--</div>
-                    <div class="cell data-val" id="m-wind-mañana">--</div>
-                    <div class="cell data-val" id="m-wind-tarde">--</div>
-                    <div class="cell data-val" id="m-wind-noche">--</div>
-                    
-                    <div class="cell label-cell">Tiempo</div>
-                    <div class="cell data-val" id="m-sky-madrugada">--</div>
-                    <div class="cell data-val" id="m-sky-mañana">--</div>
-                    <div class="cell data-val" id="m-sky-tarde">--</div>
-                    <div class="cell data-val" id="m-sky-noche">--</div>
-                </div>
+        <!-- CONDICIONES ACTUALES (SMN Style) -->
+        <div class="rt-card" id="rt-section">
+            <div class="rt-header">
+                <h3><span class="live-dot"></span>Estación Meteorológica FCAG</h3>
+                <span id="rt-time" style="font-size: 0.8em; font-weight: 700; color: var(--text-muted);">--:--</span>
+            </div>
+            <div class="rt-grid">
+                <div class="rt-item"><span class="rt-label tooltip" data-tip="Temperatura a 2m de altura">Temperatura</span><span class="rt-value" id="rt-temp">--°</span></div>
+                <div class="rt-item"><span class="rt-label tooltip" data-tip="Humedad Relativa">Humedad</span><span class="rt-value" id="rt-hum">--%</span></div>
+                <div class="rt-item"><span class="rt-label tooltip" data-tip="Presión Atmosférica Nivel Estación">Presión</span><span class="rt-value" id="rt-pres">--</span></div>
+                <div class="rt-item"><span class="rt-label tooltip" data-tip="Velocidad media del viento">Viento</span><span class="rt-value" id="rt-wind" style="font-size: 1.6em; margin-top: 5px;">--</span></div>
             </div>
         </div>
 
-        <!-- PLACA 2: EXTENDIDO -->
-        <div class="extended-row">
-            <div class="ex-card celeste">
-                <h3 id="name-day-2">--</h3>
-                <div class="ex-split">
-                    <div><span class="ex-label">MÁX</span><br><span id="ex-max-2" class="ex-temp">--</span></div>
-                    <div><span class="ex-label">MÍN</span><br><span id="ex-min-2" class="ex-temp">--</span></div>
-                </div>
-                <div class="ex-desc">Previsión diaria basada en modelos regionales de alta resolución.</div>
-            </div>
-            <div class="ex-card oscuro">
-                <h3 id="name-day-3">--</h3>
-                <div class="ex-split">
-                    <div><span class="ex-label">MÁX</span><br><span id="ex-max-3" class="ex-temp">--</span></div>
-                    <div><span class="ex-label">MÍN</span><br><span id="ex-min-3" class="ex-temp">--</span></div>
-                </div>
-                <div class="ex-desc">Previsión diaria basada en modelos regionales de alta resolución.</div>
-            </div>
+        <!-- CONTENEDOR DINÁMICO PARA LAS TARJETAS DE PRONÓSTICO -->
+        <div id="forecast-cards-container">
+            <!-- El JS inyectará las tarjetas aquí -->
         </div>
+
     </section>
     
-    <div id="view-placeholder">Conectando con el servidor de pronósticos...</div>
+    <div id="view-placeholder">
+        <div style="font-size: 3em; margin-bottom: 10px;">📡</div>
+        Seleccioná una ciudad en el mapa para cargar su pronóstico.
+    </div>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // 1. SOLUCIÓN: Agregado el Proxy CORS para que la estación en vivo funcione sin crashear.
-    const PROXY = "https://api.allorigins.win/raw?url="; 
-    
     const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
-    const BASE_IMG_URL = "https://tifon61.github.io/Pronostico-unlp/images/";
+    const PROXY = "https://api.allorigins.win/raw?url=";
+    const FCAG_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
+    const BASE_IMG_URL = "images/";
+
+    const windDirectionsAngles = {
+        "norte": 180, "noreste": 225, "este": 270, "sudeste": 315,
+        "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135
+    };
 
     // Inicializar Mapa
     const map = L.map('map').setView([-36.5, -59.5], 6);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
     const cities = [
         { name: "La Plata", coords: [-34.921, -57.955] },
@@ -251,61 +302,62 @@
     ];
 
     cities.forEach(c => {
-        L.marker(c.coords).addTo(map).bindPopup(`<b>${c.name}</b>`).on('click', () => cargarFull(c.name));
+        L.marker(c.coords).addTo(map).bindPopup(`<b style="font-family: Montserrat;">${c.name}</b>`).on('click', () => cargarFull(c.name));
     });
 
-    // Función segura para obtener datos de la estación de la FCAG
     async function fetchRealTimeData() {
         try {
-            const targetUrl = "https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html?rand=" + Date.now();
-            const res = await fetch(PROXY + encodeURIComponent(targetUrl));
-            const data = await res.text(); // allorigins en modo /raw devuelve directamente HTML
-            
+            const res = await fetch(`${PROXY}${FCAG_URL}&rand=${Date.now()}`);
+            const data = await res.text();
             const t = data.match(/Temperat[^\d]+([\d.]+)/i);
             const h = data.match(/Humedad[^\d]+([\d.]+)/i);
             const p = data.match(/Presi[^\d]+([\d.]+)/i);
             const w = data.match(/Viento[^\d]+([\d.]+)/i);
-            
             if(t) document.getElementById('rt-temp').innerText = t[1] + "°";
             if(h) document.getElementById('rt-hum').innerText = h[1] + "%";
-            if(p) document.getElementById('rt-pres').innerText = p[1];
-            if(w) document.getElementById('rt-wind').innerText = w[1];
-            document.getElementById('rt-time').innerText = `Actualizado: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')} hs`;
-        } catch (e) { 
-            console.error("Estación en vivo inaccesible:", e);
-            document.getElementById('rt-time').innerText = "Estación fuera de línea"; 
-        }
+            if(p) document.getElementById('rt-pres').innerText = p[1] + " hPa";
+            if(w) document.getElementById('rt-wind').innerText = w[1] + " km/h";
+            document.getElementById('rt-time').innerText = `Hora local: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')}`;
+        } catch (e) { document.getElementById('rt-time').innerText = "Estación fuera de línea temporalmente"; }
+    }
+
+    function getWindSVG(direction) {
+        const angle = windDirectionsAngles[direction?.toLowerCase()] ?? 0;
+        if (!direction) return '';
+        return `
+        <svg class="smn-wind-arrow" viewBox="0 0 100 100" style="transform: rotate(${angle}deg);">
+            <circle cx="50" cy="50" r="45" fill="#f0f4f8" stroke="#cbd5e1" stroke-width="2"/>
+            <path d="M 50 15 L 70 55 L 50 45 L 30 55 Z" fill="#003f6b"/>
+        </svg>`;
     }
 
     async function cargarFull(ciudad) {
         const placeholder = document.getElementById('view-placeholder');
         const mainContent = document.getElementById('main-content');
+        const container = document.getElementById('forecast-cards-container');
         
         mainContent.style.display = 'none';
         placeholder.style.display = 'block';
-        placeholder.innerText = `Obteniendo pronóstico para ${ciudad}...`;
+        placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⏳</div>Descargando modelos para ${ciudad}...`;
         
         try {
             const response = await fetch(`${API_URL}?rand=${Date.now()}`);
-            if (!response.ok) throw new Error("Error en la respuesta del servidor");
-            
             const json = await response.json();
+            
             let cityData = null;
 
-            // 2. SOLUCIÓN AL JSON: La API moderna devuelve un Array de ciudades. Buscamos iterando inteligentemente.
+            // Búsqueda inteligente en la API
             if (Array.isArray(json)) {
                 cityData = json.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
             } else if (json.data && Array.isArray(json.data)) {
                 cityData = json.data.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
             } else if (typeof json === 'object') {
-                // Fallback por si lo cambiaron de vuelta a diccionario
                 const cityKey = Object.keys(json).find(k => k.toLowerCase() === ciudad.toLowerCase());
                 if (cityKey) cityData = json[cityKey];
             }
 
-            // Validar si existe información guardada
             if (!cityData || !cityData.daily_forecasts || cityData.daily_forecasts.length === 0) {
-                placeholder.innerText = `No hay un pronóstico reciente publicado en la API para ${ciudad}.`;
+                placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">❌</div>No hay pronóstico vigente para ${ciudad}.`;
                 return;
             }
 
@@ -313,81 +365,80 @@
             mainContent.style.display = 'flex';
             
             document.getElementById('out-city').innerText = cityData.city ? cityData.city.toUpperCase() : ciudad.toUpperCase();
-            document.getElementById('out-hora').innerText = cityData.emission_time ? cityData.emission_time.substring(0, 5) + ' hs' : '--:--';
+            document.getElementById('out-hora').innerText = cityData.emission_time ? cityData.emission_time.substring(0, 5) + ' HS' : '--:--';
 
-            const forecasts = cityData.daily_forecasts;
+            // Limpiar contenedor
+            container.innerHTML = '';
+            
+            const themeClasses = ['hoy', 'mañana', 'extendido', 'extendido'];
 
-            // 3. SOLUCIÓN AL MAPEADO: Vinculación estricta usando toLowerCase() para evitar que espacios mayúsculas rompan la pantalla
-            const fillPeriod = (dayIndex, prefix) => {
-                const day = forecasts[dayIndex];
-                if (!day) return;
+            // Construcción dinámica de Tarjetas Estilo SMN
+            cityData.daily_forecasts.forEach((day, index) => {
+                const headerClass = themeClasses[index] || 'extendido';
+                let dayTitle = index === 0 ? 'HOY' : (index === 1 ? 'MAÑANA' : day.day_name.toUpperCase());
                 
-                const dayTitle = document.getElementById(`name-day-${dayIndex}`);
-                if(dayTitle) dayTitle.innerText = day.day_name.toUpperCase();
+                // Formato de fecha
+                const dateParts = day.date ? day.date.split('-') : [];
+                const dateText = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : '';
 
-                if (day.period_forecasts) {
+                let cardHTML = `
+                <div class="smn-day-card">
+                    <div class="smn-day-header ${headerClass}">
+                        <h4 class="smn-day-title">${dayTitle} ${dateText}</h4>
+                        <div class="smn-day-temps">
+                            ${day.temp_min !== null ? `<span class="tooltip" data-tip="Temperatura Mínima"><span style="font-size:1.2em;">↓</span> ${day.temp_min}°</span>` : ''}
+                            ${day.temp_max !== null ? `<span class="tooltip" data-tip="Temperatura Máxima"><span style="font-size:1.2em;">↑</span> ${day.temp_max}°</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="smn-periods-container">
+                `;
+
+                if (day.period_forecasts && day.period_forecasts.length > 0) {
                     day.period_forecasts.forEach(p => {
-                        const safePeriod = p.period.toLowerCase().trim(); // ej: "mañana", "tarde"
+                        const iconCode = p.weather_icon_code || 'default';
+                        const imgSrc = `${BASE_IMG_URL}${iconCode}.png`;
                         
-                        const temp = document.getElementById(`${prefix}-temp-${safePeriod}`);
-                        const wind = document.getElementById(`${prefix}-wind-${safePeriod}`);
-                        const sky = document.getElementById(`${prefix}-sky-${safePeriod}`);
-                        const icon = document.getElementById(`${prefix}-icon-${safePeriod}`);
-
-                        if (temp) temp.innerText = p.temperature ? p.temperature + "°" : "--";
-                        
-                        // Procesar Viento (Priorizando Ráfagas si existen)
-                        if (wind) {
-                            if (p.wind_gusts) {
-                                wind.innerText = `Ráfagas: ${p.wind_gusts} km/h`;
-                            } else if (p.wind_intensity && p.wind_direction) {
-                                wind.innerText = `${p.wind_intensity} del ${p.wind_direction}`;
-                            } else {
-                                wind.innerText = "--";
-                            }
+                        let popHTML = '';
+                        if (p.probability_of_precipitation && p.probability_of_precipitation !== "0 %") {
+                            popHTML = `<div class="smn-pop-badge">💧 ${p.probability_of_precipitation}</div>`;
                         }
 
-                        // Procesar Cielo / Lluvia
-                        if (sky) {
-                            let wText = "";
-                            if (p.precipitation_description) {
-                                wText = p.precipitation_description;
-                                if (p.probability_of_precipitation) wText = `${p.probability_of_precipitation} prob. ${wText}`;
-                            } else {
-                                wText = p.sky_condition || "--";
-                            }
-                            sky.innerText = wText;
+                        let windHTML = '--';
+                        if (p.wind_intensity && p.wind_direction) {
+                            const svg = getWindSVG(p.wind_direction);
+                            let text = `${p.wind_intensity} del ${p.wind_direction}`;
+                            let gustHTML = p.wind_gusts ? `<br><span class="smn-rafagas">Ráfagas: ${p.wind_gusts} km/h</span>` : '';
+                            windHTML = `${svg}<div class="smn-wind-text">${text}${gustHTML}</div>`;
                         }
 
-                        // Cargar Ícono con Fallback
-                        if (icon) {
-                            const code = p.weather_icon_code || 'soleado';
-                            icon.src = `${BASE_IMG_URL}${code}.png`;
-                            icon.onerror = () => { icon.src = `${BASE_IMG_URL}default.png`; };
-                        }
+                        const condText = p.precipitation_description || p.sky_condition || "--";
+                        const capCondText = condText.charAt(0).toUpperCase() + condText.slice(1);
+
+                        cardHTML += `
+                        <div class="smn-period-col">
+                            <div class="smn-period-name">${p.period}</div>
+                            <div class="smn-icon-wrapper tooltip" data-tip="Condición del cielo esperada">
+                                <img src="${imgSrc}" onerror="this.src='${BASE_IMG_URL}default.png'">
+                                ${popHTML}
+                            </div>
+                            <div class="smn-temp tooltip" data-tip="Temperatura estimada">${p.temperature ? p.temperature + '°' : '--'}</div>
+                            <div class="smn-wind-block tooltip" data-tip="Viento y ráfagas esperadas">${windHTML}</div>
+                            <div class="smn-desc tooltip" data-tip="Descripción detallada">${capCondText}</div>
+                        </div>
+                        `;
                     });
+                } else {
+                    cardHTML += `<div style="padding: 20px; text-align: center; width: 100%; color: #7f8c8d;">Sin datos horarios para este día.</div>`;
                 }
-            };
 
-            // Llenar Hoy (0) y Mañana (1)
-            fillPeriod(0, 'h');
-            fillPeriod(1, 'm');
+                cardHTML += `
+                    </div>
+                </div>`;
+                
+                container.innerHTML += cardHTML;
+            });
 
-            // Llenar Extendido (Días 3 y 4 en el backend, visualmente el 2 y 3)
-            for (let i = 2; i <= 3; i++) {
-                const day = forecasts[i];
-                if (day) {
-                    const dayTitle = document.getElementById(`name-day-${i}`);
-                    if (dayTitle) dayTitle.innerText = day.day_name.toUpperCase();
-                    
-                    const maxEl = document.getElementById(`ex-max-${i}`);
-                    const minEl = document.getElementById(`ex-min-${i}`);
-                    if (maxEl) maxEl.innerText = day.temp_max !== null ? day.temp_max + "°" : "--";
-                    if (minEl) minEl.innerText = day.temp_min !== null ? day.temp_min + "°" : "--";
-                }
-            }
-
-            // Sólo mostrar estación en vivo si es la central de La Plata
+            // Lógica de Estación en Vivo (Solo LP)
             if (ciudad.toLowerCase() === "la plata") {
                 document.getElementById('rt-section').style.display = 'block';
                 fetchRealTimeData();
@@ -396,14 +447,13 @@
             }
 
         } catch (error) {
-            console.error("Error al procesar los datos de la API:", error);
-            placeholder.innerText = "No se pudo establecer conexión con el servidor de pronósticos.";
+            console.error("Error al procesar la API:", error);
+            placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⚠️</div>Error de conexión. Intente nuevamente más tarde.`;
             placeholder.style.display = 'block';
             mainContent.style.display = 'none';
         }
     }
 
-    // Iniciar con La Plata cargada por defecto
     window.onload = () => cargarFull('La Plata');
 </script>
 </body>
