@@ -293,27 +293,27 @@
     </main>
 
     <script>
-        // LÓGICA DE PESTAÑAS
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+    // LÓGICA DE PESTAÑAS
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
 
-            // Si cambiamos a la pestaña de Pronóstico, le avisamos al mapa que recalcule su tamaño
-            if(tabId === 'tab-pronostico') {
-                setTimeout(() => { map.invalidateSize(); }, 100);
-            }
+        if(tabId === 'tab-pronostico') {
+            setTimeout(() => { map.invalidateSize(); }, 100);
         }
+    }
 
-        // CONSTANTES API
-        const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
-        const PROXY = "https://api.allorigins.win/raw?url=";
-        const FCAG_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
-        const BASE_IMG_URL = "images/";
+    // CONSTANTES API
+    const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
+    // Agregamos disableCache=true al proxy para forzar lectura fresca
+    const PROXY = "https://api.allorigins.win/raw?disableCache=true&url="; 
+    const FCAG_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
+    const BASE_IMG_URL = "images/";
 
-        // MAPA LEAFLET
+    // MAPA LEAFLET
         const map = L.map('map').setView([-36.5, -59.5], 6);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap'
@@ -358,62 +358,27 @@
 
         async function fetchRealTimeData() {
             try {
-                const res = await fetch(`${PROXY}${FCAG_URL}&rand=${Date.now()}`);
-                const data = await res.text();
-                const t = data.match(/Temperat[^\d]+([\d.]+)/i);
-                const h = data.match(/Humedad[^\d]+([\d.]+)/i);
-                const p = data.match(/Presi[^\d]+([\d.]+)/i);
-                const w = data.match(/Viento[^\d]+([\d.]+)/i);
-                if(t) document.getElementById('rt-temp').innerText = t[1] + "°";
-                if(h) document.getElementById('rt-hum').innerText = h[1] + "%";
-                if(p) document.getElementById('rt-pres').innerText = p[1] + " hPa";
-                if(w) document.getElementById('rt-wind').innerText = w[1] + " km/h";
-                document.getElementById('rt-time').innerText = `Hora local: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')}`;
-            } catch (e) { document.getElementById('rt-time').innerText = "Estación FCAG fuera de línea"; }
-        }
-
-        const windDirectionsAngles = {
-            "norte": 180, "noreste": 225, "este": 270, "sudeste": 315,
-            "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135
-        };
-
-        function getWindSVG(direction) {
-            const angle = windDirectionsAngles[direction?.toLowerCase()] ?? 0;
-            if (!direction) return '';
-            return `
-            <svg class="smn-wind-arrow" viewBox="0 0 100 100" style="transform: rotate(${angle}deg);">
-                <circle cx="50" cy="50" r="45" fill="#f0f4f8" stroke="#cbd5e1" stroke-width="2"/>
-                <path d="M 50 15 L 70 55 L 50 45 L 30 55 Z" fill="#003f6b"/>
-            </svg>`;
-        }
-
-        async function cargarFull(ciudad) {
-            const placeholder = document.getElementById('view-placeholder');
-            const container = document.getElementById('forecast-cards-container');
-            const alertaSmn = document.getElementById('alerta-smn-section');
-            
-            container.style.display = 'none';
-            placeholder.style.display = 'block';
-            placeholder.innerHTML = `<div class="text-4xl mb-4">⏳</div>Descargando modelos para ${ciudad}...`;
-            
-            // Lógica de Visibilidad Alerta SMN (Solo visible para LP en la Pestaña "Estado Actual")
-            if (alertaSmn) {
-                alertaSmn.style.display = (ciudad.toLowerCase() === "la plata") ? 'block' : 'none';
+            let jsonArray;
+            try {
+                // Forzamos al navegador a NO usar caché (Cache-Control y no-store)
+                const response = await fetch(`${API_URL}?rand=${Date.now()}`, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                jsonArray = await response.json();
+            } catch (fetchError) {
+                console.warn("Fetch directo falló. Usando proxy...");
+                // Proxy agresivo anti-caché
+                const proxyUrl = `https://api.allorigins.win/get?disableCache=true&url=${encodeURIComponent(API_URL + '?rand=' + Date.now())}`;
+                const responseProxy = await fetch(proxyUrl, { cache: 'no-store' });
+                const proxyData = await responseProxy.json();
+                jsonArray = JSON.parse(proxyData.contents);
             }
 
-            try {
-                let jsonArray;
-                try {
-                    const response = await fetch(`${API_URL}?rand=${Date.now()}`);
-                    jsonArray = await response.json();
-                } catch (fetchError) {
-                    console.warn("Fetch directo falló. Usando proxy...");
-                    const responseProxy = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(API_URL + '?rand=' + Date.now())}`);
-                    const proxyData = await responseProxy.json();
-                    jsonArray = JSON.parse(proxyData.contents);
-                }
-                
-                let cityData = null;
+            let cityData = null;
                 if (Array.isArray(jsonArray)) {
                     cityData = jsonArray.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
                 } else if (jsonArray.data && Array.isArray(jsonArray.data)) {
