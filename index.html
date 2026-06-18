@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Meteorológico | FCAG - UNLP</title>
     
-    <!-- Fuentes y Librerías -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -22,6 +21,7 @@
             --border-light: #e2e8f0;
             --accent: #0ea5e9;
             --danger: #ef4444;
+            --success: #10b981;
         }
 
         * { box-sizing: border-box; }
@@ -39,7 +39,7 @@
 
         h1, h2, h3, .header-title, .city-header h2, .day-title { font-family: 'Montserrat', sans-serif; }
 
-        /* --- HEADER NAVBAR --- */
+        /* --- HEADER --- */
         header { 
             background: white; 
             padding: 0 2rem; 
@@ -64,52 +64,246 @@
         .nav-btn:hover { background: var(--bg-body); color: var(--primary); }
         .nav-btn.active { background: var(--primary); color: white; }
 
-        /* --- LAYOUT PRINCIPAL --- */
-        .app-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
+        /* --- LAYOUT --- */
+        .app-container { display: flex; flex: 1; overflow: hidden; position: relative; }
         .view-section { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 30px; }
         .view-section.active { display: block; }
         #view-dashboard.active { display: flex; padding: 0; overflow: hidden; }
 
-        /* --- VISTA 1: DASHBOARD --- */
+        /* --- DASHBOARD --- */
         .map-section { flex: 1.2; position: relative; z-index: 1; }
         #map { width: 100%; height: 100%; }
-        .data-panel { flex: 1; min-width: 450px; max-width: 600px; background: var(--bg-body); overflow-y: auto; border-left: 1px solid var(--border-light); z-index: 10; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .data-panel { flex: 1; min-width: 480px; max-width: 620px; background: var(--bg-body); overflow-y: auto; border-left: 1px solid var(--border-light); z-index: 10; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
 
         .card { background: var(--bg-panel); border-radius: 12px; padding: 20px; border: 1px solid var(--border-light); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
         #welcome-panel { text-align: center; color: var(--text-muted); padding-top: 50px; }
-        .city-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--bg-body); padding-bottom: 15px; margin-bottom: 15px; }
-        .city-header h2 { margin: 0; font-size: 2rem; font-weight: 900; color: var(--primary); text-transform: uppercase; line-height: 1; }
         
-        .rt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .rt-box { background: var(--bg-body); padding: 15px; border-radius: 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        /* Ciudad + hora emisión */
+        .city-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--bg-body); padding-bottom: 12px; margin-bottom: 0; }
+        .city-header h2 { margin: 0; font-size: 2rem; font-weight: 900; color: var(--primary); text-transform: uppercase; line-height: 1; }
+        .emission-badge { 
+            background: var(--primary); color: white; padding: 5px 12px; border-radius: 20px; 
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+        }
+
+        /* Tiempo real */
+        .rt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .rt-box { background: var(--bg-body); padding: 14px; border-radius: 10px; text-align: center; }
         .rt-box.highlight { background: #e0f2fe; border: 1px solid #bae6fd; }
-        .rt-box .label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
-        .rt-box .value { font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1; }
-        .chart-container { position: relative; height: 180px; width: 100%; margin-top: 15px; }
-        .chart-title { font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin: 0 0 10px 0; text-transform: uppercase; }
+        .rt-box .label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .rt-box .value { font-size: 1.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
+        .rt-box .unit { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+        .chart-container { position: relative; height: 160px; width: 100%; margin-top: 12px; }
+        .chart-title { font-size: 0.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .forecast-day { border-left: 4px solid var(--secondary); padding-left: 15px; margin-bottom: 20px; }
-        .forecast-day.hoy { border-left-color: var(--primary); }
-        .day-title { font-size: 1rem; font-weight: 800; color: var(--text-main); margin: 0 0 10px 0; display: flex; justify-content: space-between;}
-        .periods-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; scrollbar-width: thin; }
-        .period-card { flex: 0 0 auto; width: 120px; background: var(--bg-body); border-radius: 10px; padding: 12px 10px; text-align: center; border: 1px solid var(--border-light); }
-        .p-icon { height: 45px; margin: 5px 0; object-fit: contain; }
-        .p-temp { font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 5px; }
-        .p-wind-arrow { width: 20px; height: 20px; margin-bottom: 2px; }
+        /* ════════════════════════════════════════════════
+           SECCIÓN DE PRONÓSTICO — REDISEÑO COMPLETO
+        ════════════════════════════════════════════════ */
 
-        /* --- ESTILOS COMPARTIDOS VISTAS ESTÁTICAS --- */
+        /* Cabecera de cada día */
+        .fcast-day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-radius: 10px 10px 0 0;
+            background: var(--primary);
+            color: white;
+        }
+        .fcast-day-header.tomorrow { background: #00796b; }
+        .fcast-day-header.extended { background: #4a7fa5; }
+
+        .fcast-day-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .fcast-day-date {
+            font-size: 0.7rem;
+            font-weight: 600;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+        .fcast-minmax {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .fcast-minmax .min { font-size: 1rem; font-weight: 700; color: #7dd3fc; }
+        .fcast-minmax .max { font-size: 1.1rem; font-weight: 900; color: #fca5a5; }
+        .fcast-minmax .arrow-down { font-size: 0.7rem; opacity: 0.7; }
+        .fcast-minmax .arrow-up   { font-size: 0.7rem; opacity: 0.7; }
+
+        /* Tira de períodos */
+        .fcast-periods {
+            display: flex;
+            overflow-x: auto;
+            gap: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            border: 1px solid var(--border-light);
+            border-top: none;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        .fcast-periods::-webkit-scrollbar { height: 4px; }
+        .fcast-periods::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+        .period-col {
+            flex: 1 0 0;
+            min-width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px 14px;
+            border-right: 1px solid var(--border-light);
+            position: relative;
+            transition: background 0.15s;
+        }
+        .period-col:last-child { border-right: none; }
+        .period-col:hover { background: #f8fafc; }
+
+        /* Etiqueta del período */
+        .pc-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        /* Ícono del tiempo */
+        .pc-icon {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+        }
+
+        /* Temperatura del período */
+        .pc-temp {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        .pc-temp.night { color: #475569; }
+
+        /* Separador */
+        .pc-divider {
+            width: 100%;
+            height: 1px;
+            background: var(--border-light);
+            margin-bottom: 10px;
+        }
+
+        /* Flecha de viento */
+        .pc-wind-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .wind-arrow-svg {
+            width: 24px;
+            height: 24px;
+        }
+        .pc-wind-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Badge de probabilidad de precipitación */
+        .pc-pop {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 3px 7px;
+            border-radius: 20px;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+        .pc-pop.high { background: #fee2e2; color: #dc2626; }
+        .pc-pop.med  { background: #fef3c7; color: #d97706; }
+
+        /* Descripción del tiempo */
+        .pc-sky {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.3;
+            margin-top: 4px;
+            max-width: 90px;
+        }
+
+        /* Tarjetas días 3 y 4 (extendido) */
+        .fcast-ext-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            border: 1px solid var(--border-light);
+            border-top: none;
+        }
+        .ext-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 10px;
+            border-right: 1px solid var(--border-light);
+            text-align: center;
+        }
+        .ext-half:last-child { border-right: none; }
+        .ext-half-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .ext-half img { width: 55px; height: 55px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .ext-desc {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 8px;
+            line-height: 1.3;
+        }
+        .ext-wind-text {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Bloque de pronóstico completo */
+        .fcast-block { margin-bottom: 10px; }
+
+        /* ─── CONTENIDO ESTÁTICO ─────────────────── */
         .content-layout { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; padding-bottom: 50px; }
         .section-heading { font-size: 1.8rem; color: var(--primary); font-weight: 900; margin: 0 0 5px 0; border-bottom: 3px solid var(--secondary); padding-bottom: 10px; display: inline-block; }
         .section-desc { color: var(--text-muted); font-size: 1rem; margin-bottom: 20px; }
-        
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
-        
         .item-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-light); box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s; }
         .item-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .item-img { width: 100%; height: 180px; object-fit: cover; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #cbd5e1; }
@@ -119,15 +313,10 @@
         .item-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 15px 0; }
         .item-btn { display: inline-block; background: var(--bg-body); color: var(--primary); font-weight: 700; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
         .item-btn:hover { background: var(--primary); color: white; }
-
-        /* Banner Especial WRF */
         .banner-wrf { background: linear-gradient(135deg, var(--primary), #001f35); color: white; border-radius: 16px; padding: 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,63,107,0.3); }
         .banner-wrf h3 { font-size: 2rem; margin: 0 0 10px 0; font-weight: 900; }
-        .banner-wrf p { font-size: 1.1rem; opacity: 0.9; margin: 0 0 20px 0; max-width: 600px; }
         .btn-wrf { background: var(--accent); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-decoration: none; display: inline-block; font-size: 1.1rem; }
         .btn-wrf:hover { background: #0284c7; }
-
-        /* Agenda / Lista simple */
         .agenda-list { display: flex; flex-direction: column; gap: 10px; }
         .agenda-item { display: flex; align-items: center; gap: 20px; background: white; padding: 15px 20px; border-radius: 10px; border: 1px solid var(--border-light); }
         .agenda-date { background: var(--bg-body); color: var(--primary); font-weight: 900; text-align: center; padding: 10px; border-radius: 8px; min-width: 80px; }
@@ -135,26 +324,31 @@
         .agenda-date small { font-size: 0.8rem; text-transform: uppercase; }
         .agenda-info h4 { margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 700; }
         .agenda-info p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
-
-        /* Formulario Contacto */
         .contact-form { display: flex; flex-direction: column; gap: 15px; background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--border-light); }
-        .contact-form input, .contact-form textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 1rem; }
+        .contact-form input, .contact-form textarea, .contact-form select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 1rem; }
         .contact-form button { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 1rem; }
 
-        /* Helper Classes */
         .hidden { display: none !important; }
         .loading-spinner { font-size: 2rem; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Estado vacío del pronóstico */
+        .fcast-empty {
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: var(--bg-body);
+            border-radius: 0 0 10px 10px;
+        }
 
         @media (max-width: 900px) {
             header { padding: 0 1rem; height: auto; flex-direction: column; padding-bottom: 10px; }
             .header-left { width: 100%; justify-content: center; padding: 10px 0; border-bottom: 1px solid var(--border-light); margin-bottom: 10px; }
             .header-nav { width: 100%; justify-content: flex-start; }
-            
             #view-dashboard.active { flex-direction: column; }
             .map-section { flex: none; height: 40vh; min-height: 300px; }
             .data-panel { flex: none; width: 100%; max-width: 100%; min-width: 0; border-left: none; border-top: 1px solid var(--border-light); }
-            
             .banner-wrf { flex-direction: column; text-align: center; gap: 20px; padding: 20px; }
             .view-section { padding: 15px; }
         }
@@ -168,8 +362,7 @@
         <h1 class="header-title">Portal Meteorológico</h1>
     </div>
     <div class="header-nav">
-        <!-- Solución a "switchTab not defined": usamos switchView -->
-        <button class="nav-btn active" onclick="switchView('dashboard', this)">Pronosticos y monitoreo</button>
+        <button class="nav-btn active" onclick="switchView('dashboard', this)">Pronósticos y Monitoreo</button>
         <button class="nav-btn" onclick="switchView('modelos', this)">Modelos e Informes</button>
         <button class="nav-btn" onclick="switchView('extension', this)">Extensión y Divulgación</button>
         <button class="nav-btn" onclick="switchView('institucional', this)">Institucional</button>
@@ -177,43 +370,65 @@
 </header>
 
 <div class="app-container">
-    
+
+    <!-- ═══════════════════ DASHBOARD ═══════════════════ -->
     <div id="view-dashboard" class="view-section active">
         <div class="map-section"><div id="map"></div></div>
         
         <div class="data-panel" id="data-panel">
+
+            <!-- Bienvenida -->
             <div id="welcome-panel">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <h2>Centro de Monitoreo</h2>
-                <p>Seleccione una ciudad en el mapa para visualizar su pronóstico meteorológico detallado.</p>
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-bottom:16px; color:#cbd5e1;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <h2 style="margin: 0 0 10px; color: var(--primary);">Centro de Monitoreo</h2>
+                <p>Seleccioná una ciudad en el mapa para ver su pronóstico meteorológico.</p>
             </div>
 
+            <!-- Panel principal (ciudad) -->
             <div id="city-dashboard" class="hidden">
-                <div class="city-header">
-                    <h2 id="cd-title">--</h2>
-                    <div class="update-time">Actualizado: <span id="cd-time">--:--</span></div>
+
+                <!-- Cabecera ciudad -->
+                <div class="card" style="padding: 16px 20px;">
+                    <div class="city-header">
+                        <div>
+                            <h2 id="cd-title">--</h2>
+                            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:600; margin-top:2px;">
+                                Actualizado: <span id="cd-time">--:--</span>
+                            </div>
+                        </div>
+                        <div id="cd-emission" class="emission-badge hidden">Emisión: <span id="cd-emission-time">--:--</span></div>
+                    </div>
                 </div>
 
-                <!-- SOLUCIÓN ALERTA SMN (Evita el bloqueo de iframe) -->
-                <div id="alert-section" class="card hidden" style="background:#fef2f2; border-color:#fecaca; border-left:4px solid var(--danger); margin-bottom:15px; padding:15px;">
-                    <h3 class="chart-title" style="color:var(--danger); margin:0 0 10px 0;">
-                        <span style="display:inline-block;width:10px;height:10px;background:var(--danger);border-radius:50%;margin-right:8px;animation:spin 2s linear infinite;"></span>
-                        Alerta SMN Vigente
+                <!-- Alerta SMN -->
+                <div id="alert-section" class="card hidden" style="background:#fef2f2; border-color:#fecaca; border-left:4px solid var(--danger); padding:15px;">
+                    <h3 style="margin:0 0 8px; font-size:0.85rem; color:var(--danger); font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+                        ⚠ Alerta SMN Vigente
                     </h3>
-                    <p style="font-size:0.9rem; color:var(--text-main); margin-bottom: 15px;">El Servicio Meteorológico Nacional ha emitido alertas o avisos a corto plazo para esta zona.</p>
-                    <a href="https://www.smn.gob.ar/alertas" target="_blank" style="display:inline-block; background:var(--danger); color:white; padding:10px 18px; border-radius:6px; text-decoration:none; font-weight:800; font-size:0.9rem; text-align:center;">Consultar Alerta Oficial &rarr;</a>
+                    <p style="font-size:0.85rem; color:var(--text-main); margin:0 0 12px;">El Servicio Meteorológico Nacional ha emitido alertas para esta zona.</p>
+                    <a href="https://www.smn.gob.ar/alertas" target="_blank" style="display:inline-block; background:var(--danger); color:white; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:800; font-size:0.8rem;">Ver Alerta Oficial →</a>
                 </div>
 
-                <!-- PRONÓSTICO AHORA VA ARRIBA (El producto principal) -->
-                <div id="forecast-section" class="card" style="margin-bottom:15px;">
-                    <h3 class="chart-title" style="margin-bottom: 15px;">Pronóstico Regional</h3>
-                    <div id="forecast-container"></div>
+                <!-- PRONÓSTICO -->
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 14px 18px; border-bottom: 1px solid var(--border-light); display:flex; align-items:center; justify-content:space-between;">
+                        <h3 style="margin:0; font-size:0.85rem; font-weight:800; text-transform:uppercase; color:var(--primary); letter-spacing:0.5px;">Pronóstico Regional</h3>
+                        <span style="font-size:0.7rem; color:var(--text-muted); font-weight:600;">4 días</span>
+                    </div>
+                    <div id="forecast-container" style="padding: 16px; display:flex; flex-direction:column; gap:12px;">
+                        <div style="text-align:center; padding:30px; color:var(--text-muted);">
+                            <div class="loading-spinner">⏳</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- TIEMPO REAL AHORA VA ABAJO (Como un anexo solo para La Plata) -->
+                <!-- TIEMPO REAL (solo La Plata) -->
                 <div id="rt-section" class="card hidden">
-                    <h3 class="chart-title">Condiciones Actuales (Estación FCAG)</h3>
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-5px; margin-bottom:15px;">Datos en vivo obtenidos desde el observatorio de nuestra Facultad.</p>
+                    <h3 class="chart-title" style="margin-bottom:4px;">Condiciones Actuales — Estación FCAG</h3>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 14px;">Datos en vivo desde el observatorio de nuestra Facultad.</p>
                     <div class="rt-grid">
                         <div class="rt-box highlight"><span class="label">Temperatura</span><span class="value" id="ts-temp">--</span><span class="unit">°C</span></div>
                         <div class="rt-box"><span class="label">Humedad</span><span class="value" id="ts-hum">--</span><span class="unit">%</span></div>
@@ -226,217 +441,108 @@
                     <div class="chart-container"><canvas id="chartHum"></canvas></div>
                     <div class="chart-container"><canvas id="chartPres"></canvas></div>
                 </div>
-            </div>
-        </div>
+
+            </div><!-- /city-dashboard -->
+        </div><!-- /data-panel -->
     </div>
 
+    <!-- ═══════════════════ MODELOS ═══════════════════ -->
     <div id="view-modelos" class="view-section">
         <div class="content-layout">
-            
-            <!-- Banner WRF -->
             <div class="banner-wrf" style="flex-direction: column; align-items: stretch; gap: 25px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
                     <div>
-                        <span style="background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: inline-block; letter-spacing: 0.5px;">Grupo de Modelado Numérico de la Atmósfera (MNA)</span>
+                        <span style="background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: inline-block; letter-spacing: 0.5px;">Grupo MNA — Modelado Numérico de la Atmósfera</span>
                         <h3 style="margin: 0; font-size: 2.2rem;">Portal de Modelos WRF</h3>
                     </div>
-                    <a href="https://mna.fcaglp.unlp.edu.ar/variables.html#" target="_blank" class="btn-wrf" style="white-space: nowrap; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);">Ir al Portal de Modelos →</a>
+                    <a href="https://mna.fcaglp.unlp.edu.ar/variables.html#" target="_blank" class="btn-wrf" style="white-space: nowrap;">Ir al Portal de Modelos →</a>
                 </div>
-                
-                <div style="background: rgba(0,0,0,0.25); padding: 25px; border-radius: 12px; font-size: 0.95rem; line-height: 1.7; border-left: 4px solid var(--accent); color: rgba(255,255,255,0.95);">
-                    
-                </div>
-                
+                <div style="background: rgba(0,0,0,0.25); padding: 25px; border-radius: 12px; font-size: 0.95rem; line-height: 1.7; border-left: 4px solid var(--accent); color: rgba(255,255,255,0.95);"></div>
                 <div style="background: #fef2f2; color: #991b1b; padding: 15px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; border: 1px solid #fecaca; display: flex; gap: 10px; align-items: flex-start;">
-                    <span style="font-size: 1.2rem; line-height: 1;">⚠️</span>
-                    <span style="line-height: 1.4;"><strong>IMPORTANTE:</strong> La Facultad de Ciencias Astronómicas y Geofísicas de la UNLP declina cualquier responsabilidad legal por la exactitud, interpretación o uso indebido de la información generada por el modelo WRF.</span>
+                    <span style="font-size: 1.2rem;">⚠️</span>
+                    <span><strong>IMPORTANTE:</strong> La FCAG-UNLP declina responsabilidad por la exactitud, interpretación o uso indebido de la información generada por el modelo WRF.</span>
                 </div>
             </div>
-
-            <!-- Informes Especiales -->
             <section>
                 <h2 class="section-heading">⚠️ Informes Especiales</h2>
-                <p class="section-desc">Biblioteca de análisis detallados sobre eventos meteorológicos severos y significativos.</p>
+                <p class="section-desc">Análisis de eventos meteorológicos severos y significativos.</p>
                 <div class="grid-3">
                     <div class="item-card">
-                        <img src="https://placehold.co/600x400/0ea5e9/white?text=Radar+Sudestada" class="item-img" alt="Sudestada">
-                        <div class="item-body">
-                            <span class="item-tag">Análisis Posterior</span>
-                            <h3 class="item-title">Sudestada histórica del 15 de julio</h3>
-                            <p class="item-text">Análisis sinóptico, imágenes de satélite y datos de boyas oceanográficas sobre el evento que afectó la costa bonaerense.</p>
-                            <a href="#" class="item-btn">Leer Informe Completo</a>
-                        </div>
+                        <img src="https://placehold.co/600x400/0ea5e9/white?text=Radar+Sudestada" class="item-img">
+                        <div class="item-body"><span class="item-tag">Análisis Posterior</span><h3 class="item-title">Sudestada histórica del 15 de julio</h3><p class="item-text">Análisis sinóptico, imágenes de satélite y datos de boyas oceanográficas.</p><a href="#" class="item-btn">Leer Informe</a></div>
                     </div>
                     <div class="item-card">
-                        <img src="https://placehold.co/600x400/ef4444/white?text=Mapa+Calor" class="item-img" alt="Ola de Calor">
-                        <div class="item-body">
-                            <span class="item-tag">Climatología</span>
-                            <h3 class="item-title">Extrema ola de calor de enero</h3>
-                            <p class="item-text">Bloqueo atmosférico y récord de anomalías térmicas en el centro del país. Análisis de datos de la red de estaciones.</p>
-                            <a href="#" class="item-btn">Leer Informe Completo</a>
-                        </div>
+                        <img src="https://placehold.co/600x400/ef4444/white?text=Mapa+Calor" class="item-img">
+                        <div class="item-body"><span class="item-tag">Climatología</span><h3 class="item-title">Ola de calor extrema de enero</h3><p class="item-text">Bloqueo atmosférico y récord de anomalías térmicas en el centro del país.</p><a href="#" class="item-btn">Leer Informe</a></div>
                     </div>
                     <div class="item-card">
-                        <img src="https://placehold.co/600x400/64748b/white?text=Satélite+Niebla" class="item-img" alt="Niebla">
-                        <div class="item-body">
-                            <span class="item-tag">Caso de Estudio</span>
-                            <h3 class="item-title">Niebla intensa de advección en Buenos Aires</h3>
-                            <p class="item-text">Explicación termodinámica de la formación de niebla densa que redujo la visibilidad a cero durante tres jornadas consecutivas.</p>
-                            <a href="#" class="item-btn">Leer Informe Completo</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Reportes Ciudadanos -->
-            <section>
-                <h2 class="section-heading">📸 Reportes Destacados</h2>
-                <p class="section-desc">Fenómenos captados y compartidos por nuestra comunidad a lo largo de la provincia.</p>
-                <div class="grid-3">
-                    <div class="item-card">
-                        <img src="https://placehold.co/600x400/e2e8f0/64748b?text=Foto+Helada" class="item-img">
-                        <div class="item-body">
-                            <span class="item-tag" style="background:#f1f5f9; color:#475569;">Tandil, BA</span>
-                            <h3 class="item-title">Helada negra severa</h3>
-                            <p class="item-text">"Amanecer con pasturas quemadas por la helada. La estación local marcó -4.2°C a las 07:00hs." - Enviado por <em>AgroTandil</em>.</p>
-                        </div>
-                    </div>
-                    <div class="item-card">
-                        <img src="https://placehold.co/600x400/e2e8f0/64748b?text=Foto+Granizo" class="item-img">
-                        <div class="item-body">
-                            <span class="item-tag" style="background:#f1f5f9; color:#475569;">Junín, BA</span>
-                            <h3 class="item-title">Granizo del tamaño de pelotas de golf</h3>
-                            <p class="item-text">"Supercelda atravesando la ciudad dejó daños en vehículos y cultivos tras 15 minutos de pedrea intensa." - Enviado por <em>M. González</em>.</p>
-                        </div>
+                        <img src="https://placehold.co/600x400/64748b/white?text=Satélite+Niebla" class="item-img">
+                        <div class="item-body"><span class="item-tag">Caso de Estudio</span><h3 class="item-title">Niebla intensa de advección en Buenos Aires</h3><p class="item-text">Termodinámica de la formación de niebla densa que redujo visibilidad a cero.</p><a href="#" class="item-btn">Leer Informe</a></div>
                     </div>
                 </div>
             </section>
         </div>
     </div>
 
+    <!-- ═══════════════════ EXTENSIÓN ═══════════════════ -->
     <div id="view-extension" class="view-section">
         <div class="content-layout">
-            
-            <!-- Divulgación (Instagram Reels) -->
             <section>
                 <h2 class="section-heading">📹 Divulgación en Redes</h2>
-                <p class="section-desc">Videos recientes explicando fenómenos meteorológicos (Tormentas, Frentes, El Niño, Cambio Climático).</p>
+                <p class="section-desc">Videos recientes explicando fenómenos meteorológicos.</p>
                 <div class="grid-3">
-                    <div class="item-card" style="background:#fafafa; border:none; padding:0; display:flex; justify-content:center;">
-                        <iframe src="https://www.instagram.com/p/DZc4GzkxZQu/embed/" height="550" width="100%" frameborder="0" scrolling="no"></iframe>
-                    </div>
-                    <div class="item-card" style="background:#fafafa; border:none; padding:0; display:flex; justify-content:center;">
-                        <iframe src="https://www.instagram.com/p/DZDXXOVx72_/embed/" height="550" width="100%" frameborder="0" scrolling="no"></iframe>
-                    </div>
-                    <div class="item-card" style="background:#fafafa; border:none; padding:0; display:flex; justify-content:center;">
-                        <iframe src="https://www.instagram.com/p/DY2emTqxtUj/embed/" height="550" width="100%" frameborder="0" scrolling="no"></iframe>
-                    </div>
+                    <div class="item-card" style="background:#fafafa; border:none; padding:0; display:flex; justify-content:center;"><iframe src="https://www.instagram.com/p/DZc4GzkxZQu/embed/" height="550" width="100%" frameborder="0" scrolling="no"></iframe></div>
+                    <div class="item-card" style="background:#fafafa; border:none; padding:0; display:flex; justify-content:center;"><iframe src="https://www.instagram.com/p/DZDXXOVx72_/embed/" height="550" width="100%" frameborder="0" scrolling="no"></iframe></div>
+                    <div class="item-card" style="background:#fafafa; border:none; padding:0; display:flex; justify-content:center;"><iframe src="https://www.instagram.com/p/DY2emTqxtUj/embed/" height="550" width="100%" frameborder="0" scrolling="no"></iframe></div>
                 </div>
             </section>
-
-            <!-- Extensión Universitaria y Agenda -->
             <div class="grid-2">
-                <!-- Extensión -->
                 <section>
                     <h2 class="section-heading">🎓 Extensión Universitaria</h2>
                     <p class="section-desc">Llevamos la ciencia a la comunidad.</p>
-                    <div class="item-card" style="margin-bottom: 20px;">
-                        <img src="https://placehold.co/600x300/1e293b/white?text=Charla+Escuelas" class="item-img" style="height:150px;">
-                        <div class="item-body">
-                            <h3 class="item-title">Talleres en Escuelas</h3>
-                            <p class="item-text">Llevamos instrumentos meteorológicos a colegios primarios y secundarios para armar estaciones caseras.</p>
-                            <a href="#" class="item-btn">Ver Bitácora de Viajes</a>
-                        </div>
-                    </div>
-                    <div class="item-card">
-                        <img src="https://placehold.co/600x300/1e293b/white?text=Planetario+UNLP" class="item-img" style="height:150px;">
-                        <div class="item-body">
-                            <h3 class="item-title">Charlas en el Planetario</h3>
-                            <p class="item-text">Ciclo mensual gratuito sobre astronomía, geofísica y meteorología extrema abierto al público general.</p>
-                            <a href="#" class="item-btn">Cronograma</a>
-                        </div>
-                    </div>
+                    <div class="item-card" style="margin-bottom: 20px;"><img src="https://placehold.co/600x300/1e293b/white?text=Charla+Escuelas" class="item-img" style="height:150px;"><div class="item-body"><h3 class="item-title">Talleres en Escuelas</h3><p class="item-text">Instrumentos meteorológicos en colegios primarios y secundarios.</p><a href="#" class="item-btn">Ver Bitácora</a></div></div>
+                    <div class="item-card"><img src="https://placehold.co/600x300/1e293b/white?text=Planetario+UNLP" class="item-img" style="height:150px;"><div class="item-body"><h3 class="item-title">Charlas en el Planetario</h3><p class="item-text">Ciclo mensual gratuito sobre astronomía, geofísica y meteorología extrema.</p><a href="#" class="item-btn">Cronograma</a></div></div>
                 </section>
-
-                <!-- Agenda -->
                 <section>
                     <h2 class="section-heading">📅 Agenda de Eventos</h2>
-                    <p class="section-desc">Próximas actividades programadas.</p>
+                    <p class="section-desc">Próximas actividades.</p>
                     <div class="agenda-list">
-                        <div class="agenda-item">
-                            <div class="agenda-date"><span>24</span><small>OCT</small></div>
-                            <div class="agenda-info">
-                                <h4>Charla Abierta: ¿Cómo se forman las superceldas?</h4>
-                                <p>Planetario UNLP. 18:00hs. Entrada libre.</p>
-                            </div>
-                        </div>
-                        <div class="agenda-item">
-                            <div class="agenda-date"><span>05</span><small>NOV</small></div>
-                            <div class="agenda-info">
-                                <h4>Taller de Observación Meteorológica</h4>
-                                <p>Parque Astronómico. Requiere inscripción.</p>
-                            </div>
-                        </div>
-                        <div class="agenda-item">
-                            <div class="agenda-date"><span>12</span><small>NOV</small></div>
-                            <div class="agenda-info">
-                                <h4>Feria de Ciencias Exactas</h4>
-                                <p>Stand del Departamento de Meteorología. Todo el día.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recursos Educativos -->
-                    <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border-light);">
-                        <h3 style="margin: 0 0 10px 0; color: var(--primary);">📚 Recursos Educativos</h3>
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Material gratuito para estudiantes y docentes.</p>
-                        <ul style="padding-left: 20px; color: var(--accent); font-weight: 600; font-size: 0.9rem; line-height: 1.8;">
-                            <li><a href="#" style="color:inherit; text-decoration:none;">PDF: ¿Cómo leer una imagen satelital?</a></li>
-                            <li><a href="#" style="color:inherit; text-decoration:none;">Infografía: Diferencia entre Alerta y Aviso a Corto Plazo</a></li>
-                            <li><a href="#" style="color:inherit; text-decoration:none;">Guía: Armá tu propio pluviómetro</a></li>
-                        </ul>
+                        <div class="agenda-item"><div class="agenda-date"><span>24</span><small>OCT</small></div><div class="agenda-info"><h4>Charla: ¿Cómo se forman las superceldas?</h4><p>Planetario UNLP. 18:00hs. Entrada libre.</p></div></div>
+                        <div class="agenda-item"><div class="agenda-date"><span>05</span><small>NOV</small></div><div class="agenda-info"><h4>Taller de Observación Meteorológica</h4><p>Parque Astronómico. Requiere inscripción.</p></div></div>
+                        <div class="agenda-item"><div class="agenda-date"><span>12</span><small>NOV</small></div><div class="agenda-info"><h4>Feria de Ciencias Exactas</h4><p>Stand del Depto. de Meteorología. Todo el día.</p></div></div>
                     </div>
                 </section>
             </div>
         </div>
     </div>
 
+    <!-- ═══════════════════ INSTITUCIONAL ═══════════════════ -->
     <div id="view-institucional" class="view-section">
         <div class="content-layout">
-            
             <div class="grid-2">
-                <!-- Quiénes Somos -->
                 <section>
                     <h2 class="section-heading">👥 Quiénes Somos</h2>
-                    <div style="background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--border-light); font-size: 1.05rem; line-height: 1.6; color: var(--text-main);">
-                        <p>Somos un equipo de docentes, investigadores y estudiantes del <strong>Departamento de Meteorología y Ciencias de la Atmósfera</strong> de la Facultad de Ciencias Astronómicas y Geofísicas de la UNLP.</p>
-                        <p>Nuestro objetivo es generar información de calidad, democratizar el acceso a los datos del tiempo y extender el conocimiento científico a toda la comunidad bonaerense.</p>
-                        
-                        <h4 style="color: var(--primary); margin: 30px 0 10px 0;">Coordinación</h4>
+                    <div style="background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--border-light); font-size: 1.05rem; line-height: 1.6;">
+                        <p>Somos un equipo de docentes, investigadores y estudiantes del <strong>Departamento de Meteorología y Ciencias de la Atmósfera</strong> de la FCAG-UNLP.</p>
+                        <p>Generamos información de calidad y extendemos el conocimiento científico a la comunidad bonaerense.</p>
+                        <h4 style="color: var(--primary); margin: 30px 0 10px;">Coordinación</h4>
                         <ul style="color: var(--text-muted); padding-left: 20px; line-height: 1.8;">
-                            <li>Dra. María Laura Ejemplo - Dir. del Observatorio</li>
-                            <li>Lic. Carlos Pérez - Modelado Numérico</li>
+                            <li>Dra. María Laura Ejemplo — Dir. del Observatorio</li>
+                            <li>Lic. Carlos Pérez — Modelado Numérico</li>
                             <li>Equipo de Alumnos Extensionistas</li>
                         </ul>
                     </div>
                 </section>
-
-                <!-- Contacto -->
                 <section>
                     <h2 class="section-heading">📞 Contacto</h2>
-                    <form class="contact-form" onsubmit="event.preventDefault(); alert('Mensaje enviado (simulación)');">
-                        <p style="margin: 0; color: var(--text-muted);">Dejanos tu consulta, solicitud de charlas para escuelas o reporte meteorológico.</p>
-                        <input type="text" placeholder="Tu Nombre completo" required>
-                        <input type="email" placeholder="Tu Correo electrónico" required>
-                        <select style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 1rem;">
-                            <option>Consulta General</option>
-                            <option>Solicitar Charla / Taller</option>
-                            <option>Enviar un Reporte (Fotos)</option>
-                        </select>
-                        <textarea rows="4" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                    <form class="contact-form" onsubmit="event.preventDefault(); alert('Mensaje enviado');">
+                        <p style="margin: 0; color: var(--text-muted);">Consultas, solicitudes de charlas o reportes meteorológicos.</p>
+                        <input type="text" placeholder="Tu nombre completo" required>
+                        <input type="email" placeholder="Tu correo electrónico" required>
+                        <select><option>Consulta General</option><option>Solicitar Charla / Taller</option><option>Enviar un Reporte (Fotos)</option></select>
+                        <textarea rows="4" placeholder="Escribí tu mensaje aquí..." required></textarea>
                         <button type="submit">Enviar Mensaje</button>
-                        
-                        <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
+                        <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
                             <a href="#" style="display:inline-block; padding:10px 20px; background:#e2e8f0; color:var(--text-main); border-radius:30px; text-decoration:none; font-weight:700;">📷 Instagram</a>
                             <a href="#" style="display:inline-block; padding:10px 20px; background:#e2e8f0; color:var(--text-main); border-radius:30px; text-decoration:none; font-weight:700;">▶️ YouTube</a>
                         </div>
@@ -446,244 +552,306 @@
         </div>
     </div>
 
-</div>
+</div><!-- /app-container -->
 
 <script>
-    // --- LÓGICA DE PESTAÑAS (TABS) ---
-    function switchView(viewId, btn) {
-        // Ocultar todas las vistas
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        // Mostrar la vista clickeada
-        document.getElementById('view-' + viewId).classList.add('active');
-        
-        // Actualizar botones visualmente
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchView(viewId, btn) {
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (viewId === 'dashboard' && window.map) setTimeout(() => window.map.invalidateSize(), 100);
+}
 
-        // Si es el mapa, forzar redibujado de Leaflet
-        if(viewId === 'dashboard' && map) setTimeout(() => map.invalidateSize(), 100);
-    }
+// ─── CONFIGURACIÓN ───────────────────────────────────────────────────────────
+const FORECAST_API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
+const TS_CHANNEL_ID   = "2823820";
+const TS_API_KEY      = "FFI1HK80ZKDNS6V8";
+const TS_URL          = `https://api.thingspeak.com/channels/${TS_CHANNEL_ID}/feeds.json?api_key=${TS_API_KEY}&results=24`;
+const TS_FIELDS       = { temp:'field1', hum:'field2', pres:'field3', wind:'field4', rad:'field5', rain:'field6' };
 
-    // --- CONFIGURACIÓN DE APIs ---
-    const FORECAST_API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
-    
-    // CONFIGURACIÓN THINGSPEAK
-    const TS_CHANNEL_ID = "2823820";
-    const TS_API_KEY = "FFI1HK80ZKDNS6V8";
-    const TS_URL = `https://api.thingspeak.com/channels/${TS_CHANNEL_ID}/feeds.json?api_key=${TS_API_KEY}&results=24`; 
-    
-    const TS_FIELDS = { temp: 'field1', hum: 'field2', pres: 'field3', wind: 'field4', rad: 'field5', rain: 'field6' };
-    const windAngles = { "norte": 180, "noreste": 225, "este": 270, "sudeste": 315, "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135 };
+const WIND_ANGLES = {
+    "norte": 180, "noreste": 225, "este": 270, "sudeste": 315,
+    "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135
+};
 
-    let map;
-    let charts = {}; 
+// Período → etiqueta corta para mostrar en la tarjeta
+const PERIOD_LABELS = {
+    "mañana": "MAÑANA", "tarde": "TARDE", "noche": "NOCHE",
+    "madrugada": "MADRUGADA", "madrugada/mañana": "MAD/MAÑ", "tarde/noche": "TAR/NOCH"
+};
 
-    window.onload = () => {
-        initMap();
-        loadCityDashboard('La Plata'); // Carga inicial por defecto
+let charts = {};
+
+// ─── INICIO ──────────────────────────────────────────────────────────────────
+window.onload = () => {
+    initMap();
+    loadCityDashboard('La Plata');
+};
+
+// ─── MAPA ────────────────────────────────────────────────────────────────────
+function initMap() {
+    const mapaEstandar = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap' });
+    const mapaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' });
+
+    window.map = L.map('map', { center: [-36.5, -60.0], zoom: 6, layers: [mapaEstandar] });
+    L.control.layers({ "Estándar": mapaEstandar, "Satélite": mapaSatelite }).addTo(window.map);
+
+    const cities = [
+        { name: "La Plata",      coords: [-34.921, -57.955] },
+        { name: "Junín",         coords: [-34.585, -60.944] },
+        { name: "Bolívar",       coords: [-36.233, -61.116] },
+        { name: "Tandil",        coords: [-37.321, -59.133] },
+        { name: "Mar del Plata", coords: [-38.005, -57.542] },
+        { name: "Bahía Blanca",  coords: [-38.719, -62.272] }
+    ];
+
+    cities.forEach(c => {
+        L.marker(c.coords).addTo(window.map)
+            .bindPopup(`<b style="font-family:Montserrat;">${c.name}</b>`)
+            .on('click', () => {
+                window.map.flyTo(c.coords, 10, { animate: true, duration: 1.5 });
+                loadCityDashboard(c.name);
+                const dashBtn = document.querySelector('.nav-btn');
+                switchView('dashboard', dashBtn);
+                if (window.innerWidth <= 900) {
+                    setTimeout(() => document.getElementById('data-panel').scrollIntoView({ behavior: 'smooth' }), 800);
+                }
+            });
+    });
+}
+
+// ─── DASHBOARD DE CIUDAD ─────────────────────────────────────────────────────
+async function loadCityDashboard(city) {
+    document.getElementById('welcome-panel').classList.add('hidden');
+    document.getElementById('city-dashboard').classList.remove('hidden');
+
+    document.getElementById('cd-title').innerText = city;
+    const now = new Date();
+    document.getElementById('cd-time').innerText =
+        `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')} hs`;
+
+    const isLaPlata = city.toLowerCase() === 'la plata';
+    document.getElementById('rt-section').classList.toggle('hidden', !isLaPlata);
+    document.getElementById('alert-section').classList.toggle('hidden', !isLaPlata);
+    if (isLaPlata) fetchThingSpeakData();
+
+    fetchForecastData(city);
+}
+
+// ─── THINGSPEAK ──────────────────────────────────────────────────────────────
+async function fetchThingSpeakData() {
+    try {
+        const res = await fetch(TS_URL);
+        if (!res.ok) throw new Error('TS error');
+        const data = await res.json();
+        if (!data.feeds || data.feeds.length === 0) return;
+
+        const latest = data.feeds[data.feeds.length - 1];
+        document.getElementById('ts-temp').innerText = parseFloat(latest[TS_FIELDS.temp] || 0).toFixed(1);
+        document.getElementById('ts-hum').innerText  = parseFloat(latest[TS_FIELDS.hum]  || 0).toFixed(0);
+        document.getElementById('ts-pres').innerText = parseFloat(latest[TS_FIELDS.pres] || 0).toFixed(1);
+        document.getElementById('ts-wind').innerText = parseFloat(latest[TS_FIELDS.wind] || 0).toFixed(1);
+        document.getElementById('ts-rad').innerText  = parseFloat(latest[TS_FIELDS.rad]  || 0).toFixed(0);
+        document.getElementById('ts-rain').innerText = parseFloat(latest[TS_FIELDS.rain] || 0).toFixed(1);
+
+        const labels   = data.feeds.map(f => { const d = new Date(f.created_at); return `${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`; });
+        renderChart('chartTemp', 'Temperatura (°C)', labels, data.feeds.map(f => parseFloat(f[TS_FIELDS.temp])), '#ef4444', '#fecaca');
+        renderChart('chartHum',  'Humedad (%)',       labels, data.feeds.map(f => parseFloat(f[TS_FIELDS.hum])),  '#0ea5e9', '#bae6fd');
+        renderChart('chartPres', 'Presión (hPa)',     labels, data.feeds.map(f => parseFloat(f[TS_FIELDS.pres])), '#8b5cf6', '#ddd6fe');
+    } catch (e) { console.warn('ThingSpeak error:', e); }
+}
+
+function renderChart(canvasId, label, labels, data, borderColor, bgColor) {
+    const ctx = document.getElementById(canvasId)?.getContext('2d');
+    if (!ctx) return;
+    if (charts[canvasId]) charts[canvasId].destroy();
+    charts[canvasId] = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label, data, borderColor, backgroundColor: bgColor, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 6, font: { size: 10 } }, grid: { display: false } }, y: { ticks: { font: { size: 10 } } } } }
+    });
+}
+
+// ─── PRONÓSTICO ──────────────────────────────────────────────────────────────
+
+// Construye el SVG de flecha de viento
+function windArrowSVG(direction) {
+    if (!direction) return '';
+    const angle = WIND_ANGLES[direction.toLowerCase()] ?? 0;
+    return `<svg class="wind-arrow-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="46" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="3"/>
+        <g transform="rotate(${angle} 50 50)">
+            <path d="M50 18 L68 58 L50 48 L32 58 Z" fill="#475569"/>
+            <rect x="46" y="52" width="8" height="22" rx="3" fill="#94a3b8"/>
+        </g>
+    </svg>`;
+}
+
+// Calcula el badge de PoP
+function popBadge(pop) {
+    if (!pop || pop === '0 %') return '';
+    const val = parseInt(pop);
+    const cls = val >= 70 ? 'high' : val >= 40 ? 'med' : '';
+    return `<div class="pc-pop ${cls}">💧 ${pop}</div>`;
+}
+
+// Texto de descripción del tiempo para un período
+function skyText(p) {
+    if (p.precipitation_description) return p.precipitation_description;
+    if (p.sky_condition) return p.sky_condition;
+    return '';
+}
+
+// Texto de viento resumido
+function windShort(p) {
+    if (!p.wind_intensity && !p.wind_direction) return '';
+    let t = '';
+    if (p.wind_gusts) t = `Ráf. ${p.wind_gusts} km/h`;
+    else if (p.wind_intensity) t = p.wind_intensity;
+    return t;
+}
+
+// Genera una columna de período (para días 1 y 2)
+function buildPeriodCol(p) {
+    const icon    = p.weather_icon_code || 'default';
+    const label   = PERIOD_LABELS[p.period] || p.period.toUpperCase();
+    const isNight = (p.period === 'noche' || p.period === 'madrugada');
+
+    return `
+    <div class="period-col">
+        <div class="pc-label">${label}</div>
+        <img class="pc-icon" src="images/${icon}.png" onerror="this.src='images/default.png'" alt="${icon}">
+        <div class="pc-temp ${isNight ? 'night' : ''}">${p.temperature != null ? p.temperature + '°' : '--'}</div>
+        <div class="pc-divider"></div>
+        <div class="pc-wind-row">
+            ${windArrowSVG(p.wind_direction)}
+            <div class="pc-wind-label">${windShort(p) || (p.wind_direction ? p.wind_direction : '--')}</div>
+        </div>
+        ${popBadge(p.probability_of_precipitation)}
+        <div class="pc-sky">${skyText(p)}</div>
+    </div>`;
+}
+
+// Genera una tarjeta de día extendido (días 3 y 4)
+function buildExtRow(day) {
+    const p1 = day.period_forecasts?.[0];
+    const p2 = day.period_forecasts?.[1];
+
+    const half = (p, label) => {
+        if (!p) return `<div class="ext-half"><div class="ext-half-label">${label}</div><div style="color:#cbd5e1; font-size:1.5rem;">--</div></div>`;
+        const icon = p.weather_icon_code || 'default';
+        const pop  = popBadge(p.probability_of_precipitation);
+        return `
+        <div class="ext-half">
+            <div class="ext-half-label">${label}</div>
+            <img src="images/${icon}.png" onerror="this.src='images/default.png'" style="width:55px;height:55px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.1));">
+            <div class="ext-desc">${skyText(p) || '--'}</div>
+            ${pop}
+            ${p.wind_direction ? `<div class="ext-wind-text">${windArrowSVG(p.wind_direction)} ${windShort(p) || p.wind_direction}</div>` : ''}
+        </div>`;
     };
 
-    function initMap() {
-        // 1. Definir los tipos de mapas (Capas)
-        const mapaEstandar = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap'
-        });
+    return `
+    <div class="fcast-ext-row">
+        ${half(p1, 'MADRUGADA / MAÑANA')}
+        ${half(p2, 'TARDE / NOCHE')}
+    </div>`;
+}
 
-        const mapaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri'
-        });
+async function fetchForecastData(city) {
+    const container = document.getElementById('forecast-container');
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);"><div class="loading-spinner">⏳</div></div>`;
 
-        // 2. Inicializar el mapa con la capa estándar por defecto
-        map = L.map('map', {
-            center: [-36.5, -60.0],
-            zoom: 6,
-            layers: [mapaEstandar]
-        });
-
-        // 3. Agregar el botón de control en la esquina superior derecha
-        const baseMaps = {
-            "Mapa Estándar": mapaEstandar,
-            "Satélite": mapaSatelite
-        };
-        L.control.layers(baseMaps).addTo(map);
-
-        // 4. Lista ampliada de ciudades
-        const cities = [
-            { name: "La Plata", coords: [-34.921, -57.955] },
-            { name: "Junín", coords: [-34.585, -60.944] },
-            { name: "Bolívar", coords: [-36.233, -61.116] },
-            { name: "Tandil", coords: [-37.321, -59.133] },
-            { name: "Mar del Plata", coords: [-38.005, -57.542] },
-            { name: "Bahía Blanca", coords: [-38.719, -62.272] }
-        ];
-
-        cities.forEach(c => {
-            L.marker(c.coords).addTo(map).bindPopup(`<b style="font-family: Montserrat;">${c.name}</b>`).on('click', () => {
-                
-                // Efecto cinematográfico de vuelo hacia la ciudad (Zoom a nivel 10)
-                map.flyTo(c.coords, 10, {
-                    animate: true,
-                    duration: 1.5 // Duración de la animación en segundos
-                });
-
-                // Al hacer click, carga los datos
-                loadCityDashboard(c.name);
-                
-                // Mueve la vista al dashboard si estábamos en otra pestaña
-                const dashboardBtn = document.querySelector('.nav-btn');
-                switchView('dashboard', dashboardBtn);
-                
-                // En móviles, scrollea hacia abajo para ver los datos con un leve retraso para disfrutar la animación
-                if(window.innerWidth <= 900) {
-                    setTimeout(() => {
-                        document.getElementById('data-panel').scrollIntoView({behavior: 'smooth'});
-                    }, 800);
-                }
-            });
-        });
-    }
-
-    async function loadCityDashboard(city) {
-        document.getElementById('welcome-panel').classList.add('hidden');
-        document.getElementById('city-dashboard').classList.remove('hidden');
-        
-        document.getElementById('cd-title').innerText = city;
-        const now = new Date();
-        document.getElementById('cd-time').innerText = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')} hs`;
-
-        const isLaPlata = city.toLowerCase() === 'la plata';
-        const rtSection = document.getElementById('rt-section');
-        const alertSection = document.getElementById('alert-section');
-
-        if (isLaPlata) {
-            rtSection.classList.remove('hidden');
-            fetchThingSpeakData(); 
-            // Mostramos un recuadro de aviso si es La Plata.
-            alertSection.classList.remove('hidden');
-        } else {
-            rtSection.classList.add('hidden');
-            alertSection.classList.add('hidden');
+    try {
+        let json;
+        try {
+            const res = await fetch(`${FORECAST_API_URL}?_t=${Date.now()}`);
+            if (!res.ok) throw new Error('direct fail');
+            json = await res.json();
+        } catch {
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(FORECAST_API_URL + '?_t=' + Date.now())}`;
+            const res = await fetch(proxyUrl);
+            json = await res.json();
         }
 
-        fetchForecastData(city);
-    }
-
-    async function fetchThingSpeakData() {
-        try {
-            const response = await fetch(TS_URL);
-            if (!response.ok) throw new Error("Error ThingSpeak");
-            const data = await response.json();
-            
-            if (!data.feeds || data.feeds.length === 0) return;
-            const feeds = data.feeds;
-            const latest = feeds[feeds.length - 1];
-
-            document.getElementById('ts-temp').innerText = parseFloat(latest[TS_FIELDS.temp] || 0).toFixed(1);
-            document.getElementById('ts-hum').innerText = parseFloat(latest[TS_FIELDS.hum] || 0).toFixed(0);
-            document.getElementById('ts-pres').innerText = parseFloat(latest[TS_FIELDS.pres] || 0).toFixed(1);
-            document.getElementById('ts-wind').innerText = parseFloat(latest[TS_FIELDS.wind] || 0).toFixed(1);
-            document.getElementById('ts-rad').innerText = parseFloat(latest[TS_FIELDS.rad] || 0).toFixed(0);
-            document.getElementById('ts-rain').innerText = parseFloat(latest[TS_FIELDS.rain] || 0).toFixed(1);
-
-            const labels = feeds.map(f => {
-                const d = new Date(f.created_at);
-                return `${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
-            });
-            const dataTemp = feeds.map(f => parseFloat(f[TS_FIELDS.temp] || null));
-            const dataHum = feeds.map(f => parseFloat(f[TS_FIELDS.hum] || null));
-            const dataPres = feeds.map(f => parseFloat(f[TS_FIELDS.pres] || null));
-
-            renderChart('chartTemp', 'Temperatura (°C)', labels, dataTemp, '#ef4444', '#fecaca');
-            renderChart('chartHum', 'Humedad (%)', labels, dataHum, '#0ea5e9', '#bae6fd');
-            renderChart('chartPres', 'Presión (hPa)', labels, dataPres, '#8b5cf6', '#ddd6fe');
-
-        } catch (error) { console.error("ThingSpeak error:", error); }
-    }
-
-    function renderChart(canvasId, label, labels, data, borderColor, bgColor) {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        if (charts[canvasId]) charts[canvasId].destroy();
-
-        charts[canvasId] = new Chart(ctx, {
-            type: 'line',
-            data: { labels: labels, datasets: [{ label: label, data: data, borderColor: borderColor, backgroundColor: bgColor, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 6, font: {size: 10} }, grid: {display: false} }, y: { ticks: { font: {size: 10} } } }, interaction: { intersect: false, mode: 'index' } }
-        });
-    }
-
-    async function fetchForecastData(city) {
-        const container = document.getElementById('forecast-container');
-        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);"><div class="loading-spinner">⏳</div><br>Cargando modelos...</div>`;
-
-        try {
-            let jsonArray;
-            try {
-                // Intento sin headers conflictivos para evitar CORS
-                const res = await fetch(`${FORECAST_API_URL}?_t=${Date.now()}`);
-                if (!res.ok) throw new Error("API Falla");
-                jsonArray = await res.json();
-            } catch (err) {
-                // Si la base de datos bloquea por CORS, usamos proxy AllOrigins
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(FORECAST_API_URL + '?_t=' + Date.now())}`;
-                const resProxy = await fetch(proxyUrl);
-                jsonArray = await resProxy.json();
-            }
-
-            // Búsqueda inteligente a prueba de balas
-            let cityData = null;
-            if (Array.isArray(jsonArray)) {
-                cityData = jsonArray.find(item => item.city && item.city.toLowerCase() === city.toLowerCase());
-            } else if (jsonArray.data && Array.isArray(jsonArray.data)) {
-                cityData = jsonArray.data.find(item => item.city && item.city.toLowerCase() === city.toLowerCase());
-            } else if (typeof jsonArray === 'object') {
-                for (let k in jsonArray) { 
-                    if (k.toLowerCase() === city.toLowerCase() || (jsonArray[k].city && jsonArray[k].city.toLowerCase() === city.toLowerCase())) { 
-                        cityData = jsonArray[k]; break; 
-                    } 
+        // Resolver cityData desde cualquier estructura de respuesta
+        let cityData = null;
+        if (Array.isArray(json)) {
+            cityData = json.find(i => i.city?.toLowerCase() === city.toLowerCase());
+        } else if (json.data && Array.isArray(json.data)) {
+            cityData = json.data.find(i => i.city?.toLowerCase() === city.toLowerCase());
+        } else if (typeof json === 'object') {
+            for (const k in json) {
+                if (k.toLowerCase() === city.toLowerCase() ||
+                    json[k]?.city?.toLowerCase() === city.toLowerCase()) {
+                    cityData = json[k]; break;
                 }
             }
+            if (!cityData && json.daily_forecasts) cityData = json;
+        }
 
-            if (!cityData || !cityData.daily_forecasts || cityData.daily_forecasts.length === 0) {
-                container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted); background:var(--bg-body); border-radius:8px;">No hay pronóstico vigente cargado para ${city}.</div>`;
-                return;
-            }
+        if (!cityData?.daily_forecasts?.length) {
+            container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
+            return;
+        }
 
-            container.innerHTML = '';
-            cityData.daily_forecasts.forEach((day, index) => {
-                let dayTitle = index === 0 ? 'HOY' : (index === 1 ? 'MAÑANA' : day.day_name.toUpperCase());
-                const dateText = day.date ? day.date.split('-').slice(1).reverse().join('/') : '';
-                const themeClass = index === 0 ? 'hoy' : '';
+        // Mostrar hora de emisión
+        if (cityData.emission_time) {
+            const badge = document.getElementById('cd-emission');
+            document.getElementById('cd-emission-time').innerText = cityData.emission_time.substring(0, 5) + ' hs';
+            badge.classList.remove('hidden');
+        }
 
-                let html = `
-                <div class="forecast-day ${themeClass}">
-                    <div class="day-title"><span>${dayTitle} <span style="font-weight:500; font-size:0.8em">${dateText}</span></span>
-                    <div class="day-temps">${day.temp_min !== null ? `↓ ${day.temp_min}°` : ''} ${day.temp_max !== null ? `<strong style="color:var(--danger); margin-left:5px;">↑ ${day.temp_max}°</strong>` : ''}</div></div>
-                    <div class="periods-scroll">`;
+        container.innerHTML = '';
 
-                if (day.period_forecasts && day.period_forecasts.length > 0) {
-                    day.period_forecasts.forEach(p => {
-                        const iconCode = p.weather_icon_code || 'default';
-                        let popHTML = (p.probability_of_precipitation && p.probability_of_precipitation !== "0 %") ? `<div class="p-pop">💧 ${p.probability_of_precipitation}</div>` : '';
-                        
-                        let windSvg = '';
-                        if (p.wind_direction) {
-                            const angle = windAngles[p.wind_direction.toLowerCase()] ?? 0;
-                            windSvg = `<svg class="p-wind-arrow" viewBox="0 0 100 100" style="transform: rotate(${angle}deg);"><circle cx="50" cy="50" r="45" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/><path d="M 50 15 L 70 55 L 50 45 L 30 55 Z" fill="#64748b"/></svg>`;
-                        }
-                        
-                        html += `<div class="period-card"><div class="p-name">${p.period}</div><img class="p-icon" src="images/${iconCode}.png" onerror="this.src='images/default.png'"><div class="p-temp">${p.temperature ? p.temperature + '°' : '--'}</div><div class="p-wind" title="${p.precipitation_description || p.sky_condition || ''}">${windSvg}<span>${p.wind_intensity || '--'}</span></div>${popHTML}</div>`;
-                    });
+        cityData.daily_forecasts.forEach((day, idx) => {
+            const dayLabel = idx === 0 ? 'HOY' : idx === 1 ? 'MAÑANA' : day.day_name.toUpperCase();
+            const dateStr  = day.date ? day.date.split('-').slice(1).reverse().join('/') : '';
+            const minTxt   = day.temp_min != null ? `↓ ${day.temp_min}°` : '';
+            const maxTxt   = day.temp_max != null ? `↑ ${day.temp_max}°` : '';
+            const headerClass = idx === 0 ? '' : idx === 1 ? 'tomorrow' : 'extended';
+
+            // Cabecera del día
+            let html = `
+            <div class="fcast-block">
+                <div class="fcast-day-header ${headerClass}">
+                    <div>
+                        <div class="fcast-day-name">${dayLabel}</div>
+                        <div class="fcast-day-date">${dateStr ? day.day_name + ' ' + dateStr : day.day_name}</div>
+                    </div>
+                    <div class="fcast-minmax">
+                        ${minTxt ? `<span class="arrow-down">↓</span><span class="min">${day.temp_min}°</span>` : ''}
+                        ${maxTxt ? `<span class="arrow-up">↑</span><span class="max">${day.temp_max}°</span>` : ''}
+                    </div>
+                </div>`;
+
+            const periods = day.period_forecasts || [];
+
+            // Días 1 y 2: tira de períodos
+            if (idx <= 1) {
+                if (periods.length > 0) {
+                    html += `<div class="fcast-periods">`;
+                    periods.forEach(p => { html += buildPeriodCol(p); });
+                    html += `</div>`;
                 } else {
-                    html += `<div style="font-size:0.8rem; color:var(--text-muted);">Sin datos horarios.</div>`;
+                    html += `<div class="fcast-empty">Sin datos horarios.</div>`;
                 }
-                
-                html += `</div></div>`;
-                container.innerHTML += html;
-            });
-        } catch (error) {
-            container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--danger); background:#fef2f2; border-radius:8px;">Error al conectar con la base de datos.</div>`;
-        }
+            } else {
+                // Días 3 y 4: vista extendida con dos mitades
+                html += buildExtRow(day);
+            }
+
+            html += `</div>`;
+            container.innerHTML += html;
+        });
+
+    } catch (err) {
+        console.error('Forecast error:', err);
+        container.innerHTML = `<div class="fcast-empty" style="color:var(--danger); background:#fef2f2;">Error al conectar con el servidor.</div>`;
     }
+}
 </script>
 </body>
 </html>
