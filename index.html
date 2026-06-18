@@ -234,12 +234,25 @@
         <div class="content-layout">
             
             <!-- Banner WRF -->
-            <div class="banner-wrf">
-                <div>
-                    <h3>Centro de Modelado Meteorológico</h3>
-                    <p>Accedé a nuestros productos numéricos WRF de alta resolución corriendo en el clúster de la Facultad. Mapas de acumulados, temperatura, viento e índices de inestabilidad.</p>
+            <div class="banner-wrf" style="flex-direction: column; align-items: stretch; gap: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <span style="background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: inline-block; letter-spacing: 0.5px;">Grupo de Modelado Numérico de la Atmósfera (MNA)</span>
+                        <h3 style="margin: 0; font-size: 2.2rem;">Portal de Modelos WRF</h3>
+                    </div>
+                    <a href="https://mna.fcaglp.unlp.edu.ar/variables.html#" target="_blank" class="btn-wrf" style="white-space: nowrap; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);">Ir al Portal de Modelos →</a>
                 </div>
-                <a href="#" class="btn-wrf">Ir al Portal de Modelos →</a>
+                
+                <div style="background: rgba(0,0,0,0.25); padding: 25px; border-radius: 12px; font-size: 0.95rem; line-height: 1.7; border-left: 4px solid var(--accent); color: rgba(255,255,255,0.95);">
+                    <p style="margin: 0 0 15px 0;"><strong>El proyecto MNA (Modelado Numérico de la Atmósfera)</strong> de la Facultad de Ciencias Astronómicas y Geofísicas (UNLP), realiza diariamente pronósticos a 72 horas con el modelo de investigación y pronóstico numérico del tiempo (WRF versión 4.2), empleando condiciones iniciales y de borde cada 3 horas del análisis del Global Forecast System (GFS) con resolución de 0.25 grados.</p>
+                    <p style="margin: 0 0 15px 0;">El modelo se ejecuta en un dominio que cubre toda la región de Argentina, con resolución horizontal de 9 km, y un dominio interior de alta resolución horizontal de 3 km, que abarca la región del Río de la Plata. El modelo fue configurado y puesto en funcionamiento por el grupo de trabajo del proyecto MNA en los servidores de la institución. Actualmente se encuentra en fase experimental con fines científicos y tiene como objetivo brindar una herramienta de pronóstico a corto plazo para la región.</p>
+                    <p style="margin: 0;">El modelo WRF es un sistema de predicción numérica del tiempo de mesoescala de vanguardia, diseñado tanto para investigaciones atmosféricas como para aplicaciones operativas de pronóstico. Cuenta con dos núcleos dinámicos, un sistema de asimilación de datos y una arquitectura de software que admite computación paralela y extensibilidad del sistema, destacándose por su versatilidad y eficacia. El modelo permite abordar una amplia variedad de aplicaciones meteorológicas, cubriendo escalas desde decenas de metros hasta miles de kilómetros. Para los investigadores, el modelo WRF ofrece la posibilidad de generar simulaciones basadas tanto en condiciones atmosféricas reales, utilizando observaciones y análisis, como en condiciones idealizadas. Esto no sólo facilita el pronóstico operativo, sino que también proporciona una plataforma flexible y computacionalmente eficiente para la investigación en meteorología y ciencias atmosféricas.</p>
+                </div>
+                
+                <div style="background: #fef2f2; color: #991b1b; padding: 15px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; border: 1px solid #fecaca; display: flex; gap: 10px; align-items: flex-start;">
+                    <span style="font-size: 1.2rem; line-height: 1;">⚠️</span>
+                    <span style="line-height: 1.4;"><strong>IMPORTANTE:</strong> La Facultad de Ciencias Astronómicas y Geofísicas de la UNLP declina cualquier responsabilidad legal por la exactitud, interpretación o uso indebido de la información generada por el modelo WRF.</span>
+                </div>
             </div>
 
             <!-- Informes Especiales -->
