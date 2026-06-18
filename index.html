@@ -185,7 +185,7 @@
             <div id="welcome-panel">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <h2>Centro de Monitoreo</h2>
-                <p>Seleccione una estación en el mapa para visualizar los datos.</p>
+                <p>Seleccione una ciudad en el mapa para visualizar su pronóstico meteorológico detallado.</p>
             </div>
 
             <div id="city-dashboard" class="hidden">
@@ -204,8 +204,16 @@
                     <a href="https://www.smn.gob.ar/alertas" target="_blank" style="display:inline-block; background:var(--danger); color:white; padding:10px 18px; border-radius:6px; text-decoration:none; font-weight:800; font-size:0.9rem; text-align:center;">Consultar Alerta Oficial &rarr;</a>
                 </div>
 
+                <!-- PRONÓSTICO AHORA VA ARRIBA (El producto principal) -->
+                <div id="forecast-section" class="card" style="margin-bottom:15px;">
+                    <h3 class="chart-title" style="margin-bottom: 15px;">Pronóstico Regional</h3>
+                    <div id="forecast-container"></div>
+                </div>
+
+                <!-- TIEMPO REAL AHORA VA ABAJO (Como un anexo solo para La Plata) -->
                 <div id="rt-section" class="card hidden">
-                    <h3 class="chart-title">Condiciones Actuales (FCAG)</h3>
+                    <h3 class="chart-title">Condiciones Actuales (Estación FCAG)</h3>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-5px; margin-bottom:15px;">Datos en vivo obtenidos desde el observatorio de nuestra Facultad.</p>
                     <div class="rt-grid">
                         <div class="rt-box highlight"><span class="label">Temperatura</span><span class="value" id="ts-temp">--</span><span class="unit">°C</span></div>
                         <div class="rt-box"><span class="label">Humedad</span><span class="value" id="ts-hum">--</span><span class="unit">%</span></div>
@@ -217,11 +225,6 @@
                     <div class="chart-container"><canvas id="chartTemp"></canvas></div>
                     <div class="chart-container"><canvas id="chartHum"></canvas></div>
                     <div class="chart-container"><canvas id="chartPres"></canvas></div>
-                </div>
-
-                <div id="forecast-section" class="card">
-                    <h3 class="chart-title" style="margin-bottom: 15px;">Pronóstico Regional</h3>
-                    <div id="forecast-container"></div>
                 </div>
             </div>
         </div>
