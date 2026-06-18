@@ -84,44 +84,47 @@
     <header class="bg-white sticky top-0 z-[1000] shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-3 border-b-4 border-[#003f6b]">
-                <img src="images/Logo astronomicas y geofisicas.png" alt="FCAG" class="h-10 sm:h-12 object-contain">
+                <img src="images/Logo astronomicas y geofisicas.png" onerror="this.src='https://placehold.co/100x50?text=FCAG'" alt="FCAG" class="h-10 sm:h-12 object-contain">
                 <div class="text-center flex-grow">
                     <h1 class="m-0 text-lg sm:text-xl text-[#003f6b] font-black uppercase tracking-tight">Portal Meteorológico UNLP</h1>
                 </div>
                 <div class="hidden sm:flex items-center gap-4">
-                    <img src="images/Logo pronounlp.jfif" alt="Prono UNLP" class="h-12 rounded-full">
-                    <img src="images/Logo unlp.png" alt="UNLP" class="h-12 object-contain">
+                    <img src="images/Logo pronounlp.jfif" onerror="this.src='https://placehold.co/50x50?text=Prono'" alt="Prono UNLP" class="h-12 rounded-full">
+                    <img src="images/Logo unlp.png" onerror="this.src='https://placehold.co/100x50?text=UNLP'" alt="UNLP" class="h-12 object-contain">
                 </div>
             </div>
             
             <!-- Barra de Pestañas -->
             <nav class="flex overflow-x-auto hide-scrollbar pt-2">
-                <button class="nav-btn active" onclick="switchTab('tab-actual')">Estado Actual</button>
-                <button class="nav-btn" onclick="switchTab('tab-pronostico')">Pronósticos</button>
-                <button class="nav-btn" onclick="switchTab('tab-modelos')">Modelos & Informes</button>
-                <button class="nav-btn" onclick="switchTab('tab-divulgacion')">Divulgación & Extensión</button>
+                <button class="nav-btn active" onclick="switchTab('tab-actual', this)">Estado Actual</button>
+                <button class="nav-btn" onclick="switchTab('tab-pronostico', this)">Pronósticos</button>
+                <button class="nav-btn" onclick="switchTab('tab-modelos', this)">Modelos & Informes</button>
+                <button class="nav-btn" onclick="switchTab('tab-divulgacion', this)">Divulgación & Extensión</button>
             </nav>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        <!-- PESTAÑA: ESTADO ACTUAL -->
         <div id="tab-actual" class="tab-content active">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Columna Izquierda: Datos en Vivo y Alerta -->
                 <div class="lg:col-span-1 flex flex-col gap-6">
-                    <!-- Observaciones en Vivo -->
+                    <!-- Observaciones en Vivo ThingSpeak -->
                     <div class="smn-card border-t-4 border-[#6ba4d6] p-6">
                         <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                             <h3 class="m-0 font-extrabold text-gray-800 text-lg flex items-center gap-2">
-                                <span class="live-dot"></span>Estación FCAG
+                                <span class="live-dot" style="height:12px; width:12px; background:#e74c3c; border-radius:50%; display:inline-block; animation:pulse 1.5s infinite;"></span>Estación FCAG
                             </h3>
                             <span id="rt-time" class="text-xs font-bold text-gray-500">--:--</span>
                         </div>
+                        
+                        <!-- Grid Expandido a 6 variables ThingSpeak -->
                         <div class="grid grid-cols-2 gap-6 text-center">
                             <div class="flex flex-col items-center">
                                 <span class="text-3xl font-black text-[#003f6b]" id="rt-temp">--°</span>
-                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Temperatura a 1.5m">Temp</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Temperatura a 2 metros">Temp</span>
                             </div>
                             <div class="flex flex-col items-center">
                                 <span class="text-3xl font-black text-[#003f6b]" id="rt-hum">--%</span>
@@ -129,43 +132,60 @@
                             </div>
                             <div class="flex flex-col items-center">
                                 <span class="text-3xl font-black text-[#003f6b]" id="rt-pres">--</span>
-                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Presión Atmosférica">Presión</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Presión Atmosférica Nivel Estación (hPa)">Presión</span>
                             </div>
                             <div class="flex flex-col items-center">
                                 <span class="text-3xl font-black text-[#003f6b]" id="rt-wind">--</span>
-                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Viento Medio">Viento</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Viento Medio (km/h)">Viento</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-3xl font-black text-[#003f6b]" id="rt-rad">--</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Radiación Solar (W/m²)">Radiación</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-3xl font-black text-[#003f6b]" id="rt-rain">--</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase tooltip" data-tip="Lluvia Acumulada del Día (mm)">Lluvia</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Alertas SMN (Se oculta si no es La Plata por JS, pero por defecto lo mostramos) -->
+                    <!-- Alertas SMN Embebidas -->
                     <div class="smn-card border-t-4 border-red-500 p-6" id="alerta-smn-section">
                         <div class="flex items-center gap-3 mb-4">
-                            <span class="text-2xl animate-pulse">⚠️</span>
+                            <span class="text-2xl" style="animation: pulse 2s infinite;">⚠️</span>
                             <h3 class="m-0 font-extrabold text-red-700 uppercase">Alertas SMN - La Plata</h3>
                         </div>
                         <div class="w-full h-[350px] rounded-xl overflow-hidden border border-red-100 bg-white">
+                            <!-- El código 770 es para la zona de La Plata -->
                             <iframe src="https://ws2.smn.gob.ar/alertas_area?loc=770" width="100%" height="100%" frameborder="0" loading="lazy"></iframe>
                         </div>
                     </div>
                 </div>
 
-                <!-- Columna Derecha: Gráficos de 24hs -->
+                <!-- Columna Derecha: Gráficos de 24hs interactivos -->
                 <div class="lg:col-span-2 flex flex-col gap-6">
                     <div class="smn-card p-6">
-                        <h3 class="font-extrabold text-xl text-[#003f6b] mb-4 uppercase border-b pb-2">Evolución 24 Horas</h3>
+                        <h3 class="font-extrabold text-xl text-[#003f6b] mb-4 uppercase border-b pb-2">Evolución 24 Horas (Estación)</h3>
                         
-                        <div class="mb-6">
-                            <h4 class="font-bold text-sm text-gray-600 mb-2">Temperatura (°C)</h4>
-                            <div class="h-48 w-full relative">
-                                <canvas id="chartTemp"></canvas>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-600 mb-2">Temperatura (°C)</h4>
+                                <div class="h-48 w-full relative">
+                                    <canvas id="chartTemp"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-600 mb-2">Humedad Relativa (%)</h4>
+                                <div class="h-48 w-full relative">
+                                    <canvas id="chartHum"></canvas>
+                                </div>
                             </div>
                         </div>
-
-                        <div>
-                            <h4 class="font-bold text-sm text-gray-600 mb-2">Humedad Relativa (%)</h4>
+                        
+                        <div class="mt-6 border-t pt-4">
+                            <h4 class="font-bold text-sm text-gray-600 mb-2">Presión Atmosférica (hPa)</h4>
                             <div class="h-48 w-full relative">
-                                <canvas id="chartHum"></canvas>
+                                <canvas id="chartPres"></canvas>
                             </div>
                         </div>
                     </div>
@@ -173,6 +193,7 @@
             </div>
         </div>
 
+        <!-- PESTAÑA: PRONOSTICOS -->
         <div id="tab-pronostico" class="tab-content">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Sidebar: Mapa -->
@@ -207,9 +228,9 @@
             </div>
         </div>
 
+        <!-- PESTAÑA: MODELOS E INFORMES -->
         <div id="tab-modelos" class="tab-content">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Centro de Modelado -->
                 <div class="smn-card p-8 border-t-4 border-[#003f6b]">
                     <div class="text-4xl mb-4">🛰️</div>
                     <h2 class="text-2xl font-black text-[#003f6b] mb-4 uppercase">Centro de Modelado Numérico</h2>
@@ -223,7 +244,6 @@
                     <button class="w-full bg-[#003f6b] hover:bg-blue-900 text-white font-black py-3 rounded-xl transition">IR AL PORTAL DE MODELADO →</button>
                 </div>
 
-                <!-- Biblioteca de Informes -->
                 <div class="smn-card p-8 border-t-4 border-[#6ba4d6]">
                     <div class="text-4xl mb-4">📚</div>
                     <h2 class="text-2xl font-black text-[#003f6b] mb-4 uppercase">Informes Especiales</h2>
@@ -238,53 +258,31 @@
                             <h4 class="font-bold text-[#003f6b] m-0">Tormentas Severas y Granizo en el Centro Provincial</h4>
                             <span class="text-xs font-bold text-gray-500">Diciembre 2024</span>
                         </div>
-                        <div class="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 cursor-pointer transition border border-gray-100">
-                            <h4 class="font-bold text-[#003f6b] m-0">Extensa Ola de Calor Extrema</h4>
-                            <span class="text-xs font-bold text-gray-500">Enero 2024</span>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- PESTAÑA: DIVULGACION -->
         <div id="tab-divulgacion" class="tab-content">
-            <!-- Divulgación (Reels) -->
-            <div class="smn-card p-8 border-t-4 border-[#00796b] mb-8">
-                <div class="mb-8 text-center sm:text-left">
-                    <h2 class="text-2xl font-black text-[#003f6b] m-0 uppercase">Divulgación Científica</h2>
-                    <p class="text-gray-600 font-semibold mt-2">Nuestros expertos analizan y explican la dinámica atmosférica regional.</p>
+            <div class="smn-card p-8 border-t-4 border-[#00796b]">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-black text-[#003f6b] mb-2 uppercase">Divulgación Científica</h2>
+                    <p class="text-gray-600 font-medium">Enterate de los fenómenos meteorológicos explicados por nuestros expertos.</p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-                    <div class="reel-wrapper"><iframe src="https://www.instagram.com/p/DZc4GzkxZQu/embed/" height="550" scrolling="no" allowtransparency="true"></iframe></div>
-                    <div class="reel-wrapper"><iframe src="https://www.instagram.com/p/DZDXXOVx72_/embed/" height="550" scrolling="no" allowtransparency="true"></iframe></div>
-                    <div class="reel-wrapper"><iframe src="https://www.instagram.com/p/DY2emTqxtUj/embed/" height="550" scrolling="no" allowtransparency="true"></iframe></div>
-                </div>
-            </div>
-
-            <!-- Extensión y Agenda -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="smn-card p-6 bg-[#003f6b] text-white">
-                    <h2 class="text-xl font-black mb-4 uppercase">🎓 Extensión Universitaria</h2>
-                    <p class="text-blue-100 text-sm mb-4">Llevando la meteorología a la comunidad y las escuelas.</p>
-                    <ul class="space-y-2 text-sm font-bold text-white opacity-90">
-                        <li>✔️ Talleres en escuelas primarias</li>
-                        <li>✔️ Participación en Ferias de Ciencias</li>
-                        <li>✔️ Charlas en el Planetario UNLP</li>
-                        <li>✔️ Asesoramiento a productores rurales</li>
-                    </ul>
-                </div>
-                <div class="smn-card p-6 bg-[#6ba4d6] text-white">
-                    <h2 class="text-xl font-black mb-4 uppercase">📅 Próximas Actividades</h2>
-                    <div class="space-y-3">
-                        <div class="bg-white/20 p-3 rounded-lg">
-                            <span class="block text-xs font-black uppercase tracking-wider text-blue-900">15 de Septiembre</span>
-                            <span class="font-bold">Charla Abierta: ¿Cómo se forma un tornado?</span>
-                        </div>
-                        <div class="bg-white/20 p-3 rounded-lg">
-                            <span class="block text-xs font-black uppercase tracking-wider text-blue-900">22 de Octubre</span>
-                            <span class="font-bold">Visita guiada a la estación meteorológica</span>
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- REEL 1 -->
+                    <div class="reel-wrapper mx-auto">
+                        <iframe src="https://www.instagram.com/p/DZc4GzkxZQu/embed/" height="550" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+                    </div>
+                    <!-- REEL 2 -->
+                    <div class="reel-wrapper mx-auto">
+                        <iframe src="https://www.instagram.com/p/DZDXXOVx72_/embed/" height="550" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+                    </div>
+                    <!-- REEL 3 -->
+                    <div class="reel-wrapper mx-auto">
+                        <iframe src="https://www.instagram.com/p/DY2emTqxtUj/embed/" height="550" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
                     </div>
                 </div>
             </div>
@@ -293,27 +291,41 @@
     </main>
 
     <script>
-    // LÓGICA DE PESTAÑAS
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        // CONFIGURACIONES PRINCIPALES
+        const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
+        const BASE_IMG_URL = "images/";
         
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        // CONFIGURACIÓN THINGSPEAK
+        const TS_CHANNEL_ID = "2823820";
+        const TS_READ_API_KEY = "FFI1HK80ZKDNS6V8";
 
-        if(tabId === 'tab-pronostico') {
-            setTimeout(() => { map.invalidateSize(); }, 100);
+        const windDirectionsAngles = {
+            "norte": 180, "noreste": 225, "este": 270, "sudeste": 315,
+            "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135
+        };
+
+        // --- MANEJO DE PESTAÑAS (TABS) ---
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            // Highlight del botón presionado o del botón correspondiente si venimos del mapa
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                const matchingBtn = document.querySelector(`button[onclick*="${tabId}"]`);
+                if(matchingBtn) matchingBtn.classList.add('active');
+            }
+            
+            // Forzar resize del mapa si la pestaña estaba oculta
+            if (tabId === 'tab-pronostico' && map) {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
         }
-    }
 
-    // CONSTANTES API
-    const API_URL = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
-    // Agregamos disableCache=true al proxy para forzar lectura fresca
-    const PROXY = "https://api.allorigins.win/raw?disableCache=true&url="; 
-    const FCAG_URL = encodeURIComponent("https://meteo.fcaglp.unlp.edu.ar/estacion/actual.html");
-    const BASE_IMG_URL = "images/";
-
-    // MAPA LEAFLET
+        // --- INICIALIZAR MAPA ---
         const map = L.map('map').setView([-36.5, -59.5], 6);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap'
@@ -322,86 +334,157 @@
         const cities = [
             { name: "La Plata", coords: [-34.921, -57.955] },
             { name: "Junín", coords: [-34.585, -60.944] },
-            { name: "Mar del Plata", coords: [-38.005, -57.542] }
+            { name: "Mar del Plata", coords: [-38.005, -57.542] },
+            { name: "Bolívar", coords: [-36.233, -61.116] }, // Agregado
+            { name: "Tandil", coords: [-37.321, -59.133] },   // Agregado
+            { name: "Bahía Blanca", coords: [-38.718, -62.266] } // Agregado
         ];
 
         cities.forEach(c => {
             L.marker(c.coords).addTo(map)
              .bindPopup(`<b style="font-family: Montserrat;">${c.name}</b>`)
              .on('click', () => {
-                 cargarFull(c.name);
-                 // Opcional: Descomentar si querés que salte de pestaña automáticamente
-                 // switchTab('tab-pronostico'); 
+                 cargarPronostico(c.name);
+                 switchTab('tab-pronostico'); // Auto-cambio a pestaña
              });
         });
 
-        // GRAFICOS DE 24HS (MOCK DATA)
-        const ctxTemp = document.getElementById('chartTemp').getContext('2d');
-        const chartTemp = new Chart(ctxTemp, {
-            type: 'line',
-            data: {
-                labels: ['00h', '04h', '08h', '12h', '16h', '20h', 'Ahora'],
-                datasets: [{ label: 'Temperatura (°C)', data: [12, 10, 14, 20, 22, 18, 16], borderColor: '#003f6b', backgroundColor: 'rgba(0, 63, 107, 0.1)', fill: true, tension: 0.4 }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-
-        const ctxHum = document.getElementById('chartHum').getContext('2d');
-        const chartHum = new Chart(ctxHum, {
-            type: 'line',
-            data: {
-                labels: ['00h', '04h', '08h', '12h', '16h', '20h', 'Ahora'],
-                datasets: [{ label: 'Humedad (%)', data: [85, 90, 80, 55, 50, 65, 70], borderColor: '#6ba4d6', backgroundColor: 'rgba(107, 164, 214, 0.1)', fill: true, tension: 0.4 }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-
+        // --- LÓGICA DE THINGSPEAK (ESTADO EN VIVO) ---
         async function fetchRealTimeData() {
             try {
-            let jsonArray;
+                // Resultados=1 trae el último dato ingresado
+                const res = await fetch(`https://api.thingspeak.com/channels/${TS_CHANNEL_ID}/feeds.json?api_key=${TS_READ_API_KEY}&results=1`);
+                const data = await res.json();
+                const feed = data.feeds[0];
+                
+                if (feed) {
+                    /* ASIGNACIÓN DE CAMPOS (Modificar el número de field si difiere en ThingSpeak) */
+                    // field1 = Temp, field2 = Humedad, field3 = Presion, field4 = Viento, field5 = Radiacion, field6 = Lluvia
+                    
+                    if(feed.field1) document.getElementById('rt-temp').innerText = parseFloat(feed.field1).toFixed(1) + "°";
+                    if(feed.field2) document.getElementById('rt-hum').innerText = parseFloat(feed.field2).toFixed(0) + "%";
+                    if(feed.field3) document.getElementById('rt-pres').innerText = parseFloat(feed.field3).toFixed(1);
+                    if(feed.field4) document.getElementById('rt-wind').innerText = parseFloat(feed.field4).toFixed(1);
+                    if(feed.field5) document.getElementById('rt-rad').innerText = parseFloat(feed.field5).toFixed(0);
+                    if(feed.field6) document.getElementById('rt-rain').innerText = parseFloat(feed.field6).toFixed(1);
+                    
+                    const date = new Date(feed.created_at);
+                    const h = String(date.getHours()).padStart(2, '0');
+                    const m = String(date.getMinutes()).padStart(2, '0');
+                    document.getElementById('rt-time').innerText = `Hora local: ${h}:${m}`;
+                }
+            } catch (e) {
+                console.error("Error ThingSpeak:", e);
+                document.getElementById('rt-time').innerText = "Estación fuera de línea";
+            }
+        }
+
+        // --- LÓGICA DE GRÁFICOS (CHART.JS + THINGSPEAK 24HS) ---
+        let chartT, chartH, chartP;
+        
+        function initCharts() {
+            const configObj = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { grid: { display: false } } }
+            };
+
+            const ctxT = document.getElementById('chartTemp').getContext('2d');
+            chartT = new Chart(ctxT, { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#ef4444', tension: 0.3, pointRadius: 2 }] }, options: configObj });
+
+            const ctxH = document.getElementById('chartHum').getContext('2d');
+            chartH = new Chart(ctxH, { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#00bcd4', tension: 0.3, pointRadius: 2 }] }, options: configObj });
+
+            const ctxP = document.getElementById('chartPres').getContext('2d');
+            chartP = new Chart(ctxP, { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#8e44ad', tension: 0.3, pointRadius: 2 }] }, options: configObj });
+        }
+
+        async function fetchChartData() {
             try {
-                // Forzamos al navegador a NO usar caché (Cache-Control y no-store)
-                const response = await fetch(`${API_URL}?rand=${Date.now()}`, {
-                    cache: 'no-store',
-                    headers: {
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache'
+                // Trae los datos de las últimas 24 horas (1440 minutos)
+                const res = await fetch(`https://api.thingspeak.com/channels/${TS_CHANNEL_ID}/feeds.json?api_key=${TS_READ_API_KEY}&minutes=1440`);
+                const data = await res.json();
+                
+                const labels = [];
+                const temps = [];
+                const hums = [];
+                const press = [];
+
+                // Para no saturar el gráfico, agarramos 1 dato por hora aprox.
+                let lastHour = -1;
+                data.feeds.forEach(feed => {
+                    const date = new Date(feed.created_at);
+                    const hr = date.getHours();
+                    if (hr !== lastHour) {
+                        lastHour = hr;
+                        labels.push(`${String(hr).padStart(2,'0')}:00`);
+                        temps.push(feed.field1 ? parseFloat(feed.field1) : null);
+                        hums.push(feed.field2 ? parseFloat(feed.field2) : null);
+                        press.push(feed.field3 ? parseFloat(feed.field3) : null);
                     }
                 });
-                jsonArray = await response.json();
-            } catch (fetchError) {
-                console.warn("Fetch directo falló. Usando proxy...");
-                // Proxy agresivo anti-caché
-                const proxyUrl = `https://api.allorigins.win/get?disableCache=true&url=${encodeURIComponent(API_URL + '?rand=' + Date.now())}`;
-                const responseProxy = await fetch(proxyUrl, { cache: 'no-store' });
-                const proxyData = await responseProxy.json();
-                jsonArray = JSON.parse(proxyData.contents);
-            }
 
-            let cityData = null;
+                chartT.data.labels = labels; chartT.data.datasets[0].data = temps; chartT.update();
+                chartH.data.labels = labels; chartH.data.datasets[0].data = hums; chartH.update();
+                chartP.data.labels = labels; chartP.data.datasets[0].data = press; chartP.update();
+
+            } catch(e) {
+                console.error("Error al cargar gráficos de ThingSpeak:", e);
+            }
+        }
+
+        // --- LÓGICA DE PRONÓSTICOS (API EXTERNA) ---
+        function getWindSVG(direction) {
+            const angle = windDirectionsAngles[direction?.toLowerCase()] ?? 0;
+            if (!direction) return '';
+            return `
+            <svg class="smn-wind-arrow" viewBox="0 0 100 100" style="transform: rotate(${angle}deg);">
+                <circle cx="50" cy="50" r="45" fill="#f0f4f8" stroke="#cbd5e1" stroke-width="2"/>
+                <path d="M 50 15 L 70 55 L 50 45 L 30 55 Z" fill="#003f6b"/>
+            </svg>`;
+        }
+
+        async function cargarPronostico(ciudad) {
+            const placeholder = document.getElementById('view-placeholder');
+            const container = document.getElementById('forecast-cards-container');
+            
+            // Mostramos el mensaje de cargando y ocultamos el contenido previo
+            container.style.display = 'none';
+            placeholder.style.display = 'block';
+            placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⏳</div>Conectando con la base de datos para ${ciudad}...`;
+            
+            try {
+                // IMPORTANTE: Cabeceras agregadas para evitar la caché vieja del navegador y proxy
+                const response = await fetch(`${API_URL}?rand=${Date.now()}`, {
+                    headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+                });
+                
+                const jsonArray = await response.json();
+                let cityData = null;
+
                 if (Array.isArray(jsonArray)) {
                     cityData = jsonArray.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
                 } else if (jsonArray.data && Array.isArray(jsonArray.data)) {
                     cityData = jsonArray.data.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
-                } else if (typeof jsonArray === 'object') {
-                    const cityKey = Object.keys(jsonArray).find(k => k.toLowerCase() === ciudad.toLowerCase());
-                    if (cityKey) cityData = jsonArray[cityKey];
                 }
 
+                // SI NO HAY DATOS PARA LA CIUDAD ELEGIDA:
                 if (!cityData || !cityData.daily_forecasts || cityData.daily_forecasts.length === 0) {
-                    placeholder.innerHTML = `<div class="text-4xl mb-4">❌</div>No hay pronóstico vigente para ${ciudad}.`;
+                    placeholder.innerHTML = `<div class="text-4xl mb-4">❌</div>No hay pronóstico vigente en la base de datos para ${ciudad}.`;
                     return;
                 }
 
-                placeholder.style.display = 'none';
-                container.style.display = 'block';
+                // SI HAY DATOS:
+                placeholder.style.display = 'none';   // Quitamos el cartel de cargando
+                container.style.display = 'block';    // ¡FUNDAMENTAL! Volvemos a mostrar el contenedor oculto
                 
-                document.getElementById('out-city').innerText = cityData.city ? cityData.city.toUpperCase() : ciudad.toUpperCase();
-                document.getElementById('out-hora').innerText = cityData.emission_time ? cityData.emission_time.substring(0, 5) + ' HS' : '--:--';
-
-                container.innerHTML = '';
+                document.getElementById('out-city').innerText = cityData.city.toUpperCase();
+                document.getElementById('out-hora').innerText = cityData.emission_time.substring(0, 5) + ' HS';
+                
+                container.innerHTML = ''; // Limpiamos lo que había antes
                 const themeClasses = ['hoy', 'mañana', 'extendido', 'extendido'];
 
+                // DIBUJAMOS LAS TARJETAS ESTILO SMN
                 cityData.daily_forecasts.forEach((day, index) => {
                     const headerClass = themeClasses[index] || 'extendido';
                     let dayTitle = index === 0 ? 'HOY' : (index === 1 ? 'MAÑANA' : day.day_name.toUpperCase());
@@ -413,9 +496,9 @@
                     <div class="smn-card">
                         <div class="smn-header ${headerClass}">
                             <h4 class="smn-title">${dayTitle} ${dateText}</h4>
-                            <div class="font-bold flex gap-4 text-sm sm:text-base">
-                                ${day.temp_min !== null ? `<span class="tooltip flex items-center gap-1" data-tip="Temperatura Mínima"><span class="text-lg">↓</span> ${day.temp_min}°</span>` : ''}
-                                ${day.temp_max !== null ? `<span class="tooltip flex items-center gap-1" data-tip="Temperatura Máxima"><span class="text-lg">↑</span> ${day.temp_max}°</span>` : ''}
+                            <div class="flex gap-4 font-bold">
+                                ${day.temp_min !== null ? `<span class="tooltip" data-tip="Temperatura Mínima">↓ ${day.temp_min}°</span>` : ''}
+                                ${day.temp_max !== null ? `<span class="tooltip" data-tip="Temperatura Máxima">↑ ${day.temp_max}°</span>` : ''}
                             </div>
                         </div>
                         <div class="smn-periods-container">
@@ -436,7 +519,7 @@
                                 const svg = getWindSVG(p.wind_direction);
                                 let text = `${p.wind_intensity} del ${p.wind_direction}`;
                                 let gustHTML = p.wind_gusts ? `<br><span class="smn-rafagas">Ráfagas: ${p.wind_gusts} km/h</span>` : '';
-                                windHTML = `${svg}<div class="text-xs font-bold text-gray-500 leading-tight mt-1">${text}${gustHTML}</div>`;
+                                windHTML = `${svg}<div class="smn-wind-text">${text}${gustHTML}</div>`;
                             }
 
                             const condText = p.precipitation_description || p.sky_condition || "--";
@@ -444,14 +527,14 @@
 
                             cardHTML += `
                             <div class="smn-period-col">
-                                <div class="text-sm font-extrabold text-gray-500 uppercase">${p.period}</div>
-                                <div class="smn-icon-wrapper tooltip" data-tip="Condición del cielo esperada">
-                                    <img src="${imgSrc}" onerror="this.src='${BASE_IMG_URL}default.png'">
+                                <div class="text-sm font-bold text-gray-500 uppercase">${p.period}</div>
+                                <div class="smn-icon-wrapper tooltip" data-tip="Condición del cielo">
+                                    <img src="${imgSrc}" onerror="this.src='https://placehold.co/80x80/transparent/003f6b?text=Icono'">
                                     ${popHTML}
                                 </div>
-                                <div class="text-3xl font-bold text-gray-800 tooltip" data-tip="Temperatura estimada">${p.temperature ? p.temperature + '°' : '--'}</div>
-                                <div class="flex flex-col items-center gap-1 tooltip" data-tip="Viento y ráfagas esperadas">${windHTML}</div>
-                                <div class="text-sm font-semibold text-gray-800 leading-snug mt-auto tooltip" data-tip="Descripción detallada">${capCondText}</div>
+                                <div class="text-3xl font-bold text-gray-800">${p.temperature ? p.temperature + '°' : '--'}</div>
+                                <div class="flex flex-col items-center">${windHTML}</div>
+                                <div class="text-sm font-bold text-gray-700 leading-tight">${capCondText}</div>
                             </div>
                             `;
                         });
@@ -464,16 +547,23 @@
                 });
 
             } catch (error) {
-                console.error("Error al procesar la API:", error);
-                placeholder.innerHTML = `<div class="text-4xl mb-4">⚠️</div>Error de conexión. Intente nuevamente.`;
+                console.error("Error API Pronósticos:", error);
+                placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⚠️</div>Error de conexión con la base de datos o API bloqueada por CORS.`;
                 placeholder.style.display = 'block';
+                container.style.display = 'none';
             }
         }
 
-        // INIT
-        fetchRealTimeData();
-        cargarFull('La Plata'); 
-        setInterval(fetchRealTimeData, 300000); // Act. cada 5 min
+        // --- INICIALIZACIÓN GLOBAL ---
+        window.onload = () => {
+            initCharts();
+            fetchRealTimeData();
+            fetchChartData();
+            cargarPronostico('La Plata'); // Cargamos por defecto el pronóstico de LP
+            
+            // Actualización silenciosa de ThingSpeak cada 5 minutos
+            setInterval(fetchRealTimeData, 300000); 
+        };
     </script>
 </body>
 </html>
