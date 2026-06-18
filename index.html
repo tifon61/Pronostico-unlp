@@ -444,124 +444,67 @@
             </svg>`;
         }
 
+      <!-- ... existing code ... -->
         async function cargarPronostico(ciudad) {
-            const placeholder = document.getElementById('view-placeholder');
-            const container = document.getElementById('forecast-cards-container');
-            
-            // Mostramos el mensaje de cargando y ocultamos el contenido previo
-            container.style.display = 'none';
-            placeholder.style.display = 'block';
-            placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⏳</div>Conectando con la base de datos para ${ciudad}...`;
+        const placeholder = document.getElementById('view-placeholder');
+        const container = document.getElementById('forecast-cards-container');
+        
+        container.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⏳</div>Descargando modelos para ${ciudad}...`;
+        
+        try {
+            let jsonArray;
             
             try {
-                let jsonArray;
-                
-                try {
-                    // Intento 1: Conexión directa. Usamos el timestamp para evitar caché, sin headers conflictivos.
-                    const response = await fetch(`${API_URL}?_t=${Date.now()}`);
-                    if (!response.ok) throw new Error("Fallo en API directa");
-                    jsonArray = await response.json();
-                } catch (errDirecto) {
-                    console.warn("Bloqueo CORS detectado. Activando Proxy de respaldo...", errDirecto);
-                    // Intento 2: Usamos el proxy AllOrigins como respaldo seguro
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL + '?_t=' + Date.now())}`;
-                    const responseProxy = await fetch(proxyUrl);
-                    jsonArray = await responseProxy.json();
-                }
-
-                let cityData = null;
-
-                if (Array.isArray(jsonArray)) {
-                    cityData = jsonArray.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
-                } else if (jsonArray.data && Array.isArray(jsonArray.data)) {
-                    cityData = jsonArray.data.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
-                }
-
-                // SI NO HAY DATOS PARA LA CIUDAD ELEGIDA:
-                if (!cityData || !cityData.daily_forecasts || cityData.daily_forecasts.length === 0) {
-                    placeholder.innerHTML = `<div class="text-4xl mb-4">❌</div>No hay pronóstico vigente en la base de datos para ${ciudad}.`;
-                    return;
-                }
-
-                // SI HAY DATOS:
-                placeholder.style.display = 'none';   // Quitamos el cartel de cargando
-                container.style.display = 'block';    // ¡FUNDAMENTAL! Volvemos a mostrar el contenedor oculto
-                
-                document.getElementById('out-city').innerText = cityData.city.toUpperCase();
-                document.getElementById('out-hora').innerText = cityData.emission_time.substring(0, 5) + ' HS';
-                
-                container.innerHTML = ''; // Limpiamos lo que había antes
-                const themeClasses = ['hoy', 'mañana', 'extendido', 'extendido'];
-
-                // DIBUJAMOS LAS TARJETAS ESTILO SMN
-                cityData.daily_forecasts.forEach((day, index) => {
-                    const headerClass = themeClasses[index] || 'extendido';
-                    let dayTitle = index === 0 ? 'HOY' : (index === 1 ? 'MAÑANA' : day.day_name.toUpperCase());
-                    
-                    const dateParts = day.date ? day.date.split('-') : [];
-                    const dateText = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : '';
-
-                    let cardHTML = `
-                    <div class="smn-card">
-                        <div class="smn-header ${headerClass}">
-                            <h4 class="smn-title">${dayTitle} ${dateText}</h4>
-                            <div class="flex gap-4 font-bold">
-                                ${day.temp_min !== null ? `<span class="tooltip" data-tip="Temperatura Mínima">↓ ${day.temp_min}°</span>` : ''}
-                                ${day.temp_max !== null ? `<span class="tooltip" data-tip="Temperatura Máxima">↑ ${day.temp_max}°</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="smn-periods-container">
-                    `;
-
-                    if (day.period_forecasts && day.period_forecasts.length > 0) {
-                        day.period_forecasts.forEach(p => {
-                            const iconCode = p.weather_icon_code || 'default';
-                            const imgSrc = `${BASE_IMG_URL}${iconCode}.png`;
-                            
-                            let popHTML = '';
-                            if (p.probability_of_precipitation && p.probability_of_precipitation !== "0 %") {
-                                popHTML = `<div class="smn-pop-badge">💧 ${p.probability_of_precipitation}</div>`;
-                            }
-
-                            let windHTML = '--';
-                            if (p.wind_intensity && p.wind_direction) {
-                                const svg = getWindSVG(p.wind_direction);
-                                let text = `${p.wind_intensity} del ${p.wind_direction}`;
-                                let gustHTML = p.wind_gusts ? `<br><span class="smn-rafagas">Ráfagas: ${p.wind_gusts} km/h</span>` : '';
-                                windHTML = `${svg}<div class="smn-wind-text">${text}${gustHTML}</div>`;
-                            }
-
-                            const condText = p.precipitation_description || p.sky_condition || "--";
-                            const capCondText = condText.charAt(0).toUpperCase() + condText.slice(1);
-
-                            cardHTML += `
-                            <div class="smn-period-col">
-                                <div class="text-sm font-bold text-gray-500 uppercase">${p.period}</div>
-                                <div class="smn-icon-wrapper tooltip" data-tip="Condición del cielo">
-                                    <img src="${imgSrc}" onerror="this.src='https://placehold.co/80x80/transparent/003f6b?text=Icono'">
-                                    ${popHTML}
-                                </div>
-                                <div class="text-3xl font-bold text-gray-800">${p.temperature ? p.temperature + '°' : '--'}</div>
-                                <div class="flex flex-col items-center">${windHTML}</div>
-                                <div class="text-sm font-bold text-gray-700 leading-tight">${capCondText}</div>
-                            </div>
-                            `;
-                        });
-                    } else {
-                        cardHTML += `<div style="padding: 20px; text-align: center; width: 100%; color: #7f8c8d;">Sin datos horarios para este día.</div>`;
-                    }
-
-                    cardHTML += `</div></div>`;
-                    container.innerHTML += cardHTML;
-                });
-
-            } catch (error) {
-                console.error("Error API Pronósticos:", error);
-                placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⚠️</div>Error de conexión con la base de datos o API bloqueada por CORS.`;
-                placeholder.style.display = 'block';
-                container.style.display = 'none';
+                // Intento 1: Conexión directa
+                const response = await fetch(`${API_URL}?_t=${Date.now()}`);
+                if (!response.ok) throw new Error("Fallo en API directa");
+                jsonArray = await response.json();
+            } catch (errDirecto) {
+                console.warn("Bloqueo detectado. Usando Proxy de respaldo...");
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL + '?_t=' + Date.now())}`;
+                const responseProxy = await fetch(proxyUrl);
+                jsonArray = await responseProxy.json();
             }
-        }
+
+            // Mostramos en la consola de tu navegador qué está mandando la API (para diagnóstico)
+            console.log("Datos recibidos de la base de datos:", jsonArray);
+
+            let cityData = null;
+
+            // NUEVA LÓGICA DE BÚSQUEDA A PRUEBA DE FALLOS:
+            if (Array.isArray(jsonArray)) {
+                // Caso 1: La API devuelve una lista [ {city: "La Plata"}, {city: "Junin"} ]
+                cityData = jsonArray.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
+            } 
+            else if (jsonArray.data && Array.isArray(jsonArray.data)) {
+                // Caso 2: La API devuelve un paquete con "data": [ ... ]
+                cityData = jsonArray.data.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
+            } 
+            else if (jsonArray.items && Array.isArray(jsonArray.items)) {
+                // Caso 3: La API devuelve un paquete con "items": [ ... ]
+                cityData = jsonArray.items.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
+            } 
+            else if (jsonArray.city && typeof jsonArray.city === 'string' && jsonArray.city.toLowerCase() === ciudad.toLowerCase()) {
+                // Caso 4: La API devuelve directamente UN SOLO pronóstico { city: "La Plata", daily_forecasts: [...] }
+                cityData = jsonArray;
+            } 
+            else if (typeof jsonArray === 'object') {
+                // Caso 5: La API devuelve un diccionario { "La Plata": { ... } }
+                const cityKey = Object.keys(jsonArray).find(k => k.toLowerCase() === ciudad.toLowerCase());
+                if (cityKey) cityData = jsonArray[cityKey];
+            }
+
+            // Validación final
+            if (!cityData || !cityData.daily_forecasts || cityData.daily_forecasts.length === 0) {
+                placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">❌</div>No hay pronóstico vigente para ${ciudad}.<br><span style="font-size: 0.5em; color: #999;">Si acabás de publicar, revisá la consola (F12) para ver la estructura de la API.</span>`;
+                return;
+            }
+
+            // Si encontró los datos, los dibuja
+            placeholder.style.display = 'none';
+            container.style.display = 'block';
 
         // --- INICIALIZACIÓN GLOBAL ---
         window.onload = () => {
