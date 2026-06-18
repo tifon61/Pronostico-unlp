@@ -6,6 +6,7 @@
     <title>Portal Meteorológico | FCAG - UNLP</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -409,8 +410,8 @@
     cities.forEach(c => {
         L.marker(c.coords).addTo(map).bindPopup(`<b style="font-family: Montserrat;">${c.name}</b>`).on('click', () => {
             cargarFull(c.name);
-            // Auto-switch to Pronostico tab when a city is clicked on mobile to show results
-            if(window.innerWidth < 1024) switchTab('tab-pronostico');
+            // Auto-switch to Pronostico tab when a city is clicked on any device
+            switchTab('tab-pronostico');
         });
     });
 
@@ -478,9 +479,15 @@
                 jsonArray = JSON.parse(proxyData.contents);
             }
 
-            const cityData = Array.isArray(jsonArray) 
-                ? jsonArray.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase())
-                : null; // Simplificado para la estructura real que envía tu admin
+            let cityData = null;
+            if (Array.isArray(jsonArray)) {
+                cityData = jsonArray.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
+            } else if (jsonArray.data && Array.isArray(jsonArray.data)) {
+                cityData = jsonArray.data.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
+            } else if (typeof jsonArray === 'object') {
+                const cityKey = Object.keys(jsonArray).find(k => k.toLowerCase() === ciudad.toLowerCase());
+                if (cityKey) cityData = jsonArray[cityKey];
+            }
 
             if (!cityData || !cityData.daily_forecasts) {
                 placeholder.innerHTML = `<span class="text-4xl block mb-4">❌</span>No hay pronóstico vigente para ${ciudad}.`;
@@ -557,6 +564,7 @@
 
     // Init
     fetchRealTimeData();
+    cargarFull('La Plata'); // Load default forecast
     setInterval(fetchRealTimeData, 300000); // 5 mins update
 </script>
 </body>
