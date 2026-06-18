@@ -473,30 +473,60 @@
     };
 
     function initMap() {
-        map = L.map('map').setView([-36.5, -60.0], 6);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        // 1. Definir los tipos de mapas (Capas)
+        const mapaEstandar = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+        });
 
+        const mapaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri'
+        });
+
+        // 2. Inicializar el mapa con la capa estándar por defecto
+        map = L.map('map', {
+            center: [-36.5, -60.0],
+            zoom: 6,
+            layers: [mapaEstandar]
+        });
+
+        // 3. Agregar el botón de control en la esquina superior derecha
+        const baseMaps = {
+            "Mapa Estándar": mapaEstandar,
+            "Satélite": mapaSatelite
+        };
+        L.control.layers(baseMaps).addTo(map);
+
+        // 4. Lista ampliada de ciudades
         const cities = [
             { name: "La Plata", coords: [-34.921, -57.955] },
+            { name: "Junín", coords: [-34.585, -60.944] },
             { name: "Bolívar", coords: [-36.233, -61.116] },
             { name: "Tandil", coords: [-37.321, -59.133] },
+            { name: "Mar del Plata", coords: [-38.005, -57.542] },
             { name: "Bahía Blanca", coords: [-38.719, -62.272] }
         ];
 
         cities.forEach(c => {
             L.marker(c.coords).addTo(map).bindPopup(`<b style="font-family: Montserrat;">${c.name}</b>`).on('click', () => {
+                
+                // Efecto cinematográfico de vuelo hacia la ciudad (Zoom a nivel 10)
+                map.flyTo(c.coords, 10, {
+                    animate: true,
+                    duration: 1.5 // Duración de la animación en segundos
+                });
+
                 // Al hacer click, carga los datos
                 loadCityDashboard(c.name);
                 
-                // Mueve la vista al dashboard si estábamos en otra pestaña (usamos el primer botón)
+                // Mueve la vista al dashboard si estábamos en otra pestaña
                 const dashboardBtn = document.querySelector('.nav-btn');
                 switchView('dashboard', dashboardBtn);
                 
-                // En móviles, scrollea hacia abajo para ver los datos
+                // En móviles, scrollea hacia abajo para ver los datos con un leve retraso para disfrutar la animación
                 if(window.innerWidth <= 900) {
-                    document.getElementById('data-panel').scrollIntoView({behavior: 'smooth'});
+                    setTimeout(() => {
+                        document.getElementById('data-panel').scrollIntoView({behavior: 'smooth'});
+                    }, 800);
                 }
             });
         });
