@@ -351,6 +351,87 @@
         .contact-form input,.contact-form textarea,.contact-form select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
         .contact-form button { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
+
+        /* ── INSTAGRAM FACADE (lazy embed) ──────────────── */
+        .ig-facade {
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .ig-facade:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.14); }
+        .ig-facade:hover .ig-facade-overlay { opacity: 1; }
+
+        /* Miniatura visual */
+        .ig-thumb {
+            width: 100%; height: 220px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 12px; position: relative;
+        }
+        .ig-thumb-icon { font-size: 3rem; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
+        .ig-thumb-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem; font-weight: 900;
+            color: white; text-align: center;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            padding: 0 20px; line-height: 1.3;
+        }
+
+        /* Overlay de play al hacer hover */
+        .ig-facade-overlay {
+            position: absolute; inset: 0; height: 220px;
+            background: rgba(0,0,0,0.35);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .ig-play-big {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Barra inferior con info y botón */
+        .ig-facade-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; gap: 12px;
+        }
+        .ig-facade-info { flex: 1; min-width: 0; }
+        .ig-facade-acct { font-size: 0.72rem; font-weight: 800; color: var(--primary); margin-bottom: 2px; }
+        .ig-facade-desc { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .ig-play-btn {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            color: white; border: none; border-radius: 20px;
+            padding: 7px 16px; font-weight: 800; font-size: 0.78rem;
+            cursor: pointer; white-space: nowrap; font-family: inherit;
+            flex-shrink: 0; transition: opacity 0.2s;
+        }
+        .ig-play-btn:hover { opacity: 0.88; }
+
+        /* Estado "cargando" */
+        .ig-loading {
+            height: 560px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 12px;
+            background: var(--bg-body); border-radius: 16px;
+            color: var(--text-muted); font-size: 0.9rem; font-weight: 600;
+        }
+        .ig-loading .spin { font-size: 1.6rem; }
+
+        /* iframe activo */
+        .ig-iframe-wrap {
+            border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .ig-iframe-wrap iframe { display: block; }
+
         /* ── RESPONSIVE ──────────────────────────────────── */
         @media (max-width: 900px) {
             header { padding: 0 1rem; height: auto; flex-direction: column; padding-bottom: 10px; }
@@ -476,11 +557,54 @@
         <div class="content-layout">
             <section>
                 <h2 class="section-heading">📹 Divulgación en Redes</h2>
-                <p class="section-desc">Videos recientes sobre fenómenos meteorológicos.</p>
-                <div class="grid-3">
-                    <div class="item-card" style="padding:0;"><iframe src="https://www.instagram.com/p/DZc4GzkxZQu/embed/" height="530" width="100%" frameborder="0" scrolling="no"></iframe></div>
-                    <div class="item-card" style="padding:0;"><iframe src="https://www.instagram.com/p/DZDXXOVx72_/embed/" height="530" width="100%" frameborder="0" scrolling="no"></iframe></div>
-                    <div class="item-card" style="padding:0;"><iframe src="https://www.instagram.com/p/DY2emTqxtUj/embed/" height="530" width="100%" frameborder="0" scrolling="no"></iframe></div>
+                <p class="section-desc">Hacé clic en un video para reproducirlo — carga solo cuando lo pedís.</p>
+                <div class="grid-3" id="ig-grid">
+
+                    <div class="ig-facade" data-url="https://www.instagram.com/p/DZc4GzkxZQu/embed/" onclick="loadIgEmbed(this)">
+                        <div class="ig-thumb" style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);">
+                            <div class="ig-thumb-icon">🌪️</div>
+                            <div class="ig-thumb-title">Tornados en la pampa húmeda</div>
+                        </div>
+                        <div class="ig-facade-bar">
+                            <div class="ig-facade-info">
+                                <div class="ig-facade-acct">@pronostico.unlp</div>
+                                <div class="ig-facade-desc">Formación de tornados</div>
+                            </div>
+                            <button class="ig-play-btn">▶ Ver</button>
+                        </div>
+                        <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
+                    </div>
+
+                    <div class="ig-facade" data-url="https://www.instagram.com/p/DZDXXOVx72_/embed/" onclick="loadIgEmbed(this)">
+                        <div class="ig-thumb" style="background:linear-gradient(135deg,#0052d4,#4364f7,#6fb1fc);">
+                            <div class="ig-thumb-icon">🌧️</div>
+                            <div class="ig-thumb-title">Frentes fríos y lluvias intensas</div>
+                        </div>
+                        <div class="ig-facade-bar">
+                            <div class="ig-facade-info">
+                                <div class="ig-facade-acct">@pronostico.unlp</div>
+                                <div class="ig-facade-desc">Cómo se forman los frentes fríos</div>
+                            </div>
+                            <button class="ig-play-btn">▶ Ver</button>
+                        </div>
+                        <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
+                    </div>
+
+                    <div class="ig-facade" data-url="https://www.instagram.com/p/DY2emTqxtUj/embed/" onclick="loadIgEmbed(this)">
+                        <div class="ig-thumb" style="background:linear-gradient(135deg,#f7971e,#ffd200);">
+                            <div class="ig-thumb-icon">☀️</div>
+                            <div class="ig-thumb-title">El Niño y las anomalías de temperatura</div>
+                        </div>
+                        <div class="ig-facade-bar">
+                            <div class="ig-facade-info">
+                                <div class="ig-facade-acct">@pronostico.unlp</div>
+                                <div class="ig-facade-desc">Impacto de El Niño en Argentina</div>
+                            </div>
+                            <button class="ig-play-btn">▶ Ver</button>
+                        </div>
+                        <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
+                    </div>
+
                 </div>
             </section>
             <div class="grid-2">
@@ -935,6 +1059,42 @@ async function fetchForecast(city) {
         container.innerHTML = `<div class="fcast-empty" style="color:var(--danger); background:#fef2f2;">Error al conectar con el servidor.</div>`;
     }
 }
+
+// ─── INSTAGRAM LAZY EMBED ────────────────────────────────────────────────────
+function loadIgEmbed(facade) {
+    const url = facade.dataset.url;
+    const parent = facade.parentElement;
+
+    // Estado de carga
+    const loader = document.createElement('div');
+    loader.className = 'ig-loading';
+    loader.innerHTML = '<div class="spin">⏳</div><div>Cargando video de Instagram...</div>';
+    parent.replaceChild(loader, facade);
+
+    // Crear iframe real
+    const wrap = document.createElement('div');
+    wrap.className = 'ig-iframe-wrap';
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.width = '100%';
+    iframe.height = '560';
+    iframe.frameBorder = '0';
+    iframe.scrolling = 'no';
+    iframe.allowFullscreen = true;
+    iframe.style.display = 'block';
+
+    iframe.onload = () => {
+        parent.replaceChild(wrap, loader);
+        wrap.appendChild(iframe);
+    };
+    iframe.onerror = () => {
+        loader.innerHTML = '❌ No se pudo cargar el video. <a href="' + url.replace('/embed/', '/') + '" target="_blank" style="color:var(--accent);font-weight:700;">Abrí en Instagram →</a>';
+    };
+
+    // Lo adjuntamos al DOM para que empiece a cargar (oculto aún)
+    document.body.appendChild(iframe);
+}
+
 </script>
 </body>
 </html>
