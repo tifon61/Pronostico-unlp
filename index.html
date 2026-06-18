@@ -454,12 +454,21 @@
             placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⏳</div>Conectando con la base de datos para ${ciudad}...`;
             
             try {
-                // IMPORTANTE: Cabeceras agregadas para evitar la caché vieja del navegador y proxy
-                const response = await fetch(`${API_URL}?rand=${Date.now()}`, {
-                    headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
-                });
+                let jsonArray;
                 
-                const jsonArray = await response.json();
+                try {
+                    // Intento 1: Conexión directa. Usamos el timestamp para evitar caché, sin headers conflictivos.
+                    const response = await fetch(`${API_URL}?_t=${Date.now()}`);
+                    if (!response.ok) throw new Error("Fallo en API directa");
+                    jsonArray = await response.json();
+                } catch (errDirecto) {
+                    console.warn("Bloqueo CORS detectado. Activando Proxy de respaldo...", errDirecto);
+                    // Intento 2: Usamos el proxy AllOrigins como respaldo seguro
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL + '?_t=' + Date.now())}`;
+                    const responseProxy = await fetch(proxyUrl);
+                    jsonArray = await responseProxy.json();
+                }
+
                 let cityData = null;
 
                 if (Array.isArray(jsonArray)) {
