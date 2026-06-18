@@ -6,38 +6,46 @@
     <title>Portal Meteorológico | FCAG - UNLP</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
+
     <style>
-        :root { 
-            --unlp-blue: #003f6b; 
-            --unlp-accent: #6ba4d6; 
-            --unlp-light: #8bbce4; 
-            --unlp-green: #00796b; /* Agregado para el borde de divulgación */
+        :root {
+            --unlp-blue: #003f6b;
+            --unlp-accent: #6ba4d6;
+            --unlp-light: #8bbce4;
+            --unlp-green: #00796b;
+
+            /* Colores de los 4 bloques temáticos del portal */
+            --block-pronostico: #003f6b;
+            --block-vigilancia: #c0392b;
+            --block-divulgacion: #00796b;
+            --block-institucional: #5b4b8a;
+
             --smn-bg: #f4f7f9;
             --text-dark: #2c3e50;
             --text-muted: #7f8c8d;
             --border-light: #e2e8f0;
         }
-        body { 
-            font-family: 'Montserrat', sans-serif; 
-            margin: 0; 
-            background: var(--smn-bg); 
-            color: var(--text-dark); 
-            overflow-x: hidden; 
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background: var(--smn-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
         }
-        
-        header { 
-            background: white; 
-            padding: 15px 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+
+        header {
+            background: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 4px solid var(--unlp-blue);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             gap: 15px;
-            position: sticky; 
-            top: 0; 
-            z-index: 1000;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
         }
         header img { height: 50px; width: auto; object-fit: contain; }
         .header-title { flex-grow: 1; text-align: center; }
@@ -48,14 +56,102 @@
         .header-title { order: 3; }
         .logo-unlp { order: 4; height: 55px; }
 
-        main { 
-            max-width: 1300px; 
-            margin: 30px auto; 
-            display: grid; 
-            grid-template-columns: 350px 1fr; 
-            gap: 30px; 
-            padding: 0 20px; 
+        /* ===================== NAVEGACIÓN PRINCIPAL ===================== */
+        .main-nav {
+            background: white;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: var(--header-h, 81px);
+            z-index: 1000;
+            display: flex;
+            align-items: stretch;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
+        .main-nav::-webkit-scrollbar { height: 6px; }
+        .main-nav::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+        .nav-home {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            font-size: 0.85em;
+            font-weight: 800;
+            color: var(--unlp-blue);
+            text-decoration: none;
+            border-right: 1px solid var(--border-light);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .nav-home:hover { background: var(--smn-bg); }
+
+        .nav-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            border-right: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+        .nav-group-label {
+            font-size: 0.68em;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--group-color);
+            white-space: nowrap;
+        }
+        .nav-group-links { display: flex; gap: 6px; }
+        .nav-group-links a {
+            font-size: 0.82em;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-decoration: none;
+            padding: 7px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+            transition: background .2s, color .2s;
+        }
+        .nav-group-links a:hover { background: var(--smn-bg); }
+        .nav-group-links a.active { background: var(--group-color); color: white; }
+
+        main {
+            max-width: 1300px;
+            margin: 30px auto;
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px;
+        }
+
+        .section { scroll-margin-top: calc(var(--header-h, 81px) + var(--nav-h, 53px) + 20px); margin-bottom: 10px; }
+
+        .section-title {
+            font-size: 1.15em;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0 0 18px 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===================== SEPARADORES DE BLOQUE ===================== */
+        .block-divider {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin: 55px 0 25px;
+            padding: 20px 28px;
+            background: white;
+            border-radius: 16px;
+            border-left: 6px solid var(--block-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+        .block-divider:first-of-type { margin-top: 10px; }
+        .block-divider .emoji { font-size: 2.1em; line-height: 1; }
+        .block-divider h2 { margin: 0; font-size: 1.25em; font-weight: 900; text-transform: uppercase; color: var(--text-dark); letter-spacing: -0.3px; }
+        .block-divider p { margin: 4px 0 0; font-size: 0.9em; color: var(--text-muted); font-weight: 600; }
 
         .tooltip {
             position: relative;
@@ -80,40 +176,48 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             pointer-events: none;
         }
-        
-        .sidebar-card { 
-            background: white; 
-            border-radius: 16px; 
-            padding: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04); 
-            height: fit-content; 
-            text-align: center; 
-            position: sticky; 
-            top: 100px; 
+
+        /* ===================== INICIO / HERO ===================== */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        .sidebar-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            text-align: center;
         }
         #map { height: 350px; width: 100%; border-radius: 12px; margin-bottom: 15px; z-index: 1; }
 
-        .content-area { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+        .hero-text { display: flex; flex-direction: column; gap: 18px; }
+        .hero-title { margin: 0; font-size: 1.7em; font-weight: 900; color: var(--unlp-blue); line-height: 1.25; letter-spacing: -0.5px; }
+        .hero-sub { margin: 0; font-size: 0.98em; color: var(--text-muted); font-weight: 600; line-height: 1.6; max-width: 600px; }
+        .hero-news h4 { margin: 0 0 12px; font-size: 0.95em; font-weight: 800; color: var(--text-dark); text-transform: uppercase; }
 
+        /* ===================== TARJETAS GENÉRICAS (CONDICIONES / CTA) ===================== */
         .rt-card {
-            background: white; 
-            border-radius: 16px; 
+            background: white;
+            border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
             border-top: 4px solid var(--unlp-accent);
         }
         .rt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;}
         .rt-header h3 { margin: 0; font-weight: 800; color: var(--text-dark); font-size: 1.1em; display: flex; align-items: center; gap: 10px; }
         .live-dot { height: 12px; width: 12px; background: #e74c3c; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); opacity: 0.8;} }
-        
+
         .rt-grid { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; text-align: center; }
         .rt-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .rt-value { font-size: 2.2em; font-weight: 800; color: var(--unlp-blue); }
         .rt-label { font-size: 0.8em; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
-        .city-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding: 0 10px; }
-        .city-bar h2 { margin: 0; font-size: 2.5em; font-weight: 900; color: var(--text-dark); text-transform: uppercase; letter-spacing: -1px; line-height: 1;}
+        .city-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 10px; flex-wrap: wrap; gap: 10px; }
+        .city-bar h2 { margin: 0; font-size: 2.3em; font-weight: 900; color: var(--text-dark); text-transform: uppercase; letter-spacing: -1px; line-height: 1;}
         .emission-info { font-size: 0.85em; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: flex-end;}
         .emission-time { color: var(--unlp-blue); font-weight: 900; }
 
@@ -126,23 +230,15 @@
             display: flex;
             flex-direction: column;
         }
-        
-        .smn-day-header {
-            padding: 15px 25px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .smn-day-header { padding: 15px 25px; color: white; display: flex; justify-content: space-between; align-items: center; }
         .smn-day-header.hoy { background: var(--unlp-blue); }
         .smn-day-header.mañana { background: var(--unlp-accent); }
         .smn-day-header.extendido { background: var(--unlp-light); }
-        
+
         .smn-day-title { font-size: 1.2em; font-weight: 800; text-transform: uppercase; margin: 0; }
         .smn-day-temps { font-size: 1em; font-weight: 700; display: flex; gap: 15px; }
         .smn-day-temps span { display: flex; align-items: center; gap: 5px; }
 
-        /* Flexbox horizontal (Scrollable en móviles) */
         .smn-periods-container {
             display: flex;
             overflow-x: auto;
@@ -165,80 +261,123 @@
             gap: 15px;
         }
         .smn-period-col:last-child { border-right: none; }
-
         .smn-period-name { font-size: 0.85em; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        
+
         .smn-icon-wrapper { position: relative; height: 90px; display: flex; align-items: center; justify-content: center; }
         .smn-icon-wrapper img { height: 100%; width: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-        
-        .smn-pop-badge {
-            position: absolute;
-            bottom: -10px;
-            background: #e1f5fe;
-            color: #0288d1;
-            border: 1px solid #b3e5fc;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7em;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            white-space: nowrap;
-        }
 
+        .smn-pop-badge {
+            position: absolute; bottom: -10px; background: #e1f5fe; color: #0288d1; border: 1px solid #b3e5fc;
+            padding: 4px 8px; border-radius: 12px; font-size: 0.7em; font-weight: 800;
+            display: flex; align-items: center; gap: 3px; white-space: nowrap;
+        }
         .smn-temp { font-size: 2.2em; font-weight: 700; color: var(--text-dark); line-height: 1; }
-        
         .smn-wind-block { display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .smn-wind-arrow { width: 32px; height: 32px; }
         .smn-wind-text { font-size: 0.75em; font-weight: 700; color: var(--text-muted); line-height: 1.2; }
         .smn-rafagas { color: #d35400; font-weight: 800; background: #fdf2e9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 3px;}
-
         .smn-desc { font-size: 0.9em; font-weight: 600; color: var(--text-dark); line-height: 1.3; margin-top: auto; }
 
-        /* NUEVA SECCIÓN: DIVULGACIÓN CIENTÍFICA (INSTAGRAM) */
-        .divulgacion-section {
-            background: white;
+        /* ===================== TARJETA DE ENLACE EXTERNO (Modelos / Estación) ===================== */
+        .external-card {
+            background: linear-gradient(135deg, var(--unlp-blue), var(--unlp-accent));
+            color: white;
             border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-            margin-top: 10px;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .external-card h3 { margin: 0 0 8px; font-size: 1.25em; font-weight: 900; }
+        .external-card p { margin: 0; opacity: 0.92; font-weight: 600; font-size: 0.92em; max-width: 480px; line-height: 1.5; }
+        .btn-cta {
+            background: white; color: var(--unlp-blue); font-weight: 800; padding: 13px 24px; border-radius: 30px;
+            text-decoration: none; font-size: 0.88em; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform .2s; flex-shrink: 0;
+        }
+        .btn-cta:hover { transform: translateY(-2px); }
+
+        /* ===================== GRILLA DE TARJETAS INFORMATIVAS ===================== */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .info-card {
+            background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            border-top: 4px solid var(--card-color, var(--unlp-accent)); display: flex; flex-direction: column; gap: 10px;
+        }
+        .info-card .icon { font-size: 1.9em; }
+        .info-card h4 { margin: 0; font-size: 1.05em; font-weight: 800; color: var(--text-dark); }
+        .info-card p { margin: 0; font-size: 0.88em; color: var(--text-muted); line-height: 1.5; flex-grow: 1; }
+        .info-card a.cta-link { font-size: 0.85em; font-weight: 800; color: var(--unlp-blue); text-decoration: none; margin-top: auto; }
+        .info-card a.cta-link:hover { text-decoration: underline; }
+
+        /* ===================== ESTADO VACÍO / EN CONSTRUCCIÓN ===================== */
+        .empty-state {
+            background: white; border-radius: 16px; padding: 55px 30px; text-align: center; color: var(--text-muted);
+            font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 2px dashed var(--border-light);
+        }
+        .empty-state .icon { font-size: 2.4em; display: block; margin-bottom: 12px; }
+        .empty-state small { display: block; margin-top: 8px; font-weight: 600; font-size: 0.8em; line-height: 1.5; }
+        .hero-news .empty-state { padding: 25px 20px; text-align: left; }
+        .hero-news .empty-state .icon { display: inline-block; margin: 0 8px 0 0; font-size: 1.3em; vertical-align: middle; }
+
+        /* ===================== DIVULGACIÓN (REELS) ===================== */
+        .divulgacion-section {
+            background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
             border-top: 4px solid var(--unlp-green);
         }
         .divulgacion-header { margin-bottom: 20px; }
-        .divulgacion-header h2 { margin: 0; font-size: 1.5em; font-weight: 900; color: var(--text-dark); text-transform: uppercase; }
-        .divulgacion-header p { margin: 5px 0 0 0; font-size: 0.95em; font-weight: 600; color: var(--text-muted); }
-        
-        .reels-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            justify-items: center;
-        }
+        .divulgacion-header h2 { margin: 0; font-size: 1.3em; font-weight: 900; color: var(--text-dark); text-transform: uppercase; }
+        .divulgacion-header p { margin: 5px 0 0 0; font-size: 0.92em; font-weight: 600; color: var(--text-muted); }
+
+        .reels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; justify-items: center; }
         .reel-wrapper {
-            width: 100%;
-            max-width: 350px;
-            border-radius: 15px;
-            overflow: hidden;
-            background: #fafafa;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 400px; /* Para mantener la caja si falla internet */
+            width: 100%; max-width: 350px; border-radius: 15px; overflow: hidden; background: #fafafa;
+            border: 1px solid var(--border-light); box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            display: flex; justify-content: center; align-items: center; min-height: 400px;
         }
-        .reel-wrapper iframe {
-            display: block;
-            width: 100%;
-            border: none;
+        .reel-wrapper iframe { display: block; width: 100%; border: none; }
+        .placeholder-content { text-align: center; color: var(--text-muted); font-weight: 700; padding: 20px; }
+
+        /* ===================== INSTITUCIONAL: NOSOTROS / AGENDA / CONTACTO ===================== */
+        .nosotros-text { font-size: 0.95em; color: var(--text-muted); font-weight: 600; line-height: 1.7; max-width: 760px; margin: 0; }
+        .subsection-label { font-size: 0.95em; font-weight: 800; color: var(--text-dark); margin: 28px 0 14px 4px; }
+
+        .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 25px; align-items: start; }
+        .social-list { display: flex; flex-direction: column; gap: 12px; }
+        .social-item {
+            display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: white; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); text-decoration: none; color: var(--text-dark); font-weight: 700;
+            font-size: 0.92em; transition: transform .2s;
         }
-        .placeholder-content {
-            text-align: center;
-            color: var(--text-muted);
-            font-weight: 700;
-            padding: 20px;
+        .social-item:hover { transform: translateX(4px); }
+        .social-item .icon { font-size: 1.4em; }
+        .contact-form {
+            background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            display: flex; flex-direction: column; gap: 14px;
         }
+        .contact-form label { font-size: 0.82em; font-weight: 800; color: var(--text-dark); margin-bottom: -8px; }
+        .contact-form input, .contact-form textarea {
+            padding: 12px 14px; border: 1px solid var(--border-light); border-radius: 8px; font-family: inherit;
+            font-size: 0.9em; resize: vertical; color: var(--text-dark);
+        }
+        .contact-form input:focus, .contact-form textarea:focus { outline: 2px solid var(--unlp-accent); }
+        .contact-form button {
+            background: var(--unlp-blue); color: white; border: none; padding: 13px; border-radius: 8px;
+            font-weight: 800; cursor: pointer; font-size: 0.9em;
+        }
+        .contact-form button:hover { background: #002d4d; }
+        .form-msg { font-size: 0.85em; font-weight: 700; color: var(--unlp-green); display: none; }
+
+        /* ===================== FOOTER ===================== */
+        footer { background: var(--unlp-blue); color: white; margin-top: 60px; padding: 40px 5% 22px; }
+        .footer-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; max-width: 1300px; margin: 0 auto; }
+        .footer-logos { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        footer img { height: 42px; background: white; border-radius: 8px; padding: 5px; object-fit: contain; }
+        .footer-social { display: flex; gap: 14px; }
+        .footer-social a { color: white; text-decoration: none; font-size: 0.85em; font-weight: 700; opacity: 0.9; }
+        .footer-social a:hover { opacity: 1; text-decoration: underline; }
+        .footer-bottom { text-align: center; margin-top: 25px; font-size: 0.78em; opacity: 0.75; font-weight: 600; }
 
         #view-placeholder { background: white; border-radius: 16px; padding: 100px 20px; text-align: center; color: var(--text-muted); font-weight: 700; font-size: 1.2em; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
 
@@ -248,44 +387,118 @@
             .logo-ast { order: 1; }
             .header-title { order: 2; flex-grow: 1; }
             .header-title h1 { font-size: 0.9em; }
-            .logo-pro { order: 3; margin-right: 0; } 
-            .logo-unlp { display: none; } 
+            .logo-pro { order: 3; margin-right: 0; }
+            .logo-unlp { display: none; }
 
-            main { grid-template-columns: 1fr; margin: 15px auto; padding: 0 10px;}
-            .sidebar-card { position: relative; top: 0; margin-bottom: 10px; padding: 15px; }
+            main { margin: 15px auto; padding: 0 10px; }
+            .hero-grid { grid-template-columns: 1fr; }
+            .sidebar-card { padding: 15px; }
             #map { height: 250px; }
-            
+
             .city-bar { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
             .emission-info { align-items: center; }
-            
+
             .rt-grid { gap: 15px; }
             .rt-value { font-size: 1.8em; }
-            
-            /* En móvil, los períodos hacen scroll horizontal natural */
+
             .smn-periods-container { padding: 15px 5px; }
             .smn-period-col { min-width: 140px; padding: 0 10px; }
+
+            .contact-grid { grid-template-columns: 1fr; }
+            .block-divider { flex-direction: column; text-align: center; }
+            .footer-top { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-<header>
+<header id="site-header">
     <img src="images/Logo astronomicas y geofisicas.png" class="logo-ast">
     <img src="images/Logo pronounlp.jfif" class="logo-pro">
     <div class="header-title"><h1>Portal Meteorológico UNLP</h1></div>
     <img src="images/Logo unlp.png" class="logo-unlp">
 </header>
 
+<nav class="main-nav" id="main-nav">
+    <a href="#inicio" class="nav-home">🏠 Inicio</a>
+
+    <div class="nav-group" style="--group-color: var(--block-pronostico)">
+        <span class="nav-group-label">🌤️ Pronóstico Operativo</span>
+        <div class="nav-group-links">
+            <a href="#pronosticos">Pronósticos</a>
+            <a href="#observaciones">Observaciones</a>
+            <a href="#modelos">Modelos</a>
+        </div>
+    </div>
+
+    <div class="nav-group" style="--group-color: var(--block-vigilancia)">
+        <span class="nav-group-label">⚠️ Vigilancia</span>
+        <div class="nav-group-links">
+            <a href="#informes">Informes</a>
+            <a href="#eventos">Eventos</a>
+            <a href="#archivo">Archivo</a>
+        </div>
+    </div>
+
+    <div class="nav-group" style="--group-color: var(--block-divulgacion)">
+        <span class="nav-group-label">🎓 Divulgación</span>
+        <div class="nav-group-links">
+            <a href="#divulgacion">Videos</a>
+            <a href="#reportes">Reportes</a>
+            <a href="#extension">Extensión</a>
+        </div>
+    </div>
+
+    <div class="nav-group" style="--group-color: var(--block-institucional); border-right:none;">
+        <span class="nav-group-label">👥 Institucional</span>
+        <div class="nav-group-links">
+            <a href="#agenda">Agenda</a>
+            <a href="#nosotros">Nosotros</a>
+            <a href="#contacto">Contacto</a>
+        </div>
+    </div>
+</nav>
+
 <main>
-    <section class="sidebar-card">
-        <div id="map"></div>
-        <p style="font-size:0.85em; font-weight:800; color:var(--text-muted); margin:0;">
-            <span class="tooltip" data-tip="Hacé clic en los marcadores del mapa para ver el pronóstico detallado.">SELECCIONÁ UNA CIUDAD</span>
-        </p>
+
+    <!-- ============================================================ -->
+    <!-- INICIO                                                        -->
+    <!-- ============================================================ -->
+    <section id="inicio" class="section">
+        <div class="hero-grid">
+            <div class="sidebar-card">
+                <div id="map"></div>
+                <p style="font-size:0.85em; font-weight:800; color:var(--text-muted); margin:0;">
+                    <span class="tooltip" data-tip="Hacé clic en los marcadores del mapa para ver el pronóstico detallado.">SELECCIONÁ UNA CIUDAD</span>
+                </p>
+            </div>
+            <div class="hero-text">
+                <h1 class="hero-title">Información meteorológica de la región, hecha en la Facultad</h1>
+                <p class="hero-sub">El Portal Meteorológico de la FCAG-UNLP reúne pronósticos operativos, observaciones en tiempo real, modelos numéricos y actividades de divulgación científica producidos por nuestro equipo. Elegí una ciudad en el mapa para empezar.</p>
+                <div class="hero-news">
+                    <h4>Últimas novedades</h4>
+                    <!-- TODO: reemplazar por las novedades reales del portal -->
+                    <div class="empty-state">
+                        <span class="icon">📰</span>Todavía no hay novedades publicadas.
+                        <small>Esta sección se va a actualizar con las últimas noticias del portal.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <section class="content-area" id="main-content" style="display:none;">
-        
+    <!-- ============================================================ -->
+    <!-- BLOQUE 1: PRONÓSTICO OPERATIVO                                -->
+    <!-- ============================================================ -->
+    <div class="block-divider" style="--block-color: var(--block-pronostico)">
+        <span class="emoji">🌤️</span>
+        <div>
+            <h2>Pronóstico Operativo</h2>
+            <p>Pronósticos, observaciones en tiempo real y modelos numéricos para la región.</p>
+        </div>
+    </div>
+
+    <section id="pronosticos" class="section">
         <div class="city-bar">
             <h2 id="out-city">--</h2>
             <div class="emission-info">
@@ -293,8 +506,13 @@
                 <span class="emission-time" id="out-hora">--:--</span>
             </div>
         </div>
+        <div id="forecast-cards-container">
+            <div class="empty-state"><span class="icon">📡</span>Seleccioná una ciudad en el mapa para ver su pronóstico.</div>
+        </div>
+    </section>
 
-        <!-- CONDICIONES ACTUALES (SMN Style) -->
+    <section id="observaciones" class="section">
+        <h3 class="section-title">Estación Meteorológica FCAG en tiempo real</h3>
         <div class="rt-card" id="rt-section">
             <div class="rt-header">
                 <h3><span class="live-dot"></span>Estación Meteorológica FCAG</h3>
@@ -307,26 +525,103 @@
                 <div class="rt-item"><span class="rt-label tooltip" data-tip="Velocidad media del viento">Viento</span><span class="rt-value" id="rt-wind" style="font-size: 1.6em; margin-top: 5px;">--</span></div>
             </div>
         </div>
-
-        <!-- CONTENEDOR DINÁMICO PARA LAS TARJETAS DE PRONÓSTICO -->
-        <div id="forecast-cards-container">
-            <!-- El JS inyectará las tarjetas aquí -->
+        <div class="external-card" style="margin-top: 18px;">
+            <div>
+                <h3>Más datos de la estación</h3>
+                <p>Consultá series históricas, gráficos y el detalle completo de la estación meteorológica de la facultad.</p>
+            </div>
+            <a class="btn-cta" href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank" rel="noopener">Ir a la estación →</a>
         </div>
+    </section>
 
-        <!-- NUEVA SECCIÓN: DIVULGACIÓN CIENTÍFICA -->
+    <section id="modelos" class="section">
+        <h3 class="section-title">Modelos numéricos</h3>
+        <div class="external-card">
+            <div>
+                <h3>Grupo de Modelado y Análisis (MNA)</h3>
+                <p>Pronósticos basados en modelos numéricos de la atmósfera, desarrollados y verificados por el grupo de investigación de la facultad.</p>
+            </div>
+            <a class="btn-cta" href="https://mna.fcaglp.unlp.edu.ar/" target="_blank" rel="noopener">Ver modelos →</a>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- BLOQUE 2: VIGILANCIA METEOROLÓGICA                            -->
+    <!-- ============================================================ -->
+    <div class="block-divider" style="--block-color: var(--block-vigilancia)">
+        <span class="emoji">⚠️</span>
+        <div>
+            <h2>Vigilancia Meteorológica</h2>
+            <p>Seguimiento de fenómenos significativos, informes especiales y registro histórico.</p>
+        </div>
+    </div>
+
+    <section id="informes" class="section">
+        <h3 class="section-title">Informes especiales</h3>
+        <!-- TODO: reemplazar las descripciones por los informes reales del grupo -->
+        <div class="info-grid">
+            <div class="info-card" style="--card-color: var(--block-vigilancia)">
+                <span class="icon">🌀</span>
+                <h4>Ciclogénesis</h4>
+                <p>Seguimiento y análisis de sistemas de baja presión que se desarrollan sobre la región.</p>
+                <a class="cta-link" href="#">Leer más →</a>
+            </div>
+            <div class="info-card" style="--card-color: var(--block-vigilancia)">
+                <span class="icon">🌊</span>
+                <h4>Sudestadas</h4>
+                <p>Informes sobre eventos de viento del sudeste y su impacto en el Río de la Plata.</p>
+                <a class="cta-link" href="#">Leer más →</a>
+            </div>
+            <div class="info-card" style="--card-color: var(--block-vigilancia)">
+                <span class="icon">🌫️</span>
+                <h4>Niebla</h4>
+                <p>Condiciones de formación de niebla y su efecto en la visibilidad regional.</p>
+                <a class="cta-link" href="#">Leer más →</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="eventos" class="section">
+        <h3 class="section-title">Eventos significativos</h3>
+        <!-- TODO: cargar acá los eventos significativos documentados por el equipo -->
+        <div class="empty-state">
+            <span class="icon">📋</span>Todavía no se publicaron eventos significativos.
+            <small>Próximamente vamos a documentar acá los fenómenos meteorológicos más relevantes de la región.</small>
+        </div>
+    </section>
+
+    <section id="archivo" class="section">
+        <h3 class="section-title">Archivo meteorológico</h3>
+        <!-- TODO: conectar con la base histórica de pronósticos/estación -->
+        <div class="empty-state">
+            <span class="icon">🗄️</span>El archivo histórico está en construcción.
+            <small>Pronto vas a poder consultar registros pasados de la estación y pronósticos anteriores.</small>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- BLOQUE 3: EXTENSIÓN Y DIVULGACIÓN                             -->
+    <!-- ============================================================ -->
+    <div class="block-divider" style="--block-color: var(--block-divulgacion)">
+        <span class="emoji">🎓</span>
+        <div>
+            <h2>Extensión y Divulgación</h2>
+            <p>Contenido audiovisual, actividades educativas y novedades para acercar la meteorología a la comunidad.</p>
+        </div>
+    </div>
+
+    <section id="divulgacion" class="section">
         <div class="divulgacion-section">
             <div class="divulgacion-header">
                 <h2>Divulgación Científica</h2>
                 <p>Enterate de los fenómenos meteorológicos y novedades ambientales explicadas por nuestros expertos.</p>
             </div>
             <div class="reels-grid">
-                <!-- REEL 1 (El que solicitaste) -->
+                <!-- REEL 1 -->
                 <div class="reel-wrapper">
-                    <!-- Agregamos /embed/ al final del link oficial -->
                     <iframe src="https://www.instagram.com/p/DZc4GzkxZQu/embed/" height="550" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
                 </div>
-                
-                <!-- REEL 2 (Placeholder para futuros videos) -->
+                <!-- REEL 2 (placeholder para futuros videos) -->
                 <div class="reel-wrapper">
                     <div class="placeholder-content">
                         <span style="font-size: 2em; display: block; margin-bottom: 10px;">🌤️</span>
@@ -335,14 +630,120 @@
                 </div>
             </div>
         </div>
-
     </section>
-    
-    <div id="view-placeholder">
-        <div style="font-size: 3em; margin-bottom: 10px;">📡</div>
-        Seleccioná una ciudad en el mapa para cargar su pronóstico.
+
+    <section id="reportes" class="section">
+        <h3 class="section-title">Fotos destacadas</h3>
+        <!-- TODO: agregar una galería real de fotos -->
+        <div class="empty-state">
+            <span class="icon">📷</span>Todavía no hay fotos publicadas.
+            <small>Acá vamos a compartir imágenes destacadas de fenómenos meteorológicos y actividades del equipo.</small>
+        </div>
+    </section>
+
+    <section id="extension" class="section">
+        <h3 class="section-title">Extensión</h3>
+        <!-- TODO: reemplazar por la oferta real de actividades de extensión -->
+        <div class="info-grid">
+            <div class="info-card" style="--card-color: var(--block-divulgacion)">
+                <span class="icon">🛠️</span>
+                <h4>Talleres</h4>
+                <p>Actividades prácticas abiertas a la comunidad sobre observación y pronóstico del tiempo.</p>
+                <a class="cta-link" href="#">Ver próximos talleres →</a>
+            </div>
+            <div class="info-card" style="--card-color: var(--block-divulgacion)">
+                <span class="icon">🏫</span>
+                <h4>Escuelas</h4>
+                <p>Visitas y charlas pensadas para acercar la meteorología a escuelas de la región.</p>
+                <a class="cta-link" href="#">Solicitar visita →</a>
+            </div>
+            <div class="info-card" style="--card-color: var(--block-divulgacion)">
+                <span class="icon">🔭</span>
+                <h4>Planetario</h4>
+                <p>Actividades conjuntas con el Planetario de la UNLP sobre ciencias de la atmósfera.</p>
+                <a class="cta-link" href="#">Más información →</a>
+            </div>
+            <div class="info-card" style="--card-color: var(--block-divulgacion)">
+                <span class="icon">🎪</span>
+                <h4>Ferias</h4>
+                <p>Participación en ferias de ciencia y eventos de divulgación de la UNLP.</p>
+                <a class="cta-link" href="#">Próximas ferias →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- BLOQUE 4: INSTITUCIONAL                                       -->
+    <!-- ============================================================ -->
+    <div class="block-divider" style="--block-color: var(--block-institucional)">
+        <span class="emoji">👥</span>
+        <div>
+            <h2>Institucional</h2>
+            <p>Quiénes somos, próximas actividades y formas de contactarnos.</p>
+        </div>
     </div>
+
+    <section id="agenda" class="section">
+        <h3 class="section-title">Próximos eventos</h3>
+        <!-- TODO: cargar agenda real de eventos -->
+        <div class="empty-state">
+            <span class="icon">📅</span>No hay eventos programados por el momento.
+            <small>Seguinos en redes para enterarte de las próximas actividades del equipo.</small>
+        </div>
+    </section>
+
+    <section id="nosotros" class="section">
+        <h3 class="section-title">Quiénes somos</h3>
+        <!-- TODO: personalizar este texto con la historia real del grupo -->
+        <p class="nosotros-text">Somos un equipo de la Facultad de Ciencias Astronómicas y Geofísicas (UNLP) dedicado al monitoreo del tiempo, el desarrollo de pronósticos y la divulgación de la meteorología hacia la comunidad. Este portal reúne nuestro trabajo de pronóstico operativo, observación y extensión.</p>
+        <div class="subsection-label">Integrantes</div>
+        <!-- TODO: presentar al equipo real -->
+        <div class="empty-state">
+            <span class="icon">🧑‍🔬</span>Próximamente vamos a presentar al equipo.
+        </div>
+    </section>
+
+    <section id="contacto" class="section">
+        <h3 class="section-title">Contacto</h3>
+        <div class="contact-grid">
+            <div class="social-list">
+                <!-- TODO: actualizar enlaces y datos de contacto reales -->
+                <a class="social-item" href="https://www.instagram.com/" target="_blank" rel="noopener"><span class="icon">📷</span>Seguinos en Instagram</a>
+                <a class="social-item" href="mailto:contacto@fcaglp.unlp.edu.ar"><span class="icon">✉️</span>contacto@fcaglp.unlp.edu.ar</a>
+                <a class="social-item" href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank" rel="noopener"><span class="icon">📡</span>Estación meteorológica FCAG</a>
+                <a class="social-item" href="https://mna.fcaglp.unlp.edu.ar/" target="_blank" rel="noopener"><span class="icon">🧮</span>Grupo de Modelado y Análisis</a>
+            </div>
+            <form class="contact-form" id="contact-form">
+                <label for="cf-name">Nombre</label>
+                <input id="cf-name" type="text" placeholder="Tu nombre" required>
+                <label for="cf-email">Email</label>
+                <input id="cf-email" type="email" placeholder="tu@email.com" required>
+                <label for="cf-msg">Mensaje</label>
+                <textarea id="cf-msg" rows="4" placeholder="Escribí tu consulta..." required></textarea>
+                <button type="submit">Enviar mensaje</button>
+                <span class="form-msg" id="form-msg">¡Gracias! Tu mensaje fue registrado.</span>
+            </form>
+        </div>
+    </section>
+
 </main>
+
+<footer>
+    <div class="footer-top">
+        <div class="footer-logos">
+            <img src="images/Logo astronomicas y geofisicas.png">
+            <img src="images/Logo pronounlp.jfif">
+            <img src="images/Logo unlp.png">
+        </div>
+        <div class="footer-social">
+            <a href="#inicio">Inicio</a>
+            <a href="#pronosticos">Pronósticos</a>
+            <a href="#divulgacion">Divulgación</a>
+            <a href="#contacto">Contacto</a>
+        </div>
+    </div>
+    <div class="footer-bottom">Facultad de Ciencias Astronómicas y Geofísicas — Universidad Nacional de La Plata</div>
+</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -357,6 +758,35 @@
         "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135
     };
 
+    /* ---------- Ajuste dinámico de offsets para header/nav sticky ---------- */
+    function updateStickyOffsets() {
+        const header = document.getElementById('site-header');
+        const nav = document.getElementById('main-nav');
+        document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+        document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    }
+    window.addEventListener('load', updateStickyOffsets);
+    window.addEventListener('resize', updateStickyOffsets);
+
+    /* ---------- Resaltado de sección activa en la navegación ---------- */
+    function setupActiveNavHighlight() {
+        const navLinks = Array.from(document.querySelectorAll('.nav-group-links a'));
+        const sections = navLinks
+            .map(a => document.querySelector(a.getAttribute('href')))
+            .filter(Boolean);
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = '#' + entry.target.id;
+                    navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+                }
+            });
+        }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+    }
+
     // Inicializar Mapa
     const map = L.map('map').setView([-36.5, -59.5], 6);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -370,7 +800,7 @@
     ];
 
     cities.forEach(c => {
-        L.marker(c.coords).addTo(map).bindPopup(`<b style="font-family: Montserrat;">${c.name}</b>`).on('click', () => cargarFull(c.name));
+        L.marker(c.coords).addTo(map).bindPopup(`<b style="font-family: Montserrat;">${c.name}</b>`).on('click', () => cargarFull(c.name, true));
     });
 
     async function fetchRealTimeData() {
@@ -381,10 +811,10 @@
             const h = data.match(/Humedad[^\d]+([\d.]+)/i);
             const p = data.match(/Presi[^\d]+([\d.]+)/i);
             const w = data.match(/Viento[^\d]+([\d.]+)/i);
-            if(t) document.getElementById('rt-temp').innerText = t[1] + "°";
-            if(h) document.getElementById('rt-hum').innerText = h[1] + "%";
-            if(p) document.getElementById('rt-pres').innerText = p[1] + " hPa";
-            if(w) document.getElementById('rt-wind').innerText = w[1] + " km/h";
+            if (t) document.getElementById('rt-temp').innerText = t[1] + "°";
+            if (h) document.getElementById('rt-hum').innerText = h[1] + "%";
+            if (p) document.getElementById('rt-pres').innerText = p[1] + " hPa";
+            if (w) document.getElementById('rt-wind').innerText = w[1] + " km/h";
             document.getElementById('rt-time').innerText = `Hora local: ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')}`;
         } catch (e) { document.getElementById('rt-time').innerText = "Estación fuera de línea temporalmente"; }
     }
@@ -399,22 +829,21 @@
         </svg>`;
     }
 
-    async function cargarFull(ciudad) {
-        const placeholder = document.getElementById('view-placeholder');
-        const mainContent = document.getElementById('main-content');
+    async function cargarFull(ciudad, scroll) {
         const container = document.getElementById('forecast-cards-container');
-        
-        mainContent.style.display = 'none';
-        placeholder.style.display = 'block';
-        placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⏳</div>Descargando modelos para ${ciudad}...`;
-        
+
+        document.getElementById('out-city').innerText = ciudad.toUpperCase();
+        container.innerHTML = `<div class="empty-state"><span class="icon">⏳</span>Descargando modelos para ${ciudad}...</div>`;
+
+        if (scroll) {
+            document.getElementById('pronosticos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         try {
             const response = await fetch(`${API_URL}?rand=${Date.now()}`);
             const json = await response.json();
-            
-            let cityData = null;
 
-            // Búsqueda inteligente en la API
+            let cityData = null;
             if (Array.isArray(json)) {
                 cityData = json.find(item => item.city && item.city.toLowerCase() === ciudad.toLowerCase());
             } else if (json.data && Array.isArray(json.data)) {
@@ -425,27 +854,20 @@
             }
 
             if (!cityData || !cityData.daily_forecasts || cityData.daily_forecasts.length === 0) {
-                placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">❌</div>No hay pronóstico vigente para ${ciudad}.`;
+                container.innerHTML = `<div class="empty-state"><span class="icon">❌</span>No hay pronóstico vigente para ${ciudad}.</div>`;
                 return;
             }
 
-            placeholder.style.display = 'none';
-            mainContent.style.display = 'flex';
-            
             document.getElementById('out-city').innerText = cityData.city ? cityData.city.toUpperCase() : ciudad.toUpperCase();
             document.getElementById('out-hora').innerText = cityData.emission_time ? cityData.emission_time.substring(0, 5) + ' HS' : '--:--';
 
-            // Limpiar contenedor
             container.innerHTML = '';
-            
             const themeClasses = ['hoy', 'mañana', 'extendido', 'extendido'];
 
-            // Construcción dinámica de Tarjetas Estilo SMN
             cityData.daily_forecasts.forEach((day, index) => {
                 const headerClass = themeClasses[index] || 'extendido';
                 let dayTitle = index === 0 ? 'HOY' : (index === 1 ? 'MAÑANA' : day.day_name.toUpperCase());
-                
-                // Formato de fecha
+
                 const dateParts = day.date ? day.date.split('-') : [];
                 const dateText = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : '';
 
@@ -465,7 +887,7 @@
                     day.period_forecasts.forEach(p => {
                         const iconCode = p.weather_icon_code || 'default';
                         const imgSrc = `${BASE_IMG_URL}${iconCode}.png`;
-                        
+
                         let popHTML = '';
                         if (p.probability_of_precipitation && p.probability_of_precipitation !== "0 %") {
                             popHTML = `<div class="smn-pop-badge">💧 ${p.probability_of_precipitation}</div>`;
@@ -502,27 +924,31 @@
                 cardHTML += `
                     </div>
                 </div>`;
-                
+
                 container.innerHTML += cardHTML;
             });
 
-            // Lógica de Estación en Vivo (Solo LP)
-            if (ciudad.toLowerCase() === "la plata") {
-                document.getElementById('rt-section').style.display = 'block';
-                fetchRealTimeData();
-            } else {
-                document.getElementById('rt-section').style.display = 'none';
-            }
-
         } catch (error) {
             console.error("Error al procesar la API:", error);
-            placeholder.innerHTML = `<div style="font-size: 2em; margin-bottom: 15px;">⚠️</div>Error de conexión. Intente nuevamente más tarde.`;
-            placeholder.style.display = 'block';
-            mainContent.style.display = 'none';
+            container.innerHTML = `<div class="empty-state"><span class="icon">⚠️</span>Error de conexión. Intente nuevamente más tarde.</div>`;
         }
     }
 
-    window.onload = () => cargarFull('La Plata');
+    /* ---------- Formulario de contacto (front-end only) ---------- */
+    /* TODO: conectar con un backend real (ej. Formspree, EmailJS, endpoint propio) */
+    document.getElementById('contact-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        document.getElementById('form-msg').style.display = 'inline-block';
+        this.reset();
+    });
+
+    window.onload = () => {
+        cargarFull('La Plata', false);
+        fetchRealTimeData();
+        setInterval(fetchRealTimeData, 5 * 60 * 1000);
+        updateStickyOffsets();
+        setupActiveNavHighlight();
+    };
 </script>
 </body>
 </html>
