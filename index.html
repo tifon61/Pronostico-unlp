@@ -494,49 +494,19 @@
         <div class="content-layout">
             <section>
                 <h2 class="section-heading">📹 Divulgación en Redes</h2>
-                <p class="section-desc">Hacé clic en un video para reproducirlo</p>
+                <p class="section-desc">Últimos videos y publicaciones de nuestro Instagram.</p>
                 <div class="grid-3" id="ig-grid">
-                    <div class="ig-facade" data-url="https://www.instagram.com/p/DZc4GzkxZQu/embed/" onclick="loadIgEmbed(this)">
-                        <div class="ig-thumb" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1561484930-998b6a7b22e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80') center/cover;">
-                            <div class="ig-thumb-icon">⚽☀️☁️</div>
-                            <div class="ig-thumb-title">¿Clima de mundial?</div>
-                        </div>
-                        <div class="ig-facade-bar">
-                            <div class="ig-facade-info">
-                                <div class="ig-facade-acct">@pronostico.unlp</div>
-                                <div class="ig-facade-desc"></div>
-                            </div>
-                            <button class="ig-play-btn">▶ Ver</button>
-                        </div>
-                        <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
+                    <!-- Reel 1 -->
+                    <div class="ig-iframe-wrap">
+                        <iframe src="https://www.instagram.com/p/DZc4GzkxZQu/embed/" width="100%" height="480" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
                     </div>
-                    <div class="ig-facade" data-url="https://www.instagram.com/p/DZDXXOVx72_/embed/" onclick="loadIgEmbed(this)">
-                        <div class="ig-thumb" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1542272201-b1ca555f8505?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80') center/cover;">
-                            <div class="ig-thumb-icon">😶‍🌫️</div>
-                            <div class="ig-thumb-title">¿Oxford o La Plata?</div>
-                        </div>
-                        <div class="ig-facade-bar">
-                            <div class="ig-facade-info">
-                                <div class="ig-facade-acct">@pronostico.unlp</div>
-                                <div class="ig-facade-desc">Nieblas en la ciudad</div>
-                            </div>
-                            <button class="ig-play-btn">▶ Ver</button>
-                        </div>
-                        <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
+                    <!-- Reel 2 -->
+                    <div class="ig-iframe-wrap">
+                        <iframe src="https://www.instagram.com/p/DZDXXOVx72_/embed/" width="100%" height="480" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
                     </div>
-                    <div class="ig-facade" data-url="https://www.instagram.com/p/DY2emTqxtUj/embed/" onclick="loadIgEmbed(this)">
-                        <div class="ig-thumb" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80') center/cover;">
-                            <div class="ig-thumb-icon">😶‍🌫️</div>
-                            <div class="ig-thumb-title">¿Niebla y neblina es lo mismo?</div>
-                        </div>
-                        <div class="ig-facade-bar">
-                            <div class="ig-facade-info">
-                                <div class="ig-facade-acct">@pronostico.unlp</div>
-                                <div class="ig-facade-desc">Definiciones meteorologicas</div>
-                            </div>
-                            <button class="ig-play-btn">▶ Ver</button>
-                        </div>
-                        <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
+                    <!-- Reel 3 -->
+                    <div class="ig-iframe-wrap">
+                        <iframe src="https://www.instagram.com/p/DY2emTqxtUj/embed/" width="100%" height="480" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
                     </div>
                 </div>
             </section>
@@ -963,38 +933,6 @@ async function fetchForecast(city) {
         console.error('Forecast error:', err);
         container.innerHTML = `<div class="fcast-empty" style="color:var(--danger); background:#fef2f2;">Error al conectar con el servidor.</div>`;
     }
-}
-
-// ─── INSTAGRAM LAZY EMBED ────────────────────────────────────────────────────
-function loadIgEmbed(facade) {
-    const url = facade.dataset.url;
-    const parent = facade.parentElement;
-
-    const loader = document.createElement('div');
-    loader.className = 'ig-loading';
-    loader.innerHTML = '<div class="spin">⏳</div><div>Cargando video de Instagram...</div>';
-    parent.replaceChild(loader, facade);
-
-    const wrap = document.createElement('div');
-    wrap.className = 'ig-iframe-wrap';
-    const iframe = document.createElement('iframe');
-    iframe.src = url;
-    iframe.width = '100%';
-    iframe.height = '560';
-    iframe.frameBorder = '0';
-    iframe.scrolling = 'no';
-    iframe.allowFullscreen = true;
-    iframe.style.display = 'block';
-
-    iframe.onload = () => {
-        parent.replaceChild(wrap, loader);
-        wrap.appendChild(iframe);
-    };
-    iframe.onerror = () => {
-        loader.innerHTML = '❌ No se pudo cargar el video. <a href="' + url.replace('/embed/', '/') + '" target="_blank" style="color:var(--accent);font-weight:700;">Abrí en Instagram →</a>';
-    };
-
-    document.body.appendChild(iframe);
 }
 
 </script>
