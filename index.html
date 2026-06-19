@@ -497,7 +497,7 @@
                 <p class="section-desc">Hacé clic en un video para reproducirlo</p>
                 <div class="grid-3" id="ig-grid">
                     <div class="ig-facade" data-url="https://www.instagram.com/p/DZc4GzkxZQu/embed/" onclick="loadIgEmbed(this)">
-                        <div class="ig-thumb" style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);">
+                        <div class="ig-thumb" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1561484930-998b6a7b22e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80') center/cover;">
                             <div class="ig-thumb-icon">⚽☀️☁️</div>
                             <div class="ig-thumb-title">¿Clima de mundial?</div>
                         </div>
@@ -511,7 +511,7 @@
                         <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
                     </div>
                     <div class="ig-facade" data-url="https://www.instagram.com/p/DZDXXOVx72_/embed/" onclick="loadIgEmbed(this)">
-                        <div class="ig-thumb" style="background:linear-gradient(135deg,#0052d4,#4364f7,#6fb1fc);">
+                        <div class="ig-thumb" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1542272201-b1ca555f8505?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80') center/cover;">
                             <div class="ig-thumb-icon">😶‍🌫️</div>
                             <div class="ig-thumb-title">¿Oxford o La Plata?</div>
                         </div>
@@ -525,7 +525,7 @@
                         <div class="ig-facade-overlay"><div class="ig-play-big">▶</div></div>
                     </div>
                     <div class="ig-facade" data-url="https://www.instagram.com/p/DY2emTqxtUj/embed/" onclick="loadIgEmbed(this)">
-                        <div class="ig-thumb" style="background:linear-gradient(135deg,#f7971e,#ffd200);">
+                        <div class="ig-thumb" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80') center/cover;">
                             <div class="ig-thumb-icon">😶‍🌫️</div>
                             <div class="ig-thumb-title">¿Niebla y neblina es lo mismo?</div>
                         </div>
@@ -609,7 +609,7 @@ function switchView(viewId, btn) {
 const FORECAST_API = "https://sebastianmendestello.ar/prono-unlp/api/v1/forecasts/latest";
 const TS_CHANNEL   = "2823820";
 const TS_KEY       = "FFI1HK80ZKDNS6V8";
-const TS_URL       = `https://api.thingspeak.com/channels/${TS_CHANNEL}/feeds.json?api_key=${TS_KEY}&results=24`;
+const TS_URL       = `https://api.thingspeak.com/channels/${TS_CHANNEL}/feeds.json?api_key=${TS_KEY}&days=1&average=30`;
 const TS_F         = { temp:'field1', hum:'field2', pres:'field3', wind:'field4', rad:'field5', rain:'field6' };
 
 const WIND_ANGLES = { norte:180, noreste:225, este:270, sudeste:315, sur:0, sudoeste:45, oeste:90, noroeste:135 };
@@ -752,10 +752,10 @@ function skyDesc(p) {
 
 // ─── CONSTRUCCIÓN DEL HTML DE PRONÓSTICO ─────────────────────────────────────
 function tempBlock(day) {
-    const minUrb = day.temp_min != null ? day.temp_min + '°' : '--';
-    const maxUrb = day.temp_max != null ? day.temp_max + '°' : '--';
-    const minSub = day.temp_min_suburban != null ? day.temp_min_suburban + '°*' : null;
-    const maxSub = day.temp_max_suburban != null ? day.temp_max_suburban + '°*' : null;
+    const minUrb = (day.temp_min != null && day.temp_min !== '') ? day.temp_min + '°' : '--';
+    const maxUrb = (day.temp_max != null && day.temp_max !== '') ? day.temp_max + '°' : '--';
+    const minSub = (day.temp_min_suburban != null && day.temp_min_suburban !== '') ? day.temp_min_suburban + '°*' : '--*';
+    const maxSub = (day.temp_max_suburban != null && day.temp_max_suburban !== '') ? day.temp_max_suburban + '°*' : '--*';
 
     return `
     <div class="fcast-temps">
@@ -764,7 +764,7 @@ function tempBlock(day) {
             <div class="fcast-temp-vals">
                 <div class="fcast-temp-lbl">MÍN</div>
                 <div class="fcast-temp-urb">${minUrb}</div>
-                ${minSub ? `<div class="fcast-temp-sub">${minSub}</div>` : ''}
+                <div class="fcast-temp-sub">${minSub}</div>
             </div>
         </div>
         <div class="fcast-temp-col">
@@ -772,7 +772,7 @@ function tempBlock(day) {
             <div class="fcast-temp-vals">
                 <div class="fcast-temp-lbl">MÁX</div>
                 <div class="fcast-temp-urb">${maxUrb}</div>
-                ${maxSub ? `<div class="fcast-temp-sub">${maxSub}</div>` : ''}
+                <div class="fcast-temp-sub">${maxSub}</div>
             </div>
         </div>
     </div>`;
@@ -807,10 +807,10 @@ function buildPeriodCol(p) {
 function buildExtCard(day, cardClass) {
     const p1 = day.period_forecasts?.[0];
     const p2 = day.period_forecasts?.[1];
-    const minUrb = day.temp_min != null ? day.temp_min + '°' : '--';
-    const maxUrb = day.temp_max != null ? day.temp_max + '°' : '--';
-    const minSub = day.temp_min_suburban != null ? `${day.temp_min_suburban}°*` : null;
-    const maxSub = day.temp_max_suburban != null ? `${day.temp_max_suburban}°*` : null;
+    const minUrb = (day.temp_min != null && day.temp_min !== '') ? day.temp_min + '°' : '--';
+    const maxUrb = (day.temp_max != null && day.temp_max !== '') ? day.temp_max + '°' : '--';
+    const minSub = (day.temp_min_suburban != null && day.temp_min_suburban !== '') ? `${day.temp_min_suburban}°*` : '--*';
+    const maxSub = (day.temp_max_suburban != null && day.temp_max_suburban !== '') ? `${day.temp_max_suburban}°*` : '--*';
     const dateStr = day.date ? day.date.split('-').slice(1).reverse().join('/') : '';
 
     const half = (p, lbl) => {
@@ -859,7 +859,7 @@ function buildExtCard(day, cardClass) {
                     <div class="ext-temp-vals">
                         <div class="ext-temp-lbl">MÍN</div>
                         <div class="ext-temp-urb">${minUrb}</div>
-                        ${minSub ? `<div class="ext-temp-sub">${minSub}</div>` : ''}
+                        <div class="ext-temp-sub">${minSub}</div>
                     </div>
                 </div>
                 <div class="ext-temp-item">
@@ -867,7 +867,7 @@ function buildExtCard(day, cardClass) {
                     <div class="ext-temp-vals">
                         <div class="ext-temp-lbl">MÁX</div>
                         <div class="ext-temp-urb">${maxUrb}</div>
-                        ${maxSub ? `<div class="ext-temp-sub">${maxSub}</div>` : ''}
+                        <div class="ext-temp-sub">${maxSub}</div>
                     </div>
                 </div>
             </div>
@@ -955,10 +955,7 @@ async function fetchForecast(city) {
             html += `</div>`;
         }
 
-        const hasSuburban = forecasts.some(d => d.temp_min_suburban != null || d.temp_max_suburban != null);
-        if (hasSuburban) {
-            html += `<div style="text-align:center; font-size:0.72rem; font-weight:700; color:var(--text-muted); padding: 6px 0 2px;">* TEMPERATURA EN ZONA SUBURBANA</div>`;
-        }
+        html += `<div style="text-align:center; font-size:0.72rem; font-weight:700; color:var(--text-muted); padding: 6px 0 2px;">* TEMPERATURA EN ZONA SUBURBANA</div>`;
 
         container.innerHTML = html;
 
