@@ -60,6 +60,17 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
+        .var-btn {
+            transition: all 0.2s ease;
+            color: #94a3b8;
+        }
+
+        .var-btn.active {
+            background-color: #16a34a;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
         /* Scrollbar personalizado */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
@@ -100,64 +111,124 @@
                         <label class="font-medium text-xs text-slate-400 uppercase tracking-wide">Hasta</label>
                         <input type="datetime-local" id="endDatetime" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white outline-none focus:border-sky-500">
                     </div>
-                    <button onclick="updateDashboard(true)" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg w-full sm:w-auto mt-2 sm:mt-0">
+                    <button onclick="refreshCurrentRange(true)" class="bg-sky-600 hover:bg-sky-500 text-white px-6 py-2 rounded-lg transition-all font-bold shadow-lg w-full sm:w-auto mt-2 sm:mt-0">
                         <i class="fa-solid fa-sync-alt mr-2"></i>Aplicar
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Tarjetas de Totales -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- EMA Violeta: Ahora multiplica por 0.68mm debido al ciclo completo -->
-            <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
-                <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">EMA VIOLETA (0.68mm/pulso)</p>
-                    <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Sincronizando...</span>
+        <!-- Pestañas Principales -->
+        <div class="glass p-1 rounded-xl flex gap-1 mb-8 w-fit mx-auto xl:mx-0">
+            <button onclick="switchMainTab('lluvia', this)" id="mainTab-lluvia" class="tab-btn active px-5 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-cloud-rain mr-2"></i>Comparación de Lluvia</button>
+            <button onclick="switchMainTab('variables', this)" id="mainTab-variables" class="tab-btn px-5 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-chart-line mr-2"></i>Comparación de Variables</button>
+        </div>
+
+        <!-- VISTA: COMPARACIÓN DE LLUVIA -->
+        <div id="view-lluvia">
+            <!-- Tarjetas de Totales -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- EMA Violeta: Ahora multiplica por 0.68mm debido al ciclo completo -->
+                <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="card-title">EMA VIOLETA (0.68mm/pulso)</p>
+                        <span id="channelBadge" class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded">Sincronizando...</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <p class="stat-value" id="accumVioleta">0.00</p>
+                        <span class="text-slate-500 font-bold text-xl">mm</span>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Calculando ciclos completos de cangilones...</p>
                 </div>
-                <div class="flex items-baseline gap-2">
-                    <p class="stat-value" id="accumVioleta">0.00</p>
-                    <span class="text-slate-500 font-bold text-xl">mm</span>
+
+                <!-- EMA Verde: field 5 ya viene en mm acumulados (con reset diario a las 00:00) -->
+                <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="card-title">EMA VERDE (Acumulado mm)</p>
+                        <span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2218686</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <p class="stat-value" id="accumVerde">0.00</p>
+                        <span class="text-slate-500 font-bold text-xl">mm</span>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-2" id="msgVerde">Calculando diferencias del acumulado...</p>
                 </div>
-                <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Calculando ciclos completos de cangilones...</p>
+
+                <!-- Campbell: Los valores del field son mm directos -->
+                <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="card-title">CAMPBELL (Lectura Directa)</p>
+                        <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <p class="stat-value" id="accumCampbell">0.00</p>
+                        <span class="text-slate-500 font-bold text-xl">mm</span>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sumando mm del datalogger...</p>
+                </div>
             </div>
 
-            <!-- EMA Verde: field 5 ya viene en mm acumulados (con reset diario a las 00:00) -->
-            <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
-                <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">EMA VERDE (Acumulado mm)</p>
-                    <span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2218686</span>
+            <!-- Gráfico Principal -->
+            <div class="grid grid-cols-1 gap-6 mb-8">
+                <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-slate-200" id="chartTitle">Curva de Precipitación del Evento</h3>
+                        <span class="text-xs text-slate-400" id="chartSubtitle"></span>
+                    </div>
+                    <div id="chartParent" class="relative w-full h-[380px]">
+                        <canvas id="precipChart"></canvas>
+                    </div>
                 </div>
-                <div class="flex items-baseline gap-2">
-                    <p class="stat-value" id="accumVerde">0.00</p>
-                    <span class="text-slate-500 font-bold text-xl">mm</span>
-                </div>
-                <p class="text-slate-400 text-xs mt-2" id="msgVerde">Calculando diferencias del acumulado...</p>
-            </div>
-
-            <!-- Campbell: Los valores del field son mm directos -->
-            <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
-                <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">CAMPBELL (Lectura Directa)</p>
-                    <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820</span>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <p class="stat-value" id="accumCampbell">0.00</p>
-                    <span class="text-slate-500 font-bold text-xl">mm</span>
-                </div>
-                <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sumando mm del datalogger...</p>
             </div>
         </div>
 
-        <!-- Gráfico Principal -->
-        <div class="grid grid-cols-1 gap-6 mb-8">
-            <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-slate-200" id="chartTitle">Curva de Precipitación del Evento</h3>
-                    <span class="text-xs text-slate-400" id="chartSubtitle"></span>
+        <!-- VISTA: COMPARACIÓN DE VARIABLES -->
+        <div id="view-variables" class="hidden">
+            <!-- Selector de Variable -->
+            <div class="glass p-1 rounded-xl flex flex-wrap gap-1 mb-8 w-fit">
+                <button onclick="selectVariable('temp', this)" id="varBtn-temp" class="var-btn active px-4 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-temperature-half mr-2"></i>Temperatura</button>
+                <button onclick="selectVariable('hum', this)" id="varBtn-hum" class="var-btn px-4 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-droplet mr-2"></i>Humedad</button>
+                <button onclick="selectVariable('pres', this)" id="varBtn-pres" class="var-btn px-4 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-gauge mr-2"></i>Presión</button>
+                <button onclick="selectVariable('lluvia', this)" id="varBtn-lluvia" class="var-btn px-4 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-cloud-rain mr-2"></i>Lluvia (acumulado)</button>
+            </div>
+
+            <!-- Tarjetas de Valor Actual -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="card-title">EMA VERDE</p>
+                        <span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2218686</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <p class="stat-value" id="varVerdeValue">--</p>
+                        <span class="text-slate-500 font-bold text-xl" id="varVerdeUnit"></span>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-2" id="varVerdeMsg">Sincronizando...</p>
                 </div>
-                <div id="chartParent" class="relative w-full h-[380px]">
-                    <canvas id="precipChart"></canvas>
+
+                <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="card-title">CAMPBELL</p>
+                        <span class="bg-sky-500/20 text-sky-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2823820</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <p class="stat-value" id="varCampbellValue">--</p>
+                        <span class="text-slate-500 font-bold text-xl" id="varCampbellUnit"></span>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-2" id="varCampbellMsg">Sincronizando...</p>
+                </div>
+            </div>
+
+            <!-- Gráfico Combinado -->
+            <div class="grid grid-cols-1 gap-6 mb-8">
+                <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-slate-200" id="varChartTitle">Temperatura: EMA Verde vs Campbell</h3>
+                        <span class="text-xs text-slate-400" id="varChartSubtitle"></span>
+                    </div>
+                    <div class="relative w-full h-[380px]">
+                        <canvas id="varChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,7 +262,20 @@
         const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 1.0, field: 5 };
         const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
 
+        // Mapeo de variables comparables entre EMA Verde y Campbell.
+        // Cada estación numera sus fields distinto (ver metadata de canal de ThingSpeak).
+        const VARS = {
+            temp:   { label: 'Temperatura',      unit: '°C', verdeField: 1, campbellField: 1, color: '#f97316', accumulated: false },
+            hum:    { label: 'Humedad',           unit: '%',  verdeField: 2, campbellField: 4, color: '#0ea5e9', accumulated: false },
+            pres:   { label: 'Presión',           unit: 'hPa', verdeField: 6, campbellField: 6, color: '#8b5cf6', accumulated: false },
+            lluvia: { label: 'Lluvia Acumulada',  unit: 'mm', verdeField: 5, campbellField: 5, color: '#22c55e', accumulated: true }
+        };
+
+        let currentVar = 'temp';
+        let activeMainTab = 'lluvia';
+
         let myChart = null;
+        let myVarChart = null;
 
         // Función para formatear fechas a YYYY-MM-DDTHH:MM para el input datetime-local
         function toDatetimeLocal(date) {
@@ -219,13 +303,42 @@
             document.getElementById('endDatetime').value = endStr;
 
             // Actualizar UI botones
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if (!b.id.startsWith('mainTab-')) b.classList.remove('active');
+            });
             if(range) {
                 const btn = document.getElementById('btn-' + range);
                 if(btn) btn.classList.add('active');
             }
 
-            updateDashboard();
+            refreshCurrentRange();
+        }
+
+        // Refresca la vista principal activa (Lluvia o Variables) con el rango de fechas actual
+        function refreshCurrentRange(isManual = false) {
+            if (activeMainTab === 'lluvia') {
+                updateDashboard(isManual);
+            } else {
+                updateVariablesTab();
+            }
+        }
+
+        // Cambiar entre la pestaña de Lluvia y la de Variables
+        function switchMainTab(tab, btn) {
+            activeMainTab = tab;
+            document.getElementById('view-lluvia').classList.toggle('hidden', tab !== 'lluvia');
+            document.getElementById('view-variables').classList.toggle('hidden', tab !== 'variables');
+            document.getElementById('mainTab-lluvia').classList.toggle('active', tab === 'lluvia');
+            document.getElementById('mainTab-variables').classList.toggle('active', tab === 'variables');
+            refreshCurrentRange();
+        }
+
+        // Elegir qué variable comparar (temperatura, humedad, presión o lluvia)
+        function selectVariable(varKey, btn) {
+            currentVar = varKey;
+            document.querySelectorAll('.var-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateVariablesTab();
         }
 
         // Consultar a ThingSpeak
@@ -413,10 +526,93 @@
             return { total: totalPeriod.toFixed(2), chartData, labels, recordsCount };
         }
 
+        // Consultar un field arbitrario de un canal (usado por la comparación de variables)
+        async function fetchChannelField(id, apiKey, fieldNum, startStr, endStr) {
+            const tsStart = startStr.replace('T', '%20') + ':00';
+            const tsEnd = endStr.replace('T', '%20') + ':59';
+
+            const url = `https://api.thingspeak.com/channels/${id}/fields/${fieldNum}.json?api_key=${apiKey}&start=${tsStart}&end=${tsEnd}&timezone=America/Argentina/Buenos_Aires&results=8000`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                return { feeds: data.feeds || [], field: fieldNum };
+            } catch (e) {
+                console.error("Error consultando ThingSpeak:", e);
+                return { feeds: [], field: fieldNum };
+            }
+        }
+
+        // Procesar una variable continua (temperatura, humedad, presión): promedia las
+        // lecturas por bucket en vez de sumarlas, porque no son cantidades acumulables.
+        function processContinuousSeries(feeds, fieldNum, startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const diffHours = (end - start) / 3600000;
+            const bucketByHour = diffHours <= 72;
+
+            const buckets = new Map();
+            let current = new Date(start);
+
+            if (bucketByHour) {
+                current.setMinutes(0, 0, 0);
+                while (current <= end) {
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)} ${pad(current.getHours())}:00`;
+                    buckets.set(key, { sum: 0, count: 0 });
+                    current.setHours(current.getHours() + 1);
+                }
+            } else {
+                current.setHours(0, 0, 0, 0);
+                while (current <= end) {
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)}/${current.getFullYear()}`;
+                    buckets.set(key, { sum: 0, count: 0 });
+                    current.setDate(current.getDate() + 1);
+                }
+            }
+
+            const fieldKey = "field" + fieldNum;
+            let latestValue = null;
+            let latestTs = null;
+
+            feeds.forEach(f => {
+                const val = parseFloat(f[fieldKey]);
+                if (isNaN(val)) return;
+                const ts = f.created_at;
+
+                if (!latestTs || new Date(ts) > new Date(latestTs)) {
+                    latestTs = ts;
+                    latestValue = val;
+                }
+
+                const dateObj = new Date(ts);
+                const pad = (n) => n.toString().padStart(2, '0');
+                const key = bucketByHour
+                    ? `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)} ${pad(dateObj.getHours())}:00`
+                    : `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)}/${dateObj.getFullYear()}`;
+
+                if (buckets.has(key)) {
+                    const b = buckets.get(key);
+                    b.sum += val;
+                    b.count += 1;
+                }
+            });
+
+            const labels = Array.from(buckets.keys());
+            const chartData = labels.map(k => {
+                const b = buckets.get(k);
+                return b.count > 0 ? +(b.sum / b.count).toFixed(2) : null;
+            });
+
+            return { labels, chartData, latestValue, latestTs };
+        }
+
         async function updateDashboard(isManual = false) {
             if (isManual) {
                 // Si el usuario tocó "Aplicar", quitamos la selección de los botones rápidos
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    if (!b.id.startsWith('mainTab-')) b.classList.remove('active');
+                });
             }
 
             const startStr = document.getElementById('startDatetime').value;
@@ -556,6 +752,133 @@
                             ticks: {
                                 color: '#94a3b8',
                                 maxTicksLimit: 15 // Evitar solapamiento de textos en el eje X
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Actualizar la pestaña de Comparación de Variables (temp / humedad / presión / lluvia)
+        async function updateVariablesTab() {
+            const startStr = document.getElementById('startDatetime').value;
+            const endStr = document.getElementById('endDatetime').value;
+            if (!startStr || !endStr) return;
+
+            const cfg = VARS[currentVar];
+
+            document.getElementById('varVerdeMsg').innerText = "Sincronizando...";
+            document.getElementById('varCampbellMsg').innerText = "Sincronizando...";
+            document.getElementById('varChartTitle').innerText = `${cfg.label}: EMA Verde vs Campbell`;
+            document.getElementById('varChartSubtitle').innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
+            document.getElementById('varVerdeUnit').innerText = cfg.unit;
+            document.getElementById('varCampbellUnit').innerText = cfg.unit;
+
+            const [feedsVerde, feedsCampbell] = await Promise.all([
+                fetchChannelField(V_VERDE.id, V_VERDE.api, cfg.verdeField, startStr, endStr),
+                fetchChannelField(C_STATION.id, C_STATION.api, cfg.campbellField, startStr, endStr)
+            ]);
+
+            let verdeResult, campResult;
+
+            if (cfg.accumulated) {
+                // Verde acumula con reset diario; Campbell reporta mm directos por intervalo
+                verdeResult = processAccumulatedCounter([feedsVerde], 1.0, startStr, endStr);
+                campResult = processStationData([feedsCampbell], 1.0, startStr, endStr, true);
+                verdeResult.latestValue = parseFloat(verdeResult.total);
+                campResult.latestValue = parseFloat(campResult.total);
+            } else {
+                verdeResult = processContinuousSeries(feedsVerde.feeds, cfg.verdeField, startStr, endStr);
+                campResult = processContinuousSeries(feedsCampbell.feeds, cfg.campbellField, startStr, endStr);
+            }
+
+            document.getElementById('varVerdeValue').innerText = verdeResult.latestValue != null ? verdeResult.latestValue.toFixed(2) : '--';
+            document.getElementById('varCampbellValue').innerText = campResult.latestValue != null ? campResult.latestValue.toFixed(2) : '--';
+
+            document.getElementById('varVerdeMsg').innerText = cfg.accumulated
+                ? `Total del período (reset diario a las 00:00)`
+                : (verdeResult.latestTs ? `Última lectura: ${new Date(verdeResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos en el rango');
+            document.getElementById('varCampbellMsg').innerText = cfg.accumulated
+                ? `Total del período`
+                : (campResult.latestTs ? `Última lectura: ${new Date(campResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos en el rango');
+
+            if (typeof Chart !== 'undefined') renderVarChart(verdeResult, campResult, cfg);
+        }
+
+        function renderVarChart(verdeResult, campResult, cfg) {
+            const ctx = document.getElementById('varChart').getContext('2d');
+            if (myVarChart) myVarChart.destroy();
+
+            const pointRad = verdeResult.labels.length > 50 ? 1 : 3;
+
+            myVarChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: verdeResult.labels,
+                    datasets: [
+                        {
+                            label: `EMA Verde (${cfg.unit})`,
+                            data: verdeResult.chartData,
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            spanGaps: true,
+                            pointRadius: pointRad,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: `Campbell (${cfg.unit})`,
+                            data: campResult.chartData,
+                            borderColor: '#0ea5e9',
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            spanGaps: true,
+                            pointRadius: pointRad,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#94a3b8', font: { weight: 'bold' } }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: cfg.accumulated,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: (v) => v.toFixed(1) + ' ' + cfg.unit
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                maxTicksLimit: 15
                             }
                         }
                     }
