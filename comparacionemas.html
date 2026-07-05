@@ -122,17 +122,17 @@
                 <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Calculando ciclos completos de cangilones...</p>
             </div>
 
-            <!-- EMA Verde: Mismo criterio de calibración por pulso (0.68mm) -->
+            <!-- EMA Verde: field 5 ya viene en mm acumulados (con reset diario a las 00:00) -->
             <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
                 <div class="flex justify-between items-start mb-2">
-                    <p class="card-title">EMA VERDE (0.68mm/pulso)</p>
+                    <p class="card-title">EMA VERDE (Acumulado mm)</p>
                     <span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2218686</span>
                 </div>
                 <div class="flex items-baseline gap-2">
                     <p class="stat-value" id="accumVerde">0.00</p>
                     <span class="text-slate-500 font-bold text-xl">mm</span>
                 </div>
-                <p class="text-slate-400 text-xs mt-2" id="msgVerde">Calculando ciclos completos de cangilones...</p>
+                <p class="text-slate-400 text-xs mt-2" id="msgVerde">Calculando diferencias del acumulado...</p>
             </div>
 
             <!-- Campbell: Los valores del field son mm directos -->
@@ -186,7 +186,9 @@
          */
         const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.68, field: 5 };
         const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.68, field: 5 };
-        const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 0.68, field: 5 };
+        // A diferencia de Violeta, el field 5 de Verde ya es un acumulado en mm
+        // (no un pulso por lectura) que se resetea a 0 cada día a las 00:00.
+        const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 1.0, field: 5 };
         const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
 
         let myChart = null;
@@ -324,6 +326,93 @@
             return { total: totalPeriod.toFixed(2), chartData, labels, recordsCount };
         }
 
+        // EMA Verde no manda pulsos individuales: el field 5 es un contador acumulado
+        // que se resetea a 0 todos los días a las 00:00. Para obtener la lluvia real
+        // hay que tomar la diferencia entre lecturas consecutivas (y no sumar el valor
+        // absoluto de cada una, que sería un acumulado incorrecto).
+        function processAccumulatedCounter(allFeedsData, mult, startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const diffHours = (end - start) / 3600000;
+            const bucketByHour = diffHours <= 72;
+
+            const buckets = new Map();
+            let current = new Date(start);
+
+            if (bucketByHour) {
+                current.setMinutes(0, 0, 0);
+                while (current <= end) {
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)} ${pad(current.getHours())}:00`;
+                    buckets.set(key, 0);
+                    current.setHours(current.getHours() + 1);
+                }
+            } else {
+                current.setHours(0, 0, 0, 0);
+                while (current <= end) {
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)}/${current.getFullYear()}`;
+                    buckets.set(key, 0);
+                    current.setDate(current.getDate() + 1);
+                }
+            }
+
+            // Unificar y ordenar todas las lecturas cronológicamente
+            const readings = [];
+            allFeedsData.forEach(source => {
+                const fieldKey = "field" + source.field;
+                source.feeds.forEach(f => {
+                    const val = parseFloat(f[fieldKey]);
+                    if (!isNaN(val)) readings.push({ ts: f.created_at, val });
+                });
+            });
+            readings.sort((a, b) => new Date(a.ts) - new Date(b.ts));
+
+            let totalPeriod = 0;
+            let recordsCount = 0;
+            let prevVal = null;
+
+            readings.forEach(r => {
+                if (prevVal === null) {
+                    // La primera lectura ya trae acumulado desde el último reset (00:00),
+                    // no desde el inicio del rango elegido: se usa solo como referencia,
+                    // no se suma para no contar lluvia previa al rango.
+                    prevVal = r.val;
+                    return;
+                }
+
+                let delta = r.val - prevVal;
+                if (delta < 0) delta = r.val; // el contador se reinició a 0 (paso de medianoche)
+                prevVal = r.val;
+
+                if (delta > 0) {
+                    const amount = delta * mult;
+                    totalPeriod += amount;
+                    recordsCount++;
+
+                    const dateObj = new Date(r.ts);
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const key = bucketByHour
+                        ? `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)} ${pad(dateObj.getHours())}:00`
+                        : `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)}/${dateObj.getFullYear()}`;
+
+                    if (buckets.has(key)) {
+                        buckets.set(key, buckets.get(key) + amount);
+                    }
+                }
+            });
+
+            const labels = Array.from(buckets.keys());
+            const chartData = [];
+            let runningSum = 0;
+            for (let [key, val] of buckets) {
+                runningSum += val;
+                chartData.push(runningSum);
+            }
+
+            return { total: totalPeriod.toFixed(2), chartData, labels, recordsCount };
+        }
+
         async function updateDashboard(isManual = false) {
             if (isManual) {
                 // Si el usuario tocó "Aplicar", quitamos la selección de los botones rápidos
@@ -356,14 +445,14 @@
             ]);
 
             const resV = processStationData([resVActual, resVHist], V_ACTUAL.mult, startStr, endStr, false);
-            const resVerde = processStationData([resVVerde], V_VERDE.mult, startStr, endStr, false);
+            const resVerde = processAccumulatedCounter([resVVerde], V_VERDE.mult, startStr, endStr);
             const resC = processStationData([resC_raw], C_STATION.mult, startStr, endStr, true);
 
             document.getElementById('accumVioleta').innerText = resV.total;
             document.getElementById('accumVerde').innerText = resVerde.total;
             document.getElementById('accumCampbell').innerText = resC.total;
             document.getElementById('msgVioleta').innerText = `Ciclos registrados: ${resV.recordsCount} (x 0.68mm)`;
-            document.getElementById('msgVerde').innerText = `Ciclos registrados: ${resVerde.recordsCount} (x 0.68mm)`;
+            document.getElementById('msgVerde').innerText = `Incrementos detectados: ${resVerde.recordsCount} (mm directos, reset diario)`;
             document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
 
             const badge = document.getElementById('channelBadge');
