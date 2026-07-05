@@ -10,53 +10,53 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #0f172a; 
-            color: #f1f5f9; 
-            margin: 0; 
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            margin: 0;
             overflow-x: hidden;
         }
 
-        .glass { 
-            background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255,255,255,0.1); 
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .card-title { 
-            color: #94a3b8; 
-            font-size: 0.875rem; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            letter-spacing: 0.05em; 
+        .card-title {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .stat-value { 
-            font-size: 2.5rem; 
-            font-weight: 700; 
-            color: #38bdf8; 
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #38bdf8;
         }
 
-        .iframe-container { 
-            height: 500px; 
-            width: 100%; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            border: none; 
+        .iframe-container {
+            height: 500px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: none;
         }
 
         .tab-btn {
             transition: all 0.2s ease;
         }
 
-        .tab-btn.active { 
-            background-color: #0ea5e9; 
-            color: white; 
+        .tab-btn.active {
+            background-color: #0ea5e9;
+            color: white;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
@@ -64,7 +64,7 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        
+
         /* Ajuste inputs datetime */
         input[type="datetime-local"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
@@ -79,9 +79,9 @@
         <header class="flex flex-col xl:flex-row justify-between items-center mb-8 gap-6">
             <div class="text-center xl:text-left">
                 <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
-                <p class="text-slate-400">Análisis Calibrado: EMA Violeta vs Campbell</p>
+                <p class="text-slate-400">Análisis Calibrado: EMA Violeta vs EMA Verde vs Campbell</p>
             </div>
-            
+
             <div class="flex flex-col lg:flex-row gap-4 items-center">
                 <!-- Botones de Acceso Rápido -->
                 <div class="glass p-1 rounded-xl flex gap-1">
@@ -108,7 +108,7 @@
         </header>
 
         <!-- Tarjetas de Totales -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <!-- EMA Violeta: Ahora multiplica por 0.68mm debido al ciclo completo -->
             <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                 <div class="flex justify-between items-start mb-2">
@@ -120,6 +120,19 @@
                     <span class="text-slate-500 font-bold text-xl">mm</span>
                 </div>
                 <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Calculando ciclos completos de cangilones...</p>
+            </div>
+
+            <!-- EMA Verde: Mismo criterio de calibración por pulso (0.68mm) -->
+            <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="card-title">EMA VERDE (0.68mm/pulso)</p>
+                    <span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2218686</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <p class="stat-value" id="accumVerde">0.00</p>
+                    <span class="text-slate-500 font-bold text-xl">mm</span>
+                </div>
+                <p class="text-slate-400 text-xs mt-2" id="msgVerde">Calculando ciclos completos de cangilones...</p>
             </div>
 
             <!-- Campbell: Los valores del field son mm directos -->
@@ -162,7 +175,7 @@
         </div>
 
         <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
-            v4.0 - Calibración Doble Pulso (0.68) y Selector de Eventos
+            v5.0 - Calibración Doble Pulso (0.68), EMA Verde y Selector de Eventos
         </div>
     </div>
 
@@ -172,7 +185,8 @@
          * IMPORTANTE: mult ajustado a 0.68 porque el red switch marca el ciclo completo (ida y vuelta)
          */
         const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.68, field: 5 };
-        const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.68, field: 5 }; 
+        const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.68, field: 5 };
+        const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 0.68, field: 5 };
         const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
 
         let myChart = null;
@@ -217,7 +231,7 @@
             // Reemplazar la T por %20 y asegurar que incluya segundos
             const tsStart = startStr.replace('T', '%20') + ':00';
             const tsEnd = endStr.replace('T', '%20') + ':59';
-            
+
             const url = `https://api.thingspeak.com/channels/${station.id}/fields/${station.field}.json?api_key=${station.api}&start=${tsStart}&end=${tsEnd}&timezone=America/Argentina/Buenos_Aires&results=8000`;
             try {
                 const res = await fetch(url);
@@ -234,9 +248,9 @@
             const start = new Date(startStr);
             const end = new Date(endStr);
             const diffHours = (end - start) / 3600000;
-            
+
             // Si el rango es menor a 3 días (72hs), mostramos por hora, sino por día.
-            const bucketByHour = diffHours <= 72; 
+            const bucketByHour = diffHours <= 72;
 
             // Crear los "contenedores" (buckets) de tiempo para asegurar que la curva empiece en 0
             // y no tenga saltos visuales feos si no llovió en una hora
@@ -273,17 +287,17 @@
 
                     if (!isNaN(val) && val > 0 && !seenTimestamps.has(ts)) {
                         seenTimestamps.add(ts);
-                        
+
                         let amount = isCampbell ? val : mult;
-                        
+
                         totalPeriod += amount;
                         recordsCount++;
-                        
+
                         // Ubicar en el bucket correspondiente
                         const dateObj = new Date(ts);
                         const pad = (n) => n.toString().padStart(2, '0');
                         let key = "";
-                        
+
                         if (bucketByHour) {
                              key = `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)} ${pad(dateObj.getHours())}:00`;
                         } else {
@@ -301,7 +315,7 @@
             const labels = Array.from(buckets.keys());
             const chartData = [];
             let runningSum = 0;
-            
+
             for (let [key, val] of buckets) {
                 runningSum += val;
                 chartData.push(runningSum);
@@ -320,7 +334,7 @@
             const endStr = document.getElementById('endDatetime').value;
             const debug = document.getElementById('debugInfo');
             const subtitle = document.getElementById('chartSubtitle');
-            
+
             if (!startStr || !endStr) return;
 
             const startDateObj = new Date(startStr);
@@ -334,20 +348,24 @@
             subtitle.innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
             debug.innerText = "Sincronizando evento meteorológico...";
 
-            const [resVActual, resVHist, resC_raw] = await Promise.all([
+            const [resVActual, resVHist, resVVerde, resC_raw] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startStr, endStr),
                 fetchFeeds(V_HISTORICO, startStr, endStr),
+                fetchFeeds(V_VERDE, startStr, endStr),
                 fetchFeeds(C_STATION, startStr, endStr)
             ]);
 
             const resV = processStationData([resVActual, resVHist], V_ACTUAL.mult, startStr, endStr, false);
+            const resVerde = processStationData([resVVerde], V_VERDE.mult, startStr, endStr, false);
             const resC = processStationData([resC_raw], C_STATION.mult, startStr, endStr, true);
 
             document.getElementById('accumVioleta').innerText = resV.total;
+            document.getElementById('accumVerde').innerText = resVerde.total;
             document.getElementById('accumCampbell').innerText = resC.total;
             document.getElementById('msgVioleta').innerText = `Ciclos registrados: ${resV.recordsCount} (x 0.68mm)`;
+            document.getElementById('msgVerde').innerText = `Ciclos registrados: ${resVerde.recordsCount} (x 0.68mm)`;
             document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
-            
+
             const badge = document.getElementById('channelBadge');
             if (resVActual.feeds.length > 0) {
                 badge.innerText = "CANAL ACTUAL";
@@ -361,11 +379,11 @@
             }
 
             debug.innerText = `Actualización finalizada.`;
-            
-            if (typeof Chart !== 'undefined') renderChart(resV, resC);
+
+            if (typeof Chart !== 'undefined') renderChart(resV, resVerde, resC);
         }
 
-        function renderChart(resV, resC) {
+        function renderChart(resV, resVerde, resC) {
             const ctx = document.getElementById('precipChart').getContext('2d');
             if (myChart) myChart.destroy();
 
@@ -389,6 +407,17 @@
                             pointHoverRadius: 6
                         },
                         {
+                            label: 'EMA Verde (mm)',
+                            data: resVerde.chartData,
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: pointRad,
+                            pointHoverRadius: 6
+                        },
+                        {
                             label: 'Campbell (mm)',
                             data: resC.chartData,
                             borderColor: '#0ea5e9',
@@ -404,13 +433,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { 
-                            display: true, 
-                            labels: { color: '#94a3b8', font: { weight: 'bold' } } 
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#94a3b8', font: { weight: 'bold' } }
                         },
-                        tooltip: { 
-                            mode: 'index', 
+                        tooltip: {
+                            mode: 'index',
                             intersect: false,
                             backgroundColor: 'rgba(15, 23, 42, 0.9)',
                             titleColor: '#f1f5f9',
@@ -425,17 +454,17 @@
                         intersect: false
                     },
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
+                        y: {
+                            beginAtZero: true,
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { 
-                                color: '#94a3b8', 
-                                callback: (v) => v.toFixed(1) + ' mm' 
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: (v) => v.toFixed(1) + ' mm'
                             }
                         },
-                        x: { 
+                        x: {
                             grid: { display: false },
-                            ticks: { 
+                            ticks: {
                                 color: '#94a3b8',
                                 maxTicksLimit: 15 // Evitar solapamiento de textos en el eje X
                             }
