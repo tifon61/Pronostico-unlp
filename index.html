@@ -877,48 +877,28 @@ function buildExtCard(day, cardClass, idx=0, showSub=true) {
     </div>`;
 }
 
-// ─── CONEXIÓN A GOOGLE SHEETS MEDIANTE JSONP (INFALIBLE PARA CORS) ──────────
-function fetchForecastDataJSONP(url) {
-    return new Promise((resolve, reject) => {
-        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-        
-        window[callbackName] = function(data) {
-            delete window[callbackName];
-            document.body.removeChild(script);
-            resolve(data);
-        };
+// ─── LEER PRONÓSTICOS (CACHÉ ESTÁTICO, ACTUALIZADO POR GITHUB ACTIONS) ───────
+// El portal ya no llama a Apps Script en cada visita (no escala con muchos
+// visitantes simultáneos). Un GitHub Action arma data/forecasts.json a partir
+// de Apps Script al publicarse un pronóstico (+ corridas de respaldo) y acá
+// solo se lee ese archivo estático, servido por GitHub Pages.
+let _forecastsCache = null;
 
-        const script = document.createElement('script');
-        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName + '&_t=' + Date.now();
-        
-        script.onerror = function() {
-            delete window[callbackName];
-            document.body.removeChild(script);
-            reject(new Error("Falló la carga del script JSONP."));
-        };
-
-        document.body.appendChild(script);
-        
-        setTimeout(() => {
-            if (window[callbackName]) {
-                delete window[callbackName];
-                reject(new Error("Timeout conectando a Google Sheets."));
-            }
-        }, 10000);
-    });
+async function loadForecastsCache() {
+    if (_forecastsCache) return _forecastsCache;
+    const resp = await fetch('data/forecasts.json', { cache: 'no-store' });
+    if (!resp.ok) throw new Error('No se pudo cargar data/forecasts.json (status ' + resp.status + ')');
+    _forecastsCache = await resp.json();
+    return _forecastsCache;
 }
 
-// ─── LEER DE GOOGLE SHEETS ───────────────────────────────────────────────────
 async function fetchForecast(city) {
     const container = document.getElementById('forecast-container');
-    container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
-    
+    container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico...</div>`;
+
     try {
-        const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
-        const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
-        
-        // Obtenemos directamente el JSON completo
-        const cityData = await fetchForecastDataJSONP(url);
+        const cache = await loadForecastsCache();
+        const cityData = cache.cities?.[city];
 
         if (!cityData || cityData.error) {
             container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
