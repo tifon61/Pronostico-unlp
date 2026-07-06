@@ -1,11 +1,695 @@
 {
-  "generated_at": null,
+  "generated_at": "2026-07-06T01:20:23.758276+00:00",
   "cities": {
-    "La Plata": { "error": "Sin sincronizar todavía" },
-    "Junín": { "error": "Sin sincronizar todavía" },
-    "Mar del Plata": { "error": "Sin sincronizar todavía" },
-    "Bolívar": { "error": "Sin sincronizar todavía" },
-    "Tandil": { "error": "Sin sincronizar todavía" },
-    "Bahía Blanca": { "error": "Sin sincronizar todavía" }
+    "La Plata": {
+      "city": "La Plata",
+      "forecast_date": "2026-07-05",
+      "emission_time": "21:28:00",
+      "publicado_por": "Equipo FCAG",
+      "es_correccion": false,
+      "daily_forecasts": [
+        {
+          "date": "2026-07-05",
+          "day_name": "domingo",
+          "temp_min": 7,
+          "temp_max": null,
+          "temp_min_suburban": 3,
+          "temp_max_suburban": null,
+          "custom_description": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": "lloviznas",
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "Lluvia_dia",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-06",
+          "day_name": "lunes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "custom_description": null,
+          "period_forecasts": [
+            {
+              "period": "madrugada",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-07",
+          "day_name": "martes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "custom_description": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-08",
+          "day_name": "miércoles",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "custom_description": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        }
+      ]
+    },
+    "Junín": {
+      "error": "JSON inválido"
+    },
+    "Mar del Plata": {
+      "city": "Mar del Plata",
+      "forecast_date": "2026-07-04",
+      "emission_time": "11:30:00",
+      "publicado_por": "Equipo FCAG",
+      "es_correccion": true,
+      "daily_forecasts": [
+        {
+          "date": "2026-07-04",
+          "day_name": "sábado",
+          "temp_min": 22,
+          "temp_max": 22,
+          "temp_min_suburban": 22,
+          "temp_max_suburban": 22,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": 3,
+              "weather_icon_code": "soleado",
+              "wind_direction": "norte",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": null,
+              "weather_icon_code": "soleado",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": null,
+              "weather_icon_code": "Despejado_noche",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-05",
+          "day_name": "domingo",
+          "temp_min": 1,
+          "temp_max": 1,
+          "temp_min_suburban": 1,
+          "temp_max_suburban": 1,
+          "period_forecasts": [
+            {
+              "period": "madrugada",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "cubierto",
+              "temperature": null,
+              "weather_icon_code": "Cubierto_noche",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "cubierto",
+              "temperature": null,
+              "weather_icon_code": "Cubierto_dia",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "cubierto",
+              "temperature": null,
+              "weather_icon_code": "Cubierto_dia",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "cubierto",
+              "temperature": null,
+              "weather_icon_code": "Cubierto_noche",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-06",
+          "day_name": "lunes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": null,
+              "weather_icon_code": "soleado",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": null,
+              "weather_icon_code": "Despejado_noche",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-07",
+          "day_name": "martes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": null,
+              "weather_icon_code": "soleado",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": null,
+              "weather_icon_code": "Despejado_noche",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        }
+      ]
+    },
+    "Bolívar": {
+      "city": "Bolívar",
+      "forecast_date": "2026-07-04",
+      "emission_time": "11:30:00",
+      "publicado_por": "Equipo FCAG",
+      "es_correccion": false,
+      "daily_forecasts": [
+        {
+          "date": "2026-07-04",
+          "day_name": "sábado",
+          "temp_min": 22,
+          "temp_max": 22,
+          "temp_min_suburban": 22,
+          "temp_max_suburban": 22,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": 3,
+              "weather_icon_code": "soleado",
+              "wind_direction": "norte",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "algo nublado",
+              "temperature": null,
+              "weather_icon_code": "Algo_nublado_dia",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-05",
+          "day_name": "domingo",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "madrugada",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "cubierto",
+              "temperature": null,
+              "weather_icon_code": "Cubierto_noche",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "algo nublado",
+              "temperature": null,
+              "weather_icon_code": "Algo_nublado_dia",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-06",
+          "day_name": "lunes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-07",
+          "day_name": "martes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        }
+      ]
+    },
+    "Tandil": {
+      "city": "Tandil",
+      "forecast_date": "2026-07-04",
+      "emission_time": "10:44:00",
+      "publicado_por": "Equipo FCAG",
+      "es_correccion": false,
+      "daily_forecasts": [
+        {
+          "date": "2026-07-04",
+          "day_name": "sábado",
+          "temp_min": 2,
+          "temp_max": 12,
+          "temp_min_suburban": 12,
+          "temp_max_suburban": 12,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "parcialmente nublado",
+              "temperature": 1,
+              "weather_icon_code": "Parcialmente_nublado_dia",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "despejado",
+              "temperature": null,
+              "weather_icon_code": "soleado",
+              "wind_direction": "sur",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-05",
+          "day_name": "domingo",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "madrugada",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-06",
+          "day_name": "lunes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-07-07",
+          "day_name": "martes",
+          "temp_min": null,
+          "temp_max": null,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "default",
+              "wind_direction": null,
+              "wind_intensity": null,
+              "wind_gusts": null
+            }
+          ]
+        }
+      ]
+    },
+    "Bahía Blanca": {
+      "error": "Sin datos para Bahía Blanca"
+    }
   }
 }
