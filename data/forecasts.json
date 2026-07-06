@@ -1,0 +1,11 @@
+{
+  "generated_at": null,
+  "cities": {
+    "La Plata": { "error": "Sin sincronizar todavía" },
+    "Junín": { "error": "Sin sincronizar todavía" },
+    "Mar del Plata": { "error": "Sin sincronizar todavía" },
+    "Bolívar": { "error": "Sin sincronizar todavía" },
+    "Tandil": { "error": "Sin sincronizar todavía" },
+    "Bahía Blanca": { "error": "Sin sincronizar todavía" }
+  }
+}
