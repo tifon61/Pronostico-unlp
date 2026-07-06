@@ -140,19 +140,22 @@
         .live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: blink 1.5s ease-in-out infinite; flex-shrink: 0; }
         @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
         .rt-updated { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
-        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .metric-card { background: white; border-radius: 16px; padding: 20px 18px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+        .metric-card { background: white; border-radius: 16px; padding: 20px 18px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .metric-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
         .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
         .metric-card.temp::before  { background: linear-gradient(90deg, #ef4444, #f97316); }
         .metric-card.hum::before   { background: linear-gradient(90deg, #0ea5e9, #06b6d4); }
         .metric-card.pres::before  { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
         .metric-card.wind::before  { background: linear-gradient(90deg, #10b981, #34d399); }
+        .metric-card.rain::before  { background: linear-gradient(90deg, #0284c7, #38bdf8); }
         .metric-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
         .metric-value { font-size: 2.4rem; font-weight: 900; line-height: 1; font-family: 'Montserrat', sans-serif; }
         .metric-card.temp .metric-value  { color: #ef4444; }
         .metric-card.hum .metric-value   { color: #0ea5e9; }
         .metric-card.pres .metric-value  { color: #8b5cf6; }
         .metric-card.wind .metric-value  { color: #10b981; }
+        .metric-card.rain .metric-value  { color: #0284c7; }
         .metric-unit { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-left: 2px; }
         .metric-trend { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border); }
         .wind-detail-card { background: white; border-radius: 16px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 24px; }
@@ -168,15 +171,16 @@
         .wind-speed-unit { font-size: 1rem; font-weight: 700; color: var(--text-muted); }
         .wind-dir-text { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
         .wind-dir-deg { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 6px; }
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .chart-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .chart-card { background: #0f172a; border-radius: 16px; padding: 20px; border: 1px solid #1e293b; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
         .chart-card-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .chart-card-title h3 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-main); margin: 0; }
+        .chart-card-title h3 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: #cbd5e1; margin: 0; }
         .chart-card-val { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 900; }
-        .chart-card-val.temp  { color: #ef4444; }
-        .chart-card-val.hum   { color: #0ea5e9; }
-        .chart-card-val.pres  { color: #8b5cf6; }
-        .chart-card-val.wind  { color: #10b981; }
+        .chart-card-val.temp  { color: #f87171; }
+        .chart-card-val.hum   { color: #38bdf8; }
+        .chart-card-val.pres  { color: #a78bfa; }
+        .chart-card-val.wind  { color: #34d399; }
+        .chart-card-val.rain  { color: #38bdf8; }
         .chart-inner { position: relative; height: 160px; }
         .monitor-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .radar-sat-col { display: flex; flex-direction: column; gap: 20px; }
@@ -350,7 +354,7 @@
                 </div>
             </div>
 
-            <!-- 4 métricas principales -->
+            <!-- 5 métricas principales -->
             <div class="metrics-grid">
                 <div class="metric-card temp">
                     <div class="metric-label">🌡 Temperatura</div>
@@ -371,6 +375,11 @@
                     <div class="metric-label">🌬 Velocidad del Viento</div>
                     <div><span class="metric-value" id="m-wind">--</span><span class="metric-unit">km/h</span></div>
                     <div class="metric-trend" id="m-wind-dir-lbl">Dirección: --</div>
+                </div>
+                <div class="metric-card rain">
+                    <div class="metric-label">🌧 Precipitación</div>
+                    <div><span class="metric-value" id="m-rain">--</span><span class="metric-unit">mm</span></div>
+                    <div class="metric-trend" id="m-rain-trend">Acumulado últimas 24h: cargando...</div>
                 </div>
             </div>
 
@@ -416,8 +425,8 @@
                             <span class="wind-dir-deg" id="wind-dir-deg"></span>
                         </div>
                     </div>
-                    <div style="background:var(--bg-body); border-radius:10px; padding:12px 16px;">
-                        <div style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Velocidad últimas 24h</div>
+                    <div style="background:#0f172a; border-radius:10px; padding:12px 16px;">
+                        <div style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:#cbd5e1; margin-bottom:6px;">Velocidad últimas 24h</div>
                         <div class="chart-inner" style="height:80px;"><canvas id="chartWindMini"></canvas></div>
                     </div>
                 </div>
@@ -452,6 +461,13 @@
                         <span class="chart-card-val wind" id="cv-wind">-- km/h</span>
                     </div>
                     <div class="chart-inner"><canvas id="chartWind"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-title">
+                        <h3>🌧 Precipitación (mm)</h3>
+                        <span class="chart-card-val rain" id="cv-rain">-- mm</span>
+                    </div>
+                    <div class="chart-inner"><canvas id="chartRain"></canvas></div>
                 </div>
             </div>
 
@@ -580,7 +596,7 @@ const TS_CHANNEL   = "2823820";
 const TS_KEY       = "FFI1HK80ZKDNS6V8";
 const TS_URL       = `https://api.thingspeak.com/channels/${TS_CHANNEL}/feeds.json?api_key=${TS_KEY}&days=1&average=30`;
 
-const TS_F = { temp:'field1', hum:'field4', pres:'field6', wspeed:'field7', wdir:'field8' };
+const TS_F = { temp:'field1', hum:'field4', rain:'field5', pres:'field6', wspeed:'field7', wdir:'field8' };
 const WIND_ANGLES = { norte:180, noreste:225, este:270, sudeste:315, sur:0, sudoeste:45, oeste:90, noroeste:135 };
 const PERIOD_SHORT = { "mañana":"MAÑANA","tarde":"TARDE","noche":"NOCHE","madrugada":"MADRUGADA","madrugada/mañana":"MAD/MAÑ","tarde/noche":"TAR/NOCH" };
 
@@ -672,14 +688,20 @@ async function fetchTS() {
 
         const temp   = parseFloat(latest[TS_F.temp]   || 'NaN');
         const hum    = parseFloat(latest[TS_F.hum]    || 'NaN');
+        const rain   = parseFloat(latest[TS_F.rain]   || 'NaN');
         const pres   = parseFloat(latest[TS_F.pres]   || 'NaN');
         const wspeed = parseFloat(latest[TS_F.wspeed] || 'NaN');
         const wdir   = parseFloat(latest[TS_F.wdir]   || 'NaN');
 
         const fmt = (v, d) => isNaN(v) ? '--' : v.toFixed(d);
+        // parseFloat(x)||null trataría 0 como "sin dato" (0 es falsy en JS) —
+        // clave acá porque 0mm de lluvia y 0km/h de viento son lecturas
+        // normales, no ausencia de dato.
+        const numOrNull = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
 
         setText('m-temp',  fmt(temp,  1));
         setText('m-hum',   fmt(hum,   0));
+        setText('m-rain',  fmt(rain,  1));
         setText('m-pres',  fmt(pres,  1));
         setText('m-wind',  fmt(wspeed, 1));
 
@@ -688,6 +710,7 @@ async function fetchTS() {
 
         setText('cv-temp',  isNaN(temp)   ? '--'  : temp.toFixed(1) + '°C');
         setText('cv-hum',   isNaN(hum)    ? '--'  : hum.toFixed(0)  + '%');
+        setText('cv-rain',  isNaN(rain)   ? '--'  : rain.toFixed(1) + ' mm');
         setText('cv-pres',  isNaN(pres)   ? '--'  : pres.toFixed(1) + ' hPa');
         setText('cv-wind',  isNaN(wspeed) ? '--'  : wspeed.toFixed(1) + ' km/h');
 
@@ -720,6 +743,12 @@ async function fetchTS() {
             setText('m-pres-trend', trend);
         }
 
+        const rains = feeds.map(f => parseFloat(f[TS_F.rain])).filter(v => !isNaN(v));
+        if (rains.length > 0) {
+            const total = rains.reduce((a, b) => a + b, 0);
+            setText('m-rain-trend', `Acumulado últimas 24h: ${total.toFixed(1)} mm`);
+        }
+
         const lastTime = new Date(latest.created_at);
         const hh = lastTime.getHours().toString().padStart(2,'0');
         const mm = lastTime.getMinutes().toString().padStart(2,'0');
@@ -730,11 +759,12 @@ async function fetchTS() {
             return `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}`;
         });
 
-        mkChart('chartTemp',     labels, feeds.map(f => parseFloat(f[TS_F.temp])  || null), '#ef4444', 'rgba(239,68,68,0.12)',    'Temperatura (°C)');
-        mkChart('chartHum',      labels, feeds.map(f => parseFloat(f[TS_F.hum])   || null), '#0ea5e9', 'rgba(14,165,233,0.12)',   'Humedad (%)');
-        mkChart('chartPres',     labels, feeds.map(f => parseFloat(f[TS_F.pres])  || null), '#8b5cf6', 'rgba(139,92,246,0.12)',   'Presión (hPa)');
-        mkChart('chartWind',     labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.12)',   'Viento (km/h)');
-        mkChart('chartWindMini', labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.15)',   'Viento', true);
+        mkChart('chartTemp',     labels, feeds.map(f => numOrNull(f[TS_F.temp])),   '#f87171', 'rgba(248,113,113,0.15)', 'Temperatura (°C)');
+        mkChart('chartHum',      labels, feeds.map(f => numOrNull(f[TS_F.hum])),    '#38bdf8', 'rgba(56,189,248,0.15)',  'Humedad (%)');
+        mkChart('chartPres',     labels, feeds.map(f => numOrNull(f[TS_F.pres])),   '#a78bfa', 'rgba(167,139,250,0.15)', 'Presión (hPa)');
+        mkChart('chartWind',     labels, feeds.map(f => numOrNull(f[TS_F.wspeed])), '#34d399', 'rgba(52,211,153,0.15)',  'Viento (km/h)');
+        mkChart('chartRain',     labels, feeds.map(f => numOrNull(f[TS_F.rain])),   '#38bdf8', 'rgba(56,189,248,0.15)',  'Precipitación (mm)');
+        mkChart('chartWindMini', labels, feeds.map(f => numOrNull(f[TS_F.wspeed])), '#34d399', 'rgba(52,211,153,0.18)', 'Viento', true);
 
     } catch(e) {
         console.warn('ThingSpeak error:', e);
@@ -759,7 +789,7 @@ function mkChart(id, labels, data, bc, bg, lbl, mini = false) {
             }},
             scales: {
                 x: { ticks: { maxTicksLimit: mini ? 4 : 8, font: { size: 10 }, color: '#94a3b8' }, grid: { display: false } },
-                y: { ticks: { font: { size: 10 }, color: '#94a3b8' }, grid: { color: '#f1f5f9' } }
+                y: { ticks: { font: { size: 10 }, color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.07)' } }
             }
         }
     });
