@@ -122,6 +122,7 @@
         <div class="glass p-1 rounded-xl flex gap-1 mb-8 w-fit mx-auto xl:mx-0">
             <button onclick="switchMainTab('lluvia', this)" id="mainTab-lluvia" class="tab-btn active px-5 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-cloud-rain mr-2"></i>Comparación de Lluvia</button>
             <button onclick="switchMainTab('variables', this)" id="mainTab-variables" class="tab-btn px-5 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-chart-line mr-2"></i>Comparación de Variables</button>
+            <button onclick="switchMainTab('diagnostico', this)" id="mainTab-diagnostico" class="tab-btn px-5 py-2 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-flask mr-2"></i>Diagnóstico de Calibración</button>
         </div>
 
         <!-- VISTA: COMPARACIÓN DE LLUVIA -->
@@ -141,10 +142,10 @@
                     <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Calculando ciclos completos de cangilones...</p>
                 </div>
 
-                <!-- EMA Verde: field 5 ya viene en mm acumulados (con reset diario a las 00:00) -->
+                <!-- EMA Verde: field 5 es un contador acumulado de pulsos (reset diario a las 00:00) -->
                 <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
                     <div class="flex justify-between items-start mb-2">
-                        <p class="card-title">EMA VERDE (Acumulado mm)</p>
+                        <p class="card-title">EMA VERDE (0.68mm/pulso)</p>
                         <span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2218686</span>
                     </div>
                     <div class="flex items-baseline gap-2">
@@ -233,6 +234,66 @@
             </div>
         </div>
 
+        <!-- VISTA: DIAGNÓSTICO DE CALIBRACIÓN -->
+        <div id="view-diagnostico" class="hidden">
+            <div class="glass p-4 rounded-2xl mb-6 border-l-4 border-yellow-500">
+                <p class="text-sm text-slate-300"><i class="fa-solid fa-triangle-exclamation mr-2 text-yellow-400"></i><strong>Nota:</strong> EMA Verde está en la Escuela Nº23 (Bavío), no en la Facultad — Campbell está en FCAGLP La Plata. Son ubicaciones distintas, así que parte de la diferencia entre ambas puede ser lluvia real distinta en cada punto, no solo un tema de calibración del cangilón.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass p-6 rounded-2xl border-l-4 border-green-500">
+                    <p class="card-title">TOTAL VERDE (unidades crudas)</p>
+                    <p class="stat-value" id="diagVerdeRaw">0.00</p>
+                </div>
+                <div class="glass p-6 rounded-2xl border-l-4 border-sky-500">
+                    <p class="card-title">TOTAL CAMPBELL (mm)</p>
+                    <p class="stat-value" id="diagCampbellRaw">0.00</p>
+                </div>
+                <div class="glass p-6 rounded-2xl border-l-4 border-amber-500">
+                    <p class="card-title">RATIO SUGERIDO (mm por unidad Verde)</p>
+                    <p class="stat-value" id="diagRatio">--</p>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-2xl shadow-xl mb-6">
+                <h3 class="text-lg font-bold text-slate-200 mb-1">Comparación por evento de lluvia</h3>
+                <p class="text-xs text-slate-400 mb-4">Cada fila agrupa un tramo continuo de lluvia (separado de otros por al menos 3 buckets secos). Sirve para ver si el ratio se mantiene estable entre eventos distintos.</p>
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-slate-400 uppercase text-xs sticky top-0 bg-slate-900">
+                            <tr>
+                                <th class="py-2 pr-4">Evento</th>
+                                <th class="py-2 pr-4">Verde crudo</th>
+                                <th class="py-2 pr-4">Verde calibrado (0.68)</th>
+                                <th class="py-2 pr-4">Campbell (mm)</th>
+                                <th class="py-2 pr-4">Diferencia</th>
+                                <th class="py-2 pr-4">Ratio (Campbell / Verde crudo)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diagEventsBody" class="text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-2xl shadow-xl">
+                <h3 class="text-lg font-bold text-slate-200 mb-1">Incrementos por bucket: Verde (crudo) vs Campbell (mm)</h3>
+                <p class="text-xs text-slate-400 mb-4" id="diagSubtitle"></p>
+                <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-slate-400 uppercase text-xs sticky top-0 bg-slate-900">
+                            <tr>
+                                <th class="py-2 pr-4">Bucket</th>
+                                <th class="py-2 pr-4">Verde (crudo)</th>
+                                <th class="py-2 pr-4">Campbell (mm)</th>
+                                <th class="py-2 pr-4">Ratio (Campbell / Verde)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diagTableBody" class="text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Dashboards Externos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="glass p-4 rounded-2xl">
@@ -257,9 +318,11 @@
          */
         const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.68, field: 5 };
         const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.68, field: 5 };
-        // A diferencia de Violeta, el field 5 de Verde ya es un acumulado en mm
-        // (no un pulso por lectura) que se resetea a 0 cada día a las 00:00.
-        const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 1.0, field: 5 };
+        // El field 5 de Verde es un contador ACUMULADO (se resetea a 0 cada día a
+        // las 00:00), pero el diagnóstico de calibración mostró un ratio (~0.73)
+        // cercano al de un pulso de ciclo completo, igual que Violeta: se usa el
+        // mismo mult teórico (0.68 = 2 x 0.34mm) hasta tener más eventos medidos.
+        const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 0.68, field: 5 };
         const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
 
         // Mapeo de variables comparables entre EMA Verde y Campbell.
@@ -314,22 +377,26 @@
             refreshCurrentRange();
         }
 
-        // Refresca la vista principal activa (Lluvia o Variables) con el rango de fechas actual
+        // Refresca la vista principal activa (Lluvia, Variables o Diagnóstico) con el rango de fechas actual
         function refreshCurrentRange(isManual = false) {
             if (activeMainTab === 'lluvia') {
                 updateDashboard(isManual);
-            } else {
+            } else if (activeMainTab === 'variables') {
                 updateVariablesTab();
+            } else {
+                updateDiagnosticoTab();
             }
         }
 
-        // Cambiar entre la pestaña de Lluvia y la de Variables
+        // Cambiar entre la pestaña de Lluvia, Variables o Diagnóstico
         function switchMainTab(tab, btn) {
             activeMainTab = tab;
             document.getElementById('view-lluvia').classList.toggle('hidden', tab !== 'lluvia');
             document.getElementById('view-variables').classList.toggle('hidden', tab !== 'variables');
+            document.getElementById('view-diagnostico').classList.toggle('hidden', tab !== 'diagnostico');
             document.getElementById('mainTab-lluvia').classList.toggle('active', tab === 'lluvia');
             document.getElementById('mainTab-variables').classList.toggle('active', tab === 'variables');
+            document.getElementById('mainTab-diagnostico').classList.toggle('active', tab === 'diagnostico');
             refreshCurrentRange();
         }
 
@@ -355,6 +422,25 @@
             } catch (e) {
                 console.error("Error consultando ThingSpeak:", e);
                 return { feeds: [], field: station.field, id: station.id };
+            }
+        }
+
+        // Obtener el último valor acumulado disponible justo ANTES del inicio del rango.
+        // Se usa como línea base real para no perder la lluvia caída en la primera lectura
+        // del período (por ejemplo, si el reset diario coincide con el inicio del rango "Hoy").
+        async function fetchBaselineValue(id, apiKey, fieldNum, startStr) {
+            const tsEnd = startStr.replace('T', '%20') + ':00';
+            const url = `https://api.thingspeak.com/channels/${id}/fields/${fieldNum}.json?api_key=${apiKey}&end=${tsEnd}&timezone=America/Argentina/Buenos_Aires&results=1`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const feeds = data.feeds || [];
+                const last = feeds[feeds.length - 1];
+                const val = last ? parseFloat(last["field" + fieldNum]) : NaN;
+                return isNaN(val) ? null : val;
+            } catch (e) {
+                console.error("Error consultando línea base de ThingSpeak:", e);
+                return null;
             }
         }
 
@@ -428,6 +514,7 @@
 
             // Generar los arrays de etiquetas y datos acumulados
             const labels = Array.from(buckets.keys());
+            const incrementData = Array.from(buckets.values());
             const chartData = [];
             let runningSum = 0;
 
@@ -436,14 +523,14 @@
                 chartData.push(runningSum);
             }
 
-            return { total: totalPeriod.toFixed(2), chartData, labels, recordsCount };
+            return { total: totalPeriod.toFixed(2), chartData, incrementData, labels, recordsCount };
         }
 
         // EMA Verde no manda pulsos individuales: el field 5 es un contador acumulado
         // que se resetea a 0 todos los días a las 00:00. Para obtener la lluvia real
         // hay que tomar la diferencia entre lecturas consecutivas (y no sumar el valor
         // absoluto de cada una, que sería un acumulado incorrecto).
-        function processAccumulatedCounter(allFeedsData, mult, startStr, endStr) {
+        function processAccumulatedCounter(allFeedsData, mult, startStr, endStr, baselineVal = null) {
             const start = new Date(startStr);
             const end = new Date(endStr);
             const diffHours = (end - start) / 3600000;
@@ -483,13 +570,14 @@
 
             let totalPeriod = 0;
             let recordsCount = 0;
-            let prevVal = null;
+            // Si se conoce el valor justo antes del rango (baselineVal), se usa como
+            // referencia real y la primera lectura del rango SÍ se cuenta. Si no se
+            // conoce, se usa la primera lectura solo como referencia (comportamiento
+            // conservador anterior) para no contar lluvia previa al rango elegido.
+            let prevVal = baselineVal;
 
             readings.forEach(r => {
                 if (prevVal === null) {
-                    // La primera lectura ya trae acumulado desde el último reset (00:00),
-                    // no desde el inicio del rango elegido: se usa solo como referencia,
-                    // no se suma para no contar lluvia previa al rango.
                     prevVal = r.val;
                     return;
                 }
@@ -516,6 +604,7 @@
             });
 
             const labels = Array.from(buckets.keys());
+            const incrementData = Array.from(buckets.values());
             const chartData = [];
             let runningSum = 0;
             for (let [key, val] of buckets) {
@@ -523,7 +612,7 @@
                 chartData.push(runningSum);
             }
 
-            return { total: totalPeriod.toFixed(2), chartData, labels, recordsCount };
+            return { total: totalPeriod.toFixed(2), chartData, incrementData, labels, recordsCount };
         }
 
         // Consultar un field arbitrario de un canal (usado por la comparación de variables)
@@ -633,22 +722,23 @@
             subtitle.innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
             debug.innerText = "Sincronizando evento meteorológico...";
 
-            const [resVActual, resVHist, resVVerde, resC_raw] = await Promise.all([
+            const [resVActual, resVHist, resVVerde, resC_raw, baselineVerde] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startStr, endStr),
                 fetchFeeds(V_HISTORICO, startStr, endStr),
                 fetchFeeds(V_VERDE, startStr, endStr),
-                fetchFeeds(C_STATION, startStr, endStr)
+                fetchFeeds(C_STATION, startStr, endStr),
+                fetchBaselineValue(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr)
             ]);
 
             const resV = processStationData([resVActual, resVHist], V_ACTUAL.mult, startStr, endStr, false);
-            const resVerde = processAccumulatedCounter([resVVerde], V_VERDE.mult, startStr, endStr);
+            const resVerde = processAccumulatedCounter([resVVerde], V_VERDE.mult, startStr, endStr, baselineVerde);
             const resC = processStationData([resC_raw], C_STATION.mult, startStr, endStr, true);
 
             document.getElementById('accumVioleta').innerText = resV.total;
             document.getElementById('accumVerde').innerText = resVerde.total;
             document.getElementById('accumCampbell').innerText = resC.total;
             document.getElementById('msgVioleta').innerText = `Ciclos registrados: ${resV.recordsCount} (x 0.68mm)`;
-            document.getElementById('msgVerde').innerText = `Incrementos detectados: ${resVerde.recordsCount} (mm directos, reset diario)`;
+            document.getElementById('msgVerde').innerText = `Pulsos detectados: ${resVerde.recordsCount} (x 0.68mm, reset diario)`;
             document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
 
             const badge = document.getElementById('channelBadge');
@@ -783,7 +873,8 @@
 
             if (cfg.accumulated) {
                 // Verde acumula con reset diario; Campbell reporta mm directos por intervalo
-                verdeResult = processAccumulatedCounter([feedsVerde], 1.0, startStr, endStr);
+                const baselineVerde = await fetchBaselineValue(V_VERDE.id, V_VERDE.api, cfg.verdeField, startStr);
+                verdeResult = processAccumulatedCounter([feedsVerde], V_VERDE.mult, startStr, endStr, baselineVerde);
                 campResult = processStationData([feedsCampbell], 1.0, startStr, endStr, true);
                 verdeResult.latestValue = parseFloat(verdeResult.total);
                 campResult.latestValue = parseFloat(campResult.total);
@@ -884,6 +975,116 @@
                     }
                 }
             });
+        }
+
+        // Diagnóstico de calibración: muestra los incrementos CRUDOS de EMA Verde
+        // (sin asumir que ya están en mm) junto a los mm reales de Campbell, bucket
+        // por bucket, para poder inferir a ojo cuánto vale realmente cada unidad/pulso.
+        // Agrupa una serie de buckets en "eventos de lluvia" continuos: un evento
+        // termina cuando hay `gapThreshold` buckets seguidos sin lluvia en ninguna
+        // de las dos estaciones. Sirve para comparar el ratio evento por evento.
+        function groupIntoEvents(labels, verdeRaw, campMm, gapThreshold = 3) {
+            const events = [];
+            let current = null;
+            let dryStreak = 0;
+
+            for (let i = 0; i < labels.length; i++) {
+                const v = verdeRaw[i] || 0;
+                const c = campMm[i] || 0;
+                const active = v > 0 || c > 0;
+
+                if (active) {
+                    if (!current) {
+                        current = { startLabel: labels[i], endLabel: labels[i], verde: 0, camp: 0 };
+                    }
+                    current.endLabel = labels[i];
+                    current.verde += v;
+                    current.camp += c;
+                    dryStreak = 0;
+                } else if (current) {
+                    dryStreak++;
+                    if (dryStreak >= gapThreshold) {
+                        events.push(current);
+                        current = null;
+                        dryStreak = 0;
+                    }
+                }
+            }
+            if (current) events.push(current);
+            return events;
+        }
+
+        async function updateDiagnosticoTab() {
+            const startStr = document.getElementById('startDatetime').value;
+            const endStr = document.getElementById('endDatetime').value;
+            if (!startStr || !endStr) return;
+
+            document.getElementById('diagSubtitle').innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
+
+            const [feedsVerde, feedsCampbell, baselineVerde] = await Promise.all([
+                fetchChannelField(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr, endStr),
+                fetchChannelField(C_STATION.id, C_STATION.api, C_STATION.field, startStr, endStr),
+                fetchBaselineValue(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr)
+            ]);
+
+            // mult = 1 a propósito: acá queremos ver el dato crudo, sin calibrar
+            const verdeResult = processAccumulatedCounter([feedsVerde], 1.0, startStr, endStr, baselineVerde);
+            const campResult = processStationData([feedsCampbell], 1.0, startStr, endStr, true);
+
+            const totalVerdeRaw = parseFloat(verdeResult.total);
+            const totalCampbellMm = parseFloat(campResult.total);
+            const overallRatio = totalVerdeRaw > 0 ? (totalCampbellMm / totalVerdeRaw) : null;
+
+            document.getElementById('diagVerdeRaw').innerText = totalVerdeRaw.toFixed(2);
+            document.getElementById('diagCampbellRaw').innerText = totalCampbellMm.toFixed(2);
+            document.getElementById('diagRatio').innerText = overallRatio != null ? overallRatio.toFixed(3) : '--';
+
+            const events = groupIntoEvents(verdeResult.labels, verdeResult.incrementData, campResult.incrementData);
+            const eventsBody = document.getElementById('diagEventsBody');
+            eventsBody.innerHTML = '';
+            events.forEach(ev => {
+                const verdeCal = ev.verde * V_VERDE.mult;
+                const diff = ev.camp - verdeCal;
+                const ratio = ev.verde > 0 ? (ev.camp / ev.verde).toFixed(3) : '--';
+                const rangeLabel = ev.startLabel === ev.endLabel ? ev.startLabel : `${ev.startLabel} → ${ev.endLabel}`;
+                const tr = document.createElement('tr');
+                tr.className = 'border-t border-slate-700';
+                tr.innerHTML = `
+                    <td class="py-2 pr-4">${rangeLabel}</td>
+                    <td class="py-2 pr-4 text-green-400">${ev.verde.toFixed(3)}</td>
+                    <td class="py-2 pr-4 text-green-300">${verdeCal.toFixed(2)}</td>
+                    <td class="py-2 pr-4 text-sky-400">${ev.camp.toFixed(2)}</td>
+                    <td class="py-2 pr-4 ${diff >= 0 ? 'text-red-400' : 'text-emerald-400'}">${diff >= 0 ? '+' : ''}${diff.toFixed(2)}</td>
+                    <td class="py-2 pr-4 text-amber-400">${ratio}</td>
+                `;
+                eventsBody.appendChild(tr);
+            });
+            if (eventsBody.children.length === 0) {
+                eventsBody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500">No se detectaron eventos de lluvia en el rango elegido.</td></tr>';
+            }
+
+            const tbody = document.getElementById('diagTableBody');
+            tbody.innerHTML = '';
+            verdeResult.labels.forEach((label, i) => {
+                const verdeVal = verdeResult.incrementData[i] || 0;
+                const campVal = campResult.incrementData[i] || 0;
+                if (verdeVal === 0 && campVal === 0) return; // omitir buckets sin lluvia en ninguna estación
+
+                const ratio = verdeVal > 0 ? (campVal / verdeVal).toFixed(3) : '--';
+                const tr = document.createElement('tr');
+                tr.className = 'border-t border-slate-700';
+                tr.innerHTML = `
+                    <td class="py-2 pr-4">${label}</td>
+                    <td class="py-2 pr-4 text-green-400">${verdeVal.toFixed(3)}</td>
+                    <td class="py-2 pr-4 text-sky-400">${campVal.toFixed(2)}</td>
+                    <td class="py-2 pr-4 text-amber-400">${ratio}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-500">Sin lluvia registrada en el rango elegido.</td></tr>';
+            }
         }
 
         // Inicialización
