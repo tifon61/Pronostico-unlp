@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Meteorológico UNLP | </title>
+    <title>Admin Meteorológico UNLP | IG Pro</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -66,8 +67,8 @@
         .logo-fcag { height: 65px; width: 191px; object-fit: contain; flex-shrink: 0; }
         
         /* MODIFICADO: Logo de Pronóstico ajustado a 95px y con desplazamiento hacia abajo en ambas vistas */
-        .logo-prono { height: 90px; width: 95px; object-fit: contain; border-radius: 50%; flex-shrink: 0; margin: 0 10px; transform: translateY(4px); }
-        .exporting .logo-prono { transform: translateY(12px); }
+        .logo-prono { height: 90px; width: 95px; object-fit: contain; border-radius: 50%; flex-shrink: 0; margin: 0 10px; transform: translateY(-2px); }
+        .exporting .logo-prono { transform: translateY(6px); }
         
         .logo-unlp { height: 75px; width: 156px; object-fit: contain; flex-shrink: 0; z-index: 2; transform: translateY(2px); }
         .header-capsule h1 { font-size: 58px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -2px; line-height: 1; z-index: 1; }
@@ -90,7 +91,7 @@
         .day-2 { background: #3981bfde; padding-top: 35px; margin-bottom: 0; height: 630px; }
         .day-header { display: flex; align-items: flex-start; padding: 0px 25px 0px; color: white; gap: 15px; margin-bottom: -5px; }
         .day-header h2 { font-size: 37px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 230px; letter-spacing: -2px; flex-shrink: 0; line-height: 1; }
-        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 4px 0; font-weight: 800; font-size: 26px; margin-right: 15px; }
+        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 4px 0; font-weight: 400; font-size: 26px; margin-right: 15px; }
         .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 4px 10px; margin-right: 0; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 24px; }
         .day-1 .periods-pill { background: #245687; }
         .day-2 .periods-pill { background: #d4e2eb; color: var(--unlp-blue); }
@@ -129,7 +130,10 @@
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 250px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
         .stripe-label { font-size: 35px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; }
-        .stripe-data { font-size: 29px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 10px 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; }
+        .stripe-data { font-size: 29px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 10px 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; cursor: text; outline: none; }
+        .stripe-data:hover { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.35); }
+        .stripe-data:focus { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.8); }
+        .exporting .stripe-data:hover, .exporting .stripe-data:focus { box-shadow: none; }
         
         .cards-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 20px; padding: 0 40px; box-sizing: border-box; }
         .v-card { height: 1010px; border-radius: 80px; padding: 25px 35px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; position: relative; overflow: hidden; box-sizing: border-box; }
@@ -202,7 +206,7 @@
                      <option value="Matias">Matias</option>
                      <option value="Renata">Renata</option>
                      <option value="Gabriel">Gabriel</option>
-                    <option value="Horacio Sarochar">Lic. Horacio Sarochar</option>
+                    <option value="Lic. Horacio Sarochar">Horacio Sarochar</option>
                     
                 </select>
             </div>
@@ -262,6 +266,7 @@
 </div>
 
 <div id="viewer">
+    <p style="color: #ccc; font-size: 0.8em; max-width: 540px; margin: 0 0 10px;">💡 Los textos de "Vientos" y "Tiempo" del Día 1 y Día 2 se pueden editar haciendo clic directo sobre ellos acá abajo (por ejemplo para forzar un salto de línea manual si el automático no entra bien). Para volver al texto automático, borrá el contenido de la celda y hacé clic afuera.</p>
     <div class="placa-preview">
         <div id="placa-1" class="placa-box">
             <div class="header-container">
@@ -313,8 +318,8 @@
                     <div class="forecast-item"><img id="h-icon-2" src="images/default.png"><div class="forecast-temp" id="h-t2">--</div></div>
                     <div class="forecast-item"><img id="h-icon-3" src="images/default.png"><div class="forecast-temp" id="h-t3">--</div></div>
                 </div>
-                <div class="stripe stripe-wind"><div class="stripe-label">Vientos</div><div class="stripe-data" id="h-v1">--</div><div class="stripe-data" id="h-v2">--</div><div class="stripe-data" id="h-v3">--</div></div>
-                <div class="stripe stripe-time"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1">--</div><div class="stripe-data" id="h-w2">--</div><div class="stripe-data" id="h-w3">--</div></div>
+                <div class="stripe stripe-wind"><div class="stripe-label">Vientos</div><div class="stripe-data" id="h-v1" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="h-v2" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="h-v3" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div></div>
+                <div class="stripe stripe-time"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="h-w1" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="h-w2" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="h-w3" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div></div>
             </div>
             
             <div class="day-block day-2">
@@ -349,8 +354,8 @@
                     <div class="forecast-item"><img id="m-icon-3" src="images/default.png"><div class="forecast-temp" id="m-t3">--</div></div>
                     <div class="forecast-item"><img id="m-icon-4" src="images/default.png"><div class="forecast-temp" id="m-t4">--</div></div>
                 </div>
-                <div class="stripe stripe-wind stripe-wind-4" style="background: #245687; color: white;"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
-                <div class="stripe stripe-time stripe-time-4" style="background: var(--unlp-row-wind); color: var(--unlp-blue);"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
+                <div class="stripe stripe-wind stripe-wind-4" style="background: #245687; color: white;"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="m-v2" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="m-v3" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="m-v4" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div></div>
+                <div class="stripe stripe-time stripe-time-4" style="background: var(--unlp-row-wind); color: var(--unlp-blue);"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="m-w2" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="m-w3" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div><div class="stripe-data" id="m-w4" contenteditable="true" oninput="onCellManualInput(this.id)" onblur="onCellManualBlur(this.id)" onkeydown="handleCellKeydown(event)">--</div></div>
             </div>
         </div>
     </div>
@@ -446,7 +451,12 @@
     // escribe algo, dejamos de pisarlo con la generación automática (ver generateSocialText).
     let socialTextManuallyEdited = false;
 
-    // Ambos se restauran acá (sincrónico, apenas carga el script) y no solo en loadDraft(),
+    // Celdas de Vientos/Tiempo (Día 1 y 2) editadas a mano: { 'h-w1': true, 'm-v3': true, ... }.
+    // Mientras una celda esté acá, updateSky()/updateWind() no le pisan el texto que se escribió
+    // directamente en la placa (por ejemplo para forzar un salto de línea manual).
+    const manualCellOverrides = {};
+
+    // Todos se restauran acá (sincrónico, apenas carga el script) y no solo en loadDraft(),
     // porque recalculateDates() dispara un saveDraft() temprano en window.onload,
     // antes del setTimeout que llama a loadDraft(), y pisaría los valores guardados.
     try {
@@ -457,7 +467,41 @@
             const _stEl = document.getElementById('social-text');
             if (_stEl) _stEl.value = _savedDraft.__socialText || '';
         }
+        if (_savedDraft && _savedDraft.__manualCellOverrides) {
+            Object.assign(manualCellOverrides, _savedDraft.__manualCellOverrides);
+            const _cellTexts = _savedDraft.__manualCellText || {};
+            Object.keys(manualCellOverrides).forEach(id => {
+                if (manualCellOverrides[id] && _cellTexts[id] !== undefined) {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = _cellTexts[id];
+                }
+            });
+        }
     } catch (e) {}
+
+    function onCellManualInput(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        manualCellOverrides[id] = el.innerText.trim() !== '';
+        saveDraft();
+    }
+
+    function onCellManualBlur(id) {
+        const el = document.getElementById(id);
+        if (!el || el.innerText.trim() !== '') return;
+        manualCellOverrides[id] = false;
+        const m = id.match(/^([a-z0-9]+)-(w|v)(\d+)$/);
+        if (!m) return;
+        const [, dia, kind, tramo] = m;
+        if (kind === 'w') updateSky(dia, Number(tramo)); else updateWind(dia, Number(tramo));
+    }
+
+    function handleCellKeydown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.execCommand('insertLineBreak');
+        }
+    }
 
     function adjustFontBoost(key, delta) {
         rowFontBoost[key] = Math.max(-10, Math.min(15, (rowFontBoost[key] || 0) + delta));
@@ -673,7 +717,9 @@
             if(!dia.startsWith('d')) {
                 const target = document.getElementById(`${dia}-w${tramo}`);
                 if(target) {
-                    target.innerText = v ? (pop ? capitalizeFirst(`${pop} prob. de ${v}`) : capitalizeFirst(v)) : (pop ? `${pop} prob. precipitaciones` : "--");
+                    if (!manualCellOverrides[target.id]) {
+                        target.innerText = v ? (pop ? capitalizeFirst(`${pop} prob. de ${v}`) : capitalizeFirst(v)) : (pop ? `${pop} prob. precipitaciones` : "--");
+                    }
                     const elements = [];
                     for (let i = 1; i <= (dia === 'h' ? 3 : 4); i++) { const el = document.getElementById(`${dia}-w${i}`); if (el) elements.push(el); }
                     syncRowFontSize(elements, 26 + (rowFontBoost[`${dia}_w`] || 0), 12);
@@ -700,7 +746,9 @@
         if(!dia.startsWith('d')) {
             const t = document.getElementById(`${dia}-v${tramo}`);
             if(t) {
-                t.innerText = r ? `Ráfagas: ${r}` : (i && d ? capitalizeFirst(`${i} del ${d}`) : "--");
+                if (!manualCellOverrides[t.id]) {
+                    t.innerText = r ? `Ráfagas: ${r}` : (i && d ? capitalizeFirst(`${i} del ${d}`) : "--");
+                }
                 const els = [];
                 for (let j = 1; j <= (dia === 'h' ? 3 : 4); j++) { const el = document.getElementById(`${dia}-v${j}`); if (el) els.push(el); }
                 syncRowFontSize(els, 26 + (rowFontBoost[`${dia}_v`] || 0), 12);
@@ -1040,6 +1088,7 @@
     }
 
     async function download(id) {
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
         const el = document.getElementById(id); el.classList.add('exporting');
         await new Promise(r => setTimeout(r, 50));
@@ -1052,6 +1101,7 @@
     }
 
     async function downloadPDF() {
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
         const c = document.getElementById('city-selector').value.replace(/\s+/g, '_'), d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
         const pdfName = `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
@@ -1076,6 +1126,14 @@
         data.__rowFontBoost = rowFontBoost;
         data.__socialTextManuallyEdited = socialTextManuallyEdited;
         data.__socialText = socialTextManuallyEdited ? document.getElementById('social-text').value : '';
+        data.__manualCellOverrides = manualCellOverrides;
+        data.__manualCellText = {};
+        Object.keys(manualCellOverrides).forEach(id => {
+            if (manualCellOverrides[id]) {
+                const el = document.getElementById(id);
+                if (el) data.__manualCellText[id] = el.innerText;
+            }
+        });
         localStorage.setItem('pronoDraft', JSON.stringify(data));
         generateSocialText();
     }
@@ -1107,10 +1165,13 @@
         const specificTime = `${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`;
         const timeInput = document.getElementById('in-hora-emision');
         if (timeInput) { timeInput.value = specificTime; up('out-hora', specificTime + ' hs'); }
-        recalculateDates();
-        
+
+        // recalculateDates() se llama DESPUÉS de restaurar el borrador (no antes): dispara un
+        // saveDraft() que, si corriera primero, guardaría el sidebar recién renderizado (vacío)
+        // y borraría el borrador guardado antes de que loadDraft() llegue a leerlo.
         setTimeout(() => {
             if(localStorage.getItem('pronoDraft')) { loadDraft(); showToast("Borrador recuperado"); }
+            recalculateDates();
             const initialCity = document.getElementById('city-selector');
             if (initialCity) updateCity(initialCity.value);
             generateSocialText();
