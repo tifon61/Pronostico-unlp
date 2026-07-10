@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-10T18:14:00.982741+00:00",
+  "generated_at": "2026-07-10T22:03:58.798514+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -176,7 +176,7 @@
       ]
     },
     "Junín": {
-      "error": "JSON inválido"
+      "error": "Sin datos para Junín"
     },
     "Mar del Plata": {
       "city": "Mar del Plata",

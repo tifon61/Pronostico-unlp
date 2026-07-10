@@ -1,4 +1,31 @@
 {
-  "generated_at": null,
-  "items": []
+  "items": [
+    {
+      "id": "9875814e-4593-47b9-bf32-452d0607c15a",
+      "tipo": "informe",
+      "titulo": "Informe random",
+      "texto": "Descripcion del informe con sus caracteristicas y etc",
+      "tag": "con datos de la facultad",
+      "link_url": "",
+      "link_label": "Leer informe",
+      "fecha": "",
+      "imagen_url": "",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-07-10T21:58:56.129Z"
+    },
+    {
+      "id": "f8aed678-e55d-4dfa-a702-fcc6292121b2",
+      "tipo": "agenda",
+      "titulo": "Presentacion de pagina de Grupo de pronostico",
+      "texto": "Texto de prueba para seccion de agenda",
+      "tag": "",
+      "link_url": "",
+      "link_label": "",
+      "fecha": "2026-07-13T03:00:00.000Z",
+      "imagen_url": "",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-07-10T21:57:24.569Z"
+    }
+  ],
+  "generated_at": "2026-07-10T22:04:12.610221+00:00"
 }
