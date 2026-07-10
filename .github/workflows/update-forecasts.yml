@@ -21,13 +21,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Consultar Apps Script y armar data/forecasts.json
+      - name: Consultar Apps Script y armar data/forecasts.json y data/novedades.json
         run: python3 scripts/fetch_forecasts.py
 
       - name: Commitear si hubo cambios
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/forecasts.json
-          git diff --staged --quiet || git commit -m "Actualizar caché de pronósticos"
+          git add data/forecasts.json data/novedades.json
+          git diff --staged --quiet || git commit -m "Actualizar caché de pronósticos y novedades"
           git push
