@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Meteorológico UNLP | IG Pro</title>
+    <title>Admin Meteorológico UNLP </title>
     <link rel="icon" type="image/png" href="images/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -30,7 +30,14 @@
         }
         body { font-family: 'Garet', 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transform: translateZ(0); }
         
-        #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; overflow-y: auto; border-right: 5px solid var(--unlp-blue); }
+        #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; overflow-y: auto; border-right: 5px solid var(--unlp-blue); flex-shrink: 0; transition: margin-left 0.25s ease; }
+        body.sidebar-hidden #sidebar { margin-left: -450px; }
+        .sidebar-toggle-btn { position: fixed; top: 14px; left: 14px; z-index: 1000; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--unlp-blue); color: white; font-size: 20px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; }
+        .sidebar-toggle-btn:hover { background: #002240; }
+        body.sidebar-hidden .sidebar-toggle-btn { left: 14px; }
+        @media (max-width: 900px) {
+            .sidebar-toggle-btn { top: 10px; left: 10px; width: 40px; height: 40px; font-size: 17px; }
+        }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0 10px; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
         .font-adj-group { padding: 8px 12px; }
@@ -177,6 +184,8 @@
 </head>
 <body>
 
+<button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Ocultar/mostrar panel de datos" id="sidebar-toggle-btn">☰</button>
+
 <div id="sidebar">
     <h2 style="font-size: 1.1em; color: var(--unlp-blue); border-bottom: 3px solid var(--unlp-blue); padding-bottom: 8px; margin-top: 0;">ADMIN PRONÓSTICO UNLP</h2>
     
@@ -195,7 +204,7 @@
                 <label>Publicado por</label>
                 <select id="in-publicado-por" onchange="saveDraft()">
                     <option value="Equipo FCAG">Equipo FCAG</option>
-                    <option value="Dr. Alejandro Godoy">Dr. Alejandro Godoy</option>
+                    <option value="Dr. Alejandro Godoy">Alejandro Godoy</option>
                      <option value="Mauricio">Mauricio</option>
                      <option value="Camila">Camila</option>
                     
@@ -206,7 +215,7 @@
                      <option value="Matias">Matias</option>
                      <option value="Renata">Renata</option>
                      <option value="Gabriel">Gabriel</option>
-                    <option value="Lic. Horacio Sarochar">Lic. Horacio Sarochar</option>
+                    <option value="Lic. Horacio Sarochar">Horacio Sarochar</option>
                     
                 </select>
             </div>
@@ -430,6 +439,15 @@
 <div id="notification-toast">✅ Operación exitosa</div>
 
 <script>
+    // Preferencia de UI (mostrar/ocultar panel de datos), no forma parte del borrador del
+    // pronóstico: se guarda aparte y se restaura ya mismo para que no haya parpadeo al cargar.
+    if (localStorage.getItem('adminSidebarHidden') === '1') document.body.classList.add('sidebar-hidden');
+
+    function toggleSidebar() {
+        document.body.classList.toggle('sidebar-hidden');
+        localStorage.setItem('adminSidebarHidden', document.body.classList.contains('sidebar-hidden') ? '1' : '0');
+    }
+
     // ⚠️ REEMPLAZAR CON TU URL DE GOOGLE APPS SCRIPT
     const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
 
