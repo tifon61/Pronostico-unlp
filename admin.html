@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Meteorológico UNLP | IG Pro</title>
-    <link rel="icon" type="image/png" href="Logo pronounlp.jfif">
+    <title>Admin Meteorológico UNLP </title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -67,8 +67,8 @@
         .logo-fcag { height: 65px; width: 191px; object-fit: contain; flex-shrink: 0; }
         
         /* MODIFICADO: Logo de Pronóstico ajustado a 95px y con desplazamiento hacia abajo en ambas vistas */
-        .logo-prono { height: 90px; width: 95px; object-fit: contain; border-radius: 50%; flex-shrink: 0; margin: 0 10px; transform: translateY(-2px); }
-        .exporting .logo-prono { transform: translateY(6px); }
+        .logo-prono { height: 90px; width: 95px; object-fit: contain; border-radius: 50%; flex-shrink: 0; margin: 0 10px; transform: translateY(6px); }
+        .exporting .logo-prono { transform: translateY(14px); }
         
         .logo-unlp { height: 75px; width: 156px; object-fit: contain; flex-shrink: 0; z-index: 2; transform: translateY(2px); }
         .header-capsule h1 { font-size: 58px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -2px; line-height: 1; z-index: 1; }
@@ -195,7 +195,7 @@
                 <label>Publicado por</label>
                 <select id="in-publicado-por" onchange="saveDraft()">
                     <option value="Equipo FCAG">Equipo FCAG</option>
-                    <option value="Dr. Alejandro Godoy">Alejandro Godoy</option>
+                    <option value="Dr. Alejandro Godoy">Dr. Alejandro Godoy</option>
                      <option value="Mauricio">Mauricio</option>
                      <option value="Camila">Camila</option>
                     
@@ -206,7 +206,7 @@
                      <option value="Matias">Matias</option>
                      <option value="Renata">Renata</option>
                      <option value="Gabriel">Gabriel</option>
-                    <option value="Lic. Horacio Sarochar">Horacio Sarochar</option>
+                    <option value="Lic. Horacio Sarochar">Lic. Horacio Sarochar</option>
                     
                 </select>
             </div>
@@ -698,9 +698,24 @@
 
         if (!i1 && !d1 && !r1) { tw.innerText = '--'; ac.innerHTML = ''; return; }
 
-        let w1_desc = r1 ? `ráfagas de ${r1}` : `vientos ${i1} del ${d1}`;
-        let w2_desc = r2 ? `ráfagas de ${r2}` : `vientos ${i2} del ${d2}`;
-        tw.innerText = capitalizeFirst(((i1 && d1) || r1) ? (((i2 && d2) || r2) ? (w1_desc === w2_desc ? `${w1_desc}.` : `${w1_desc} rotando a ${w2_desc}.`) : `${w1_desc}.`) : '');
+        const hasFirst = (i1 && d1) || r1, hasSecond = (i2 && d2) || r2;
+        let combined = '';
+        if (hasFirst && !hasSecond) {
+            combined = r1 ? `ráfagas de ${r1}.` : `vientos ${i1} del ${d1}.`;
+        } else if (hasFirst && hasSecond) {
+            if (r1 && r2) {
+                // Mismo tipo (ráfagas): no repetir "ráfagas de" si solo cambia el valor.
+                combined = r1 === r2 ? `ráfagas de ${r1}.` : `ráfagas de ${r1} rotando a ${r2}.`;
+            } else if (!r1 && !r2 && i1 === i2) {
+                // Misma intensidad: no repetirla si solo cambia la dirección ("leves del norte rotando al sur").
+                combined = d1 === d2 ? `vientos ${i1} del ${d1}.` : `vientos ${i1} del ${d1} rotando al ${d2}.`;
+            } else {
+                const w1_desc = r1 ? `ráfagas de ${r1}` : `vientos ${i1} del ${d1}`;
+                const w2_desc = r2 ? `ráfagas de ${r2}` : `vientos ${i2} del ${d2}`;
+                combined = w1_desc === w2_desc ? `${w1_desc}.` : `${w1_desc} rotando a ${w2_desc}.`;
+            }
+        }
+        tw.innerText = capitalizeFirst(combined);
         
         ac.innerHTML = arrows;
         let sz = 28 + (rowFontBoost[`${dia}_wind`] || 0);
