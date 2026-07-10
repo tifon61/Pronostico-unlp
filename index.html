@@ -235,6 +235,9 @@
         .agenda-date small { font-size: 0.75rem; text-transform: uppercase; }
         .agenda-info h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
         .agenda-info p { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+        .empty-msg { color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px; grid-column: 1 / -1; }
+        #extension-grid { display: flex; flex-direction: column; gap: 16px; }
+        #extension-grid .item-img { height: 140px; }
         .contact-form { display: flex; flex-direction: column; gap: 12px; background: white; padding: 26px; border-radius: 12px; border: 1px solid var(--border); }
         .contact-form input,.contact-form textarea,.contact-form select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
         .contact-form button { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 800; cursor: pointer; }
@@ -504,11 +507,7 @@
             <section>
                 <h2 class="section-heading">⚠️ Informes Especiales</h2>
                 <p class="section-desc">Análisis de eventos meteorológicos en la región.</p>
-                <div class="grid-3">
-                    <div class="item-card"><img src="https://placehold.co/600x400/0ea5e9/white?text=Bloqueos+atmosfericos" class="item-img"><div class="item-body"><span class="item-tag">Análisis</span><h3 class="item-title">Bloqueos atmosféricos de junio</h3><p class="item-text">Análisis sinóptico e imágenes de satélite sobre el evento que afectó la región.</p><a href="#" class="item-btn">Leer Informe</a></div></div>
-                    <div class="item-card"><img src="https://placehold.co/600x400/ef4444/white?text=Datos+meteorologicos" class="item-img"><div class="item-body"><span class="item-tag">Informe Meteorológico</span><h3 class="item-title">Análisis de temperaturas del verano 2025/2026</h3><p class="item-text">Elaborado entre la Estación La Plata Observatorio FCAG y el Grupo de Extensión.</p><a href="#" class="item-btn">Leer Informe</a></div></div>
-                    <div class="item-card"><img src="https://placehold.co/600x400/64748b/white?text=Nieblas" class="item-img"><div class="item-body"><span class="item-tag">Caso de Estudio</span><h3 class="item-title">Niebla intensa de advección</h3><p class="item-text">Termodinámica de la niebla densa que redujo visibilidad a cero durante tres jornadas.</p><a href="#" class="item-btn">Leer Informe</a></div></div>
-                </div>
+                <div class="grid-3" id="informes-grid"><div class="empty-msg">Cargando...</div></div>
             </section>
         </div>
     </div>
@@ -528,16 +527,11 @@
             <div class="grid-2">
                 <section>
                     <h2 class="section-heading">🎓 Extensión Universitaria</h2>
-                    <div class="item-card" style="margin-bottom:16px;"><img src="https://placehold.co/600x280/1e293b/white?text=Semana+de+la+Tierra" class="item-img" style="height:140px;"><div class="item-body"><h3 class="item-title">Semana de la Tierra</h3><p class="item-text">Experimentos en stand meteorológico.</p><a href="#" class="item-btn">Ver Bitácora</a></div></div>
-                    <div class="item-card"><img src="https://placehold.co/600x280/1e293b/white?text=Planetario" class="item-img" style="height:140px;"><div class="item-body"><h3 class="item-title">Charlas en el Planetario</h3><p class="item-text">Ciclo mensual gratuito sobre meteorología extrema.</p><a href="#" class="item-btn">Cronograma</a></div></div>
+                    <div id="extension-grid"><div class="empty-msg">Cargando...</div></div>
                 </section>
                 <section>
                     <h2 class="section-heading">📅 Agenda</h2>
-                    <div class="agenda-list">
-                        <div class="agenda-item"><div class="agenda-date"><span>19</span><small>JUN</small></div><div class="agenda-info"><h4>Charla de los viernes | "Meteorología del fin del mundo"</h4><p>Planetario UNLP · 19:00hs · Entrada libre</p></div></div>
-                        <div class="agenda-item"><div class="agenda-date"><span>05</span><small>NOV</small></div><div class="agenda-info"><h4>Taller de Meteorología General</h4><p>Facultad de Ciencias Astronómicas y Geofísicas · Requiere inscripción</p></div></div>
-                        <div class="agenda-item"><div class="agenda-date"><span>12</span><small>NOV</small></div><div class="agenda-info"><h4>Feria de Ciencias</h4><p>Facultad de Ingeniería · Todo el día</p></div></div>
-                    </div>
+                    <div class="agenda-list" id="agenda-list"><div class="empty-msg">Cargando...</div></div>
                 </section>
             </div>
         </div>
@@ -603,10 +597,12 @@ const PERIOD_SHORT = { "mañana":"MAÑANA","tarde":"TARDE","noche":"NOCHE","madr
 let _charts = {};
 
 window.onload = () => {
-    initMap();
-    loadCity('La Plata');
-    fetchTS();
-    setInterval(fetchTS, 5 * 60 * 1000);
+    // Cada init va aparte: si uno falla (ej. el mapa por bloqueo de red)
+    // no debe impedir que arranquen los demás.
+    try { initMap(); } catch (e) { console.error('Error iniciando el mapa:', e); }
+    try { loadCity('La Plata'); } catch (e) { console.error('Error cargando pronóstico inicial:', e); }
+    try { fetchTS(); setInterval(fetchTS, 5 * 60 * 1000); } catch (e) { console.error('Error iniciando ThingSpeak:', e); }
+    try { loadNovedades(); } catch (e) { console.error('Error cargando novedades:', e); }
 };
 
 function degreesToCardinal(deg) {
@@ -920,6 +916,59 @@ async function loadForecastsCache() {
     if (!resp.ok) throw new Error('No se pudo cargar data/forecasts.json (status ' + resp.status + ')');
     _forecastsCache = await resp.json();
     return _forecastsCache;
+}
+
+// ─── NOVEDADES (Informes Especiales / Extensión Universitaria / Agenda) ─────
+// Se cargan desde data/novedades.json (mismo sistema de caché estático que
+// el pronóstico), armado por novedades-admin.html + Apps Script + GitHub Actions.
+const MONTH_ABBR_ES = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.innerText = str || '';
+    return div.innerHTML;
+}
+
+function itemCardHtml(item) {
+    const img = item.imagen_url ? `<img src="${item.imagen_url}" class="item-img">` : '';
+    const tag = item.tag ? `<span class="item-tag">${escapeHtml(item.tag)}</span>` : '';
+    const btn = item.link_url ? `<a href="${item.link_url}" target="_blank" rel="noopener" class="item-btn">${escapeHtml(item.link_label) || 'Ver más'}</a>` : '';
+    return `<div class="item-card">${img}<div class="item-body">${tag}<h3 class="item-title">${escapeHtml(item.titulo)}</h3><p class="item-text">${escapeHtml(item.texto)}</p>${btn}</div></div>`;
+}
+
+function agendaItemHtml(item) {
+    const d = item.fecha ? new Date(item.fecha + 'T00:00:00') : null;
+    const day = d ? String(d.getDate()).padStart(2, '0') : '--';
+    const month = d ? MONTH_ABBR_ES[d.getMonth()] : '';
+    return `<div class="agenda-item"><div class="agenda-date"><span>${day}</span><small>${month}</small></div><div class="agenda-info"><h4>${escapeHtml(item.titulo)}</h4><p>${escapeHtml(item.texto)}</p></div></div>`;
+}
+
+function renderNovedades(items) {
+    const informes  = items.filter(i => i.tipo === 'informe');
+    const extension = items.filter(i => i.tipo === 'extension');
+    const agenda    = items.filter(i => i.tipo === 'agenda').slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+
+    document.getElementById('informes-grid').innerHTML = informes.length
+        ? informes.map(itemCardHtml).join('') : '<div class="empty-msg">Todavía no hay informes publicados.</div>';
+    document.getElementById('extension-grid').innerHTML = extension.length
+        ? extension.map(itemCardHtml).join('') : '<div class="empty-msg">Todavía no hay novedades de extensión.</div>';
+    document.getElementById('agenda-list').innerHTML = agenda.length
+        ? agenda.map(agendaItemHtml).join('') : '<div class="empty-msg">No hay eventos próximos cargados.</div>';
+}
+
+async function loadNovedades() {
+    try {
+        const resp = await fetch('data/novedades.json', { cache: 'no-store' });
+        if (!resp.ok) throw new Error('status ' + resp.status);
+        const data = await resp.json();
+        renderNovedades(data.items || []);
+    } catch (e) {
+        console.error('No se pudieron cargar las novedades:', e);
+        const msg = '<div class="empty-msg">No se pudo cargar esta sección.</div>';
+        document.getElementById('informes-grid').innerHTML = msg;
+        document.getElementById('extension-grid').innerHTML = msg;
+        document.getElementById('agenda-list').innerHTML = msg;
+    }
 }
 
 async function fetchForecast(city) {
