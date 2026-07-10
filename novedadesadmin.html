@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Novedades | Admin UNLP</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap">
+<style>
+    @font-face {
+        font-family: 'Garet';
+        src: url('fonts/Garet-Book.woff2') format('woff2'), url('fonts/Garet-Book.woff') format('woff');
+        font-weight: 1 649; font-style: normal; font-display: swap;
+    }
+    @font-face {
+        font-family: 'Garet';
+        src: url('fonts/Garet-Heavy.woff2') format('woff2'), url('fonts/Garet-Heavy.woff') format('woff');
+        font-weight: 650 999; font-style: normal; font-display: swap;
+    }
+    * { box-sizing: border-box; }
+    :root { --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --bg: #f4f6f8; }
+    body { font-family: 'Garet', 'Montserrat', sans-serif; background: var(--bg); color: #333; margin: 0; padding: 30px 20px 80px; }
+    .container { max-width: 760px; margin: 0 auto; }
+    h1 { color: var(--unlp-blue); font-size: 1.4em; margin-bottom: 4px; }
+    .subtitle { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+    a.back-link { color: var(--unlp-blue); font-weight: 700; text-decoration: none; font-size: 0.85em; }
+    a.back-link:hover { text-decoration: underline; }
+
+    .card { background: white; border-radius: 10px; padding: 22px 24px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    label { display: block; font-size: 0.75em; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; margin: 14px 0 5px; }
+    label:first-of-type { margin-top: 0; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95em; }
+    textarea { resize: vertical; }
+    .field-row { display: none; }
+    .field-row.active { display: block; }
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    button { border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 0.9em; transition: 0.2s; }
+    .btn-primary { background: var(--unlp-blue); color: white; flex: 1; }
+    .btn-primary:hover { background: #002240; }
+    .btn-cancel { background: #6c757d; color: white; display: none; }
+    .btn-cancel.show { display: block; }
+    #f-imagen-preview { display: none; max-width: 160px; border-radius: 6px; margin-top: 8px; }
+
+    .item-row { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; gap: 14px; align-items: flex-start; }
+    .item-row img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+    .item-info { flex: 1; min-width: 0; }
+    .item-tipo-badge { display: inline-block; font-size: 0.7em; font-weight: 800; text-transform: uppercase; background: var(--unlp-accent-blue); color: white; padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; }
+    .item-info h4 { margin: 0 0 3px; font-size: 1em; color: var(--unlp-blue); }
+    .item-info p { margin: 0; font-size: 0.85em; color: #666; white-space: pre-wrap; }
+    .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .item-actions button { padding: 6px 12px; font-size: 0.8em; }
+    .btn-edit { background: #eef2f5; color: var(--unlp-blue); }
+    .btn-delete { background: #fdeceb; color: #c0392b; }
+    .empty-msg { color: #888; font-size: 0.9em; text-align: center; padding: 20px; }
+
+    #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+    #access-gate.unlocked { display: none; }
+    .access-gate-box { background: white; border-radius: 12px; padding: 35px 40px; width: 320px; max-width: 90vw; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .access-gate-box h2 { font-size: 1.1em; color: var(--unlp-blue); margin: 0 0 8px; }
+    .access-gate-box p { font-size: 0.85em; color: #555; margin: 0 0 16px; }
+    .access-gate-box input { text-align: center; }
+    #access-error { display: none; color: #c0392b; font-size: 0.8em; margin-top: 8px; font-weight: 700; }
+    #access-error.show { display: block; }
+
+    #notification-toast { position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 25px; border-radius: 8px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(150%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
+    #notification-toast.show { transform: translateY(0); }
+    #notification-toast.error { background: #e74c3c; }
+</style>
+</head>
+<body>
+
+<div id="access-gate">
+    <div class="access-gate-box">
+        <h2>NOVEDADES UNLP</h2>
+        <p>Ingresá la clave del equipo para continuar.</p>
+        <input type="password" id="access-pw" placeholder="Clave" autocomplete="off" onkeydown="if(event.key==='Enter') checkAccess()">
+        <button type="button" class="btn-primary" style="margin-top:10px;" onclick="checkAccess()">Ingresar</button>
+        <div id="access-error">Clave incorrecta, probá de nuevo.</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
+    <h1>Novedades del sitio público</h1>
+    <p class="subtitle">Cargá acá lo que se ve en "Informes Especiales", "Extensión Universitaria" y "Agenda" de la página pública. Los cambios tardan menos de un minuto en reflejarse.</p>
+
+    <div class="card">
+        <label>Tipo</label>
+        <select id="f-tipo" onchange="onTipoChange()">
+            <option value="informe">Informe Especial</option>
+            <option value="extension">Extensión Universitaria</option>
+            <option value="agenda">Agenda (evento con fecha)</option>
+        </select>
+
+        <label>Título</label>
+        <input type="text" id="f-titulo" placeholder="Ej: Charla de los viernes">
+
+        <label>Texto</label>
+        <textarea id="f-texto" rows="3" placeholder="Descripción breve"></textarea>
+
+        <div class="field-row" id="row-tag">
+            <label>Etiqueta (opcional, ej: Análisis, Caso de Estudio)</label>
+            <input type="text" id="f-tag">
+        </div>
+
+        <div class="field-row" id="row-fecha">
+            <label>Fecha</label>
+            <input type="date" id="f-fecha">
+        </div>
+
+        <div class="field-row" id="row-link">
+            <label>Link (opcional — puede ser un PDF, un cronograma, o cualquier URL)</label>
+            <input type="text" id="f-link-url" placeholder="https://...">
+            <label>Texto del botón (opcional)</label>
+            <input type="text" id="f-link-label" placeholder="Leer Informe">
+        </div>
+
+        <div class="field-row" id="row-imagen">
+            <label>Imagen (opcional)</label>
+            <input type="file" id="f-imagen" accept="image/*">
+            <img id="f-imagen-preview">
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-primary" id="btn-submit" onclick="submitNovedad()">Publicar</button>
+            <button class="btn-cancel" id="btn-cancel" onclick="cancelEdit()">Cancelar edición</button>
+        </div>
+    </div>
+
+    <h2 style="color:var(--unlp-blue); font-size:1.1em;">Ya publicadas</h2>
+    <div id="novedades-list"><div class="empty-msg">Cargando...</div></div>
+</div>
+
+<div id="notification-toast">✅ Listo</div>
+
+<script>
+    // ⚠️ CAMBIAR esta clave por la MISMA que se usa en admin.html (y en Apps Script,
+    // Script Properties > TEAM_PASSWORD). Si no coinciden, esta pantalla te deja pasar
+    // pero el Sheet va a rechazar la publicación en silencio.
+    const TEAM_PASSWORD = 'CAMBIAR_ESTA_CLAVE';
+
+    function checkAccess() {
+        const val = document.getElementById('access-pw').value;
+        if (val === TEAM_PASSWORD) {
+            localStorage.setItem('teamAccessGranted', '1');
+            document.getElementById('access-gate').classList.add('unlocked');
+        } else {
+            document.getElementById('access-error').classList.add('show');
+        }
+    }
+    if (localStorage.getItem('teamAccessGranted') === '1') {
+        document.getElementById('access-gate').classList.add('unlocked');
+    }
+
+    // ⚠️ Misma URL de Apps Script que usa admin.html.
+    const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
+
+    const LINK_LABEL_DEFAULT = { informe: 'Leer Informe', extension: 'Ver más', agenda: '' };
+    const TIPO_LABEL = { informe: 'Informe Especial', extension: 'Extensión', agenda: 'Agenda' };
+
+    let editingId = null;
+    let imagenBase64 = null, imagenMime = null, imagenNombre = null;
+    let lastItems = [];
+
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('notification-toast');
+        toast.innerText = message;
+        toast.classList.toggle('error', isError);
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function onTipoChange() {
+        const tipo = document.getElementById('f-tipo').value;
+        document.getElementById('row-tag').classList.toggle('active', tipo === 'informe');
+        document.getElementById('row-fecha').classList.toggle('active', tipo === 'agenda');
+        document.getElementById('row-link').classList.toggle('active', tipo !== 'agenda');
+        document.getElementById('row-imagen').classList.toggle('active', tipo !== 'agenda');
+    }
+    onTipoChange();
+
+    document.getElementById('f-imagen').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) { imagenBase64 = null; return; }
+        imagenMime = file.type;
+        imagenNombre = file.name;
+        const reader = new FileReader();
+        reader.onload = () => {
+            imagenBase64 = reader.result.split(',')[1];
+            const preview = document.getElementById('f-imagen-preview');
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function resetForm() {
+        editingId = null;
+        imagenBase64 = null; imagenMime = null; imagenNombre = null;
+        document.getElementById('f-tipo').value = 'informe';
+        document.getElementById('f-titulo').value = '';
+        document.getElementById('f-texto').value = '';
+        document.getElementById('f-tag').value = '';
+        document.getElementById('f-fecha').value = '';
+        document.getElementById('f-link-url').value = '';
+        document.getElementById('f-link-label').value = '';
+        document.getElementById('f-imagen').value = '';
+        document.getElementById('f-imagen-preview').style.display = 'none';
+        document.getElementById('btn-submit').innerText = 'Publicar';
+        document.getElementById('btn-cancel').classList.remove('show');
+        onTipoChange();
+    }
+
+    function cancelEdit() { resetForm(); }
+
+    function submitNovedad() {
+        const tipo = document.getElementById('f-tipo').value;
+        const titulo = document.getElementById('f-titulo').value.trim();
+        if (!titulo) { showToast('Falta el título', true); return; }
+
+        const payload = {
+            action: editingId ? 'editar_novedad' : 'crear_novedad',
+            team_password: TEAM_PASSWORD,
+            tipo: tipo,
+            titulo: titulo,
+            texto: document.getElementById('f-texto').value.trim(),
+            tag: document.getElementById('f-tag').value.trim(),
+            fecha: document.getElementById('f-fecha').value,
+            link_url: document.getElementById('f-link-url').value.trim(),
+            link_label: document.getElementById('f-link-label').value.trim() || LINK_LABEL_DEFAULT[tipo] || '',
+            publicado_por: 'Equipo FCAG'
+        };
+        if (editingId) payload.id = editingId;
+        if (imagenBase64) {
+            payload.imagen_base64 = imagenBase64;
+            payload.imagen_mime = imagenMime;
+            payload.imagen_nombre = imagenNombre;
+        }
+
+        fetch(GOOGLE_APP_URL, {
+            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            showToast(editingId ? '¡Novedad actualizada!' : '¡Novedad publicada!');
+            resetForm();
+            setTimeout(loadList, 1200);
+        }).catch(() => showToast('Error de conexión', true));
+    }
+
+    function editItem(id) {
+        const item = lastItems.find(it => it.id === id);
+        if (!item) return;
+        editingId = id;
+        document.getElementById('f-tipo').value = item.tipo || 'informe';
+        onTipoChange();
+        document.getElementById('f-titulo').value = item.titulo || '';
+        document.getElementById('f-texto').value = item.texto || '';
+        document.getElementById('f-tag').value = item.tag || '';
+        document.getElementById('f-fecha').value = item.fecha || '';
+        document.getElementById('f-link-url').value = item.link_url || '';
+        document.getElementById('f-link-label').value = item.link_label || '';
+        if (item.imagen_url) {
+            const preview = document.getElementById('f-imagen-preview');
+            preview.src = item.imagen_url;
+            preview.style.display = 'block';
+        }
+        document.getElementById('btn-submit').innerText = 'Guardar cambios';
+        document.getElementById('btn-cancel').classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteItem(id, titulo) {
+        if (!confirm(`¿Borrar "${titulo}"? No se puede deshacer.`)) return;
+        fetch(GOOGLE_APP_URL, {
+            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'borrar_novedad', team_password: TEAM_PASSWORD, id: id })
+        }).then(() => {
+            showToast('Novedad borrada');
+            setTimeout(loadList, 1200);
+        }).catch(() => showToast('Error de conexión', true));
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.innerText = str || '';
+        return div.innerHTML;
+    }
+
+    function loadList() {
+        const callbackName = 'jsonp_nov_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(data) {
+            delete window[callbackName];
+            document.body.removeChild(script);
+            lastItems = (data && data.items) || [];
+            const container = document.getElementById('novedades-list');
+            if (!lastItems.length) {
+                container.innerHTML = '<div class="empty-msg">Todavía no hay novedades publicadas.</div>';
+                return;
+            }
+            container.innerHTML = lastItems.map(item => `
+                <div class="item-row">
+                    ${item.imagen_url ? `<img src="${item.imagen_url}">` : ''}
+                    <div class="item-info">
+                        <span class="item-tipo-badge">${TIPO_LABEL[item.tipo] || item.tipo}</span>
+                        <h4>${escapeHtml(item.titulo)}</h4>
+                        <p>${escapeHtml(item.texto)}</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-edit" onclick="editItem('${item.id}')">Editar</button>
+                        <button class="btn-delete" onclick="deleteItem('${item.id}', '${escapeHtml(item.titulo).replace(/'/g, "\\'")}')">Borrar</button>
+                    </div>
+                </div>
+            `).join('');
+        };
+        const script = document.createElement('script');
+        script.src = `${GOOGLE_APP_URL}?type=novedades&callback=${callbackName}&_t=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
+    window.onload = () => { loadList(); };
+</script>
+</body>
+</html>
