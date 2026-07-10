@@ -2,22 +2,42 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Meteorológico UNLP | IG Pro</title>
+    <title>Admin Meteorológico UNLP | </title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        * { box-sizing: border-box; }
-        :root { 
-            --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --unlp-bg-pill: #c9e1f0;
-            --unlp-row-wind: #d9e9f2; --unlp-row-time: #003f6b; --unlp-light: #6ba4d6;
-            --unlp-green: #00796b; --bg-canvas: #efefef; 
+        @font-face {
+            font-family: 'Garet';
+            src: url('fonts/Garet-Book.woff2') format('woff2'), url('fonts/Garet-Book.woff') format('woff');
+            font-weight: 1 649;
+            font-style: normal;
+            font-display: swap;
         }
-        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transform: translateZ(0); }
+        @font-face {
+            font-family: 'Garet';
+            src: url('fonts/Garet-Heavy.woff2') format('woff2'), url('fonts/Garet-Heavy.woff') format('woff');
+            font-weight: 650 999;
+            font-style: normal;
+            font-display: swap;
+        }
+        * { box-sizing: border-box; }
+        :root {
+            --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --unlp-bg-pill: #c9e1f0;
+            --unlp-row-wind: #d9e9f2; --unlp-row-time: #003c60; --unlp-light: #6ba4d6;
+            --unlp-green: #00796b; --bg-canvas: #efefef;
+        }
+        body { font-family: 'Garet', 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transform: translateZ(0); }
         
         #sidebar { width: 450px; background: white; height: 100vh; padding: 20px; overflow-y: auto; border-right: 5px solid var(--unlp-blue); }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0 10px; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
+        .font-adj-group { padding: 8px 12px; }
+        .font-adj-col { flex: 1; align-items: center; }
+        .font-adj-col label { font-size: 0.7em; color: #555; margin-bottom: 4px; text-transform: uppercase; }
+        .font-adj-controls { display: flex; gap: 6px; width: 100%; }
+        .btn-font-adj { flex: 1; padding: 6px 0; margin: 0; border: 1px solid #ccc; border-radius: 4px; background: white; color: var(--unlp-blue); font-weight: 900; cursor: pointer; transition: 0.2s; }
+        .btn-font-adj:hover { background: var(--unlp-blue); color: white; }
         /* La distinción urbana/suburbana solo aplica a La Plata (única ciudad con doble estación) */
         body.single-station .sub-field, body.single-station .temp-v-sub, body.single-station .card-temp-sub, body.single-station .footer-note { display: none; }
         h4 { margin: 10px 2px 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.65em; border-bottom: 1px solid #ddd; }
@@ -58,16 +78,16 @@
         
         .date-emission-pill { background: var(--unlp-bg-pill); border-radius: 50px; padding: 8px 50px; display: inline-flex; align-items: center; gap: 50px; color: var(--unlp-blue); border: 3px solid white; margin: 0 auto -20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; z-index: 10; }
         .exporting .date-emission-pill { padding: 4px 50px 12px; }
-        .date-val { font-size: 32px; font-weight: 900; }
+        .date-val { font-size: 32px; font-weight: 400; }
         .issuance-block { display: flex; align-items: center; gap: 12px; text-transform: uppercase; border-left: 2px solid rgba(0,63,107,0.25); padding-left: 25px; }
         
         /* MODIFICADO: Etiqueta "Hora de emisión" más grande (de 15px a 19px) y ancho maximo ampliado */
-        .issuance-label { font-size: 19px; font-weight: 800; max-width: 170px; line-height: 1.15; }
-        .issuance-time { font-size: 28px; font-weight: 900; }
+        .issuance-label { font-size: 19px; font-weight: 400; max-width: 170px; line-height: 1.15; }
+        .issuance-time { font-size: 28px; font-weight: 400; }
         
         .day-block { border-radius: 40px; margin-bottom: 6px; position: relative; width: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); justify-content: space-between; padding-bottom: 0px; }
-        .day-1 { background: var(--unlp-blue); padding-top: 35px; height: 630px; }
-        .day-2 { background: var(--unlp-accent-blue); padding-top: 35px; margin-bottom: 0; height: 630px; }
+        .day-1 { background: #003c60; padding-top: 35px; height: 630px; }
+        .day-2 { background: #3981bfde; padding-top: 35px; margin-bottom: 0; height: 630px; }
         .day-header { display: flex; align-items: flex-start; padding: 0px 25px 0px; color: white; gap: 15px; margin-bottom: -5px; }
         .day-header h2 { font-size: 37px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 230px; letter-spacing: -2px; flex-shrink: 0; line-height: 1; }
         .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 4px 0; font-weight: 800; font-size: 26px; margin-right: 15px; }
@@ -82,7 +102,7 @@
         .temp-side-col { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; align-self: stretch; border-right: none; padding-right: 15px; }
         .temp-v-box { border-radius: 0 40px 0 0; padding: 22px 20px 20px 20px; margin-left: -15px; width: calc(100% + 15px); height: 175px; min-height: 175px; display: flex; flex-direction: column; justify-content: center; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         .day-1 .temp-v-box { background: var(--unlp-accent-blue); }
-        .day-2 .temp-v-box { background: var(--unlp-blue); }
+        .day-2 .temp-v-box { background: #003c60; }
         .temp-v-box h4 { font-size: 24px; margin: 0 0 10px; letter-spacing: 0; text-transform: uppercase; color: rgba(255,255,255,0.9); border: none; font-weight: 900; text-align: center; }
         .temp-v-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 5px; width: 100%; }
         .temp-v-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
@@ -112,7 +132,7 @@
         .cards-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 20px; padding: 0 40px; box-sizing: border-box; }
         .v-card { height: 1010px; border-radius: 80px; padding: 25px 35px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; position: relative; overflow: hidden; box-sizing: border-box; }
         .v-card.celeste { background: var(--unlp-light); }
-        .v-card.oscuro { background: var(--unlp-blue); }
+        .v-card.oscuro { background: #003c60; }
         .v-card h2 { font-size: 72px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: -2px; }
         .v-card .date { font-size: 46px; font-weight: 300; margin-bottom: 25px; opacity: 0.85; }
         .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; width: 100%; }
@@ -130,7 +150,7 @@
         .v-card .wind-arrows { margin: 0 0 10px; display: flex; justify-content: center; align-items: center; gap: 22px; min-height: 60px; }
         .wind-legend { font-size: 28px; line-height: 1.15; font-weight: 700; text-align: center; max-width: 90%; color: rgba(255,255,255,0.95); max-height: 85px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding-bottom: 6px; }
         
-        .footer-note { position: absolute; bottom: 70px; left: 0; width: 100%; text-align: center; font-size: 24px; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; }
+        .footer-note { position: absolute; bottom: 70px; left: 0; width: 100%; text-align: center; font-size: 24px; font-weight: 400; color: var(--unlp-blue); text-transform: uppercase; }
         .bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 45px; background-color: var(--unlp-blue); }
         
         img { display: block; position: relative; background: transparent; min-width: 40px; min-height: 40px; object-fit: contain; image-rendering: auto; }
@@ -326,8 +346,8 @@
                     <div class="forecast-item"><img id="m-icon-3" src="images/default.png"><div class="forecast-temp" id="m-t3">--</div></div>
                     <div class="forecast-item"><img id="m-icon-4" src="images/default.png"><div class="forecast-temp" id="m-t4">--</div></div>
                 </div>
-                <div class="stripe stripe-wind stripe-wind-4"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
-                <div class="stripe stripe-time stripe-time-4" style="background: #1a4a75;"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
+                <div class="stripe stripe-wind stripe-wind-4" style="background: #245687; color: white;"><div class="stripe-label">Vientos</div><div class="stripe-data" id="m-v1">--</div><div class="stripe-data" id="m-v2">--</div><div class="stripe-data" id="m-v3">--</div><div class="stripe-data" id="m-v4">--</div></div>
+                <div class="stripe stripe-time stripe-time-4" style="background: var(--unlp-row-wind); color: var(--unlp-blue);"><div class="stripe-label">Tiempo</div><div class="stripe-data" id="m-w1">--</div><div class="stripe-data" id="m-w2">--</div><div class="stripe-data" id="m-w3">--</div><div class="stripe-data" id="m-w4">--</div></div>
             </div>
         </div>
     </div>
@@ -414,6 +434,30 @@
     const WIND_INT = ["leves", "moderados", "regulares", "fuertes o muy fuertes"];
     const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
 
+    // Ajuste manual de tamaño de letra por fila (Vientos/Tiempo de cada día,
+    // y Texto/Viento de Día 3-4). Es un "techo" para el achicado automático:
+    // subirlo le da más margen para crecer, pero el achicado automático sigue
+    // corriendo por debajo, así que nunca se pasa de los bordes de la placa.
+    const rowFontBoost = { h_v:0, h_w:0, m_v:0, m_w:0, d3_desc:0, d3_wind:0, d4_desc:0, d4_wind:0 };
+    // Se restaura acá (sincrónico, apenas carga el script) y no solo en loadDraft(),
+    // porque recalculateDates() dispara un saveDraft() temprano en window.onload,
+    // antes del setTimeout que llama a loadDraft(), y pisaría el valor guardado con ceros.
+    try {
+        const _savedDraft = JSON.parse(localStorage.getItem('pronoDraft'));
+        if (_savedDraft && _savedDraft.__rowFontBoost) Object.assign(rowFontBoost, _savedDraft.__rowFontBoost);
+    } catch (e) {}
+
+    function adjustFontBoost(key, delta) {
+        rowFontBoost[key] = Math.max(-10, Math.min(15, (rowFontBoost[key] || 0) + delta));
+        const sep = key.lastIndexOf('_');
+        const dia = key.slice(0, sep), kind = key.slice(sep + 1);
+        if (kind === 'v') updateWind(dia, 1);
+        else if (kind === 'w') updateSky(dia, 1);
+        else if (kind === 'desc') updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`)?.value || '');
+        else if (kind === 'wind') updateWindLegendAndArrows(dia);
+        saveDraft();
+    }
+
     function capitalizeFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : ''; }
 
     function showToast(message, isError = false) {
@@ -476,6 +520,41 @@
                     <div class="column sub-field"><label>Mín Suburbana</label><input type="number" id="in-${conf.id}-min-sub" placeholder="Min Suburbana" oninput="updateTempField('${conf.id}', 'min', 'sub')"></div>
                     <div class="column"><label class="urb-label" data-full="Máx Urbana" data-short="Máx">Máx Urbana</label><input type="number" id="in-${conf.id}-max-urb" placeholder="Máx" oninput="updateTempField('${conf.id}', 'max', 'urb')"></div>
                     <div class="column sub-field"><label>Máx Suburbana</label><input type="number" id="in-${conf.id}-max-sub" placeholder="Máx Suburbana" oninput="updateTempField('${conf.id}', 'max', 'sub')"></div>
+                </div>
+            </div>`;
+
+            html += `<div class="field-group font-adj-group">
+                <h4>Tamaño de letra</h4>
+                <div class="row">
+                    ${!conf.id.startsWith('d') ? `
+                    <div class="column font-adj-col">
+                        <label>Tiempo</label>
+                        <div class="font-adj-controls">
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_w', -1)">A-</button>
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_w', 1)">A+</button>
+                        </div>
+                    </div>
+                    <div class="column font-adj-col">
+                        <label>Vientos</label>
+                        <div class="font-adj-controls">
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_v', -1)">A-</button>
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_v', 1)">A+</button>
+                        </div>
+                    </div>` : `
+                    <div class="column font-adj-col">
+                        <label>Texto</label>
+                        <div class="font-adj-controls">
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_desc', -1)">A-</button>
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_desc', 1)">A+</button>
+                        </div>
+                    </div>
+                    <div class="column font-adj-col">
+                        <label>Viento</label>
+                        <div class="font-adj-controls">
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_wind', -1)">A-</button>
+                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_wind', 1)">A+</button>
+                        </div>
+                    </div>`}
                 </div>
             </div>`;
 
@@ -568,8 +647,8 @@
         tw.innerText = capitalizeFirst(((i1 && d1) || r1) ? (((i2 && d2) || r2) ? (w1_desc === w2_desc ? `${w1_desc}.` : `${w1_desc} rotando a ${w2_desc}.`) : `${w1_desc}.`) : '');
         
         ac.innerHTML = arrows;
-        tw.style.fontSize = '28px';
-        let sz = 28;
+        let sz = 28 + (rowFontBoost[`${dia}_wind`] || 0);
+        tw.style.fontSize = sz + 'px';
         const lc = document.getElementById(`${dia}-wind-legend`);
         while (lc.scrollHeight > lc.clientHeight && sz > 14) { sz--; tw.style.fontSize = sz + 'px'; }
     }
@@ -585,7 +664,7 @@
                     target.innerText = v ? (pop ? capitalizeFirst(`${pop} prob. de ${v}`) : capitalizeFirst(v)) : (pop ? `${pop} prob. precipitaciones` : "--");
                     const elements = [];
                     for (let i = 1; i <= (dia === 'h' ? 3 : 4); i++) { const el = document.getElementById(`${dia}-w${i}`); if (el) elements.push(el); }
-                    syncRowFontSize(elements, 26, 12);
+                    syncRowFontSize(elements, 26 + (rowFontBoost[`${dia}_w`] || 0), 12);
                 }
             } else {
                 updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`).value);
@@ -612,7 +691,7 @@
                 t.innerText = r ? `Ráfagas: ${r}` : (i && d ? capitalizeFirst(`${i} del ${d}`) : "--");
                 const els = [];
                 for (let j = 1; j <= (dia === 'h' ? 3 : 4); j++) { const el = document.getElementById(`${dia}-v${j}`); if (el) els.push(el); }
-                syncRowFontSize(els, 26, 12);
+                syncRowFontSize(els, 26 + (rowFontBoost[`${dia}_v`] || 0), 12);
             }
         }
         if(dia === 'd3' || dia === 'd4') updateWindLegendAndArrows(dia);
@@ -638,8 +717,8 @@
         let str = pt ? capitalizeFirst(pt + (v || "--").toLowerCase()) : (v || "--");
 
         if (target && container) {
-            target.innerText = str; target.style.fontSize = '28px';
-            let sz = 28;
+            let sz = 28 + (rowFontBoost[`${dia}_desc`] || 0);
+            target.innerText = str; target.style.fontSize = sz + 'px';
             while (target.scrollHeight > container.clientHeight && sz > 12) { sz--; target.style.fontSize = sz + 'px'; }
         } else if (target) { target.innerText = str; }
         saveDraft();
@@ -810,19 +889,117 @@
         }
     }
 
-    function generateSocialText() {
-        const city = document.getElementById('city-selector').value;
-        const date = document.getElementById('in-fecha-emision').value;
-        const min1 = document.getElementById('in-h-min-urb').value || '--';
-        const max1 = document.getElementById('in-h-max-urb').value || '--';
-        const sky1 = document.getElementById('h-sky-select-1').value || "despejado";
-        const sky2 = document.getElementById('h-sky-select-2').value || "";
+    const SOCIAL_DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    const SOCIAL_MONTH_NAMES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
-        let text = `📡 PRONÓSTICO METEOROLÓGICO: ${city.toUpperCase()}\n🗓️ Actualización: ${date}\n\n`;
-        text += `🌤️ HOY:\nTemperaturas: Mín ${min1}°C | Máx ${max1}°C\nCondiciones: ${capitalizeFirst(sky1)}`;
-        if (sky2 && sky2 !== sky1) text += ` pasando a ${sky2}`;
-        text += `.\n\n📱 Deslizá para ver el pronóstico extendido y los detalles por hora.\n\n`;
-        text += `#Meteorologia #Clima #FCAG #UNLP #${city.replace(/\s+/g, '')} #Pronostico`;
+    // Condición "general" del día = la que aparece sin probabilidad de precipitación;
+    // si algún tramo tiene probabilidad, se agrega como cláusula aparte con el/los tramo/s.
+    function socialSkyPhrase(dia, periods) {
+        const items = periods.map((label, i) => {
+            const idx = i + 1;
+            const sky = document.getElementById(`${dia}-sky-select-${idx}`)?.value || '';
+            const pop = document.getElementById(`${dia}-pop-${idx}`)?.value || '';
+            return { label, sky, pop };
+        });
+        const withPop = items.filter(it => it.pop && it.sky);
+        const plain = items.filter(it => it.sky && !it.pop);
+        const general = (plain[0] || items.find(it => it.sky) || {}).sky;
+        if (!general && !withPop.length) return 'variable';
+        let phrase = general || withPop[0].sky;
+        if (withPop.length) {
+            const labels = withPop.map(it => it.label).join(' y ');
+            phrase += ` con ${withPop[0].pop} de probabilidad de ${withPop[0].sky} por la ${labels}`;
+        }
+        return phrase;
+    }
+
+    // Día 3 y 4 solo tienen dos tramos combinados (madrugada/mañana y tarde/noche).
+    function socialSkyPhraseTwo(dia) {
+        const s1 = document.getElementById(`${dia}-sky-select-1`)?.value || '';
+        const s2 = document.getElementById(`${dia}-sky-select-2`)?.value || '';
+        if (s1 && s2 && s1 !== s2) return `${s1} a ${s2}`;
+        return s1 || s2 || 'variable';
+    }
+
+    // Dirección del viento: primera y última distintas del día ("del X rotando al Y"), o una sola si no cambió.
+    function socialWindPhrase(dia, count) {
+        let intensity = '', dirs = [];
+        for (let i = 1; i <= count; i++) {
+            const inten = document.getElementById(`${dia}-v-i${i}`)?.value || '';
+            const dir = document.getElementById(`${dia}-v-d${i}`)?.value || '';
+            if (!intensity && inten) intensity = inten;
+            if (dir && dirs[dirs.length - 1] !== dir) dirs.push(dir);
+        }
+        if (!dirs.length) return '';
+        intensity = intensity || 'leves';
+        if (dirs.length > 1) return `Vientos ${intensity} del ${dirs[0]} rotando al ${dirs[dirs.length - 1]}`;
+        return `Vientos ${intensity} del ${dirs[0]}`;
+    }
+
+    // Heurística simple por temperatura (frío/fresco/templado/cálido/caluroso). Es un borrador:
+    // conviene revisarlo antes de publicar, como el resto del texto salvo la apertura de cada día.
+    function socialAmbiente(minId, maxId) {
+        const min = parseFloat(document.getElementById(minId)?.value);
+        const max = parseFloat(document.getElementById(maxId)?.value);
+        const band = t => {
+            if (isNaN(t)) return null;
+            if (t <= 2) return 'frío';
+            if (t <= 9) return 'fresco';
+            if (t <= 17) return 'templado';
+            if (t <= 24) return 'cálido';
+            return 'caluroso';
+        };
+        const lo = band(min), hi = band(max);
+        if (!lo && !hi) return '';
+        if (!hi || lo === hi) return lo || hi;
+        return `${lo} a ${hi}`;
+    }
+
+    function generateSocialText() {
+        const today = new Date();
+        if (document.getElementById('chk-tomorrow').checked) today.setDate(today.getDate() + 1);
+        const dayAt = (offset) => {
+            const d = new Date(today); d.setDate(d.getDate() + offset);
+            return { name: SOCIAL_DAY_NAMES[d.getDay()], day: d.getDate(), month: SOCIAL_MONTH_NAMES[d.getMonth()] };
+        };
+        const d0 = dayAt(0), d1 = dayAt(1), d2 = dayAt(2), d3i = dayAt(3);
+
+        const buildParagraph = (opening, sky, wind, amb) => {
+            let p = `${opening} cielo ${sky}.`;
+            if (wind) p += ` ${wind}.`;
+            if (amb) p += ` Ambiente ${amb}.`;
+            return p;
+        };
+
+        const paragraphs = [
+            buildParagraph(
+                `Para hoy, ${d0.name} ${d0.day}, se espera`,
+                socialSkyPhrase('h', ['mañana', 'tarde', 'noche']),
+                socialWindPhrase('h', 3),
+                socialAmbiente('in-h-min-urb', 'in-h-max-urb')
+            ),
+            buildParagraph(
+                `El ${d1.name} ${d1.day} continuará con`,
+                socialSkyPhrase('m', ['madrugada', 'mañana', 'tarde', 'noche']),
+                socialWindPhrase('m', 4),
+                socialAmbiente('in-m-min-urb', 'in-m-max-urb')
+            ),
+            buildParagraph(
+                `Para el día ${d2.name} ${d2.day} se prevé`,
+                socialSkyPhraseTwo('d3'),
+                socialWindPhrase('d3', 2),
+                socialAmbiente('in-d3-min-urb', 'in-d3-max-urb')
+            ),
+            buildParagraph(
+                `Para el ${d3i.name} ${d3i.day} se espera`,
+                socialSkyPhraseTwo('d4'),
+                socialWindPhrase('d4', 2),
+                socialAmbiente('in-d4-min-urb', 'in-d4-max-urb')
+            )
+        ];
+
+        let text = paragraphs.join('\n\n');
+        text += `\n\nPróximo pronóstico: ${d1.name} ${d1.day} de ${d1.month}.`;
 
         document.getElementById('social-text').value = text;
     }
@@ -876,6 +1053,7 @@
         document.querySelectorAll('input, select, textarea').forEach(el => {
             if(el.id && !exclude.includes(el.id)) data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
         });
+        data.__rowFontBoost = rowFontBoost;
         localStorage.setItem('pronoDraft', JSON.stringify(data));
         generateSocialText();
     }
@@ -885,6 +1063,7 @@
             const draft = JSON.parse(localStorage.getItem('pronoDraft'));
             if (!draft) return;
             for(let key in draft) { const el = document.getElementById(key); if(el) { if(el.type === 'checkbox') el.checked = draft[key]; else el.value = draft[key]; } }
+            if (draft.__rowFontBoost) Object.assign(rowFontBoost, draft.__rowFontBoost);
             updateCity(document.getElementById('city-selector').value);
             ['h','m','d3','d4'].forEach(dia => { updateTempField(dia, 'min', 'urb'); updateTempField(dia, 'min', 'sub'); updateTempField(dia, 'max', 'urb'); updateTempField(dia, 'max', 'sub'); });
             [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i); updateWind('h', i); });
