@@ -90,7 +90,7 @@
         <header class="flex flex-col xl:flex-row justify-between items-center mb-8 gap-6">
             <div class="text-center xl:text-left">
                 <h1 class="text-3xl font-bold text-white">Monitoreo de Precipitación</h1>
-                <p class="text-slate-400">Análisis Calibrado: EMA Violeta vs EMA Verde vs Campbell</p>
+                <p class="text-slate-400">Análisis Calibrado: EMA Violeta vs EMA Verde vs Campbell vs Daza (WU)</p>
             </div>
 
             <div class="flex flex-col lg:flex-row gap-4 items-center">
@@ -128,7 +128,7 @@
         <!-- VISTA: COMPARACIÓN DE LLUVIA -->
         <div id="view-lluvia">
             <!-- Tarjetas de Totales -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                 <!-- EMA Violeta: Ahora multiplica por 0.68mm debido al ciclo completo -->
                 <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 relative">
                     <div class="flex justify-between items-start mb-2">
@@ -166,6 +166,19 @@
                         <span class="text-slate-500 font-bold text-xl">mm</span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sumando mm del datalogger...</p>
+                </div>
+
+                <!-- Daza (Wunderground ILAPLA66): precipTotal es acumulado DIARIO -->
+                <div class="glass p-6 rounded-2xl border-l-4 border-red-500 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="card-title">DAZA (Wunderground)</p>
+                        <span class="bg-red-500/20 text-red-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: ILAPLA66</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <p class="stat-value" id="accumDaza">0.00</p>
+                        <span class="text-slate-500 font-bold text-xl">mm</span>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-2" id="msgDaza">Consultando historial de Wunderground...</p>
                 </div>
             </div>
 
@@ -307,7 +320,7 @@
         </div>
 
         <div id="debugInfo" class="text-[10px] text-slate-600 text-center uppercase tracking-widest pb-8">
-            v5.0 - Calibración Doble Pulso (0.68), EMA Verde y Selector de Eventos
+            v6.0 - Agregada Daza (Wunderground ILAPLA66) como cuarta serie comparativa
         </div>
     </div>
 
@@ -324,6 +337,12 @@
         // mismo mult teórico (0.68 = 2 x 0.34mm) hasta tener más eventos medidos.
         const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 0.68, field: 5 };
         const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
+
+        // Estación Daza conectada a Wunderground (PWS ILAPLA66).
+        // A diferencia de los canales de ThingSpeak, acá se consulta la API de
+        // Weather Underground (api.weather.com), que devuelve precipTotal: un
+        // acumulado DIARIO que se resetea a las 00:00 hora local de la estación.
+        const D_ILAPLATA = { stationId: "ILAPLA66", apiKey: "470147c769f6493f8147c769f6693fd9" };
 
         // Mapeo de variables comparables entre EMA Verde y Campbell.
         // Cada estación numera sus fields distinto (ver metadata de canal de ThingSpeak).
@@ -615,6 +634,128 @@
             return { total: totalPeriod.toFixed(2), chartData, incrementData, labels, recordsCount };
         }
 
+        // ============================================================
+        // WUNDERGROUND (Daza ILAPLA66)
+        // ============================================================
+
+        // Formatea una fecha a YYYYMMDD, formato que pide el endpoint history/all de WU.
+        function formatDateForWU(date) {
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
+        }
+
+        // Trae las observaciones de UN día para una estación PWS de Wunderground.
+        // OJO: si la API de Wunderground no habilita CORS para llamadas desde el
+        // navegador, esta función va a fallar silenciosamente (catch) y quedará en 0.
+        // En ese caso, la alternativa es mover esta consulta a un script server-side
+        // (o GitHub Action) que la corra y guarde el JSON en el repo.
+        async function fetchWUDayObservations(stationId, apiKey, dateStr) {
+            const url = `https://api.weather.com/v2/pws/history/all?stationId=${stationId}&format=json&units=m&date=${dateStr}&apiKey=${apiKey}`;
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                return data.observations || [];
+            } catch (e) {
+                console.error("Error consultando Wunderground (posible bloqueo CORS):", e);
+                return [];
+            }
+        }
+
+        // Trae todas las observaciones de la estación Daza dentro del rango de fechas,
+        // haciendo un pedido por cada día (la API de WU es de a un día por vez).
+        async function fetchWURangeData(stationId, apiKey, startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const days = [];
+            let cursor = new Date(start);
+            cursor.setHours(0, 0, 0, 0);
+            while (cursor <= end) {
+                days.push(new Date(cursor));
+                cursor.setDate(cursor.getDate() + 1);
+            }
+            const results = await Promise.all(
+                days.map(d => fetchWUDayObservations(stationId, apiKey, formatDateForWU(d)))
+            );
+            return results.flat();
+        }
+
+        // Procesa las observaciones de WU en una curva acumulada comparable con las
+        // demás estaciones. precipTotal de WU es un acumulado DIARIO (se resetea a
+        // las 00:00 hora local), así que para un rango de varios días se va sumando
+        // el total final de cada día anterior como "offset" antes de sumarle el
+        // precipTotal corriente del día en curso.
+        function processWUData(observations, startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const diffHours = (end - start) / 3600000;
+            const bucketByHour = diffHours <= 72;
+
+            const buckets = new Map();
+            let current = new Date(start);
+            const pad = (n) => n.toString().padStart(2, '0');
+
+            if (bucketByHour) {
+                current.setMinutes(0, 0, 0);
+                while (current <= end) {
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)} ${pad(current.getHours())}:00`;
+                    buckets.set(key, null);
+                    current.setHours(current.getHours() + 1);
+                }
+            } else {
+                current.setHours(0, 0, 0, 0);
+                while (current <= end) {
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)}/${current.getFullYear()}`;
+                    buckets.set(key, null);
+                    current.setDate(current.getDate() + 1);
+                }
+            }
+
+            // Agrupar observaciones por día calendario (según hora local de la estación)
+            const byDay = new Map();
+            observations.forEach(o => {
+                if (!o.obsTimeLocal && !o.obsTimeUtc) return;
+                const ts = new Date((o.obsTimeLocal || o.obsTimeUtc).replace(' ', 'T'));
+                const dayKey = `${ts.getFullYear()}-${pad(ts.getMonth()+1)}-${pad(ts.getDate())}`;
+                const precipTotal = o.metric ? o.metric.precipTotal : null;
+                if (precipTotal == null) return;
+                if (!byDay.has(dayKey)) byDay.set(dayKey, []);
+                byDay.get(dayKey).push({ ts, precipTotal });
+            });
+
+            const sortedDays = Array.from(byDay.keys()).sort();
+            let dayOffset = 0;
+            let recordsCount = 0;
+
+            sortedDays.forEach(dayKey => {
+                const dayObs = byDay.get(dayKey).sort((a, b) => a.ts - b.ts);
+                let lastValInDay = 0;
+                dayObs.forEach(o => {
+                    const cumulative = dayOffset + o.precipTotal;
+                    lastValInDay = o.precipTotal;
+                    recordsCount++;
+                    const key = bucketByHour
+                        ? `${pad(o.ts.getDate())}/${pad(o.ts.getMonth()+1)} ${pad(o.ts.getHours())}:00`
+                        : `${pad(o.ts.getDate())}/${pad(o.ts.getMonth()+1)}/${o.ts.getFullYear()}`;
+                    if (buckets.has(key)) buckets.set(key, cumulative);
+                });
+                dayOffset += lastValInDay;
+            });
+
+            // Forward-fill: si un bucket no tuvo lectura, se completa con el último
+            // valor acumulado conocido, para que la curva no tenga huecos.
+            const labels = Array.from(buckets.keys());
+            const chartData = [];
+            let lastKnown = 0;
+            labels.forEach(k => {
+                const v = buckets.get(k);
+                if (v != null) lastKnown = v;
+                chartData.push(lastKnown);
+            });
+
+            return { total: dayOffset.toFixed(2), chartData, labels, recordsCount };
+        }
+
         // Consultar un field arbitrario de un canal (usado por la comparación de variables)
         async function fetchChannelField(id, apiKey, fieldNum, startStr, endStr) {
             const tsStart = startStr.replace('T', '%20') + ':00';
@@ -722,24 +863,30 @@
             subtitle.innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
             debug.innerText = "Sincronizando evento meteorológico...";
 
-            const [resVActual, resVHist, resVVerde, resC_raw, baselineVerde] = await Promise.all([
+            const [resVActual, resVHist, resVVerde, resC_raw, baselineVerde, wuObservations] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startStr, endStr),
                 fetchFeeds(V_HISTORICO, startStr, endStr),
                 fetchFeeds(V_VERDE, startStr, endStr),
                 fetchFeeds(C_STATION, startStr, endStr),
-                fetchBaselineValue(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr)
+                fetchBaselineValue(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr),
+                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr)
             ]);
 
             const resV = processStationData([resVActual, resVHist], V_ACTUAL.mult, startStr, endStr, false);
             const resVerde = processAccumulatedCounter([resVVerde], V_VERDE.mult, startStr, endStr, baselineVerde);
             const resC = processStationData([resC_raw], C_STATION.mult, startStr, endStr, true);
+            const resDaza = processWUData(wuObservations, startStr, endStr);
 
             document.getElementById('accumVioleta').innerText = resV.total;
             document.getElementById('accumVerde').innerText = resVerde.total;
             document.getElementById('accumCampbell').innerText = resC.total;
+            document.getElementById('accumDaza').innerText = resDaza.total;
             document.getElementById('msgVioleta').innerText = `Ciclos registrados: ${resV.recordsCount} (x 0.68mm)`;
             document.getElementById('msgVerde').innerText = `Pulsos detectados: ${resVerde.recordsCount} (x 0.68mm, reset diario)`;
             document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
+            document.getElementById('msgDaza').innerText = resDaza.recordsCount > 0
+                ? `Lecturas: ${resDaza.recordsCount} (precipTotal diario, Wunderground)`
+                : `Sin datos (revisar API key o posible bloqueo CORS)`;
 
             const badge = document.getElementById('channelBadge');
             if (resVActual.feeds.length > 0) {
@@ -755,10 +902,10 @@
 
             debug.innerText = `Actualización finalizada.`;
 
-            if (typeof Chart !== 'undefined') renderChart(resV, resVerde, resC);
+            if (typeof Chart !== 'undefined') renderChart(resV, resVerde, resC, resDaza);
         }
 
-        function renderChart(resV, resVerde, resC) {
+        function renderChart(resV, resVerde, resC, resDaza) {
             const ctx = document.getElementById('precipChart').getContext('2d');
             if (myChart) myChart.destroy();
 
@@ -800,6 +947,18 @@
                             borderWidth: 3,
                             fill: true,
                             tension: 0.3,
+                            pointRadius: pointRad,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Daza ILAPLA66 (mm)',
+                            data: resDaza.chartData,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            spanGaps: true,
                             pointRadius: pointRad,
                             pointHoverRadius: 6
                         }
