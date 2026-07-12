@@ -207,7 +207,7 @@
             </div>
 
             <!-- Tarjetas de Valor Actual -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
                     <div class="flex justify-between items-start mb-2">
                         <p class="card-title">EMA VERDE</p>
@@ -231,13 +231,25 @@
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="varCampbellMsg">Sincronizando...</p>
                 </div>
+
+                <div class="glass p-6 rounded-2xl border-l-4 border-red-500 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="card-title">DAZA (Wunderground)</p>
+                        <span class="bg-red-500/20 text-red-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: ILAPLA66</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <p class="stat-value" id="varDazaValue">--</p>
+                        <span class="text-slate-500 font-bold text-xl" id="varDazaUnit"></span>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-2" id="varDazaMsg">Sincronizando...</p>
+                </div>
             </div>
 
             <!-- Gráfico Combinado -->
             <div class="grid grid-cols-1 gap-6 mb-8">
                 <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold text-slate-200" id="varChartTitle">Temperatura: EMA Verde vs Campbell</h3>
+                        <h3 class="text-lg font-bold text-slate-200" id="varChartTitle">Temperatura: EMA Verde vs Campbell vs Daza</h3>
                         <span class="text-xs text-slate-400" id="varChartSubtitle"></span>
                     </div>
                     <div class="relative w-full h-[380px]">
@@ -346,11 +358,27 @@
 
         // Mapeo de variables comparables entre EMA Verde y Campbell.
         // Cada estación numera sus fields distinto (ver metadata de canal de ThingSpeak).
+        // dazaExtract: función que saca el valor correspondiente de una observación
+        // de Wunderground (estructura del endpoint history/all). Varias variables
+        // vienen anidadas dentro de "metric"; humedad suele venir en el nivel raíz.
+        // Siempre se pasa por parseFloat: si la API devuelve el campo como texto en
+        // vez de número, sumarlo/promediarlo directo rompería el cálculo (JS hace
+        // concatenación de strings en vez de suma numérica si no se convierte antes).
+        function parseDazaNum(v) {
+            if (v == null) return null;
+            const n = parseFloat(v);
+            return isNaN(n) ? null : n;
+        }
+
         const VARS = {
-            temp:   { label: 'Temperatura',      unit: '°C', verdeField: 1, campbellField: 1, color: '#f97316', accumulated: false },
-            hum:    { label: 'Humedad',           unit: '%',  verdeField: 2, campbellField: 4, color: '#0ea5e9', accumulated: false },
-            pres:   { label: 'Presión',           unit: 'hPa', verdeField: 6, campbellField: 6, color: '#8b5cf6', accumulated: false },
-            lluvia: { label: 'Lluvia Acumulada',  unit: 'mm', verdeField: 5, campbellField: 5, color: '#22c55e', accumulated: true }
+            temp:   { label: 'Temperatura',      unit: '°C', verdeField: 1, campbellField: 1, color: '#f97316', accumulated: false,
+                      dazaExtract: (o) => (o.metric ? parseDazaNum(o.metric.tempAvg) : null) },
+            hum:    { label: 'Humedad',           unit: '%',  verdeField: 2, campbellField: 4, color: '#0ea5e9', accumulated: false,
+                      dazaExtract: (o) => parseDazaNum(o.humidityAvg != null ? o.humidityAvg : o.humidity) },
+            pres:   { label: 'Presión',           unit: 'hPa', verdeField: 6, campbellField: 6, color: '#8b5cf6', accumulated: false,
+                      dazaExtract: (o) => (o.metric ? parseDazaNum(o.metric.pressureMax) : null) },
+            lluvia: { label: 'Lluvia Acumulada',  unit: 'mm', verdeField: 5, campbellField: 5, color: '#22c55e', accumulated: true,
+                      dazaExtract: (o) => (o.metric ? parseDazaNum(o.metric.precipTotal) : null) }
         };
 
         let currentVar = 'temp';
@@ -717,8 +745,11 @@
                 if (!o.obsTimeLocal && !o.obsTimeUtc) return;
                 const ts = new Date((o.obsTimeLocal || o.obsTimeUtc).replace(' ', 'T'));
                 const dayKey = `${ts.getFullYear()}-${pad(ts.getMonth()+1)}-${pad(ts.getDate())}`;
-                const precipTotal = o.metric ? o.metric.precipTotal : null;
-                if (precipTotal == null) return;
+                // parseFloat explícito: si la API devuelve el campo como texto en vez de
+                // número, sumarlo directo haría concatenación de strings en vez de suma.
+                const precipTotalRaw = o.metric ? o.metric.precipTotal : null;
+                const precipTotal = precipTotalRaw != null ? parseFloat(precipTotalRaw) : NaN;
+                if (isNaN(precipTotal)) return;
                 if (!byDay.has(dayKey)) byDay.set(dayKey, []);
                 byDay.get(dayKey).push({ ts, precipTotal });
             });
@@ -754,6 +785,69 @@
             });
 
             return { total: dayOffset.toFixed(2), chartData, labels, recordsCount };
+        }
+
+        // Procesa una variable continua (temperatura, humedad, presión) a partir de
+        // observaciones de Wunderground, promediando por bucket igual que se hace
+        // con ThingSpeak en processContinuousSeries.
+        function processWUContinuousVariable(observations, extractFn, startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const diffHours = (end - start) / 3600000;
+            const bucketByHour = diffHours <= 72;
+
+            const buckets = new Map();
+            let current = new Date(start);
+            const pad = (n) => n.toString().padStart(2, '0');
+
+            if (bucketByHour) {
+                current.setMinutes(0, 0, 0);
+                while (current <= end) {
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)} ${pad(current.getHours())}:00`;
+                    buckets.set(key, { sum: 0, count: 0 });
+                    current.setHours(current.getHours() + 1);
+                }
+            } else {
+                current.setHours(0, 0, 0, 0);
+                while (current <= end) {
+                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)}/${current.getFullYear()}`;
+                    buckets.set(key, { sum: 0, count: 0 });
+                    current.setDate(current.getDate() + 1);
+                }
+            }
+
+            let latestValue = null;
+            let latestTs = null;
+
+            observations.forEach(o => {
+                if (!o.obsTimeLocal && !o.obsTimeUtc) return;
+                const val = extractFn(o);
+                if (val == null) return;
+
+                const ts = new Date((o.obsTimeLocal || o.obsTimeUtc).replace(' ', 'T'));
+                if (!latestTs || ts > latestTs) {
+                    latestTs = ts;
+                    latestValue = val;
+                }
+
+                const key = bucketByHour
+                    ? `${pad(ts.getDate())}/${pad(ts.getMonth()+1)} ${pad(ts.getHours())}:00`
+                    : `${pad(ts.getDate())}/${pad(ts.getMonth()+1)}/${ts.getFullYear()}`;
+
+                if (buckets.has(key)) {
+                    const b = buckets.get(key);
+                    b.sum += val;
+                    b.count += 1;
+                }
+            });
+
+            const labels = Array.from(buckets.keys());
+            const chartData = labels.map(k => {
+                const b = buckets.get(k);
+                return b.count > 0 ? +(b.sum / b.count).toFixed(2) : null;
+            });
+
+            return { labels, chartData, latestValue, latestTs };
         }
 
         // Consultar un field arbitrario de un canal (usado por la comparación de variables)
@@ -1018,17 +1112,20 @@
 
             document.getElementById('varVerdeMsg').innerText = "Sincronizando...";
             document.getElementById('varCampbellMsg').innerText = "Sincronizando...";
-            document.getElementById('varChartTitle').innerText = `${cfg.label}: EMA Verde vs Campbell`;
+            document.getElementById('varDazaMsg').innerText = "Sincronizando...";
+            document.getElementById('varChartTitle').innerText = `${cfg.label}: EMA Verde vs Campbell vs Daza`;
             document.getElementById('varChartSubtitle').innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
             document.getElementById('varVerdeUnit').innerText = cfg.unit;
             document.getElementById('varCampbellUnit').innerText = cfg.unit;
+            document.getElementById('varDazaUnit').innerText = cfg.unit;
 
-            const [feedsVerde, feedsCampbell] = await Promise.all([
+            const [feedsVerde, feedsCampbell, wuObservations] = await Promise.all([
                 fetchChannelField(V_VERDE.id, V_VERDE.api, cfg.verdeField, startStr, endStr),
-                fetchChannelField(C_STATION.id, C_STATION.api, cfg.campbellField, startStr, endStr)
+                fetchChannelField(C_STATION.id, C_STATION.api, cfg.campbellField, startStr, endStr),
+                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr)
             ]);
 
-            let verdeResult, campResult;
+            let verdeResult, campResult, dazaResult;
 
             if (cfg.accumulated) {
                 // Verde acumula con reset diario; Campbell reporta mm directos por intervalo
@@ -1037,13 +1134,18 @@
                 campResult = processStationData([feedsCampbell], 1.0, startStr, endStr, true);
                 verdeResult.latestValue = parseFloat(verdeResult.total);
                 campResult.latestValue = parseFloat(campResult.total);
+                // Daza (WU) ya viene con reset diario propio, mismo tratamiento que en la vista de Lluvia
+                dazaResult = processWUData(wuObservations, startStr, endStr);
+                dazaResult.latestValue = parseFloat(dazaResult.total);
             } else {
                 verdeResult = processContinuousSeries(feedsVerde.feeds, cfg.verdeField, startStr, endStr);
                 campResult = processContinuousSeries(feedsCampbell.feeds, cfg.campbellField, startStr, endStr);
+                dazaResult = processWUContinuousVariable(wuObservations, cfg.dazaExtract, startStr, endStr);
             }
 
             document.getElementById('varVerdeValue').innerText = verdeResult.latestValue != null ? verdeResult.latestValue.toFixed(2) : '--';
             document.getElementById('varCampbellValue').innerText = campResult.latestValue != null ? campResult.latestValue.toFixed(2) : '--';
+            document.getElementById('varDazaValue').innerText = dazaResult.latestValue != null ? dazaResult.latestValue.toFixed(2) : '--';
 
             document.getElementById('varVerdeMsg').innerText = cfg.accumulated
                 ? `Total del período (reset diario a las 00:00)`
@@ -1051,11 +1153,14 @@
             document.getElementById('varCampbellMsg').innerText = cfg.accumulated
                 ? `Total del período`
                 : (campResult.latestTs ? `Última lectura: ${new Date(campResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos en el rango');
+            document.getElementById('varDazaMsg').innerText = cfg.accumulated
+                ? `Total del período (reset diario, Wunderground)`
+                : (dazaResult.latestTs ? `Última lectura: ${new Date(dazaResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos (revisar CORS)');
 
-            if (typeof Chart !== 'undefined') renderVarChart(verdeResult, campResult, cfg);
+            if (typeof Chart !== 'undefined') renderVarChart(verdeResult, campResult, cfg, dazaResult);
         }
 
-        function renderVarChart(verdeResult, campResult, cfg) {
+        function renderVarChart(verdeResult, campResult, cfg, dazaResult) {
             const ctx = document.getElementById('varChart').getContext('2d');
             if (myVarChart) myVarChart.destroy();
 
@@ -1083,6 +1188,18 @@
                             data: campResult.chartData,
                             borderColor: '#0ea5e9',
                             backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            spanGaps: true,
+                            pointRadius: pointRad,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: `Daza (${cfg.unit})`,
+                            data: dazaResult ? dazaResult.chartData : [],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.3,
