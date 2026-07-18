@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-18T23:31:57.785174+00:00",
+  "generated_at": "2026-07-18T23:43:38.579575+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -12,10 +12,10 @@
         {
           "date": "2026-07-18",
           "day_name": "sábado",
-          "temp_min": 2,
-          "temp_max": 2,
-          "temp_min_suburban": 2,
-          "temp_max_suburban": 2,
+          "temp_min": 3,
+          "temp_max": 3,
+          "temp_min_suburban": 23,
+          "temp_max_suburban": 3,
           "custom_description": null,
           "period_forecasts": [
             {
