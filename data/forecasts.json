@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-07-18T17:43:44.100333+00:00",
+  "generated_at": "2026-07-18T23:31:57.785174+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
-      "forecast_date": "2026-07-17",
-      "emission_time": "11:46:00",
+      "forecast_date": "2026-07-18",
+      "emission_time": "20:05:00",
       "publicado_por": "Mauricio",
       "es_correccion": false,
       "team_password": "Maraton",
       "daily_forecasts": [
         {
-          "date": "2026-07-17",
-          "day_name": "viernes",
+          "date": "2026-07-18",
+          "day_name": "sábado",
           "temp_min": 2,
           "temp_max": 2,
           "temp_min_suburban": 2,
@@ -54,8 +54,8 @@
           ]
         },
         {
-          "date": "2026-07-18",
-          "day_name": "sábado",
+          "date": "2026-07-19",
+          "day_name": "domingo",
           "temp_min": -11,
           "temp_max": 1,
           "temp_min_suburban": 1,
@@ -109,8 +109,8 @@
           ]
         },
         {
-          "date": "2026-07-19",
-          "day_name": "domingo",
+          "date": "2026-07-20",
+          "day_name": "lunes",
           "temp_min": null,
           "temp_max": null,
           "temp_min_suburban": null,
@@ -142,8 +142,8 @@
           ]
         },
         {
-          "date": "2026-07-20",
-          "day_name": "lunes",
+          "date": "2026-07-21",
+          "day_name": "martes",
           "temp_min": 1,
           "temp_max": 1,
           "temp_min_suburban": 1,
