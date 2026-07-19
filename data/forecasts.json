@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-07-18T23:43:38.579575+00:00",
+  "generated_at": "2026-07-19T01:12:39.536860+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
       "forecast_date": "2026-07-18",
       "emission_time": "20:05:00",
       "publicado_por": "Mauricio",
-      "es_correccion": false,
+      "es_correccion": true,
       "team_password": "Maraton",
       "daily_forecasts": [
         {
@@ -20,33 +20,33 @@
           "period_forecasts": [
             {
               "period": "mañana",
-              "precipitation_description": "lluvias y tormentas aisladas",
+              "precipitation_description": null,
               "probability_of_precipitation": null,
-              "sky_condition": null,
-              "temperature": 1,
-              "weather_icon_code": "Tormentas_dia",
+              "sky_condition": "despejado",
+              "temperature": 12,
+              "weather_icon_code": "soleado",
               "wind_direction": null,
               "wind_intensity": null,
               "wind_gusts": null
             },
             {
               "period": "tarde",
-              "precipitation_description": "lluvias y tormentas aisladas",
+              "precipitation_description": null,
               "probability_of_precipitation": null,
-              "sky_condition": null,
-              "temperature": 1,
-              "weather_icon_code": "Tormentas_dia",
+              "sky_condition": "despejado",
+              "temperature": 12,
+              "weather_icon_code": "soleado",
               "wind_direction": "noreste",
               "wind_intensity": "leves",
               "wind_gusts": null
             },
             {
               "period": "noche",
-              "precipitation_description": "lluvias y tormentas aisladas",
+              "precipitation_description": null,
               "probability_of_precipitation": null,
-              "sky_condition": null,
-              "temperature": 1,
-              "weather_icon_code": "Tormentas_noche",
+              "sky_condition": "despejado",
+              "temperature": 12,
+              "weather_icon_code": "Despejado_noche",
               "wind_direction": "norte",
               "wind_intensity": "leves",
               "wind_gusts": null
