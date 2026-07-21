@@ -43,14 +43,17 @@
         .app-container { display: flex; flex: 1; overflow: hidden; }
         .view-section { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 28px; }
         .view-section.active { display: block; }
-        #view-dashboard.active { display: flex; align-items: flex-start; gap: 20px; padding: 24px; }
-        .map-col { flex: 0 0 360px; position: sticky; top: 24px; display: flex; flex-direction: column; gap: 12px; }
-        .map-card { height: 380px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid var(--border); position: relative; }
+        /* Centrado con un ancho total máximo, para no dejar una franja enorme en
+           blanco a la derecha en pantallas anchas, pero sin estirar el contenido
+           al infinito en monitores ultra-wide. */
+        #view-dashboard.active { display: flex; align-items: flex-start; gap: 28px; padding: 24px; max-width: 1520px; margin: 0 auto; }
+        .map-col { flex: 0 0 420px; position: sticky; top: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .map-card { height: 440px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid var(--border); position: relative; }
         #map { width: 100%; height: 100%; }
         .city-select-bar { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 10px; }
         .city-select-bar label { font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
         .city-select-bar select { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 7px 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: var(--bg-body); cursor: pointer; }
-        .data-panel { flex: 1; max-width: 700px; margin: 0; background: transparent; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+        .data-panel { flex: 1; max-width: 1000px; margin: 0; background: transparent; padding: 0; display: flex; flex-direction: column; gap: 14px; }
         .card { background: white; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
         /* CIUDAD HEADER */
