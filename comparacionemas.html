@@ -590,7 +590,10 @@
         // el mismo que usa el sitio público de Wunderground. Se usa para corregir
         // el total del último día si el histórico todavía no llegó a esa lectura.
         async function fetchWUCurrentObs(stationId, apiKey) {
-            const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=m&apiKey=${apiKey}&_t=${Date.now()}`;
+            // Sin parámetro "_t": alcanza con { cache: 'no-store' } para evitar caché,
+            // y algunos backends de la API de WU devuelven 400 ante parámetros no
+            // esperados en la URL.
+            const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=m&apiKey=${apiKey}`;
             try {
                 const res = await fetch(url, { cache: 'no-store' });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
