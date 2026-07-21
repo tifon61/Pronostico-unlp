@@ -54,6 +54,15 @@
         .font-adj-controls { display: flex; gap: 6px; width: 100%; }
         .btn-font-adj { flex: 1; padding: 6px 0; margin: 0; border: 1px solid #ccc; border-radius: 4px; background: white; color: var(--unlp-blue); font-weight: 900; cursor: pointer; transition: 0.2s; }
         .btn-font-adj:hover { background: var(--unlp-blue); color: white; }
+        /* Controles compactos de tamaño de letra, embebidos dentro de cada tarjeta de
+           tramo (Madrugada/Mañana/Tarde/Noche) en vez de una caja aparte arriba. */
+        .tramo-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; margin: 10px 2px 5px; padding-bottom: 2px; }
+        .tramo-header h4 { margin: 0; border: none; }
+        .tramo-font-controls { display: flex; gap: 10px; flex-shrink: 0; }
+        .tramo-font-group { display: flex; align-items: center; gap: 2px; }
+        .tramo-font-group .tfg-label { font-size: 0.65em; color: #888; font-weight: 800; text-transform: uppercase; margin-right: 2px; }
+        .btn-font-adj-mini { padding: 1px 7px; margin: 0; border: 1px solid #ccc; border-radius: 4px; background: white; color: var(--unlp-blue); font-weight: 900; font-size: 0.75em; cursor: pointer; line-height: 1.4; transition: 0.2s; }
+        .btn-font-adj-mini:hover { background: var(--unlp-blue); color: white; }
         /* La distinción urbana/suburbana solo aplica a La Plata (única ciudad con doble estación) */
         body.single-station .sub-field, body.single-station .temp-v-sub, body.single-station .card-temp-sub, body.single-station .footer-note { display: none; }
         h4 { margin: 10px 2px 5px; color: var(--unlp-blue); text-transform: uppercase; font-size: 0.65em; border-bottom: 1px solid #ddd; }
@@ -641,44 +650,42 @@
                 </div>
             </div>`;
 
-            html += `<div class="field-group font-adj-group">
-                <h4>Tamaño de letra</h4>
-                <div class="row">
-                    ${!conf.id.startsWith('d') ? `
-                    <div class="column font-adj-col">
-                        <label>Tiempo</label>
-                        <div class="font-adj-controls">
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_w', -1)">A-</button>
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_w', 1)">A+</button>
+            if (conf.id.startsWith('d')) {
+                html += `<div class="field-group font-adj-group">
+                    <h4>Tamaño de letra</h4>
+                    <div class="row">
+                        <div class="column font-adj-col">
+                            <label>Texto</label>
+                            <div class="font-adj-controls">
+                                <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_desc', -1)">A-</button>
+                                <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_desc', 1)">A+</button>
+                            </div>
+                        </div>
+                        <div class="column font-adj-col">
+                            <label>Viento</label>
+                            <div class="font-adj-controls">
+                                <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_wind', -1)">A-</button>
+                                <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_wind', 1)">A+</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="column font-adj-col">
-                        <label>Vientos</label>
-                        <div class="font-adj-controls">
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_v', -1)">A-</button>
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_v', 1)">A+</button>
-                        </div>
-                    </div>` : `
-                    <div class="column font-adj-col">
-                        <label>Texto</label>
-                        <div class="font-adj-controls">
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_desc', -1)">A-</button>
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_desc', 1)">A+</button>
-                        </div>
-                    </div>
-                    <div class="column font-adj-col">
-                        <label>Viento</label>
-                        <div class="font-adj-controls">
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_wind', -1)">A-</button>
-                            <button type="button" class="btn-font-adj" onclick="adjustFontBoost('${conf.id}_wind', 1)">A+</button>
-                        </div>
-                    </div>`}
-                </div>
-            </div>`;
+                </div>`;
+            }
 
             conf.tramos.forEach((periodValue, index) => {
                 const tramoIdx = index + 1;
-                html += `<div class="field-group"><h4>${periodValue.charAt(0).toUpperCase() + periodValue.slice(1)}</h4>`;
+                const periodTitle = periodValue.charAt(0).toUpperCase() + periodValue.slice(1);
+                if (!conf.id.startsWith('d')) {
+                    html += `<div class="field-group"><div class="tramo-header">
+                        <h4>${periodTitle}</h4>
+                        <div class="tramo-font-controls">
+                            <div class="tramo-font-group"><span class="tfg-label">Tiempo</span><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_w', -1)">−</button><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_w', 1)">+</button></div>
+                            <div class="tramo-font-group"><span class="tfg-label">Viento</span><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_v', -1)">−</button><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_v', 1)">+</button></div>
+                        </div>
+                    </div>`;
+                } else {
+                    html += `<div class="field-group"><h4>${periodTitle}</h4>`;
+                }
                 html += `<div class="row">
                     <div class="column">
                         <label for="${conf.id}-sky-select-${tramoIdx}">Cielo / Fenómeno</label>
