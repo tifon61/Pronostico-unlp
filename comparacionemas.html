@@ -142,17 +142,17 @@
                     <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Calculando ciclos completos de cangilones...</p>
                 </div>
 
-                <!-- EMA Verde: field 5 es un contador acumulado de pulsos (reset diario a las 00:00) -->
+                <!-- EMA Verde: field 4 (Precipitaciones Intervalo) ya viene en mm directos por lectura -->
                 <div class="glass p-6 rounded-2xl border-l-4 border-green-500 relative">
                     <div class="flex justify-between items-start mb-2">
-                        <p class="card-title">EMA VERDE (0.68mm/pulso)</p>
+                        <p class="card-title">EMA VERDE (Lectura Directa)</p>
                         <span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-1 rounded tracking-wider">ID: 2218686</span>
                     </div>
                     <div class="flex items-baseline gap-2">
                         <p class="stat-value" id="accumVerde">0.00</p>
                         <span class="text-slate-500 font-bold text-xl">mm</span>
                     </div>
-                    <p class="text-slate-400 text-xs mt-2" id="msgVerde">Calculando diferencias del acumulado...</p>
+                    <p class="text-slate-400 text-xs mt-2" id="msgVerde">Sumando mm del sensor...</p>
                 </div>
 
                 <!-- Campbell: Los valores del field son mm directos -->
@@ -262,12 +262,12 @@
         <!-- VISTA: DIAGNÓSTICO DE CALIBRACIÓN -->
         <div id="view-diagnostico" class="hidden">
             <div class="glass p-4 rounded-2xl mb-6 border-l-4 border-yellow-500">
-                <p class="text-sm text-slate-300"><i class="fa-solid fa-triangle-exclamation mr-2 text-yellow-400"></i><strong>Nota:</strong> EMA Verde está en la Escuela Nº23 (Bavío), no en la Facultad — Campbell está en FCAGLP La Plata. Son ubicaciones distintas, así que parte de la diferencia entre ambas puede ser lluvia real distinta en cada punto, no solo un tema de calibración del cangilón.</p>
+                <p class="text-sm text-slate-300"><i class="fa-solid fa-circle-check mr-2 text-emerald-400"></i><strong>Calibración confirmada:</strong> cada pulso de EMA Verde vale exactamente 0.816mm (field5 = suma corrida de field4), dato verificado directamente en el canal. Esta vista ahora compara lluvia real entre ubicaciones — EMA Verde está en la Escuela Nº23 (Bavío), Campbell en FCAGLP La Plata, son puntos distintos y pueden recibir lluvia distinta.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="glass p-6 rounded-2xl border-l-4 border-green-500">
-                    <p class="card-title">TOTAL VERDE (unidades crudas)</p>
+                    <p class="card-title">TOTAL VERDE (mm)</p>
                     <p class="stat-value" id="diagVerdeRaw">0.00</p>
                 </div>
                 <div class="glass p-6 rounded-2xl border-l-4 border-sky-500">
@@ -275,24 +275,23 @@
                     <p class="stat-value" id="diagCampbellRaw">0.00</p>
                 </div>
                 <div class="glass p-6 rounded-2xl border-l-4 border-amber-500">
-                    <p class="card-title">RATIO SUGERIDO (mm por unidad Verde)</p>
+                    <p class="card-title">RATIO (Campbell / Verde)</p>
                     <p class="stat-value" id="diagRatio">--</p>
                 </div>
             </div>
 
             <div class="glass p-6 rounded-2xl shadow-xl mb-6">
                 <h3 class="text-lg font-bold text-slate-200 mb-1">Comparación por evento de lluvia</h3>
-                <p class="text-xs text-slate-400 mb-4">Cada fila agrupa un tramo continuo de lluvia (separado de otros por al menos 3 buckets secos). Sirve para ver si el ratio se mantiene estable entre eventos distintos.</p>
+                <p class="text-xs text-slate-400 mb-4">Cada fila agrupa un tramo continuo de lluvia (separado de otros por al menos 3 buckets secos). Sirve para ver cuánto varía la lluvia real entre las dos ubicaciones evento a evento.</p>
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="w-full text-sm text-left">
                         <thead class="text-slate-400 uppercase text-xs sticky top-0 bg-slate-900">
                             <tr>
                                 <th class="py-2 pr-4">Evento</th>
-                                <th class="py-2 pr-4">Verde crudo</th>
-                                <th class="py-2 pr-4">Verde calibrado (0.68)</th>
+                                <th class="py-2 pr-4">Verde (mm)</th>
                                 <th class="py-2 pr-4">Campbell (mm)</th>
                                 <th class="py-2 pr-4">Diferencia</th>
-                                <th class="py-2 pr-4">Ratio (Campbell / Verde crudo)</th>
+                                <th class="py-2 pr-4">Ratio (Campbell / Verde)</th>
                             </tr>
                         </thead>
                         <tbody id="diagEventsBody" class="text-slate-300"></tbody>
@@ -301,7 +300,7 @@
             </div>
 
             <div class="glass p-6 rounded-2xl shadow-xl">
-                <h3 class="text-lg font-bold text-slate-200 mb-1">Incrementos por bucket: Verde (crudo) vs Campbell (mm)</h3>
+                <h3 class="text-lg font-bold text-slate-200 mb-1">Incrementos por bucket: Verde (mm) vs Campbell (mm)</h3>
                 <p class="text-xs text-slate-400 mb-4" id="diagSubtitle"></p>
                 <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                     <table class="w-full text-sm text-left">
@@ -343,11 +342,14 @@
          */
         const V_ACTUAL = { id: "2626952", api: "4XYH56YSV64HE17H", mult: 0.68, field: 5 };
         const V_HISTORICO = { id: "1778165", api: "OJ1JHKAPCCIQB4CB", mult: 0.68, field: 5 };
-        // El field 5 de Verde es un contador ACUMULADO (se resetea a 0 cada día a
-        // las 00:00), pero el diagnóstico de calibración mostró un ratio (~0.73)
-        // cercano al de un pulso de ciclo completo, igual que Violeta: se usa el
-        // mismo mult teórico (0.68 = 2 x 0.34mm) hasta tener más eventos medidos.
-        const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 0.68, field: 5 };
+        // Confirmado con datos crudos del canal: field5 (Precipitaciones Acumulado)
+        // es simplemente la suma corrida de field4 (Precipitaciones Intervalo), y
+        // field4 ya viene calibrado en mm por el propio firmware — cada pulso vale
+        // exactamente 0.816mm (no 0.68, ese era solo un estimado por comparación
+        // con Campbell). Por eso se usa field4 directo, igual que Campbell: cada
+        // lectura YA es el incremento de lluvia de ese intervalo, sin necesidad de
+        // restar entre lecturas acumuladas ni de pedir una línea base.
+        const V_VERDE = { id: "2218686", api: "O85A0DJ31L8MQZ6F", mult: 1.0, field: 4 };
         const C_STATION = { id: "2823820", api: "FFI1HK80ZKDNS6V8", mult: 1.0, field: 5 };
 
         // Estación Daza conectada a Wunderground (PWS ILAPLA66).
@@ -377,7 +379,7 @@
                       dazaExtract: (o) => parseDazaNum(o.humidityAvg != null ? o.humidityAvg : o.humidity) },
             pres:   { label: 'Presión',           unit: 'hPa', verdeField: 6, campbellField: 6, color: '#8b5cf6', accumulated: false,
                       dazaExtract: (o) => (o.metric ? parseDazaNum(o.metric.pressureMax) : null) },
-            lluvia: { label: 'Lluvia Acumulada',  unit: 'mm', verdeField: 5, campbellField: 5, color: '#22c55e', accumulated: true,
+            lluvia: { label: 'Lluvia Acumulada',  unit: 'mm', verdeField: 4, campbellField: 5, color: '#22c55e', accumulated: true,
                       dazaExtract: (o) => (o.metric ? parseDazaNum(o.metric.precipTotal) : null) }
         };
 
@@ -472,25 +474,6 @@
             }
         }
 
-        // Obtener el último valor acumulado disponible justo ANTES del inicio del rango.
-        // Se usa como línea base real para no perder la lluvia caída en la primera lectura
-        // del período (por ejemplo, si el reset diario coincide con el inicio del rango "Hoy").
-        async function fetchBaselineValue(id, apiKey, fieldNum, startStr) {
-            const tsEnd = startStr.replace('T', '%20') + ':00';
-            const url = `https://api.thingspeak.com/channels/${id}/fields/${fieldNum}.json?api_key=${apiKey}&end=${tsEnd}&timezone=America/Argentina/Buenos_Aires&results=1`;
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                const feeds = data.feeds || [];
-                const last = feeds[feeds.length - 1];
-                const val = last ? parseFloat(last["field" + fieldNum]) : NaN;
-                return isNaN(val) ? null : val;
-            } catch (e) {
-                console.error("Error consultando línea base de ThingSpeak:", e);
-                return null;
-            }
-        }
-
         // Procesar datos y empaquetar por hora o por día según la duración del evento
         function processStationData(allFeedsData, mult, startStr, endStr, isCampbell) {
             const start = new Date(startStr);
@@ -573,95 +556,6 @@
             return { total: totalPeriod.toFixed(2), chartData, incrementData, labels, recordsCount };
         }
 
-        // EMA Verde no manda pulsos individuales: el field 5 es un contador acumulado
-        // que se resetea a 0 todos los días a las 00:00. Para obtener la lluvia real
-        // hay que tomar la diferencia entre lecturas consecutivas (y no sumar el valor
-        // absoluto de cada una, que sería un acumulado incorrecto).
-        function processAccumulatedCounter(allFeedsData, mult, startStr, endStr, baselineVal = null) {
-            const start = new Date(startStr);
-            const end = new Date(endStr);
-            const diffHours = (end - start) / 3600000;
-            const bucketByHour = diffHours <= 72;
-
-            const buckets = new Map();
-            let current = new Date(start);
-
-            if (bucketByHour) {
-                current.setMinutes(0, 0, 0);
-                while (current <= end) {
-                    const pad = (n) => n.toString().padStart(2, '0');
-                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)} ${pad(current.getHours())}:00`;
-                    buckets.set(key, 0);
-                    current.setHours(current.getHours() + 1);
-                }
-            } else {
-                current.setHours(0, 0, 0, 0);
-                while (current <= end) {
-                    const pad = (n) => n.toString().padStart(2, '0');
-                    const key = `${pad(current.getDate())}/${pad(current.getMonth()+1)}/${current.getFullYear()}`;
-                    buckets.set(key, 0);
-                    current.setDate(current.getDate() + 1);
-                }
-            }
-
-            // Unificar y ordenar todas las lecturas cronológicamente
-            const readings = [];
-            allFeedsData.forEach(source => {
-                const fieldKey = "field" + source.field;
-                source.feeds.forEach(f => {
-                    const val = parseFloat(f[fieldKey]);
-                    if (!isNaN(val)) readings.push({ ts: f.created_at, val });
-                });
-            });
-            readings.sort((a, b) => new Date(a.ts) - new Date(b.ts));
-
-            let totalPeriod = 0;
-            let recordsCount = 0;
-            // Si se conoce el valor justo antes del rango (baselineVal), se usa como
-            // referencia real y la primera lectura del rango SÍ se cuenta. Si no se
-            // conoce, se usa la primera lectura solo como referencia (comportamiento
-            // conservador anterior) para no contar lluvia previa al rango elegido.
-            let prevVal = baselineVal;
-
-            readings.forEach(r => {
-                if (prevVal === null) {
-                    prevVal = r.val;
-                    return;
-                }
-
-                let delta = r.val - prevVal;
-                if (delta < 0) delta = r.val; // el contador se reinició a 0 (paso de medianoche)
-                prevVal = r.val;
-
-                if (delta > 0) {
-                    const amount = delta * mult;
-                    totalPeriod += amount;
-                    recordsCount++;
-
-                    const dateObj = new Date(r.ts);
-                    const pad = (n) => n.toString().padStart(2, '0');
-                    const key = bucketByHour
-                        ? `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)} ${pad(dateObj.getHours())}:00`
-                        : `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)}/${dateObj.getFullYear()}`;
-
-                    if (buckets.has(key)) {
-                        buckets.set(key, buckets.get(key) + amount);
-                    }
-                }
-            });
-
-            const labels = Array.from(buckets.keys());
-            const incrementData = Array.from(buckets.values());
-            const chartData = [];
-            let runningSum = 0;
-            for (let [key, val] of buckets) {
-                runningSum += val;
-                chartData.push(runningSum);
-            }
-
-            return { total: totalPeriod.toFixed(2), chartData, incrementData, labels, recordsCount };
-        }
-
         // ============================================================
         // WUNDERGROUND (Daza ILAPLA66)
         // ============================================================
@@ -690,6 +584,24 @@
             }
         }
 
+        // Trae la observación EN VIVO (endpoint "current") de la estación Daza.
+        // A diferencia de history/all (que puede tardar bastante en reflejar la
+        // lluvia más reciente), este endpoint está actualizado al instante — es
+        // el mismo que usa el sitio público de Wunderground. Se usa para corregir
+        // el total del último día si el histórico todavía no llegó a esa lectura.
+        async function fetchWUCurrentObs(stationId, apiKey) {
+            const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=m&apiKey=${apiKey}&_t=${Date.now()}`;
+            try {
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                return (data.observations && data.observations[0]) || null;
+            } catch (e) {
+                console.error("Error consultando el endpoint en vivo de Wunderground:", e);
+                return null;
+            }
+        }
+
         // Trae todas las observaciones de la estación Daza dentro del rango de fechas,
         // haciendo un pedido por cada día (la API de WU es de a un día por vez).
         async function fetchWURangeData(stationId, apiKey, startStr, endStr) {
@@ -713,7 +625,7 @@
         // las 00:00 hora local), así que para un rango de varios días se va sumando
         // el total final de cada día anterior como "offset" antes de sumarle el
         // precipTotal corriente del día en curso.
-        function processWUData(observations, startStr, endStr) {
+        function processWUData(observations, startStr, endStr, currentObs = null) {
             const start = new Date(startStr);
             const end = new Date(endStr);
             const diffHours = (end - start) / 3600000;
@@ -755,23 +667,70 @@
             });
 
             const sortedDays = Array.from(byDay.keys()).sort();
-            let dayOffset = 0;
+            // previousDaysOffset = suma de los días YA CERRADOS (todos menos el último
+            // procesado). lastDayTotal = total del último día procesado hasta ahora.
+            // Se separan para poder corregir SOLO el último día con el dato en vivo.
+            let previousDaysOffset = 0;
+            let lastDayTotal = 0;
+            let lastDayKey = null;
             let recordsCount = 0;
 
-            sortedDays.forEach(dayKey => {
+            sortedDays.forEach((dayKey, idx) => {
+                if (idx > 0) previousDaysOffset += lastDayTotal; // cerrar el día anterior
                 const dayObs = byDay.get(dayKey).sort((a, b) => a.ts - b.ts);
-                let lastValInDay = 0;
+                lastDayTotal = 0;
                 dayObs.forEach(o => {
-                    const cumulative = dayOffset + o.precipTotal;
-                    lastValInDay = o.precipTotal;
+                    const cumulative = previousDaysOffset + o.precipTotal;
+                    lastDayTotal = o.precipTotal;
                     recordsCount++;
                     const key = bucketByHour
                         ? `${pad(o.ts.getDate())}/${pad(o.ts.getMonth()+1)} ${pad(o.ts.getHours())}:00`
                         : `${pad(o.ts.getDate())}/${pad(o.ts.getMonth()+1)}/${o.ts.getFullYear()}`;
                     if (buckets.has(key)) buckets.set(key, cumulative);
                 });
-                dayOffset += lastValInDay;
+                lastDayKey = dayKey;
             });
+
+            // El endpoint histórico (history/all) puede tardar en reflejar la lluvia
+            // más reciente. Si hay un dato EN VIVO (endpoint "current") del mismo día
+            // y con más precipitación acumulada que lo que trajo el histórico, se usa
+            // ese como total real — es el mismo dato que muestra wunderground.com.
+            if (currentObs && currentObs.metric && currentObs.metric.precipTotal != null) {
+                const rawTs = currentObs.obsTimeLocal || currentObs.obsTimeUtc;
+                const curPrecip = parseFloat(currentObs.metric.precipTotal);
+                if (rawTs && !isNaN(curPrecip)) {
+                    const curTs = new Date(rawTs.replace(' ', 'T'));
+                    const curDayKey = `${curTs.getFullYear()}-${pad(curTs.getMonth()+1)}-${pad(curTs.getDate())}`;
+                    const dentroDelRango = curTs >= start && curTs <= end;
+
+                    if (dentroDelRango && curDayKey === lastDayKey) {
+                        // Mismo día que el último que trajo el histórico: solo se corrige
+                        // si el dato en vivo tiene MÁS lluvia acumulada (más reciente).
+                        if (curPrecip > lastDayTotal) {
+                            lastDayTotal = curPrecip;
+                            recordsCount++;
+                            const key = bucketByHour
+                                ? `${pad(curTs.getDate())}/${pad(curTs.getMonth()+1)} ${pad(curTs.getHours())}:00`
+                                : `${pad(curTs.getDate())}/${pad(curTs.getMonth()+1)}/${curTs.getFullYear()}`;
+                            if (buckets.has(key)) buckets.set(key, previousDaysOffset + curPrecip);
+                        }
+                    } else if (dentroDelRango && curDayKey !== lastDayKey) {
+                        // Es un día posterior al último que trajo el histórico (incluso si
+                        // el histórico todavía no tiene NADA de hoy): se cierra el día
+                        // anterior y se agrega este como el nuevo "último día".
+                        previousDaysOffset += lastDayTotal;
+                        lastDayTotal = curPrecip;
+                        lastDayKey = curDayKey;
+                        recordsCount++;
+                        const key = bucketByHour
+                            ? `${pad(curTs.getDate())}/${pad(curTs.getMonth()+1)} ${pad(curTs.getHours())}:00`
+                            : `${pad(curTs.getDate())}/${pad(curTs.getMonth()+1)}/${curTs.getFullYear()}`;
+                        if (buckets.has(key)) buckets.set(key, previousDaysOffset + curPrecip);
+                    }
+                }
+            }
+
+            const dayOffset = previousDaysOffset + lastDayTotal;
 
             // Forward-fill: si un bucket no tuvo lectura, se completa con el último
             // valor acumulado conocido, para que la curva no tenga huecos.
@@ -785,54 +744,6 @@
             });
 
             return { total: dayOffset.toFixed(2), chartData, labels, recordsCount };
-        }
-
-        // El endpoint history/all es un ARCHIVO diario: Wunderground lo consolida con
-        // demora (a veces varios minutos, a veces más), así que para el día de HOY puede
-        // quedar desactualizado respecto de lo que el dashboard público ya muestra.
-        // /v2/pws/observations/current en cambio es la lectura EN VIVO, la misma que
-        // alimenta ese dashboard. La usamos para pisar el total de HOY nada más (para
-        // días pasados el histórico ya está consolidado y no hace falta).
-        async function fetchWUCurrentObservation(stationId, apiKey) {
-            const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=m&apiKey=${apiKey}`;
-            try {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                const obs = (data.observations || [])[0];
-                if (!obs) return null;
-                const precipTotal = obs.metric ? parseFloat(obs.metric.precipTotal) : null;
-                if (precipTotal == null || isNaN(precipTotal)) return null;
-                return { precipTotal, ts: obs.obsTimeLocal || obs.obsTimeUtc || null };
-            } catch (e) {
-                console.error("Error consultando lectura en vivo de Wunderground (posible bloqueo CORS):", e);
-                return null;
-            }
-        }
-
-        // ¿El rango consultado llega hasta HOY? Si es así, conviene pisar el último
-        // total con la lectura en vivo (ver fetchWUCurrentObservation) en vez de
-        // confiar solo en el archivo histórico, que puede estar atrasado.
-        function isTodayIncluded(endStr) {
-            const end = new Date(endStr);
-            const now = new Date();
-            return end.getFullYear() === now.getFullYear() && end.getMonth() === now.getMonth() && end.getDate() === now.getDate();
-        }
-
-        // Pisa resDaza.total (y el último punto del gráfico) con la lectura en vivo,
-        // pero SOLO si esta es mayor a la que ya teníamos: si por algún motivo la
-        // lectura en vivo llegara vacía o desfasada, nunca hace que el total baje.
-        function applyDazaLiveOverride(resDaza, wuLive) {
-            if (!wuLive) return;
-            const histTotal = parseFloat(resDaza.total) || 0;
-            if (wuLive.precipTotal > histTotal) {
-                resDaza.total = wuLive.precipTotal.toFixed(2);
-                if (resDaza.chartData && resDaza.chartData.length > 0) {
-                    resDaza.chartData[resDaza.chartData.length - 1] = wuLive.precipTotal;
-                }
-                resDaza.latestTs = wuLive.ts;
-                resDaza.liveOverride = true;
-            }
         }
 
         // Procesa una variable continua (temperatura, humedad, presión) a partir de
@@ -1005,31 +916,31 @@
             subtitle.innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
             debug.innerText = "Sincronizando evento meteorológico...";
 
-            const [resVActual, resVHist, resVVerde, resC_raw, baselineVerde, wuObservations, wuLive] = await Promise.all([
+            const [resVActual, resVHist, resVVerde, resC_raw, wuObservations, wuCurrentObs] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startStr, endStr),
                 fetchFeeds(V_HISTORICO, startStr, endStr),
                 fetchFeeds(V_VERDE, startStr, endStr),
                 fetchFeeds(C_STATION, startStr, endStr),
-                fetchBaselineValue(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr),
                 fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr),
-                isTodayIncluded(endStr) ? fetchWUCurrentObservation(D_ILAPLATA.stationId, D_ILAPLATA.apiKey) : Promise.resolve(null)
+                fetchWUCurrentObs(D_ILAPLATA.stationId, D_ILAPLATA.apiKey)
             ]);
 
             const resV = processStationData([resVActual, resVHist], V_ACTUAL.mult, startStr, endStr, false);
-            const resVerde = processAccumulatedCounter([resVVerde], V_VERDE.mult, startStr, endStr, baselineVerde);
+            // field4 de Verde ya es el incremento de lluvia en mm de ese intervalo
+            // (confirmado: field5 es la suma corrida de field4), igual que Campbell.
+            const resVerde = processStationData([resVVerde], V_VERDE.mult, startStr, endStr, true);
             const resC = processStationData([resC_raw], C_STATION.mult, startStr, endStr, true);
-            const resDaza = processWUData(wuObservations, startStr, endStr);
-            applyDazaLiveOverride(resDaza, wuLive);
+            const resDaza = processWUData(wuObservations, startStr, endStr, wuCurrentObs);
 
             document.getElementById('accumVioleta').innerText = resV.total;
             document.getElementById('accumVerde').innerText = resVerde.total;
             document.getElementById('accumCampbell').innerText = resC.total;
             document.getElementById('accumDaza').innerText = resDaza.total;
             document.getElementById('msgVioleta').innerText = `Ciclos registrados: ${resV.recordsCount} (x 0.68mm)`;
-            document.getElementById('msgVerde').innerText = `Pulsos detectados: ${resVerde.recordsCount} (x 0.68mm, reset diario)`;
+            document.getElementById('msgVerde').innerText = `Intervalos con lluvia: ${resVerde.recordsCount} (mm directos del sensor)`;
             document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
             document.getElementById('msgDaza').innerText = resDaza.recordsCount > 0
-                ? `Lecturas: ${resDaza.recordsCount} (precipTotal diario, Wunderground)${resDaza.liveOverride ? ' · actualizado con lectura en vivo' : ''}`
+                ? `Lecturas: ${resDaza.recordsCount} (precipTotal diario, Wunderground)`
                 : `Sin datos (revisar API key o posible bloqueo CORS)`;
 
             const badge = document.getElementById('channelBadge');
@@ -1169,25 +1080,25 @@
             document.getElementById('varCampbellUnit').innerText = cfg.unit;
             document.getElementById('varDazaUnit').innerText = cfg.unit;
 
-            const [feedsVerde, feedsCampbell, wuObservations, wuLive] = await Promise.all([
+            const [feedsVerde, feedsCampbell, wuObservations] = await Promise.all([
                 fetchChannelField(V_VERDE.id, V_VERDE.api, cfg.verdeField, startStr, endStr),
                 fetchChannelField(C_STATION.id, C_STATION.api, cfg.campbellField, startStr, endStr),
-                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr),
-                (cfg.accumulated && isTodayIncluded(endStr)) ? fetchWUCurrentObservation(D_ILAPLATA.stationId, D_ILAPLATA.apiKey) : Promise.resolve(null)
+                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr)
             ]);
 
             let verdeResult, campResult, dazaResult;
 
             if (cfg.accumulated) {
-                // Verde acumula con reset diario; Campbell reporta mm directos por intervalo
-                const baselineVerde = await fetchBaselineValue(V_VERDE.id, V_VERDE.api, cfg.verdeField, startStr);
-                verdeResult = processAccumulatedCounter([feedsVerde], V_VERDE.mult, startStr, endStr, baselineVerde);
+                // Verde y Campbell reportan mm directos por intervalo (field4 de Verde
+                // ya es el incremento de lluvia, no un acumulado que haya que restar)
+                verdeResult = processStationData([feedsVerde], V_VERDE.mult, startStr, endStr, true);
                 campResult = processStationData([feedsCampbell], 1.0, startStr, endStr, true);
                 verdeResult.latestValue = parseFloat(verdeResult.total);
                 campResult.latestValue = parseFloat(campResult.total);
-                // Daza (WU) ya viene con reset diario propio, mismo tratamiento que en la vista de Lluvia
-                dazaResult = processWUData(wuObservations, startStr, endStr);
-                applyDazaLiveOverride(dazaResult, wuLive);
+                // Daza (WU) ya viene con reset diario propio, mismo tratamiento que en la vista de
+                // Lluvia: se corrige con el dato en vivo por si el histórico está atrasado.
+                const wuCurrentObs = await fetchWUCurrentObs(D_ILAPLATA.stationId, D_ILAPLATA.apiKey);
+                dazaResult = processWUData(wuObservations, startStr, endStr, wuCurrentObs);
                 dazaResult.latestValue = parseFloat(dazaResult.total);
             } else {
                 verdeResult = processContinuousSeries(feedsVerde.feeds, cfg.verdeField, startStr, endStr);
@@ -1206,7 +1117,7 @@
                 ? `Total del período`
                 : (campResult.latestTs ? `Última lectura: ${new Date(campResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos en el rango');
             document.getElementById('varDazaMsg').innerText = cfg.accumulated
-                ? `Total del período (reset diario, Wunderground)${dazaResult.liveOverride ? ' · actualizado con lectura en vivo' : ''}`
+                ? `Total del período (reset diario, Wunderground)`
                 : (dazaResult.latestTs ? `Última lectura: ${new Date(dazaResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos (revisar CORS)');
 
             if (typeof Chart !== 'undefined') renderVarChart(verdeResult, campResult, cfg, dazaResult);
@@ -1349,14 +1260,16 @@
 
             document.getElementById('diagSubtitle').innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
 
-            const [feedsVerde, feedsCampbell, baselineVerde] = await Promise.all([
+            const [feedsVerde, feedsCampbell] = await Promise.all([
                 fetchChannelField(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr, endStr),
-                fetchChannelField(C_STATION.id, C_STATION.api, C_STATION.field, startStr, endStr),
-                fetchBaselineValue(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr)
+                fetchChannelField(C_STATION.id, C_STATION.api, C_STATION.field, startStr, endStr)
             ]);
 
-            // mult = 1 a propósito: acá queremos ver el dato crudo, sin calibrar
-            const verdeResult = processAccumulatedCounter([feedsVerde], 1.0, startStr, endStr, baselineVerde);
+            // field4 de Verde ya es mm directos por intervalo (igual que Campbell);
+            // la calibración por pulso (0.816mm) quedó confirmada mirando los datos
+            // crudos del canal, así que esta vista ahora sirve para comparar cuánta
+            // lluvia real cayó en cada ubicación, no para inferir un factor.
+            const verdeResult = processStationData([feedsVerde], 1.0, startStr, endStr, true);
             const campResult = processStationData([feedsCampbell], 1.0, startStr, endStr, true);
 
             const totalVerdeRaw = parseFloat(verdeResult.total);
@@ -1371,16 +1284,14 @@
             const eventsBody = document.getElementById('diagEventsBody');
             eventsBody.innerHTML = '';
             events.forEach(ev => {
-                const verdeCal = ev.verde * V_VERDE.mult;
-                const diff = ev.camp - verdeCal;
+                const diff = ev.camp - ev.verde;
                 const ratio = ev.verde > 0 ? (ev.camp / ev.verde).toFixed(3) : '--';
                 const rangeLabel = ev.startLabel === ev.endLabel ? ev.startLabel : `${ev.startLabel} → ${ev.endLabel}`;
                 const tr = document.createElement('tr');
                 tr.className = 'border-t border-slate-700';
                 tr.innerHTML = `
                     <td class="py-2 pr-4">${rangeLabel}</td>
-                    <td class="py-2 pr-4 text-green-400">${ev.verde.toFixed(3)}</td>
-                    <td class="py-2 pr-4 text-green-300">${verdeCal.toFixed(2)}</td>
+                    <td class="py-2 pr-4 text-green-400">${ev.verde.toFixed(2)}</td>
                     <td class="py-2 pr-4 text-sky-400">${ev.camp.toFixed(2)}</td>
                     <td class="py-2 pr-4 ${diff >= 0 ? 'text-red-400' : 'text-emerald-400'}">${diff >= 0 ? '+' : ''}${diff.toFixed(2)}</td>
                     <td class="py-2 pr-4 text-amber-400">${ratio}</td>
