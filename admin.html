@@ -513,11 +513,13 @@
     const WIND_INT = ["leves", "moderados", "regulares", "fuertes o muy fuertes"];
     const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
 
-    // Ajuste manual de tamaño de letra por fila (Vientos/Tiempo de cada día,
-    // y Texto/Viento de Día 3-4). Es un "techo" para el achicado automático:
-    // subirlo le da más margen para crecer, pero el achicado automático sigue
-    // corriendo por debajo, así que nunca se pasa de los bordes de la placa.
-    const rowFontBoost = { h_v:0, h_w:0, m_v:0, m_w:0, d3_desc:0, d3_wind:0, d4_desc:0, d4_wind:0 };
+    // Ajuste manual de tamaño de letra por COLUMNA (cada tramo de Vientos/Tiempo
+    // de Día 1 y 2 es independiente: claves tipo 'h_w2', 'm_v4'), y por Texto/Viento
+    // combinado de Día 3-4 (sin tramo, es una sola descripción por día). Es un "techo"
+    // para el achicado automático: subirlo le da más margen para crecer, pero el
+    // achicado automático sigue corriendo por debajo, así que nunca se pasa de los
+    // bordes de la placa.
+    const rowFontBoost = { d3_desc:0, d3_wind:0, d4_desc:0, d4_wind:0 };
     // El texto de redes se arma automático, pero se puede editar a mano: una vez que el usuario
     // escribe algo, dejamos de pisarlo con la generación automática (ver generateSocialText).
     let socialTextManuallyEdited = false;
@@ -576,12 +578,19 @@
 
     function adjustFontBoost(key, delta) {
         rowFontBoost[key] = Math.max(-10, Math.min(15, (rowFontBoost[key] || 0) + delta));
-        const sep = key.lastIndexOf('_');
-        const dia = key.slice(0, sep), kind = key.slice(sep + 1);
-        if (kind === 'v') updateWind(dia, 1);
-        else if (kind === 'w') updateSky(dia, 1);
-        else if (kind === 'desc') updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`)?.value || '');
-        else if (kind === 'wind') updateWindLegendAndArrows(dia);
+        // Claves por columna (Día 1/2): 'h_w2', 'm_v4' → día 'h'/'m', tipo w/v, tramo N.
+        const perColumn = key.match(/^([a-z0-9]+)_(w|v)(\d+)$/);
+        if (perColumn) {
+            const [, dia, kind, tramo] = perColumn;
+            if (kind === 'v') updateWind(dia, Number(tramo));
+            else updateSky(dia, Number(tramo));
+        } else {
+            // Claves de día completo (Día 3/4): 'd3_desc', 'd4_wind' → sin tramo.
+            const sep = key.lastIndexOf('_');
+            const dia = key.slice(0, sep), kind = key.slice(sep + 1);
+            if (kind === 'desc') updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`)?.value || '');
+            else if (kind === 'wind') updateWindLegendAndArrows(dia);
+        }
         saveDraft();
     }
 
@@ -679,8 +688,8 @@
                     html += `<div class="field-group"><div class="tramo-header">
                         <h4>${periodTitle}</h4>
                         <div class="tramo-font-controls">
-                            <div class="tramo-font-group"><span class="tfg-label">Tiempo</span><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_w', -1)">−</button><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_w', 1)">+</button></div>
-                            <div class="tramo-font-group"><span class="tfg-label">Viento</span><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_v', -1)">−</button><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_v', 1)">+</button></div>
+                            <div class="tramo-font-group"><span class="tfg-label">Tiempo</span><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_w${tramoIdx}', -1)">−</button><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_w${tramoIdx}', 1)">+</button></div>
+                            <div class="tramo-font-group"><span class="tfg-label">Viento</span><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_v${tramoIdx}', -1)">−</button><button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_v${tramoIdx}', 1)">+</button></div>
                         </div>
                     </div>`;
                 } else {
@@ -804,9 +813,7 @@
                     if (!manualCellOverrides[target.id]) {
                         target.innerText = v ? (pop ? capitalizeFirst(`${pop} prob. de ${v}`) : capitalizeFirst(v)) : (pop ? `${pop} prob. precipitaciones` : "--");
                     }
-                    const elements = [];
-                    for (let i = 1; i <= (dia === 'h' ? 3 : 4); i++) { const el = document.getElementById(`${dia}-w${i}`); if (el) elements.push(el); }
-                    syncRowFontSize(elements, 34 + (rowFontBoost[`${dia}_w`] || 0), 20);
+                    syncRowFontSize([target], 34 + (rowFontBoost[`${dia}_w${tramo}`] || 0), 20);
                 }
             } else {
                 updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`).value);
@@ -833,9 +840,7 @@
                 if (!manualCellOverrides[t.id]) {
                     t.innerText = r ? `Ráfagas: ${r}` : (i && d ? capitalizeFirst(`${i} del ${d}`) : "--");
                 }
-                const els = [];
-                for (let j = 1; j <= (dia === 'h' ? 3 : 4); j++) { const el = document.getElementById(`${dia}-v${j}`); if (el) els.push(el); }
-                syncRowFontSize(els, 34 + (rowFontBoost[`${dia}_v`] || 0), 20);
+                syncRowFontSize([t], 34 + (rowFontBoost[`${dia}_v${tramo}`] || 0), 20);
             }
         }
         if(dia === 'd3' || dia === 'd4') updateWindLegendAndArrows(dia);
