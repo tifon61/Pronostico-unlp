@@ -787,6 +787,54 @@
             return { total: dayOffset.toFixed(2), chartData, labels, recordsCount };
         }
 
+        // El endpoint history/all es un ARCHIVO diario: Wunderground lo consolida con
+        // demora (a veces varios minutos, a veces más), así que para el día de HOY puede
+        // quedar desactualizado respecto de lo que el dashboard público ya muestra.
+        // /v2/pws/observations/current en cambio es la lectura EN VIVO, la misma que
+        // alimenta ese dashboard. La usamos para pisar el total de HOY nada más (para
+        // días pasados el histórico ya está consolidado y no hace falta).
+        async function fetchWUCurrentObservation(stationId, apiKey) {
+            const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=m&apiKey=${apiKey}`;
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const obs = (data.observations || [])[0];
+                if (!obs) return null;
+                const precipTotal = obs.metric ? parseFloat(obs.metric.precipTotal) : null;
+                if (precipTotal == null || isNaN(precipTotal)) return null;
+                return { precipTotal, ts: obs.obsTimeLocal || obs.obsTimeUtc || null };
+            } catch (e) {
+                console.error("Error consultando lectura en vivo de Wunderground (posible bloqueo CORS):", e);
+                return null;
+            }
+        }
+
+        // ¿El rango consultado llega hasta HOY? Si es así, conviene pisar el último
+        // total con la lectura en vivo (ver fetchWUCurrentObservation) en vez de
+        // confiar solo en el archivo histórico, que puede estar atrasado.
+        function isTodayIncluded(endStr) {
+            const end = new Date(endStr);
+            const now = new Date();
+            return end.getFullYear() === now.getFullYear() && end.getMonth() === now.getMonth() && end.getDate() === now.getDate();
+        }
+
+        // Pisa resDaza.total (y el último punto del gráfico) con la lectura en vivo,
+        // pero SOLO si esta es mayor a la que ya teníamos: si por algún motivo la
+        // lectura en vivo llegara vacía o desfasada, nunca hace que el total baje.
+        function applyDazaLiveOverride(resDaza, wuLive) {
+            if (!wuLive) return;
+            const histTotal = parseFloat(resDaza.total) || 0;
+            if (wuLive.precipTotal > histTotal) {
+                resDaza.total = wuLive.precipTotal.toFixed(2);
+                if (resDaza.chartData && resDaza.chartData.length > 0) {
+                    resDaza.chartData[resDaza.chartData.length - 1] = wuLive.precipTotal;
+                }
+                resDaza.latestTs = wuLive.ts;
+                resDaza.liveOverride = true;
+            }
+        }
+
         // Procesa una variable continua (temperatura, humedad, presión) a partir de
         // observaciones de Wunderground, promediando por bucket igual que se hace
         // con ThingSpeak en processContinuousSeries.
@@ -957,19 +1005,21 @@
             subtitle.innerText = `Rango: ${startStr.replace('T', ' ')} hrs ➔ ${endStr.replace('T', ' ')} hrs`;
             debug.innerText = "Sincronizando evento meteorológico...";
 
-            const [resVActual, resVHist, resVVerde, resC_raw, baselineVerde, wuObservations] = await Promise.all([
+            const [resVActual, resVHist, resVVerde, resC_raw, baselineVerde, wuObservations, wuLive] = await Promise.all([
                 fetchFeeds(V_ACTUAL, startStr, endStr),
                 fetchFeeds(V_HISTORICO, startStr, endStr),
                 fetchFeeds(V_VERDE, startStr, endStr),
                 fetchFeeds(C_STATION, startStr, endStr),
                 fetchBaselineValue(V_VERDE.id, V_VERDE.api, V_VERDE.field, startStr),
-                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr)
+                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr),
+                isTodayIncluded(endStr) ? fetchWUCurrentObservation(D_ILAPLATA.stationId, D_ILAPLATA.apiKey) : Promise.resolve(null)
             ]);
 
             const resV = processStationData([resVActual, resVHist], V_ACTUAL.mult, startStr, endStr, false);
             const resVerde = processAccumulatedCounter([resVVerde], V_VERDE.mult, startStr, endStr, baselineVerde);
             const resC = processStationData([resC_raw], C_STATION.mult, startStr, endStr, true);
             const resDaza = processWUData(wuObservations, startStr, endStr);
+            applyDazaLiveOverride(resDaza, wuLive);
 
             document.getElementById('accumVioleta').innerText = resV.total;
             document.getElementById('accumVerde').innerText = resVerde.total;
@@ -979,7 +1029,7 @@
             document.getElementById('msgVerde').innerText = `Pulsos detectados: ${resVerde.recordsCount} (x 0.68mm, reset diario)`;
             document.getElementById('msgCampbell').innerText = `Intervalos con lluvia: ${resC.recordsCount}`;
             document.getElementById('msgDaza').innerText = resDaza.recordsCount > 0
-                ? `Lecturas: ${resDaza.recordsCount} (precipTotal diario, Wunderground)`
+                ? `Lecturas: ${resDaza.recordsCount} (precipTotal diario, Wunderground)${resDaza.liveOverride ? ' · actualizado con lectura en vivo' : ''}`
                 : `Sin datos (revisar API key o posible bloqueo CORS)`;
 
             const badge = document.getElementById('channelBadge');
@@ -1119,10 +1169,11 @@
             document.getElementById('varCampbellUnit').innerText = cfg.unit;
             document.getElementById('varDazaUnit').innerText = cfg.unit;
 
-            const [feedsVerde, feedsCampbell, wuObservations] = await Promise.all([
+            const [feedsVerde, feedsCampbell, wuObservations, wuLive] = await Promise.all([
                 fetchChannelField(V_VERDE.id, V_VERDE.api, cfg.verdeField, startStr, endStr),
                 fetchChannelField(C_STATION.id, C_STATION.api, cfg.campbellField, startStr, endStr),
-                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr)
+                fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr),
+                (cfg.accumulated && isTodayIncluded(endStr)) ? fetchWUCurrentObservation(D_ILAPLATA.stationId, D_ILAPLATA.apiKey) : Promise.resolve(null)
             ]);
 
             let verdeResult, campResult, dazaResult;
@@ -1136,6 +1187,7 @@
                 campResult.latestValue = parseFloat(campResult.total);
                 // Daza (WU) ya viene con reset diario propio, mismo tratamiento que en la vista de Lluvia
                 dazaResult = processWUData(wuObservations, startStr, endStr);
+                applyDazaLiveOverride(dazaResult, wuLive);
                 dazaResult.latestValue = parseFloat(dazaResult.total);
             } else {
                 verdeResult = processContinuousSeries(feedsVerde.feeds, cfg.verdeField, startStr, endStr);
@@ -1154,7 +1206,7 @@
                 ? `Total del período`
                 : (campResult.latestTs ? `Última lectura: ${new Date(campResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos en el rango');
             document.getElementById('varDazaMsg').innerText = cfg.accumulated
-                ? `Total del período (reset diario, Wunderground)`
+                ? `Total del período (reset diario, Wunderground)${dazaResult.liveOverride ? ' · actualizado con lectura en vivo' : ''}`
                 : (dazaResult.latestTs ? `Última lectura: ${new Date(dazaResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos (revisar CORS)');
 
             if (typeof Chart !== 'undefined') renderVarChart(verdeResult, campResult, cfg, dazaResult);
