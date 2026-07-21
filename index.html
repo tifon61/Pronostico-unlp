@@ -43,19 +43,23 @@
         .app-container { display: flex; flex: 1; overflow: hidden; }
         .view-section { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 28px; }
         .view-section.active { display: block; }
-        #view-dashboard.active { display: flex; align-items: flex-start; gap: 20px; padding: 24px; }
-        .map-col { flex: 0 0 360px; position: sticky; top: 24px; display: flex; flex-direction: column; gap: 12px; }
-        .map-card { height: 380px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid var(--border); position: relative; }
+        #view-dashboard.active { display: flex; align-items: flex-start; justify-content: center; gap: 24px; padding: 24px; max-width: 1280px; margin: 0 auto; width: 100%; }
+        .map-col { flex: 0 0 380px; position: sticky; top: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .map-card { height: 400px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid var(--border); position: relative; }
         #map { width: 100%; height: 100%; }
         .city-select-bar { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 10px; }
         .city-select-bar label { font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
         .city-select-bar select { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 7px 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: var(--bg-body); cursor: pointer; }
-        .data-panel { flex: 1; max-width: 700px; margin: 0; background: transparent; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+        .data-panel { flex: 1; max-width: 820px; margin: 0; background: transparent; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+        .city-weather-marker { display: flex; align-items: center; justify-content: center; }
+        .city-weather-marker .cwm-badge { width: 40px; height: 40px; border-radius: 50%; background: white; border: 2px solid var(--primary); box-shadow: 0 3px 8px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; }
+        .city-weather-marker .cwm-badge img { width: 28px; height: 28px; object-fit: contain; }
+        .city-weather-marker .cwm-point { width: 0; height: 0; margin: 0 auto; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--primary); }
         .card { background: white; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
         /* CIUDAD HEADER */
         .city-bar { background: var(--primary); border-radius: 14px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .city-bar h2 { font-size: 1.6rem; font-weight: 900; text-transform: uppercase; line-height: 1; }
+        .city-bar h2 { font-size: 1.85rem; font-weight: 900; text-transform: uppercase; line-height: 1; }
         .city-bar .sub { font-size: 0.7rem; opacity: 0.7; font-weight: 600; margin-top: 2px; }
         .emission-pill { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 6px 14px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
         .emission-pill span { display: block; font-size: 1.1rem; font-weight: 900; margin-top: 1px; }
@@ -91,7 +95,7 @@
         .period-col:last-child { border-right: none; }
         .period-col:hover { background: #f8fafc; }
         .pc-period-lbl { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 10px; background: var(--bg-body); border-radius: 20px; padding: 3px 9px; }
-        .pc-icon { width: 68px; height: 68px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); margin-bottom: 8px; }
+        .pc-icon { width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); margin-bottom: 8px; }
         .pc-temp { font-size: 2.1rem; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 12px; }
         .pc-temp.night { color: #4a6080; }
         .pc-sep { width: 30px; height: 2px; background: var(--border); border-radius: 2px; margin-bottom: 10px; }
@@ -124,7 +128,7 @@
         .ext-icons-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .ext-icon-half { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
         .ext-icon-lbl { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.4px; }
-        .ext-icon-img { width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12)); }
+        .ext-icon-img { width: 70px; height: 70px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12)); }
         .ext-icon-pop { font-size: 0.68rem; font-weight: 800; color: #0369a1; }
         .ext-icon-gust { font-size: 0.68rem; font-weight: 800; color: #9d174d; }
         .ext-desc-box { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 14px; font-size: 0.9rem; font-weight: 700; color: var(--primary); text-align: center; line-height: 1.4; }
@@ -591,6 +595,7 @@ window.onload = () => {
     loadCity('La Plata');
     fetchTS();
     setInterval(fetchTS, 5 * 60 * 1000);
+    loadCityMapIcons();
 };
 
 function degreesToCardinal(deg) {
@@ -616,11 +621,62 @@ function initMap() {
     const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution:'© Esri' });
     window._map = L.map('map', { center:[-36.5,-60.0], zoom:6, layers:[std] });
     L.control.layers({ "Estándar":std, "Satélite":sat }).addTo(window._map);
+    window._cityMarkers = {};
     CITIES.forEach(c => {
-        L.marker(c.coords).addTo(window._map)
+        const marker = L.marker(c.coords).addTo(window._map)
             .bindPopup(`<b style="font-family:Montserrat;">${c.name}</b>`)
             .on('click', () => goToCity(c.name));
+        window._cityMarkers[c.name] = marker;
     });
+}
+
+// Determina el período horario actual (mismo criterio que usa el pronóstico
+// detallado) para saber qué ícono de clima mostrar en el pin de cada ciudad.
+function getCurrentPeriodKey() {
+    const h = new Date().getHours();
+    if (h < 6) return 'madrugada';
+    if (h < 12) return 'mañana';
+    if (h < 19) return 'tarde';
+    return 'noche';
+}
+
+function findCurrentPeriodIcon(dayData) {
+    if (!dayData || !dayData.period_forecasts || dayData.period_forecasts.length === 0) return null;
+    const key = getCurrentPeriodKey();
+    const exact = dayData.period_forecasts.find(p => p.period === key);
+    if (exact) return exact.weather_icon_code || 'default';
+    // Días con formato combinado (madrugada/mañana, tarde/noche), como el pronóstico extendido
+    const combinedKey = (key === 'madrugada' || key === 'mañana') ? 'madrugada / mañana' : 'tarde / noche';
+    const combined = dayData.period_forecasts.find(p => p.period === combinedKey);
+    if (combined) return combined.weather_icon_code || 'default';
+    return dayData.period_forecasts[0].weather_icon_code || 'default';
+}
+
+function buildWeatherDivIcon(iconCode) {
+    return L.divIcon({
+        className: 'city-weather-marker',
+        html: `<div class="cwm-badge"><img src="images/${iconCode}.png" onerror="this.src='images/default.png'"></div><div class="cwm-point"></div>`,
+        iconSize: [40, 50],
+        iconAnchor: [20, 50],
+        popupAnchor: [0, -46]
+    });
+}
+
+// Reemplaza el pin genérico de cada ciudad por el ícono de lo pronosticado
+// para el período horario en el que se abre la página.
+async function loadCityMapIcons() {
+    await Promise.all(CITIES.map(async c => {
+        try {
+            const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(c.name)}`;
+            const data = await fetchForecastDataJSONP(url);
+            if (!data || data.error || !data.daily_forecasts || !data.daily_forecasts[0]) return;
+            const iconCode = findCurrentPeriodIcon(data.daily_forecasts[0]) || 'default';
+            const marker = window._cityMarkers && window._cityMarkers[c.name];
+            if (marker) marker.setIcon(buildWeatherDivIcon(iconCode));
+        } catch (e) {
+            console.warn(`No se pudo cargar el ícono de clima para ${c.name}:`, e);
+        }
+    }));
 }
 
 function goToCity(name) {
@@ -909,12 +965,13 @@ function fetchForecastDataJSONP(url) {
 }
 
 // ─── LEER DE GOOGLE SHEETS ───────────────────────────────────────────────────
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
+
 async function fetchForecast(city) {
     const container = document.getElementById('forecast-container');
     container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
-    
+
     try {
-        const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
         const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
         
         // Obtenemos directamente el JSON completo
