@@ -113,14 +113,17 @@
         .day-block { border-radius: 40px; margin-bottom: 6px; position: relative; width: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); justify-content: space-between; padding-bottom: 0px; }
         .day-1 { background: #003c60; padding-top: 35px; height: 630px; }
         .day-2 { background: #3981bfde; padding-top: 35px; margin-bottom: 0; height: 630px; }
-        .day-header { display: flex; align-items: flex-start; padding: 0px 25px 0px; color: white; gap: 15px; margin-bottom: -5px; }
-        .day-header h2 { font-size: 37px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 230px; letter-spacing: -2px; flex-shrink: 0; line-height: 1; }
-        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; flex-grow: 1; justify-content: space-around; padding: 4px 0; font-weight: 400; font-size: 26px; margin-right: 15px; }
-        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 4px 10px; margin-right: 0; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 24px; }
+        .day-header { display: flex; align-items: flex-start; padding: 0px 15px 0px; color: white; gap: 0; margin-bottom: -5px; }
+        .day-header h2 { font-size: 37px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 250px; letter-spacing: -2px; flex-shrink: 0; line-height: 1; }
+        /* La cápsula de tramos usa la MISMA grilla de columnas que day-main-grid/stripe-wind/
+           stripe-time (3 o 4 columnas iguales, sin el primer carril de 250px que ya puso el h2),
+           así "MAÑANA/TARDE/NOCHE" queda exactamente arriba de su columna de datos. */
+        .periods-pill { background: rgba(255,255,255,0.2); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; flex-grow: 1; padding: 4px 0; font-weight: 400; font-size: 26px; }
+        .periods-pill-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 0; padding: 4px 0; flex-grow: 1; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 24px; }
         .day-1 .periods-pill { background: #245687; }
         .day-2 .periods-pill { background: #d4e2eb; color: var(--unlp-blue); }
         .exporting .periods-pill { padding: 0px 0 8px; }
-        .exporting .periods-pill-4 { padding: 0px 10px 8px; }
+        .exporting .periods-pill-4 { padding: 0px 0 8px; }
         .periods-pill span, .periods-pill-4 span { display: inline-block; margin-top: 0; }
         .exporting .periods-pill span, .exporting .periods-pill-4 span { margin-top: -3px; }
         
@@ -150,9 +153,9 @@
         
         .stripe { display: grid; align-items: stretch; width: 100%; height: 108px; position: relative; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 250px 1fr 1fr 1fr; }
-        .stripe-wind-4 { grid-template-columns: 170px 1fr 1fr 1fr 1fr; }
+        .stripe-wind-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 250px 1fr 1fr 1fr; }
-        .stripe-time-4 { grid-template-columns: 170px 1fr 1fr 1fr 1fr; }
+        .stripe-time-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
         .stripe-label { font-size: 35px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; }
         /* Día 2 tiene 4 columnas de datos en vez de 3: la etiqueta se achica para
            darle más ancho a cada celda de dato, así el ajuste manual de tamaño de
@@ -169,11 +172,11 @@
         .v-card.oscuro { background: #003c60; }
         .v-card h2 { font-size: 72px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: -2px; }
         .v-card .date { font-size: 46px; font-weight: 300; margin-bottom: 25px; opacity: 0.85; }
-        .card-split { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; width: 100%; }
+        .card-split { display: grid; grid-template-columns: 1fr 1fr; padding-top: 20px; width: 100%; }
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .card-split-title { font-size: 15px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
+        .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
         .card-split img { width: 176px; height: 220px; object-fit: contain; flex-shrink: 0; }
-        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
+        .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         .card-temp-urb { font-size: 28px; font-weight: 500; line-height: 1.2; color: white; }
@@ -366,7 +369,7 @@
             <div class="day-block day-2">
                 <div class="day-header">
                     <h2 class="n1">MARTES</h2>
-                    <div class="periods-pill periods-pill-4"><span style="margin-left: -15px;">MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
+                    <div class="periods-pill periods-pill-4"><span>MADRUGADA</span><span>MAÑANA</span><span>TARDE</span><span>NOCHE</span></div>
                 </div>
                 <div class="day-main-grid day-main-grid-4">
                     <div class="temp-side-col">
