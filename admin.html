@@ -149,19 +149,19 @@
         
         .forecast-item { text-align: center; padding: 0 0 5px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 0; flex-shrink: 0; padding-top: 10px; }
         .forecast-item img { width: 156px; height: 195px; object-fit: contain; flex-shrink: 0; image-rendering: -webkit-optimize-contrast; }
-        .forecast-temp { font-size: 47px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: -8px; line-height: 1; }
+        .forecast-temp { font-size: 47px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: -12px; line-height: 1; }
         
         .stripe { display: grid; align-items: stretch; width: 100%; height: 108px; position: relative; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 250px 1fr 1fr 1fr; }
         .stripe-wind-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
         .stripe-time { background: var(--unlp-row-time); color: white; grid-template-columns: 250px 1fr 1fr 1fr; }
         .stripe-time-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
-        .stripe-label { font-size: 44px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; }
+        .stripe-label { font-size: 44px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; transform: translateY(-6px); }
         /* La columna de la etiqueta ya mide 250px en Día 1 y 2 por igual (ver day-main-grid/
            stripe-wind-4/stripe-time-4), así que "Vientos"/"Tiempo" pueden ser del mismo
            tamaño en ambos días sin superponerse con las celdas de datos. */
         .stripe-wind-4 .stripe-label, .stripe-time-4 .stripe-label { font-size: 44px; padding-left: 12px; }
-        .stripe-data { font-size: 34px; font-weight: 800; letter-spacing: -0.7px; text-align: center; display: flex; align-items: center; justify-content: center; padding: 10px 3px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; cursor: text; outline: none; }
+        .stripe-data { font-size: 34px; font-weight: 800; letter-spacing: -0.7px; text-align: center; display: flex; align-items: center; justify-content: center; padding: 10px 3px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; cursor: text; outline: none; transform: translateY(-6px); }
         .stripe-data:hover { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.35); }
         .stripe-data:focus { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.8); }
         .exporting .stripe-data:hover, .exporting .stripe-data:focus { box-shadow: none; }
