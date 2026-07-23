@@ -1,19 +1,6 @@
 {
   "items": [
     {
-      "id": "68db3310-11f5-42d1-9425-285845013a03",
-      "tipo": "informe",
-      "titulo": "aa",
-      "texto": "aaaaa",
-      "tag": "",
-      "link_url": "",
-      "link_label": "aaa",
-      "fecha": "",
-      "imagen_url": "",
-      "publicado_por": "Equipo FCAG",
-      "timestamp": "2026-07-10T22:21:59.309Z"
-    },
-    {
       "id": "9875814e-4593-47b9-bf32-452d0607c15a",
       "tipo": "informe",
       "titulo": "Informe random",
@@ -40,5 +27,5 @@
       "timestamp": "2026-07-10T21:57:24.569Z"
     }
   ],
-  "generated_at": "2026-07-23T13:09:01.537531+00:00"
+  "generated_at": "2026-07-23T13:44:21.542337+00:00"
 }
