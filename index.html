@@ -199,6 +199,9 @@
         /* ALERTAS y ESTADOS */
         .alert-card { background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--danger); border-radius: 12px; padding: 14px 16px; }
         .alert-card h3 { font-size: 0.8rem; color: var(--danger); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; }
+        .outdated-banner { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 14px 16px; }
+        .outdated-banner h3 { font-size: 0.8rem; color: #b45309; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; }
+        .outdated-banner p { font-size: 0.82rem; color: var(--text-main); }
         #welcome-panel { text-align: center; color: var(--text-muted); padding: 50px 20px; }
         #welcome-panel h2 { color: var(--primary); margin-bottom: 8px; }
         .fcast-loading { text-align: center; padding: 40px; color: var(--text-muted); }
@@ -343,6 +346,10 @@
                     <h3>⚠ Alertas SMN</h3>
                     <p style="font-size:0.82rem; color:var(--text-main); margin-bottom:10px;">Alertas del Servicio Meteorológico Nacional</p>
                     <a href="https://www.smn.gob.ar/alertas" target="_blank" style="display:inline-block; background:var(--danger); color:white; padding:7px 14px; border-radius:6px; text-decoration:none; font-weight:800; font-size:0.78rem;">Ver Alerta →</a>
+                </div>
+                <div id="outdated-banner" class="outdated-banner hidden" style="margin-top:14px;">
+                    <h3>⏳ Pronóstico desactualizado</h3>
+                    <p>Estás viendo el último pronóstico publicado, correspondiente a un día anterior. En breve se va a subir el de hoy.</p>
                 </div>
                 <div id="forecast-container" style="margin-top:14px; display:flex; flex-direction:column; gap:14px;"></div>
             </div>
@@ -940,6 +947,7 @@ async function fetchForecast(city) {
 
         if (!cityData || cityData.error) {
             container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
+            document.getElementById('outdated-banner').classList.add('hidden');
             return;
         }
 
@@ -959,6 +967,12 @@ async function fetchForecast(city) {
         } else {
             document.getElementById('cd-emission').classList.add('hidden');
         }
+
+        // Si la fecha del pronóstico publicado no es la de hoy, avisamos que está
+        // desactualizado en vez de mostrarlo como si fuera el vigente sin aclaración.
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        document.getElementById('outdated-banner').classList.toggle('hidden', cityData.forecast_date === todayStr);
 
         const f = cityData.daily_forecasts;
         if (!f || f.length === 0) {
