@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "05e1ddf9-b7bb-47df-b078-4deb06e82953",
+      "tipo": "divulgacion",
+      "titulo": "!Viajamos a Junin!",
+      "texto": "",
+      "tag": "",
+      "link_url": "https://www.instagram.com/reel/DalM5Dax29Y/",
+      "link_label": "",
+      "fecha": "",
+      "imagen_url": "",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-07-27T21:26:05.526Z"
+    },
+    {
       "id": "9875814e-4593-47b9-bf32-452d0607c15a",
       "tipo": "informe",
       "titulo": "Informe random",
@@ -27,5 +40,5 @@
       "timestamp": "2026-07-10T21:57:24.569Z"
     }
   ],
-  "generated_at": "2026-07-27T19:52:13.169128+00:00"
+  "generated_at": "2026-07-27T21:26:29.370214+00:00"
 }
