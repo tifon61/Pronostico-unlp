@@ -866,13 +866,13 @@
         if(el) el.innerText = val;
     }
 
-    // ELIMINADO: Estaba duplicada esta función y rompía todo el sistema
+    // El texto de esta caja es 100% lo que se escribe a mano en "Descripción extendida":
+    // no se le pega ningún prefijo automático de probabilidad, para que llenar los
+    // desplegables de cielo/probabilidad de otros tramos no reordene ni reformatee
+    // lo que el usuario ya escribió acá.
     function updateFullDesc(dia, v) {
         const target = document.getElementById(`${dia}-w1`), container = document.getElementById(`${dia}-desc-container`);
-        const p1 = document.getElementById(`${dia}-pop-1`)?.value, p2 = document.getElementById(`${dia}-pop-2`)?.value;
-        let pt = (p1 && p2 && p1 === p2) ? `${p1} prob. ` : (p1 && p2 ? `${p1} luego ${p2} prob. ` : (p1 ? `${p1} prob. ` : (p2 ? `${p2} prob. ` : "")));
-
-        let str = pt ? capitalizeFirst(pt + (v || "--").toLowerCase()) : (v || "--");
+        let str = (v && v.trim() !== '') ? v : "--";
 
         if (target && container) {
             let sz = 28 + (rowFontBoost[`${dia}_desc`] || 0);
