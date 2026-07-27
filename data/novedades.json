@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "1468d738-bf4b-4882-a903-706072c78204",
+      "tipo": "informe",
+      "titulo": "Informe de Otono 2026",
+      "texto": "",
+      "tag": "",
+      "link_url": "https://www.fcaglp.unlp.edu.ar/wp-content/uploads/2026/06/Informe_Otono_2026.pdf",
+      "link_label": "Leer Informe",
+      "fecha": "",
+      "imagen_url": "",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-07-27T21:35:31.795Z"
+    },
+    {
       "id": "05e1ddf9-b7bb-47df-b078-4deb06e82953",
       "tipo": "divulgacion",
       "titulo": "!Viajamos a Junin!",
@@ -27,5 +40,5 @@
       "timestamp": "2026-07-10T21:57:24.569Z"
     }
   ],
-  "generated_at": "2026-07-27T21:28:34.486897+00:00"
+  "generated_at": "2026-07-27T21:35:56.253492+00:00"
 }
