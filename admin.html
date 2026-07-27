@@ -1345,7 +1345,11 @@
                     precipitation_description: isRain ? skyCond : null, probability_of_precipitation: pop,
                     sky_condition: isRain ? null : (skyCond || null), temperature: temp,
                     weather_icon_code: iconCode, wind_direction: windDir, wind_intensity: windInt,
-                    wind_gusts: rafagasStr ? numOrNull(rafagasStr.replace(/\D/g, '')) : null
+                    // Se guarda el texto tal cual lo escribió el usuario (solo se le saca el
+                    // sufijo "km/h" si lo incluyó, porque se vuelve a agregar al mostrarlo).
+                    // Antes se dejaban solo los dígitos, lo que borraba el guion de rangos
+                    // como "25-45" y los convertía en un número sin sentido ("2545").
+                    wind_gusts: rafagasStr ? rafagasStr.replace(/\s*km\/h\s*$/i, '').trim() || null : null
                 });
             });
             forecastPayload.daily_forecasts.push(dailyForecast);
