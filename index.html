@@ -46,12 +46,11 @@
         .view-section { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 28px; }
         .view-section.active { display: block; }
         #view-dashboard.active { display: flex; align-items: flex-start; justify-content: center; gap: 24px; padding: 24px; max-width: 1280px; margin: 0 auto; width: 100%; }
-        #view-welcome { position: relative; padding: 0; overflow-x: hidden; overflow-y: auto; }
+        #view-welcome { position: relative; padding: 0; overflow: hidden; }
         #view-welcome.active { display: flex; align-items: center; justify-content: center; }
-        .welcome-bg-blur { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%) scale(1.15); object-fit: cover; filter: blur(35px) brightness(0.65); z-index: 0; }
-        .welcome-overlay { position: absolute; inset: 0; background: rgba(0,20,40,0.25); z-index: 1; }
-        .welcome-wrap { position: relative; z-index: 2; max-width: 480px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 30px 24px 60px; }
-        .welcome-video-frame { max-width: 100%; max-height: 42vh; width: auto; height: auto; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .welcome-bg-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; z-index: 0; }
+        .welcome-overlay { position: absolute; inset: 0; background: rgba(0,20,40,0.4); z-index: 1; }
+        .welcome-wrap { position: relative; z-index: 2; max-width: 480px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 24px 60px; }
         .welcome-title { font-family: 'Montserrat', sans-serif; font-size: 2.2rem; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.4); }
         .welcome-sub { color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-top: -12px; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
         .btn-enter-forecast { background: var(--primary); color: white; border: none; padding: 16px 34px; border-radius: 30px; font-weight: 900; font-size: 1.05rem; font-family: inherit; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.35); transition: transform 0.15s ease, background 0.15s ease; margin-top: 28px; }
@@ -308,18 +307,11 @@
 
     <!-- BIENVENIDA -->
     <div id="view-welcome" class="view-section active">
-        <!-- El video (vertical, formato Reel) se recorta y desenfoca como fondo de pantalla
-             completa; la copia nítida se ve completa (sin recortar) arriba del texto. Así en
-             pantallas anchas no se pierde nada del video por los costados —en celular, al ser
-             angosto, la copia nítida ya ocupa casi toda la pantalla y el fondo casi no se nota. -->
-        <video class="welcome-bg-blur" autoplay muted loop playsinline>
+        <video class="welcome-bg-video" autoplay muted loop playsinline>
             <source src="videos/Sere.mp4" type="video/mp4">
         </video>
         <div class="welcome-overlay"></div>
         <div class="welcome-wrap">
-            <video class="welcome-video-frame" autoplay muted loop playsinline>
-                <source src="videos/Sere.mp4" type="video/mp4">
-            </video>
             <h1 class="welcome-title">Portal Meteorológico</h1>
             <p class="welcome-sub">Facultad de Ciencias Astronómicas y Geofísicas — UNLP</p>
             <button class="btn-enter-forecast" onclick="enterForecast()">🌤️ Ver Pronóstico →</button>
