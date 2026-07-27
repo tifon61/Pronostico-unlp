@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T18:16:31.831562+00:00",
+  "generated_at": "2026-07-27T19:50:55.131678+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -115,7 +115,7 @@
           "temp_max": 17,
           "temp_min_suburban": 8,
           "temp_max_suburban": 15,
-          "custom_description": "Cielo parcialmente nublado a despejado.",
+          "custom_description": "Cielo parcialmente nublado a algo nublado con 10-40% de prob. de lluvias asiladas durante la madrugada.",
           "period_forecasts": [
             {
               "period": "mañana",
@@ -148,7 +148,7 @@
           "temp_max": 17,
           "temp_min_suburban": 7,
           "temp_max_suburban": 15,
-          "custom_description": "Cielo despejado.",
+          "custom_description": "Cielo algo nublado con prob. de neblinas matinales.",
           "period_forecasts": [
             {
               "period": "mañana",
