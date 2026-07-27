@@ -51,10 +51,6 @@
         .city-select-bar label { font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
         .city-select-bar select { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 7px 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: var(--bg-body); cursor: pointer; }
         .data-panel { flex: 1; max-width: 820px; margin: 0; background: transparent; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-        .city-weather-marker { display: flex; align-items: center; justify-content: center; }
-        .city-weather-marker .cwm-badge { width: 40px; height: 40px; border-radius: 50%; background: white; border: 2px solid var(--primary); box-shadow: 0 3px 8px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; }
-        .city-weather-marker .cwm-badge img { width: 28px; height: 28px; object-fit: contain; }
-        .city-weather-marker .cwm-point { width: 0; height: 0; margin: 0 auto; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--primary); }
         .card { background: white; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
         /* CIUDAD HEADER */
@@ -85,29 +81,29 @@
         .fcast-temps { display: flex; gap: 18px; }
         .fcast-temp-col { display: flex; align-items: center; gap: 8px; }
         .fcast-temp-vals { display: flex; flex-direction: column; gap: 1px; }
-        .fcast-temp-urb { font-size: 1.4rem; font-weight: 800; color: white; line-height: 1.1; }
-        .fcast-temp-sub { font-size: 0.85rem; font-weight: 600; opacity: 0.7; color: white; line-height: 1.1; }
-        .fcast-temp-lbl { font-size: 0.62rem; font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+        .fcast-temp-urb { font-size: 1.65rem; font-weight: 800; color: white; line-height: 1.1; }
+        .fcast-temp-sub { font-size: 0.95rem; font-weight: 600; opacity: 0.7; color: white; line-height: 1.1; }
+        .fcast-temp-lbl { font-size: 0.7rem; font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
         .fcast-periods-wrap { background: white; display: grid; }
         .fcast-periods-wrap.cols3 { grid-template-columns: repeat(3, 1fr); }
         .fcast-periods-wrap.cols4 { grid-template-columns: repeat(4, 1fr); }
         .period-col { display: flex; flex-direction: column; align-items: center; padding: 14px 8px 16px; border-right: 1px solid var(--border); position: relative; transition: background 0.15s; }
         .period-col:last-child { border-right: none; }
         .period-col:hover { background: #f8fafc; }
-        .pc-period-lbl { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 10px; background: var(--bg-body); border-radius: 20px; padding: 3px 9px; }
-        .pc-icon { width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); margin-bottom: 8px; }
-        .pc-temp { font-size: 2.1rem; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 12px; }
+        .pc-period-lbl { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 10px; background: var(--bg-body); border-radius: 20px; padding: 3px 9px; }
+        .pc-icon { width: 104px; height: 104px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); margin-bottom: 8px; }
+        .pc-temp { font-size: 2.6rem; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 12px; }
         .pc-temp.night { color: #4a6080; }
         .pc-sep { width: 30px; height: 2px; background: var(--border); border-radius: 2px; margin-bottom: 10px; }
         .pc-wind-block { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-bottom: 8px; }
-        .wind-circle { width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
-        .pc-wind-txt { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-align: center; line-height: 1.2; max-width: 75px; }
-        .pc-pop { font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; white-space: nowrap; margin-top: 4px; }
+        .wind-circle { width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
+        .pc-wind-txt { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-align: center; line-height: 1.2; max-width: 90px; }
+        .pc-pop { font-size: 0.78rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; white-space: nowrap; margin-top: 4px; }
         .pc-pop.low  { background: #e0f2fe; color: #0369a1; }
         .pc-pop.med  { background: #fef9c3; color: #854d0e; }
         .pc-pop.high { background: #fee2e2; color: #991b1b; }
-        .pc-gust { font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; background: #fce7f3; color: #9d174d; white-space: nowrap; margin-top: 4px; }
-        .pc-sky { font-size: 0.74rem; font-weight: 600; color: var(--text-muted); text-align: center; line-height: 1.3; max-width: 90px; margin-top: 4px; }
+        .pc-gust { font-size: 0.78rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; background: #fce7f3; color: #9d174d; white-space: nowrap; margin-top: 4px; }
+        .pc-sky { font-size: 0.86rem; font-weight: 600; color: var(--text-muted); text-align: center; line-height: 1.3; max-width: 108px; margin-top: 4px; }
 
         .fcast-ext-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
         .ext-card { border-radius: 22px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; }
@@ -122,19 +118,19 @@
         .ext-temps-row { display: flex; justify-content: center; gap: 20px; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 10px; }
         .ext-temp-item { display: flex; align-items: center; gap: 8px; }
         .ext-temp-vals { display: flex; flex-direction: column; }
-        .ext-temp-urb { font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
-        .ext-temp-sub { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-        .ext-temp-lbl { font-size: 0.62rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+        .ext-temp-urb { font-size: 1.9rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
+        .ext-temp-sub { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
+        .ext-temp-lbl { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
         .ext-icons-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .ext-icon-half { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .ext-icon-lbl { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.4px; }
-        .ext-icon-img { width: 70px; height: 70px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12)); }
-        .ext-icon-pop { font-size: 0.68rem; font-weight: 800; color: #0369a1; }
-        .ext-icon-gust { font-size: 0.68rem; font-weight: 800; color: #9d174d; }
+        .ext-icon-lbl { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.4px; }
+        .ext-icon-img { width: 86px; height: 86px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12)); }
+        .ext-icon-pop { font-size: 0.78rem; font-weight: 800; color: #0369a1; }
+        .ext-icon-gust { font-size: 0.78rem; font-weight: 800; color: #9d174d; }
         .ext-desc-box { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 14px; font-size: 0.9rem; font-weight: 700; color: var(--primary); text-align: center; line-height: 1.4; }
         .ext-wind-box { background: rgba(255,255,255,0.4); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .ext-wind-arrows { display: flex; gap: 6px; }
-        .ext-wind-txt { font-size: 0.85rem; font-weight: 700; color: var(--primary); }
+        .ext-wind-txt { font-size: 0.98rem; font-weight: 700; color: var(--primary); }
 
         /* MONITOREO EN VIVO */
         .monitor-layout { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; padding-bottom: 40px; }
@@ -260,6 +256,18 @@
             .fcast-ext-grid { grid-template-columns: 1fr; }
             .metrics-grid { grid-template-columns: repeat(2, 1fr); }
             .view-section { padding: 14px; }
+            .pc-icon { width: 86px; height: 86px; }
+            .pc-temp { font-size: 2.2rem; }
+            .pc-wind-txt { max-width: 78px; }
+            .pc-sky { max-width: 92px; }
+            .ext-icon-img { width: 76px; height: 76px; }
+            .fcast-periods-wrap.cols4 .pc-icon { width: 62px; height: 62px; }
+            .fcast-periods-wrap.cols4 .pc-temp { font-size: 1.7rem; margin-bottom: 8px; }
+            .fcast-periods-wrap.cols4 .pc-wind-txt { max-width: 68px; font-size: 0.72rem; }
+            .fcast-periods-wrap.cols4 .pc-sky { max-width: 78px; font-size: 0.74rem; }
+            .fcast-periods-wrap.cols4 .pc-period-lbl { font-size: 0.62rem; padding: 3px 6px; }
+            .fcast-periods-wrap.cols4 .pc-pop, .fcast-periods-wrap.cols4 .pc-gust { font-size: 0.6rem; padding: 3px 5px; }
+            .fcast-periods-wrap.cols4 .period-col { padding: 14px 4px 16px; }
         }
     </style>
 </head>
@@ -595,7 +603,6 @@ window.onload = () => {
     loadCity('La Plata');
     fetchTS();
     setInterval(fetchTS, 5 * 60 * 1000);
-    loadCityMapIcons();
 };
 
 function degreesToCardinal(deg) {
@@ -628,55 +635,6 @@ function initMap() {
             .on('click', () => goToCity(c.name));
         window._cityMarkers[c.name] = marker;
     });
-}
-
-// Determina el período horario actual (mismo criterio que usa el pronóstico
-// detallado) para saber qué ícono de clima mostrar en el pin de cada ciudad.
-function getCurrentPeriodKey() {
-    const h = new Date().getHours();
-    if (h < 6) return 'madrugada';
-    if (h < 12) return 'mañana';
-    if (h < 19) return 'tarde';
-    return 'noche';
-}
-
-function findCurrentPeriodIcon(dayData) {
-    if (!dayData || !dayData.period_forecasts || dayData.period_forecasts.length === 0) return null;
-    const key = getCurrentPeriodKey();
-    const exact = dayData.period_forecasts.find(p => p.period === key);
-    if (exact) return exact.weather_icon_code || 'default';
-    // Días con formato combinado (madrugada/mañana, tarde/noche), como el pronóstico extendido
-    const combinedKey = (key === 'madrugada' || key === 'mañana') ? 'madrugada / mañana' : 'tarde / noche';
-    const combined = dayData.period_forecasts.find(p => p.period === combinedKey);
-    if (combined) return combined.weather_icon_code || 'default';
-    return dayData.period_forecasts[0].weather_icon_code || 'default';
-}
-
-function buildWeatherDivIcon(iconCode) {
-    return L.divIcon({
-        className: 'city-weather-marker',
-        html: `<div class="cwm-badge"><img src="images/${iconCode}.png" onerror="this.src='images/default.png'"></div><div class="cwm-point"></div>`,
-        iconSize: [40, 50],
-        iconAnchor: [20, 50],
-        popupAnchor: [0, -46]
-    });
-}
-
-// Reemplaza el pin genérico de cada ciudad por el ícono de lo pronosticado
-// para el período horario en el que se abre la página.
-async function loadCityMapIcons() {
-    await Promise.all(CITIES.map(async c => {
-        try {
-            const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(c.name)}`;
-            const data = await fetchForecastDataJSONP(url);
-            if (!data || data.error || !data.daily_forecasts || !data.daily_forecasts[0]) return;
-            const iconCode = findCurrentPeriodIcon(data.daily_forecasts[0]) || 'default';
-            const marker = window._cityMarkers && window._cityMarkers[c.name];
-            if (marker) marker.setIcon(buildWeatherDivIcon(iconCode));
-        } catch (e) {
-            console.warn(`No se pudo cargar el ícono de clima para ${c.name}:`, e);
-        }
-    }));
 }
 
 function goToCity(name) {
@@ -842,7 +800,7 @@ function thermoSVG(color) {
     const bulb = color==='blue' ? '#00bcd4' : '#ef4444';
     const fy   = color==='blue' ? 25 : 15;
     const fh   = color==='blue' ? 42 : 52;
-    return `<svg style="width:18px;height:54px;flex-shrink:0;" viewBox="0 0 30 90"><path d="M15 5 C10 5,10 12,10 15 L10 55 C5 60,5 70,10 75 C15 80,20 80,25 75 C30 70,30 60,25 55 L25 15 C25 12,25 5,15 5 Z" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="${bulb}"/><rect x="12" y="${fy}" width="6" height="${fh}" rx="3" fill="${bulb}"/></svg>`;
+    return `<svg style="width:22px;height:66px;flex-shrink:0;" viewBox="0 0 30 90"><path d="M15 5 C10 5,10 12,10 15 L10 55 C5 60,5 70,10 75 C15 80,20 80,25 75 C30 70,30 60,25 55 L25 15 C25 12,25 5,15 5 Z" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="${bulb}"/><rect x="12" y="${fy}" width="6" height="${fh}" rx="3" fill="${bulb}"/></svg>`;
 }
 function windArrowDark(dir, size=30) {
     if (!dir) return '';
@@ -882,7 +840,7 @@ function buildPeriodCol(p) {
         <div class="pc-temp ${isNight?'night':''}">${p.temperature!=null?p.temperature+'°':'--'}</div>
         <div class="pc-sep"></div>
         <div class="pc-wind-block">
-            <div class="wind-circle"><svg width="18" height="18" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="3"/>${p.wind_direction?`<g transform="rotate(${ang} 50 50)"><path d="M35 72 L65 72 L65 42 L82 42 L50 12 L18 42 L35 42 Z" fill="#003f6b"/></g>`:''}</svg></div>
+            <div class="wind-circle"><svg width="22" height="22" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="3"/>${p.wind_direction?`<g transform="rotate(${ang} 50 50)"><path d="M35 72 L65 72 L65 42 L82 42 L50 12 L18 42 L35 42 Z" fill="#003f6b"/></g>`:''}</svg></div>
             <div class="pc-wind-txt">${p.wind_intensity?cap(p.wind_intensity):'--'}</div>
         </div>
         ${popBadge(p.probability_of_precipitation)}${gustBadge(p.wind_gusts)}
@@ -919,7 +877,7 @@ function buildExtCard(day, cardClass, idx=0, showSub=true) {
     let desc=d1; if(d2&&d2!=='--'&&d2!==d1) desc+=` → ${d2}`;
     const wt=p1?windText(p1):'';
     const wd1=p1?.wind_direction, wd2=p2?.wind_direction;
-    const windHtml=wt?`<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1?windArrowDark(wd1,30):''} ${wd2&&wd2!==wd1?windArrowDark(wd2,30):''}</div><div class="ext-wind-txt">${wt}</div></div>`:'';
+    const windHtml=wt?`<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1?windArrowDark(wd1,36):''} ${wd2&&wd2!==wd1?windArrowDark(wd2,36):''}</div><div class="ext-wind-txt">${wt}</div></div>`:'';
     
     return `<div class="ext-card ${cardClass}" style="animation-delay:${0.2 + idx*0.1}s">
         <div class="ext-card-hdr"><div class="ext-card-name">${day.day_name?.toUpperCase()||'--'}</div><div class="ext-card-date">${dateStr}</div></div>
