@@ -184,8 +184,11 @@
         .weather-desc { height: 140px; width: 100%; margin-top: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .weather-desc span { font-size: 28px; line-height: 1.2; font-weight: 800; text-align: center; padding: 0 10px; display: inline-block; width: 100%; }
         .wind-section { position: absolute; bottom: 65px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .v-card .wind-arrows { margin: 0 0 10px; display: flex; justify-content: center; align-items: center; gap: 22px; min-height: 60px; }
-        .wind-legend { font-size: 28px; line-height: 1.15; font-weight: 700; text-align: center; max-width: 90%; color: rgba(255,255,255,0.95); max-height: 85px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding-bottom: 6px; }
+        .v-card .wind-arrows { margin: 0 0 6px; display: flex; justify-content: center; align-items: center; gap: 22px; min-height: 60px; }
+        /* max-width ampliado (era 90%) para que el texto use más ancho antes de saltar a una
+           línea extra: eso le da más margen real al botón A+ de "Viento" antes de que el
+           achicado automático (por falta de alto disponible) lo vuelva a bajar. */
+        .wind-legend { font-size: 28px; line-height: 1.15; font-weight: 700; text-align: center; max-width: 98%; color: rgba(255,255,255,0.95); max-height: 85px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding-bottom: 3px; }
         
         .footer-note { position: absolute; bottom: 70px; left: 0; width: 100%; text-align: center; font-size: 24px; font-weight: 400; color: var(--unlp-blue); text-transform: uppercase; }
         .bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 45px; background-color: var(--unlp-blue); }
