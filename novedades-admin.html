@@ -81,21 +81,26 @@
 <div class="container">
     <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
     <h1>Novedades del sitio público</h1>
-    <p class="subtitle">Cargá acá lo que se ve en "Informes Especiales", "Extensión Universitaria" y "Agenda" de la página pública. Los cambios tardan menos de un minuto en reflejarse.</p>
+    <p class="subtitle">Cargá acá lo que se ve en "Informes Especiales", "Extensión Universitaria", "Divulgación en Redes" y "Agenda" de la página pública. Los cambios tardan menos de un minuto en reflejarse.</p>
 
     <div class="card">
         <label>Tipo</label>
         <select id="f-tipo" onchange="onTipoChange()">
             <option value="informe">Informe Especial</option>
             <option value="extension">Extensión Universitaria</option>
+            <option value="divulgacion">Divulgación (video de Instagram)</option>
             <option value="agenda">Agenda (evento con fecha)</option>
         </select>
 
-        <label>Título</label>
-        <input type="text" id="f-titulo" placeholder="Ej: Charla de los viernes">
+        <div class="field-row active" id="row-titulo">
+            <label id="lbl-titulo">Título</label>
+            <input type="text" id="f-titulo" placeholder="Ej: Charla de los viernes">
+        </div>
 
-        <label>Texto</label>
-        <textarea id="f-texto" rows="3" placeholder="Descripción breve"></textarea>
+        <div class="field-row active" id="row-texto">
+            <label id="lbl-texto">Texto</label>
+            <textarea id="f-texto" rows="3" placeholder="Descripción breve"></textarea>
+        </div>
 
         <div class="field-row" id="row-tag">
             <label>Etiqueta (opcional, ej: Análisis, Caso de Estudio)</label>
@@ -108,10 +113,12 @@
         </div>
 
         <div class="field-row" id="row-link">
-            <label>Link (opcional — puede ser un PDF, un cronograma, o cualquier URL)</label>
+            <label id="lbl-link">Link (opcional — puede ser un PDF, un cronograma, o cualquier URL)</label>
             <input type="text" id="f-link-url" placeholder="https://...">
-            <label>Texto del botón (opcional)</label>
-            <input type="text" id="f-link-label" placeholder="Leer Informe">
+            <div id="row-link-label">
+                <label>Texto del botón (opcional)</label>
+                <input type="text" id="f-link-label" placeholder="Leer Informe">
+            </div>
         </div>
 
         <div class="field-row" id="row-imagen">
@@ -154,8 +161,19 @@
     // ⚠️ Misma URL de Apps Script que usa admin.html.
     const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
 
-    const LINK_LABEL_DEFAULT = { informe: 'Leer Informe', extension: 'Ver más', agenda: '' };
-    const TIPO_LABEL = { informe: 'Informe Especial', extension: 'Extensión', agenda: 'Agenda' };
+    const LINK_LABEL_DEFAULT = { informe: 'Leer Informe', extension: 'Ver más', divulgacion: '', agenda: '' };
+    const TIPO_LABEL = { informe: 'Informe Especial', extension: 'Extensión', divulgacion: 'Divulgación', agenda: 'Agenda' };
+    const LINK_FIELD_LABEL = {
+        informe: 'Link (opcional — puede ser un PDF, un cronograma, o cualquier URL)',
+        extension: 'Link (opcional — puede ser un PDF, un cronograma, o cualquier URL)',
+        divulgacion: 'Link de Instagram (post o reel) — obligatorio',
+    };
+    const TEXTO_FIELD_LABEL = {
+        divulgacion: 'Descripción (opcional, se muestra arriba del video)',
+    };
+    const TITULO_FIELD_LABEL = {
+        divulgacion: 'Título (opcional, se muestra arriba del video)',
+    };
 
     let editingId = null;
     let imagenBase64 = null, imagenMime = null, imagenNombre = null;
@@ -174,7 +192,12 @@
         document.getElementById('row-tag').classList.toggle('active', tipo === 'informe');
         document.getElementById('row-fecha').classList.toggle('active', tipo === 'agenda');
         document.getElementById('row-link').classList.toggle('active', tipo !== 'agenda');
-        document.getElementById('row-imagen').classList.toggle('active', tipo !== 'agenda');
+        document.getElementById('row-link-label').style.display = tipo === 'divulgacion' ? 'none' : 'block';
+        // La imagen no aplica a Divulgación: el video de Instagram trae su propia miniatura.
+        document.getElementById('row-imagen').classList.toggle('active', tipo !== 'agenda' && tipo !== 'divulgacion');
+        document.getElementById('lbl-link').innerText = LINK_FIELD_LABEL[tipo] || 'Link';
+        document.getElementById('lbl-texto').innerText = TEXTO_FIELD_LABEL[tipo] || 'Texto';
+        document.getElementById('lbl-titulo').innerText = TITULO_FIELD_LABEL[tipo] || 'Título';
     }
     onTipoChange();
 
@@ -215,7 +238,12 @@
     function submitNovedad() {
         const tipo = document.getElementById('f-tipo').value;
         const titulo = document.getElementById('f-titulo').value.trim();
-        if (!titulo) { showToast('Falta el título', true); return; }
+        const linkUrl = document.getElementById('f-link-url').value.trim();
+        if (tipo === 'divulgacion') {
+            if (!linkUrl) { showToast('Falta el link de Instagram', true); return; }
+        } else if (!titulo) {
+            showToast('Falta el título', true); return;
+        }
 
         const payload = {
             action: editingId ? 'editar_novedad' : 'crear_novedad',
@@ -225,7 +253,7 @@
             texto: document.getElementById('f-texto').value.trim(),
             tag: document.getElementById('f-tag').value.trim(),
             fecha: document.getElementById('f-fecha').value,
-            link_url: document.getElementById('f-link-url').value.trim(),
+            link_url: linkUrl,
             link_label: document.getElementById('f-link-label').value.trim() || LINK_LABEL_DEFAULT[tipo] || '',
             publicado_por: 'Equipo FCAG'
         };

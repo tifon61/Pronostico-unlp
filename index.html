@@ -256,8 +256,9 @@
         .contact-form button { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
         /* INSTAGRAM EMBEDS */
-        .ig-embed-card { border-radius: 16px; overflow: hidden; background: white; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.08); display: flex; justify-content: center; align-items: flex-start; min-height: 420px; }
+        .ig-embed-card { border-radius: 16px; overflow: hidden; background: white; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 420px; }
         .ig-embed-card blockquote.instagram-media { margin: 0 !important; width: 100% !important; }
+        .ig-embed-caption { padding: 14px 16px 0; text-align: left; align-self: stretch; }
 
         /* RESPONSIVE */
         @media (max-width: 1100px) {
@@ -539,11 +540,7 @@
             <section>
                 <h2 class="section-heading">⚠️ Informes Especiales</h2>
                 <p class="section-desc">Análisis de eventos meteorológicos en la región.</p>
-                <div class="grid-3">
-                    <div class="item-card"><img src="https://placehold.co/600x400/0ea5e9/white?text=Bloqueos+atmosfericos" class="item-img"><div class="item-body"><span class="item-tag">Análisis</span><h3 class="item-title">Bloqueos atmosféricos de junio</h3><p class="item-text">Análisis sinóptico e imágenes de satélite sobre el evento que afectó la región.</p><a href="#" class="item-btn">Leer Informe</a></div></div>
-                    <div class="item-card"><img src="https://placehold.co/600x400/ef4444/white?text=Datos+meteorologicos" class="item-img"><div class="item-body"><span class="item-tag">Informe Meteorológico</span><h3 class="item-title">Análisis de temperaturas del verano 2025/2026</h3><p class="item-text">Elaborado entre la Estación La Plata Observatorio FCAG y el Grupo de Extensión.</p><a href="#" class="item-btn">Leer Informe</a></div></div>
-                    <div class="item-card"><img src="https://placehold.co/600x400/64748b/white?text=Nieblas" class="item-img"><div class="item-body"><span class="item-tag">Caso de Estudio</span><h3 class="item-title">Niebla intensa de advección</h3><p class="item-text">Termodinámica de la niebla densa que redujo visibilidad a cero durante tres jornadas.</p><a href="#" class="item-btn">Leer Informe</a></div></div>
-                </div>
+                <div class="grid-3" id="informes-grid"><div class="fcast-loading">Cargando…</div></div>
             </section>
         </div>
     </div>
@@ -554,17 +551,12 @@
             <section>
                 <h2 class="section-heading">📹 Divulgación en Redes</h2>
                 <p class="section-desc">Publicaciones de @pronostico.unlp.</p>
-                <div class="grid-3" id="ig-embeds-grid">
-                    <div class="ig-embed-card"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DZc4GzkxZQu/" data-instgrm-version="14"></blockquote></div>
-                    <div class="ig-embed-card"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DZDXXOVx72_/" data-instgrm-version="14"></blockquote></div>
-                    <div class="ig-embed-card"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DY2emTqxtUj/" data-instgrm-version="14"></blockquote></div>
-                </div>
+                <div class="grid-3" id="ig-embeds-grid"><div class="fcast-loading">Cargando…</div></div>
             </section>
             <div class="grid-2">
                 <section>
                     <h2 class="section-heading">🎓 Extensión Universitaria</h2>
-                    <div class="item-card" style="margin-bottom:16px;"><img src="https://placehold.co/600x280/1e293b/white?text=Semana+de+la+Tierra" class="item-img" style="height:140px;"><div class="item-body"><h3 class="item-title">Semana de la Tierra</h3><p class="item-text">Experimentos en stand meteorológico.</p><a href="#" class="item-btn">Ver Bitácora</a></div></div>
-                    <div class="item-card"><img src="https://placehold.co/600x280/1e293b/white?text=Planetario" class="item-img" style="height:140px;"><div class="item-body"><h3 class="item-title">Charlas en el Planetario</h3><p class="item-text">Ciclo mensual gratuito sobre meteorología extrema.</p><a href="#" class="item-btn">Cronograma</a></div></div>
+                    <div id="extension-cards"><div class="fcast-loading">Cargando…</div></div>
                 </section>
                 <section>
                     <h2 class="section-heading">📅 Agenda</h2>
@@ -646,6 +638,7 @@ window.onload = () => {
     initMap();
     loadCity('La Plata');
     fetchTS();
+    loadNovedades();
     setInterval(fetchTS, 5 * 60 * 1000);
 };
 
@@ -837,6 +830,77 @@ function loadIgEmbeds() {
     script.async = true;
     script.onload = () => { if (window.instgrm) window.instgrm.Embeds.process(); };
     document.body.appendChild(script);
+}
+
+// ─── NOVEDADES (Informes Especiales / Extensión Universitaria / Divulgación) ─
+// Contenido 100% cargado desde novedades-admin.html — nada de esto queda
+// fijo en el HTML. Una sola consulta a Apps Script trae todo y acá se
+// separa por "tipo" para las tres secciones.
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.innerText = str || '';
+    return div.innerHTML;
+}
+
+function loadNovedades() {
+    fetchForecastDataJSONP(`${GOOGLE_APP_URL}?type=novedades`).then(data => {
+        const items = (data && data.items) || [];
+        renderInformes(items.filter(it => it.tipo === 'informe'));
+        renderExtension(items.filter(it => it.tipo === 'extension'));
+        renderDivulgacion(items.filter(it => it.tipo === 'divulgacion'));
+    }).catch(() => {
+        document.getElementById('informes-grid').innerHTML = '<div class="fcast-empty">No se pudieron cargar los informes.</div>';
+        document.getElementById('extension-cards').innerHTML = '<div class="fcast-empty">No se pudo cargar el contenido de Extensión.</div>';
+        document.getElementById('ig-embeds-grid').innerHTML = '<div class="fcast-empty">No se pudieron cargar las publicaciones.</div>';
+    });
+}
+
+function renderInformes(items) {
+    const el = document.getElementById('informes-grid');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay informes publicados.</div>'; return; }
+    el.innerHTML = items.map(it => `
+        <div class="item-card">
+            ${it.imagen_url ? `<img src="${it.imagen_url}" class="item-img">` : ''}
+            <div class="item-body">
+                ${it.tag ? `<span class="item-tag">${escapeHtml(it.tag)}</span>` : ''}
+                <h3 class="item-title">${escapeHtml(it.titulo)}</h3>
+                <p class="item-text">${escapeHtml(it.texto)}</p>
+                ${it.link_url ? `<a href="${escapeHtml(it.link_url)}" target="_blank" rel="noopener" class="item-btn">${escapeHtml(it.link_label || 'Leer Informe')}</a>` : ''}
+            </div>
+        </div>`).join('');
+}
+
+function renderExtension(items) {
+    const el = document.getElementById('extension-cards');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay actividades de extensión publicadas.</div>'; return; }
+    el.innerHTML = items.map(it => `
+        <div class="item-card" style="margin-bottom:16px;">
+            ${it.imagen_url ? `<img src="${it.imagen_url}" class="item-img" style="height:140px;">` : ''}
+            <div class="item-body">
+                <h3 class="item-title">${escapeHtml(it.titulo)}</h3>
+                <p class="item-text">${escapeHtml(it.texto)}</p>
+                ${it.link_url ? `<a href="${escapeHtml(it.link_url)}" target="_blank" rel="noopener" class="item-btn">${escapeHtml(it.link_label || 'Ver más')}</a>` : ''}
+            </div>
+        </div>`).join('');
+}
+
+// A diferencia de informes/extensión, acá el link es siempre un post o reel
+// de Instagram: se arma el blockquote oficial de Meta (único método que
+// soporta forzar el embed sin que Instagram muestre un cartel de error) y
+// se reprocesa embed.js después de insertarlo en el DOM.
+function renderDivulgacion(items) {
+    const el = document.getElementById('ig-embeds-grid');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay publicaciones cargadas.</div>'; return; }
+    el.innerHTML = items.map(it => `
+        <div class="ig-embed-card">
+            ${(it.titulo || it.texto) ? `<div class="ig-embed-caption">
+                ${it.titulo ? `<h3 class="item-title" style="margin-bottom:4px;">${escapeHtml(it.titulo)}</h3>` : ''}
+                ${it.texto ? `<p class="item-text">${escapeHtml(it.texto)}</p>` : ''}
+            </div>` : ''}
+            <blockquote class="instagram-media" data-instgrm-permalink="${escapeHtml(it.link_url)}" data-instgrm-version="14"></blockquote>
+        </div>`).join('');
+    _igEmbedsLoaded = false; // hay blockquotes nuevos: forzar que embed.js los procese
+    loadIgEmbeds();
 }
 
 // ─── FUNCIONES UI DE PRONÓSTICO ─────────────────────────────────────────────
