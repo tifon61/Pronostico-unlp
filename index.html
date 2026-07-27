@@ -224,6 +224,11 @@
         .content-layout { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; padding-bottom: 50px; }
         .section-heading { font-size: 1.6rem; color: var(--primary); font-weight: 900; margin: 0 0 5px 0; border-bottom: 3px solid var(--secondary); padding-bottom: 8px; display: inline-block; }
         .section-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 18px; }
+        /* Fondo y título con un poco más de vida en las secciones de contenido "liviano"
+           (Extensión, Institucional) — se deja Modelos e Informes con el fondo plano, más
+           sobrio, porque ahí lo que importa es que se lea el contenido sin distracciones. */
+        #view-extension, #view-institucional { background: linear-gradient(180deg, #eef2f7 0%, #e5eef7 55%, #dbe7f2 100%); }
+        #view-extension .section-heading, #view-institucional .section-heading { background: linear-gradient(90deg, rgba(107,164,214,0.22), rgba(107,164,214,0) 85%); border-bottom: none; border-left: 4px solid var(--secondary); border-radius: 6px; padding: 10px 20px 10px 14px; }
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
         .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 18px; }
         .item-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 3px 8px rgba(0,0,0,0.04); transition: transform 0.2s; }
