@@ -19,15 +19,28 @@
     .toolbar { display: flex; align-items: center; gap: 14px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; }
     .toolbar-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .toolbar-group-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.4px; margin-right: 2px; }
-    .city-btn { border: 1px solid #cbd5e1; background: white; color: #003f6b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
-    .city-btn:hover { background: #e0edf7; }
-    .city-btn.active { background: #003f6b; color: white; border-color: #003f6b; }
+    .city-btn, .overlay-btn { border: 1px solid #cbd5e1; background: white; color: #003f6b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+    .city-btn:hover, .overlay-btn:hover { background: #e0edf7; }
+    .city-btn.active, .overlay-btn.active { background: #003f6b; color: white; border-color: #003f6b; }
     .model-btn { border: 1px solid #cbd5e1; background: white; color: #00796b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
     .model-btn:hover { background: #e0f2ef; }
     .model-btn.active { background: #00796b; color: white; border-color: #00796b; }
+    .model-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .compare-btn { border: 1px solid #b45309; background: white; color: #b45309; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+    .compare-btn:hover { background: #fef3e2; }
+    .compare-btn.active { background: #b45309; color: white; border-color: #b45309; }
+
+    .status-line { padding: 4px 16px; background: #0b2a45; color: #cfe3f5; font-size: 0.72rem; font-weight: 700; }
+    .status-note { color: #ffcf7a; }
 
     .map-wrap { flex: 1; position: relative; }
-    .map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .map-wrap > iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    .compare-wrap { position: absolute; inset: 0; display: none; gap: 2px; background: #000; }
+    .compare-half { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .compare-hdr { background: #1e293b; padding: 4px 8px; }
+    .compare-hdr select { width: 100%; font-weight: 700; font-size: 0.8rem; padding: 4px; border-radius: 4px; border: none; }
+    .compare-half iframe { flex: 1; border: 0; width: 100%; }
 
     .other-links { display: flex; gap: 8px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; border-top: 1px solid #dde4ed; }
     .other-links a { font-size: 0.78rem; font-weight: 700; color: #003f6b; text-decoration: none; background: white; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; }
@@ -51,13 +64,32 @@
         <span class="toolbar-group" id="city-bar"></span>
     </div>
     <div class="toolbar-group">
+        <span class="toolbar-group-label">Capa</span>
+        <span class="toolbar-group" id="overlay-bar"></span>
+    </div>
+    <div class="toolbar-group">
         <span class="toolbar-group-label">Modelo</span>
         <span class="toolbar-group" id="model-bar"></span>
     </div>
+    <div class="toolbar-group">
+        <button type="button" class="compare-btn" id="compare-toggle" onclick="toggleCompare(this)">🔀 Comparar 2 modelos</button>
+    </div>
 </div>
 
-<div class="map-wrap">
-    <iframe id="windy-frame" title="Windy" allow="geolocation"></iframe>
+<div class="status-line" id="status-line"></div>
+
+<div class="map-wrap" id="map-wrap">
+    <iframe id="windy-frame" title="Windy"></iframe>
+    <div class="compare-wrap" id="compare-wrap">
+        <div class="compare-half">
+            <div class="compare-hdr"><select id="compare-model-0" onchange="setCompareModel(0, this.value)"></select></div>
+            <iframe id="windy-frame-0" title="Windy A"></iframe>
+        </div>
+        <div class="compare-half">
+            <div class="compare-hdr"><select id="compare-model-1" onchange="setCompareModel(1, this.value)"></select></div>
+            <iframe id="windy-frame-1" title="Windy B"></iframe>
+        </div>
+    </div>
 </div>
 
 <div class="other-links">
@@ -77,33 +109,72 @@ const CITIES = [
     { name: "Bahía Blanca",   coords: [-38.719, -62.272] },
 ];
 
-// Modelos globales que ofrece Windy (con cobertura en Sudamérica). "product"
-// es el parámetro que espera el embed de Windy para elegir el modelo.
-const MODELS = [
-    { code: 'ecmwf',    label: 'ECMWF' },
-    { code: 'gfs',      label: 'GFS' },
-    { code: 'icon',     label: 'ICON' },
-    { code: 'gem',      label: 'GEM' },
+// Capas del embed de Windy. "radar" es el radar OBSERVADO (no depende del
+// modelo elegido); el resto son pronósticos, ahí sí cambia según el modelo.
+const OVERLAYS = [
+    { code: 'radar',    label: 'Radar (observado)' },
+    { code: 'rain',     label: 'Lluvia' },
+    { code: 'wind',     label: 'Viento' },
+    { code: 'clouds',   label: 'Nubes' },
+    { code: 'temp',     label: 'Temperatura' },
+    { code: 'pressure', label: 'Presión' },
 ];
 
-// Estado compartido: cambiar de ciudad no debe resetear el modelo elegido, y
-// viceversa — por eso el src del iframe siempre se arma desde este objeto.
-const state = { lat: -36.5, lon: -60.0, zoom: 6, product: 'ecmwf' };
+// Modelos globales que ofrece Windy (con cobertura en Sudamérica).
+const MODELS = [
+    { code: 'ecmwf', label: 'ECMWF' },
+    { code: 'gfs',   label: 'GFS' },
+    { code: 'icon',  label: 'ICON' },
+    { code: 'gem',   label: 'GEM' },
+];
 
-function windySrc() {
+const overlayLabel = code => OVERLAYS.find(o => o.code === code)?.label || code;
+const modelLabel   = code => MODELS.find(m => m.code === code)?.label || code;
+
+// Estado compartido: cambiar de ciudad/capa no debe resetear el modelo
+// elegido, y viceversa — por eso el src de cada iframe siempre se arma desde
+// este objeto en vez de guardarse suelto en cada botón.
+const state = { lat: -36.5, lon: -60.0, zoom: 6, product: 'ecmwf', overlay: 'rain', compareMode: false, compareModels: ['ecmwf', 'gfs'] };
+
+function windySrc(product, overlay) {
     return `https://embed.windy.com/embed2.html?lat=${state.lat}&lon=${state.lon}&detailLat=${state.lat}&detailLon=${state.lon}`
-        + `&zoom=${state.zoom}&level=surface&overlay=radar&product=${state.product}&menu=&message=true&marker=true`
+        + `&zoom=${state.zoom}&level=surface&overlay=${overlay}&product=${product}&menu=&message=true&marker=true`
         + `&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default`
         + `&metricTemp=default&radarRange=-1`;
 }
 
 function render() {
-    document.getElementById('windy-frame').src = windySrc();
+    const modelDisabled = state.overlay === 'radar';
+    document.querySelectorAll('#model-bar .model-btn').forEach(b => b.disabled = modelDisabled);
+
+    if (state.compareMode) {
+        document.getElementById('windy-frame').style.display = 'none';
+        document.getElementById('compare-wrap').style.display = 'flex';
+        document.getElementById('windy-frame-0').src = windySrc(state.compareModels[0], state.overlay);
+        document.getElementById('windy-frame-1').src = windySrc(state.compareModels[1], state.overlay);
+        document.getElementById('status-line').innerHTML =
+            `Comparando ${modelLabel(state.compareModels[0])} vs ${modelLabel(state.compareModels[1])} — capa: ${overlayLabel(state.overlay)}`;
+    } else {
+        document.getElementById('windy-frame').style.display = 'block';
+        document.getElementById('compare-wrap').style.display = 'none';
+        document.getElementById('windy-frame').src = windySrc(state.product, state.overlay);
+        const modelPart = modelDisabled
+            ? `<span class="status-note">el radar es observado, no depende del modelo</span>`
+            : `modelo: ${modelLabel(state.product)}`;
+        document.getElementById('status-line').innerHTML = `Mostrando: ${overlayLabel(state.overlay)} — ${modelPart}`;
+    }
 }
 
 function selectCity(lat, lon, zoom, btn) {
     state.lat = lat; state.lon = lon; state.zoom = zoom;
     document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    render();
+}
+
+function selectOverlay(code, btn) {
+    state.overlay = code;
+    document.querySelectorAll('.overlay-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
     render();
 }
@@ -115,14 +186,36 @@ function selectModel(code, btn) {
     render();
 }
 
+function setCompareModel(idx, code) {
+    state.compareModels[idx] = code;
+    render();
+}
+
+function toggleCompare(btn) {
+    state.compareMode = !state.compareMode;
+    btn.classList.toggle('active', state.compareMode);
+    render();
+}
+
 const cityBar = document.getElementById('city-bar');
 cityBar.innerHTML = `<button type="button" class="city-btn active" onclick="selectCity(-36.5, -60.0, 6, this)">Toda la región</button>`
     + CITIES.map(c => `<button type="button" class="city-btn" onclick="selectCity(${c.coords[0]}, ${c.coords[1]}, 7, this)">${c.name}</button>`).join('');
 
+const overlayBar = document.getElementById('overlay-bar');
+overlayBar.innerHTML = OVERLAYS.map(o =>
+    `<button type="button" class="overlay-btn ${o.code===state.overlay?'active':''}" onclick="selectOverlay('${o.code}', this)">${o.label}</button>`
+).join('');
+
 const modelBar = document.getElementById('model-bar');
 modelBar.innerHTML = MODELS.map((m, i) =>
-    `<button type="button" class="model-btn ${i===0?'active':''}" onclick="selectModel('${m.code}', this)">${m.label}</button>`
+    `<button type="button" class="model-btn ${m.code===state.product?'active':''}" onclick="selectModel('${m.code}', this)">${m.label}</button>`
 ).join('');
+
+const optsHtml = MODELS.map(m => `<option value="${m.code}">${m.label}</option>`).join('');
+document.getElementById('compare-model-0').innerHTML = optsHtml;
+document.getElementById('compare-model-1').innerHTML = optsHtml;
+document.getElementById('compare-model-0').value = state.compareModels[0];
+document.getElementById('compare-model-1').value = state.compareModels[1];
 
 render();
 </script>
