@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "e1b22f7e-5abe-4720-8a55-40439d419682",
+      "tipo": "informe",
+      "titulo": "Informe de Otono 2026",
+      "texto": "",
+      "tag": "",
+      "link_url": "",
+      "link_label": "Leer Informe",
+      "fecha": "",
+      "imagen_url": "https://drive.google.com/thumbnail?id=1PLhaDL2_1JbiLlwQEBakvsYA22KD7heN&sz=w2000",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-08-04T19:05:44.278Z"
+    },
+    {
       "id": "ad1fcb1d-04c7-440a-bdc5-49a45d267782",
       "tipo": "divulgacion",
       "titulo": "¿Qué es el “Súper Niño” y por qué se habla tanto de él?",
@@ -12,19 +25,6 @@
       "imagen_url": "",
       "publicado_por": "Equipo FCAG",
       "timestamp": "2026-07-27T21:41:41.457Z"
-    },
-    {
-      "id": "1468d738-bf4b-4882-a903-706072c78204",
-      "tipo": "informe",
-      "titulo": "Informe de Otono 2026",
-      "texto": "",
-      "tag": "",
-      "link_url": "https://www.fcaglp.unlp.edu.ar/wp-content/uploads/2026/06/Informe_Otono_2026.pdf",
-      "link_label": "Leer Informe",
-      "fecha": "",
-      "imagen_url": "",
-      "publicado_por": "Equipo FCAG",
-      "timestamp": "2026-07-27T21:35:31.795Z"
     },
     {
       "id": "05e1ddf9-b7bb-47df-b078-4deb06e82953",
@@ -53,5 +53,5 @@
       "timestamp": "2026-07-10T21:57:24.569Z"
     }
   ],
-  "generated_at": "2026-08-04T18:20:21.031120+00:00"
+  "generated_at": "2026-08-04T19:06:12.357066+00:00"
 }
