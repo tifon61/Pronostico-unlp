@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Meteorológico | FCAG - UNLP</title>
+    <title>Grupo de Pronóstico de la UNLP | FCAG</title>
     <link rel="icon" type="image/png" href="images/favicon.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root { 
@@ -144,58 +143,6 @@
         .ext-wind-arrows { display: flex; gap: 6px; }
         .ext-wind-txt { font-size: 0.98rem; font-weight: 700; color: var(--primary); }
 
-        /* MONITOREO EN VIVO */
-        .monitor-layout { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; padding-bottom: 40px; }
-        .monitor-top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .monitor-top-bar h2 { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; color: var(--primary); font-weight: 900; margin: 0; }
-        .station-badge { background: var(--primary); color: white; padding: 8px 18px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: blink 1.5s ease-in-out infinite; flex-shrink: 0; }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-        .rt-updated { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
-        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .metric-card { background: white; border-radius: 16px; padding: 20px 18px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
-        .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
-        .metric-card.temp::before  { background: linear-gradient(90deg, #ef4444, #f97316); }
-        .metric-card.hum::before   { background: linear-gradient(90deg, #0ea5e9, #06b6d4); }
-        .metric-card.pres::before  { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
-        .metric-card.wind::before  { background: linear-gradient(90deg, #10b981, #34d399); }
-        .metric-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
-        .metric-value { font-size: 2.4rem; font-weight: 900; line-height: 1; font-family: 'Montserrat', sans-serif; }
-        .metric-card.temp .metric-value  { color: #ef4444; }
-        .metric-card.hum .metric-value   { color: #0ea5e9; }
-        .metric-card.pres .metric-value  { color: #8b5cf6; }
-        .metric-card.wind .metric-value  { color: #10b981; }
-        .metric-unit { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-left: 2px; }
-        .metric-trend { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border); }
-        .wind-detail-card { background: white; border-radius: 16px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 24px; }
-        .wind-compass-wrap { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .wind-compass { position: relative; width: 110px; height: 110px; }
-        .wind-compass-labels { position: absolute; inset: 0; }
-        .wind-compass-n { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); font-size: 0.65rem; font-weight: 900; color: var(--danger); }
-        .wind-compass-s { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 0.65rem; font-weight: 700; color: var(--text-muted); }
-        .wind-compass-e { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; font-weight: 700; color: var(--text-muted); }
-        .wind-compass-w { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; font-weight: 700; color: var(--text-muted); }
-        .wind-info { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-        .wind-speed-big { font-family: 'Montserrat', sans-serif; font-size: 3rem; font-weight: 900; color: #10b981; line-height: 1; }
-        .wind-speed-unit { font-size: 1rem; font-weight: 700; color: var(--text-muted); }
-        .wind-dir-text { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
-        .wind-dir-deg { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 6px; }
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .chart-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .chart-card-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .chart-card-title h3 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-main); margin: 0; }
-        .chart-card-val { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 900; }
-        .chart-card-val.temp  { color: #ef4444; }
-        .chart-card-val.hum   { color: #0ea5e9; }
-        .chart-card-val.pres  { color: #8b5cf6; }
-        .chart-card-val.wind  { color: #10b981; }
-        .chart-inner { position: relative; height: 160px; }
-        .monitor-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .radar-sat-col { display: flex; flex-direction: column; gap: 20px; }
-        .media-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
-        .media-card h3 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; }
-        .media-card img { width: 100%; border-radius: 10px; border: 1px solid var(--border); }
-
         /* GLOSARIO / DIVULGACIÓN */
         .glossary-toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 12px; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 700; color: var(--primary); cursor: pointer; transition: background 0.15s; }
         .glossary-toggle:hover { background: var(--bg-body); }
@@ -298,11 +245,10 @@
     <div class="header-left">
         <img src="images/Logo astronomicas y geofisicas.png" alt="FCAG" onerror="this.src='https://placehold.co/100x42/003f6b/white?text=FCAG'">
         <img src="images/Logo pronounlp.jfif" alt="Grupo de Pronóstico" class="header-logo-prono">
-        <h1 class="header-title">Portal Meteorológico</h1>
+        <h1 class="header-title">Grupo de Pronóstico de la UNLP</h1>
     </div>
     <div class="header-nav">
         <button class="nav-btn active" onclick="switchView('dashboard', this)">Pronósticos</button>
-        <button class="nav-btn" onclick="switchView('monitoreo', this)">Monitoreo en Vivo</button>
         <button class="nav-btn" onclick="switchView('modelos', this)">Modelos e Informes</button>
         <button class="nav-btn" onclick="switchView('extension', this)">Extensión y Divulgación</button>
         <button class="nav-btn" onclick="switchView('institucional', this)">Institucional</button>
@@ -318,10 +264,10 @@
         </video>
         <div class="welcome-overlay"></div>
         <div class="welcome-wrap">
-            <h1 class="welcome-title">Portal Meteorológico</h1>
+            <h1 class="welcome-title">Grupo de Pronóstico de la UNLP</h1>
             <p class="welcome-sub">Facultad de Ciencias Astronómicas y Geofísicas — UNLP</p>
             <button class="btn-enter-forecast" onclick="enterForecast()">🌤️ Ver Pronóstico →</button>
-            <p class="welcome-hint">O elegí otra sección arriba: Monitoreo, Informes, Talleres, Institucional.</p>
+            <p class="welcome-hint">O elegí otra sección arriba: Informes, Talleres, Institucional.</p>
         </div>
     </div>
 
@@ -383,142 +329,6 @@
                 </div>
                 <div id="forecast-container" style="margin-top:14px; display:flex; flex-direction:column; gap:14px;"></div>
             </div>
-        </div>
-    </div>
-
-    <!-- MONITOREO EN VIVO -->
-    <div id="view-monitoreo" class="view-section">
-        <div class="monitor-layout">
-
-            <!-- Barra superior -->
-            <div class="monitor-top-bar">
-                <h2>📡 Monitoreo en Vivo</h2>
-                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                    <div class="station-badge">
-                        <div class="live-dot"></div>
-                        Estación FCAG — La Plata Observatorio
-                    </div>
-                    <div class="rt-updated" id="rt-updated-lbl">Última actualización: --</div>
-                </div>
-            </div>
-
-            <!-- 4 métricas principales -->
-            <div class="metrics-grid">
-                <div class="metric-card temp">
-                    <div class="metric-label">🌡 Temperatura</div>
-                    <div><span class="metric-value" id="m-temp">--</span><span class="metric-unit">°C</span></div>
-                    <div class="metric-trend" id="m-temp-range">Mín/Máx últimas 24h: cargando...</div>
-                </div>
-                <div class="metric-card hum">
-                    <div class="metric-label">💧 Humedad Relativa</div>
-                    <div><span class="metric-value" id="m-hum">--</span><span class="metric-unit">%</span></div>
-                    <div class="metric-trend" id="m-hum-trend">—</div>
-                </div>
-                <div class="metric-card pres">
-                    <div class="metric-label">🔵 Presión Atmosférica</div>
-                    <div><span class="metric-value" id="m-pres">--</span><span class="metric-unit">hPa</span></div>
-                    <div class="metric-trend" id="m-pres-trend">—</div>
-                </div>
-                <div class="metric-card wind">
-                    <div class="metric-label">🌬 Velocidad del Viento</div>
-                    <div><span class="metric-value" id="m-wind">--</span><span class="metric-unit">km/h</span></div>
-                    <div class="metric-trend" id="m-wind-dir-lbl">Dirección: --</div>
-                </div>
-            </div>
-
-            <!-- Rosa de vientos detallada -->
-            <div class="wind-detail-card">
-                <div class="wind-compass-wrap">
-                    <div class="wind-compass">
-                        <svg width="110" height="110" viewBox="0 0 110 110">
-                            <!-- Círculos de fondo -->
-                            <circle cx="55" cy="55" r="50" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
-                            <circle cx="55" cy="55" r="35" fill="none" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
-                            <circle cx="55" cy="55" r="18" fill="none" stroke="#e2e8f0" stroke-width="1"/>
-                            <!-- Líneas cardinales -->
-                            <line x1="55" y1="5" x2="55" y2="105" stroke="#e2e8f0" stroke-width="1"/>
-                            <line x1="5" y1="55" x2="105" y2="55" stroke="#e2e8f0" stroke-width="1"/>
-                            <!-- Flecha de dirección (rota con JS) -->
-                            <g id="compass-arrow" transform="rotate(0 55 55)">
-                                <polygon points="55,10 60,55 55,48 50,55" fill="#ef4444"/>
-                                <polygon points="55,100 60,55 55,62 50,55" fill="#94a3b8"/>
-                            </g>
-                        </svg>
-                        <div class="wind-compass-labels">
-                            <div class="wind-compass-n">N</div>
-                            <div class="wind-compass-s">S</div>
-                            <div class="wind-compass-e">E</div>
-                            <div class="wind-compass-w">O</div>
-                        </div>
-                    </div>
-                    <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); text-align:center;">Rosa de Vientos</div>
-                </div>
-                <div class="wind-info">
-                    <div>
-                        <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:4px;">Velocidad</div>
-                        <div>
-                            <span class="wind-speed-big" id="wind-big">--</span>
-                            <span class="wind-speed-unit">km/h</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:4px;">Dirección</div>
-                        <div>
-                            <span class="wind-dir-text" id="wind-dir-text">--</span>
-                            <span class="wind-dir-deg" id="wind-dir-deg"></span>
-                        </div>
-                    </div>
-                    <div style="background:var(--bg-body); border-radius:10px; padding:12px 16px;">
-                        <div style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Velocidad últimas 24h</div>
-                        <div class="chart-inner" style="height:80px;"><canvas id="chartWindMini"></canvas></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gráficos -->
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>🌡 Temperatura</h3>
-                        <span class="chart-card-val temp" id="cv-temp">--°C</span>
-                    </div>
-                    <div class="chart-inner"><canvas id="chartTemp"></canvas></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>💧 Humedad Relativa</h3>
-                        <span class="chart-card-val hum" id="cv-hum">--%</span>
-                    </div>
-                    <div class="chart-inner"><canvas id="chartHum"></canvas></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>🔵 Presión Atmosférica</h3>
-                        <span class="chart-card-val pres" id="cv-pres">-- hPa</span>
-                    </div>
-                    <div class="chart-inner"><canvas id="chartPres"></canvas></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>🌬 Viento (km/h)</h3>
-                        <span class="chart-card-val wind" id="cv-wind">-- km/h</span>
-                    </div>
-                    <div class="chart-inner"><canvas id="chartWind"></canvas></div>
-                </div>
-            </div>
-
-            <!-- Radar y Satélite -->
-            <div class="monitor-main-grid">
-                <div class="media-card">
-                    <h3>Radar Meteorológico</h3>
-                    <img src="https://placehold.co/800x400/1e293b/white?text=Radar+Meteorológico" alt="Radar">
-                </div>
-                <div class="media-card">
-                    <h3>Imagen Satelital GOES-16</h3>
-                    <img src="https://placehold.co/800x400/1e293b/white?text=Satélite+Infrarrojo" alt="Satélite">
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -623,35 +433,14 @@ function enterForecast() {
     switchView('dashboard', document.querySelector('.nav-btn'));
 }
 
-// ─── CONFIGURACIÓN THINGSPEAK ────────────────────────────────────────────────
-const TS_CHANNEL   = "2823820";
-const TS_KEY       = "FFI1HK80ZKDNS6V8";
-const TS_URL       = `https://api.thingspeak.com/channels/${TS_CHANNEL}/feeds.json?api_key=${TS_KEY}&days=1&average=30`;
-
-const TS_F = { temp:'field1', hum:'field4', pres:'field6', wspeed:'field7', wdir:'field8' };
 const WIND_ANGLES = { norte:180, noreste:225, este:270, sudeste:315, sur:0, sudoeste:45, oeste:90, noroeste:135 };
 const PERIOD_SHORT = { "mañana":"MAÑANA","tarde":"TARDE","noche":"NOCHE","madrugada":"MADRUGADA","madrugada/mañana":"MAD/MAÑ","tarde/noche":"TAR/NOCH" };
-
-let _charts = {};
 
 window.onload = () => {
     initMap();
     loadCity('La Plata');
-    fetchTS();
     loadNovedades();
-    setInterval(fetchTS, 5 * 60 * 1000);
 };
-
-function degreesToCardinal(deg) {
-    if (deg == null || isNaN(deg)) return '--';
-    const dirs = ['Norte','Noreste','Este','Sudeste','Sur','Sudoeste','Oeste','Noroeste'];
-    const d = ((deg % 360) + 360) % 360;
-    return dirs[Math.round(d / 45) % 8];
-}
-
-function compassRotation(deg) {
-    return ((deg % 360) + 360) % 360;
-}
 
 // ─── MAPA ────────────────────────────────────────────────────────────────────
 const CITIES = [
@@ -704,116 +493,6 @@ async function loadCity(city) {
     document.getElementById('cd-time-lbl').innerText = `Actualizado ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
     document.getElementById('alert-section').classList.toggle('hidden', city.toLowerCase() !== 'la plata');
     fetchForecast(city);
-}
-
-// ─── THINGSPEAK ──────────────────────────────────────────────────────────────
-async function fetchTS() {
-    try {
-        const r = await fetch(TS_URL + `&_t=${Date.now()}`);
-        if (!r.ok) throw new Error('TS ' + r.status);
-        const d = await r.json();
-
-        if (!d.feeds || d.feeds.length === 0) {
-            document.getElementById('rt-updated-lbl').innerText = 'Sin datos disponibles';
-            return;
-        }
-
-        const feeds  = d.feeds;
-        const latest = feeds[feeds.length - 1];
-
-        const temp   = parseFloat(latest[TS_F.temp]   || 'NaN');
-        const hum    = parseFloat(latest[TS_F.hum]    || 'NaN');
-        const pres   = parseFloat(latest[TS_F.pres]   || 'NaN');
-        const wspeed = parseFloat(latest[TS_F.wspeed] || 'NaN');
-        const wdir   = parseFloat(latest[TS_F.wdir]   || 'NaN');
-
-        const fmt = (v, d) => isNaN(v) ? '--' : v.toFixed(d);
-
-        setText('m-temp',  fmt(temp,  1));
-        setText('m-hum',   fmt(hum,   0));
-        setText('m-pres',  fmt(pres,  1));
-        setText('m-wind',  fmt(wspeed, 1));
-
-        const cardDir = degreesToCardinal(wdir);
-        setText('m-wind-dir-lbl', `Dirección: ${cardDir} (${isNaN(wdir) ? '--' : Math.round(wdir)}°)`);
-
-        setText('cv-temp',  isNaN(temp)   ? '--'  : temp.toFixed(1) + '°C');
-        setText('cv-hum',   isNaN(hum)    ? '--'  : hum.toFixed(0)  + '%');
-        setText('cv-pres',  isNaN(pres)   ? '--'  : pres.toFixed(1) + ' hPa');
-        setText('cv-wind',  isNaN(wspeed) ? '--'  : wspeed.toFixed(1) + ' km/h');
-
-        setText('wind-big',      fmt(wspeed, 1));
-        setText('wind-dir-text', cardDir);
-        setText('wind-dir-deg',  isNaN(wdir) ? '' : `(${Math.round(wdir)}°)`);
-        const arrowEl = document.getElementById('compass-arrow');
-        if (arrowEl && !isNaN(wdir)) {
-            arrowEl.setAttribute('transform', `rotate(${compassRotation(wdir)} 55 55)`);
-        }
-
-        const temps = feeds.map(f => parseFloat(f[TS_F.temp])).filter(v => !isNaN(v));
-        if (temps.length > 0) {
-            const mn = Math.min(...temps).toFixed(1);
-            const mx = Math.max(...temps).toFixed(1);
-            setText('m-temp-range', `Mín / Máx últimas 24h: ${mn}°C / ${mx}°C`);
-        }
-
-        const hums = feeds.map(f => parseFloat(f[TS_F.hum])).filter(v => !isNaN(v));
-        if (hums.length >= 2) {
-            const diff = hums[hums.length-1] - hums[hums.length-4 < 0 ? 0 : hums.length-4];
-            const trend = diff > 1 ? '↑ Subiendo' : diff < -1 ? '↓ Bajando' : '→ Estable';
-            setText('m-hum-trend', trend);
-        }
-
-        const press = feeds.map(f => parseFloat(f[TS_F.pres])).filter(v => !isNaN(v));
-        if (press.length >= 2) {
-            const diff = press[press.length-1] - press[press.length-4 < 0 ? 0 : press.length-4];
-            const trend = diff > 0.5 ? '↑ Subiendo' : diff < -0.5 ? '↓ Bajando' : '→ Estable';
-            setText('m-pres-trend', trend);
-        }
-
-        const lastTime = new Date(latest.created_at);
-        const hh = lastTime.getHours().toString().padStart(2,'0');
-        const mm = lastTime.getMinutes().toString().padStart(2,'0');
-        setText('rt-updated-lbl', `Última actualización: ${hh}:${mm} hs`);
-
-        const labels = feeds.map(f => {
-            const t = new Date(f.created_at);
-            return `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}`;
-        });
-
-        mkChart('chartTemp',     labels, feeds.map(f => parseFloat(f[TS_F.temp])  || null), '#ef4444', 'rgba(239,68,68,0.12)',    'Temperatura (°C)');
-        mkChart('chartHum',      labels, feeds.map(f => parseFloat(f[TS_F.hum])   || null), '#0ea5e9', 'rgba(14,165,233,0.12)',   'Humedad (%)');
-        mkChart('chartPres',     labels, feeds.map(f => parseFloat(f[TS_F.pres])  || null), '#8b5cf6', 'rgba(139,92,246,0.12)',   'Presión (hPa)');
-        mkChart('chartWind',     labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.12)',   'Viento (km/h)');
-        mkChart('chartWindMini', labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.15)',   'Viento', true);
-
-    } catch(e) {
-        console.warn('ThingSpeak error:', e);
-        setText('rt-updated-lbl', 'Error al conectar con la estación');
-    }
-}
-
-function setText(id, val) { const el = document.getElementById(id); if (el) el.innerText = val; }
-
-function mkChart(id, labels, data, bc, bg, lbl, mini = false) {
-    const ctx = document.getElementById(id)?.getContext('2d');
-    if (!ctx) return;
-    if (_charts[id]) _charts[id].destroy();
-    _charts[id] = new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets: [{ label: lbl, data, borderColor: bc, backgroundColor: bg, borderWidth: mini ? 1.5 : 2, pointRadius: 0, fill: true, tension: 0.4 }] },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: {
-                mode: 'index', intersect: false,
-                callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1) ?? '--'}` }
-            }},
-            scales: {
-                x: { ticks: { maxTicksLimit: mini ? 4 : 8, font: { size: 10 }, color: '#94a3b8' }, grid: { display: false } },
-                y: { ticks: { font: { size: 10 }, color: '#94a3b8' }, grid: { color: '#f1f5f9' } }
-            }
-        }
-    });
 }
 
 let _igEmbedsLoaded = false;
