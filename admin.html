@@ -114,7 +114,7 @@
         .day-1 { background: #003c60; padding-top: 35px; height: 630px; }
         .day-2 { background: #3981bfde; padding-top: 35px; margin-bottom: 0; height: 630px; }
         .day-header { display: flex; align-items: flex-start; padding: 0px 15px 0px; color: white; gap: 0; margin-bottom: -5px; }
-        .day-header h2 { font-size: 44px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 250px; letter-spacing: -2px; flex-shrink: 0; line-height: 1; }
+        .day-header h2 { font-size: 44px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 250px; letter-spacing: -2px; flex-shrink: 0; line-height: 1; white-space: nowrap; overflow: hidden; }
         /* La cápsula de tramos usa la MISMA grilla de columnas que day-main-grid/stripe-wind/
            stripe-time (3 o 4 columnas iguales, sin el primer carril de 250px que ya puso el h2),
            así "MAÑANA/TARDE/NOCHE" queda exactamente arriba de su columna de datos. */
@@ -602,8 +602,41 @@
             const dia = key.slice(0, sep), kind = key.slice(sep + 1);
             if (kind === 'desc') updateFullDesc(dia, document.getElementById(`${dia}-custom-desc`)?.value || '');
             else if (kind === 'wind') updateWindLegendAndArrows(dia);
+            else if (kind === 'title') updateDayTitleSize(dia);
         }
         saveDraft();
+    }
+
+    // Mapea cada día a su índice de placa (.n0/.f0 .. .n3/.f3), usado tanto para
+    // el ajuste automático como para el botón manual de tamaño de título.
+    const DAY_INDEX = { h: 0, m: 1, d3: 2, d4: 3 };
+
+    // Título del día (MARTES, MIÉRCOLES, ...): en Día 1/2 comparte fila con la
+    // cápsula de tramos (MAÑANA/TARDE/NOCHE) y un nombre largo como "MIÉRCOLES"
+    // puede pisarla si no achica letra sola (no hay espacio para partir la
+    // palabra en dos líneas). Se corre automático cada vez que cambia el
+    // nombre del día, y el botón A-/A+ del panel deja subir o bajar el techo
+    // por si algún día puntual sigue necesitando un ajuste manual.
+    function updateDayTitleSize(diaId) {
+        const idx = DAY_INDEX[diaId];
+        if (idx === undefined) return;
+        const els = Array.from(document.querySelectorAll(`.n${idx}`));
+        if (!els.length) return;
+        const isCardTitle = idx >= 2; // Día 3/4 usan el título grande de la v-card (solo, sin cápsula al lado)
+        const base = (isCardTitle ? 72 : 44) + (rowFontBoost[`${diaId}_title`] || 0);
+        const min = isCardTitle ? 34 : 24;
+        // Ojo: acá se mide solo el ANCHO (no el alto como syncRowFontSize). El título
+        // es de una sola línea (white-space:nowrap en el CSS), así que scrollHeight
+        // puede quedar 1-2px por encima de clientHeight por puro redondeo de
+        // line-height aunque el texto entre perfecto — eso achicaba la letra mucho
+        // más de lo necesario para nombres largos como "MIÉRCOLES".
+        let size = base;
+        els.forEach(el => { el.style.fontSize = size + 'px'; });
+        const overflowing = () => els.some(el => el.scrollWidth > el.clientWidth);
+        while (overflowing() && size > min) {
+            size--;
+            els.forEach(el => el.style.fontSize = size + 'px');
+        }
     }
 
     function capitalizeFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : ''; }
@@ -660,7 +693,14 @@
         ];
 
         configs.forEach(conf => {
-            html += `<div class="section-title">${conf.title}</div>`;
+            html += `<div class="section-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <span>${conf.title}</span>
+                <span class="tramo-font-group">
+                    <span class="tfg-label" style="color:rgba(255,255,255,0.75);">Título</span>
+                    <button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_title', -1)">−</button>
+                    <button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_title', 1)">+</button>
+                </span>
+            </div>`;
             html += `<div class="field-group">
                 <h4>Temperaturas Mín / Máx <span class="sub-field">(Urbana / Suburbana)</span></h4>
                 <div class="row">
@@ -756,11 +796,13 @@
         const dateInput = document.getElementById('in-fecha-emision');
         if (dateInput) { dateInput.value = specificDateStr; updateDateVal(specificDateStr); }
 
+        const diaIdByIndex = ['h', 'm', 'd3', 'd4'];
         for(let i=0; i<4; i++) {
             let iterDate = new Date(today);
             iterDate.setDate(today.getDate() + i);
             document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
             document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${String(iterDate.getDate()).padStart(2, '0')}/${ms[iterDate.getMonth()]}/${String(iterDate.getFullYear()).slice(-2)}`);
+            updateDayTitleSize(diaIdByIndex[i]);
         }
     }
 
