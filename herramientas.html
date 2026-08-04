@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Herramientas del Pronosticador | FCAG</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #0d1117; }
+
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; background: #003f6b; color: white; flex-wrap: wrap; }
+    .hdr-left { display: flex; align-items: center; gap: 10px; }
+    .hdr-left img { height: 32px; }
+    .hdr-left h1 { font-size: 1rem; margin: 0; font-weight: 800; }
+    .back-link { color: white; text-decoration: none; font-weight: 700; font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 7px 14px; border-radius: 6px; white-space: nowrap; }
+    .back-link:hover { background: rgba(255,255,255,0.28); }
+
+    .city-bar { display: flex; gap: 6px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; }
+    .city-btn { border: 1px solid #cbd5e1; background: white; color: #003f6b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+    .city-btn:hover { background: #e0edf7; }
+    .city-btn.active { background: #003f6b; color: white; border-color: #003f6b; }
+
+    .map-wrap { flex: 1; position: relative; }
+    .map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    .other-links { display: flex; gap: 8px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; border-top: 1px solid #dde4ed; }
+    .other-links a { font-size: 0.78rem; font-weight: 700; color: #003f6b; text-decoration: none; background: white; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; }
+    .other-links a:hover { background: #e0edf7; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="hdr-left">
+        <img src="images/Logo astronomicas y geofisicas.png" alt="FCAG" onerror="this.src='https://placehold.co/100x32/003f6b/white?text=FCAG'">
+        <img src="images/Logo pronounlp.jfif" alt="Grupo de Pronóstico" style="height:32px;">
+        <h1>Herramientas del Pronosticador — Modelos / Radar / Satélite</h1>
+    </div>
+    <a class="back-link" href="admin.html">← Volver al panel de carga</a>
+</header>
+
+<div class="city-bar" id="city-bar"></div>
+
+<div class="map-wrap">
+    <iframe id="windy-frame" title="Windy" allow="geolocation"></iframe>
+</div>
+
+<div class="other-links">
+    <a href="https://mna.fcaglp.unlp.edu.ar/variables.html" target="_blank">Portal de Modelos WRF (FCAG) →</a>
+    <a href="https://www.smn.gob.ar/radares" target="_blank">Radar SMN →</a>
+    <a href="https://www.smn.gob.ar/satelite" target="_blank">Satélite SMN →</a>
+</div>
+
+<script>
+// Mismas ciudades/coordenadas que usa el mapa Leaflet del portal público
+// (index.html), para que el botón de cada ciudad recentre el mapa de Windy ahí.
+const CITIES = [
+    { name: "La Plata",       coords: [-34.921, -57.955] },
+    { name: "Junín",          coords: [-34.585, -60.944] },
+    { name: "Bolívar",        coords: [-36.233, -61.116] },
+    { name: "Tandil",         coords: [-37.321, -59.133] },
+    { name: "Mar del Plata",  coords: [-38.005, -57.542] },
+    { name: "Bahía Blanca",   coords: [-38.719, -62.272] },
+];
+
+function windySrc(lat, lon, zoom) {
+    return `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&detailLat=${lat}&detailLon=${lon}`
+        + `&zoom=${zoom}&level=surface&overlay=radar&product=ecmwf&menu=&message=true&marker=true`
+        + `&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default`
+        + `&metricTemp=default&radarRange=-1`;
+}
+
+function selectCity(name, lat, lon, zoom, btn) {
+    document.getElementById('windy-frame').src = windySrc(lat, lon, zoom);
+    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+
+const bar = document.getElementById('city-bar');
+bar.innerHTML = CITIES.map((c, i) =>
+    `<button type="button" class="city-btn" onclick="selectCity('${c.name}', ${c.coords[0]}, ${c.coords[1]}, 7, this)">${c.name}</button>`
+).join('') + `<button type="button" class="city-btn" onclick="selectCity('Región', -36.5, -60.0, 6, this)">Toda la región</button>`;
+
+// Arranca centrado en la región completa (mismo centro que usa el mapa del
+// portal público), no en una ciudad puntual.
+document.getElementById('windy-frame').src = windySrc(-36.5, -60.0, 6);
+</script>
+
+</body>
+</html>
