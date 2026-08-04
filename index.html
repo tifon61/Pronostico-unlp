@@ -653,16 +653,29 @@ function buildExtCard(day, cardClass, idx=0, showSub=true) {
         else if (p.sky_condition) parts.push(p.sky_condition);
         return parts.length ? cap(parts.join(' ')) : '--';
     };
-    const windText = p => {
-        if (!p.wind_intensity && !p.wind_direction) return '--';
-        let t = p.wind_intensity && p.wind_direction ? `${cap(p.wind_intensity)} del ${p.wind_direction}` : cap(p.wind_intensity || p.wind_direction);
-        if (p.wind_gusts) t += ` · ráf. ${p.wind_gusts} km/h`;
-        return t;
+    // Combina el viento de los dos tramos (madrugada/mañana y tarde/noche) en una
+    // sola frase, en vez de mostrar solo el del primer tramo. "Vientos X del Y
+    // rotando a Z del W." + una oración aparte (subrayada) si hay ráfagas.
+    const windTextCombined = (a, b) => {
+        const i1=a.wind_intensity, d1=a.wind_direction, i2=b.wind_intensity, d2=b.wind_direction;
+        let base = '';
+        if (i1 && d1 && i2 && d2) {
+            if (i1===i2 && d1===d2) base = `Vientos ${i1} del ${d1}.`;
+            else if (i1===i2) base = `Vientos ${i1} del ${d1} rotando al ${d2}.`;
+            else base = `Vientos ${i1} del ${d1} rotando a ${i2} del ${d2}.`;
+        } else if (i1 && d1) base = `Vientos ${i1} del ${d1}.`;
+        else if (i2 && d2) base = `Vientos ${i2} del ${d2}.`;
+
+        const gustsList = [...new Set([a.wind_gusts, b.wind_gusts].filter(Boolean))];
+        let gustHtml = '';
+        if (gustsList.length === 1) gustHtml = ` <u>Ráfagas de ${gustsList[0]} km/h.</u>`;
+        else if (gustsList.length === 2) gustHtml = ` <u>Ráfagas de ${gustsList[0]} km/h y de ${gustsList[1]} km/h.</u>`;
+        return base + gustHtml;
     };
 
     const d1=skyDesc(p1||{}), d2=skyDesc(p2||{});
     let desc=d1; if(d2&&d2!=='--'&&d2!==d1) desc+=` → ${d2}`;
-    const wt=p1?windText(p1):'';
+    const wt=(p1||p2)?windTextCombined(p1||{}, p2||{}):'';
     const wd1=p1?.wind_direction, wd2=p2?.wind_direction;
     const windHtml=wt?`<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1?windArrowDark(wd1,36):''} ${wd2&&wd2!==wd1?windArrowDark(wd2,36):''}</div><div class="ext-wind-txt">${wt}</div></div>`:'';
     
