@@ -372,11 +372,7 @@
                 </section>
                 <section>
                     <h2 class="section-heading">📅 Agenda</h2>
-                    <div class="agenda-list">
-                        <div class="agenda-item"><div class="agenda-date"><span>19</span><small>JUN</small></div><div class="agenda-info"><h4>Charla de los viernes | "Meteorología del fin del mundo"</h4><p>Planetario UNLP · 19:00hs · Entrada libre</p></div></div>
-                        <div class="agenda-item"><div class="agenda-date"><span>05</span><small>NOV</small></div><div class="agenda-info"><h4>Taller de Meteorología General</h4><p>Facultad de Ciencias Astronómicas y Geofísicas · Requiere inscripción</p></div></div>
-                        <div class="agenda-item"><div class="agenda-date"><span>12</span><small>NOV</small></div><div class="agenda-info"><h4>Feria de Ciencias</h4><p>Facultad de Ingeniería · Todo el día</p></div></div>
-                    </div>
+                    <div id="agenda-list" class="agenda-list"><div class="fcast-loading">Cargando…</div></div>
                 </section>
             </div>
         </div>
@@ -529,11 +525,27 @@ function loadNovedades() {
         renderInformes(items.filter(it => it.tipo === 'informe'));
         renderExtension(items.filter(it => it.tipo === 'extension'));
         renderDivulgacion(items.filter(it => it.tipo === 'divulgacion'));
+        renderAgenda(items.filter(it => it.tipo === 'agenda'));
     }).catch(() => {
         document.getElementById('informes-grid').innerHTML = '<div class="fcast-empty">No se pudieron cargar los informes.</div>';
         document.getElementById('extension-cards').innerHTML = '<div class="fcast-empty">No se pudo cargar el contenido de Extensión.</div>';
         document.getElementById('ig-embeds-grid').innerHTML = '<div class="fcast-empty">No se pudieron cargar las publicaciones.</div>';
+        document.getElementById('agenda-list').innerHTML = '<div class="fcast-empty">No se pudo cargar la agenda.</div>';
     });
+}
+
+const AGENDA_MONTH_ABBR = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+
+function renderAgenda(items) {
+    const el = document.getElementById('agenda-list');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay eventos cargados.</div>'; return; }
+    const sorted = [...items].sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    el.innerHTML = sorted.map(it => {
+        const d = it.fecha ? new Date(it.fecha) : null;
+        const day = d && !isNaN(d) ? String(d.getUTCDate()).padStart(2, '0') : '--';
+        const mon = d && !isNaN(d) ? AGENDA_MONTH_ABBR[d.getUTCMonth()] : '';
+        return `<div class="agenda-item"><div class="agenda-date"><span>${day}</span><small>${mon}</small></div><div class="agenda-info"><h4>${escapeHtml(it.titulo)}</h4><p>${escapeHtml(it.texto)}</p></div></div>`;
+    }).join('');
 }
 
 function renderInformes(items) {
