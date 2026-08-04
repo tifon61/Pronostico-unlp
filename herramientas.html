@@ -97,7 +97,8 @@
     <a href="https://mna.fcaglp.unlp.edu.ar/variables.html" target="_blank">Portal de Modelos WRF (FCAG) →</a>
     <a href="https://www.smn.gob.ar/satelite" target="_blank">Satélite SMN →</a>
     <a href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank">Estación FCAG →</a>
-    <a href="https://www.ogimet.com/gsynop.phtml" target="_blank">Ogimet (últimos SYNOP) →</a>
+    <span id="ogimet-links"></span>
+    <a href="https://www.ogimet.com/gsynop.phtml" target="_blank">Ogimet (otra estación) →</a>
 </div>
 
 <script>
@@ -133,6 +134,25 @@ const MODELS = [
 
 const overlayLabel = code => OVERLAYS.find(o => o.code === code)?.label || code;
 const modelLabel   = code => MODELS.find(m => m.code === code)?.label || code;
+
+// Indicativos OMM (5 dígitos) de la estación SYNOP de cada ciudad en Ogimet.
+// Falta Tandil: agregarlo acá cuando se tenga el código.
+const OGIMET_STATIONS = [
+    { name: 'La Plata',      ind: '87593' },
+    { name: 'Junín',         ind: '87548' },
+    { name: 'Bolívar',       ind: '87640' },
+    { name: 'Mar del Plata', ind: '87692' },
+    { name: 'Bahía Blanca',  ind: '87750' },
+];
+
+// gsynres (a diferencia del formulario gsynop.phtml) acepta fecha/hora por
+// query string, así que se arma con la hora actual (UTC, como usa Ogimet)
+// en vez de tener que cargarla a mano cada vez.
+function ogimetUrl(ind) {
+    const now = new Date();
+    const ano = now.getUTCFullYear(), mes = now.getUTCMonth() + 1, day = now.getUTCDate(), hora = now.getUTCHours();
+    return `https://www.ogimet.com/cgi-bin/gsynres?ind=${ind}&ano=${ano}&mes=${mes}&day=${day}&hora=${hora}&min=0&ndays=30`;
+}
 
 // Estado compartido: cambiar de ciudad/capa no debe resetear el modelo
 // elegido, y viceversa — por eso el src de cada iframe siempre se arma desde
@@ -227,6 +247,10 @@ document.getElementById('compare-model-0').innerHTML = optsHtml;
 document.getElementById('compare-model-1').innerHTML = optsHtml;
 document.getElementById('compare-model-0').value = state.compareModels[0];
 document.getElementById('compare-model-1').value = state.compareModels[1];
+
+document.getElementById('ogimet-links').innerHTML = OGIMET_STATIONS.map(s =>
+    `<a href="${ogimetUrl(s.ind)}" target="_blank">Ogimet ${s.name} →</a>`
+).join('');
 
 render();
 </script>
