@@ -42,9 +42,10 @@
     .compare-hdr select { width: 100%; font-weight: 700; font-size: 0.8rem; padding: 4px; border-radius: 4px; border: none; }
     .compare-half iframe { flex: 1; border: 0; width: 100%; }
 
-    .other-links { display: flex; gap: 8px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; border-top: 1px solid #dde4ed; }
+    .other-links { display: flex; gap: 8px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; border-top: 1px solid #dde4ed; align-items: center; }
     .other-links a { font-size: 0.78rem; font-weight: 700; color: #003f6b; text-decoration: none; background: white; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; }
     .other-links a:hover { background: #e0edf7; }
+    .link-select { font-size: 0.78rem; font-weight: 700; color: #003f6b; background: white; border: 1px solid #cbd5e1; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -73,7 +74,6 @@
     </div>
     <div class="toolbar-group">
         <button type="button" class="compare-btn" id="compare-toggle" onclick="toggleCompare(this)">🔀 Comparar 2 modelos</button>
-        <button type="button" class="compare-btn" onclick="openWindyMultimodel()">📊 Meteograma 4 modelos (windy.com) ↗</button>
     </div>
 </div>
 
@@ -97,8 +97,8 @@
     <a href="https://mna.fcaglp.unlp.edu.ar/variables.html" target="_blank">Portal de Modelos WRF (FCAG) →</a>
     <a href="https://www.smn.gob.ar/satelite" target="_blank">Satélite SMN →</a>
     <a href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank">Estación FCAG →</a>
-    <span id="ogimet-links"></span>
-    <a href="https://www.ogimet.com/gsynop.phtml" target="_blank">Ogimet (otra estación) →</a>
+    <select id="ogimet-select" class="link-select" onchange="openOgimet(this.value)"></select>
+    <select id="meteoblue-select" class="link-select" onchange="openMeteoblue(this.value)"></select>
 </div>
 
 <script>
@@ -152,6 +152,29 @@ function ogimetUrl(ind) {
     const now = new Date();
     const ano = now.getUTCFullYear(), mes = now.getUTCMonth() + 1, day = now.getUTCDate(), hora = now.getUTCHours();
     return `https://www.ogimet.com/cgi-bin/gsynres?ind=${ind}&ano=${ano}&mes=${mes}&day=${day}&hora=${hora}&min=0&ndays=30`;
+}
+
+function openOgimet(ind) {
+    if (!ind) return;
+    window.open(ogimetUrl(ind), '_blank');
+    document.getElementById('ogimet-select').value = '';
+}
+
+// Cada ciudad tiene un "slug" propio en la URL de meteoblue (nombre + país +
+// un ID numérico de esa ubicación). Solo se cargó La Plata por ahora — falta
+// el link de las otras 5 ciudades para completar la lista.
+const METEOBLUE_STATIONS = [
+    { name: 'La Plata', slug: 'la-plata_argentina_3432043' },
+];
+
+function meteoblueUrl(slug) {
+    return `https://www.meteoblue.com/es/tiempo/semana/${slug}`;
+}
+
+function openMeteoblue(slug) {
+    if (!slug) return;
+    window.open(meteoblueUrl(slug), '_blank');
+    document.getElementById('meteoblue-select').value = '';
 }
 
 // Estado compartido: cambiar de ciudad/capa no debe resetear el modelo
@@ -214,14 +237,6 @@ function setCompareModel(idx, code) {
     render();
 }
 
-// El embed (embed2.html) no incluye el panel de "comparar 4 modelos" del
-// meteograma — eso es una vista del sitio completo windy.com, no del widget
-// embebible. Este botón abre windy.com en la ciudad/capa actual, en pestaña
-// aparte, para tocar el punto ahí y usar el "Comparar" del propio Windy.
-function openWindyMultimodel() {
-    window.open(`https://www.windy.com/?${state.overlay},${state.lat},${state.lon},${state.zoom}`, '_blank');
-}
-
 function toggleCompare(btn) {
     state.compareMode = !state.compareMode;
     btn.classList.toggle('active', state.compareMode);
@@ -248,9 +263,11 @@ document.getElementById('compare-model-1').innerHTML = optsHtml;
 document.getElementById('compare-model-0').value = state.compareModels[0];
 document.getElementById('compare-model-1').value = state.compareModels[1];
 
-document.getElementById('ogimet-links').innerHTML = OGIMET_STATIONS.map(s =>
-    `<a href="${ogimetUrl(s.ind)}" target="_blank">Ogimet ${s.name} →</a>`
-).join('');
+document.getElementById('ogimet-select').innerHTML = `<option value="">Ogimet: elegí ciudad…</option>`
+    + OGIMET_STATIONS.map(s => `<option value="${s.ind}">Ogimet ${s.name}</option>`).join('');
+
+document.getElementById('meteoblue-select').innerHTML = `<option value="">Meteoblue: elegí ciudad…</option>`
+    + METEOBLUE_STATIONS.map(s => `<option value="${s.slug}">Meteoblue ${s.name}</option>`).join('');
 
 render();
 </script>
