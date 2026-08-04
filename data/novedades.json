@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "33499d2e-c3b8-45ee-8552-fc313e059eec",
+      "tipo": "agenda",
+      "titulo": "Curso \"Descifrando el tiempo\"",
+      "texto": "",
+      "tag": "",
+      "link_url": "",
+      "link_label": "",
+      "fecha": "2026-08-30T03:00:00.000Z",
+      "imagen_url": "",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-08-04T22:52:23.376Z"
+    },
+    {
       "id": "fd48a5b7-6478-4403-ae02-d4cd5d6bdeb6",
       "tipo": "agenda",
       "titulo": "Charla de los viernes \"Tormenta de Santa Rosa: ¿Mito o realidad?",
@@ -92,5 +105,5 @@
       "timestamp": "2026-07-10T21:57:24.569Z"
     }
   ],
-  "generated_at": "2026-08-04T22:51:38.132035+00:00"
+  "generated_at": "2026-08-04T22:52:46.435542+00:00"
 }
