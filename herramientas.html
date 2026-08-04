@@ -16,10 +16,15 @@
     .back-link { color: white; text-decoration: none; font-weight: 700; font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 7px 14px; border-radius: 6px; white-space: nowrap; }
     .back-link:hover { background: rgba(255,255,255,0.28); }
 
-    .city-bar { display: flex; gap: 6px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; }
+    .toolbar { display: flex; align-items: center; gap: 14px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; }
+    .toolbar-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .toolbar-group-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.4px; margin-right: 2px; }
     .city-btn { border: 1px solid #cbd5e1; background: white; color: #003f6b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
     .city-btn:hover { background: #e0edf7; }
     .city-btn.active { background: #003f6b; color: white; border-color: #003f6b; }
+    .model-btn { border: 1px solid #cbd5e1; background: white; color: #00796b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+    .model-btn:hover { background: #e0f2ef; }
+    .model-btn.active { background: #00796b; color: white; border-color: #00796b; }
 
     .map-wrap { flex: 1; position: relative; }
     .map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -40,7 +45,16 @@
     <a class="back-link" href="admin.html">← Volver al panel de carga</a>
 </header>
 
-<div class="city-bar" id="city-bar"></div>
+<div class="toolbar">
+    <div class="toolbar-group">
+        <span class="toolbar-group-label">Ciudad</span>
+        <span class="toolbar-group" id="city-bar"></span>
+    </div>
+    <div class="toolbar-group">
+        <span class="toolbar-group-label">Modelo</span>
+        <span class="toolbar-group" id="model-bar"></span>
+    </div>
+</div>
 
 <div class="map-wrap">
     <iframe id="windy-frame" title="Windy" allow="geolocation"></iframe>
@@ -48,7 +62,6 @@
 
 <div class="other-links">
     <a href="https://mna.fcaglp.unlp.edu.ar/variables.html" target="_blank">Portal de Modelos WRF (FCAG) →</a>
-    <a href="https://www.smn.gob.ar/radares" target="_blank">Radar SMN →</a>
     <a href="https://www.smn.gob.ar/satelite" target="_blank">Satélite SMN →</a>
 </div>
 
@@ -64,27 +77,54 @@ const CITIES = [
     { name: "Bahía Blanca",   coords: [-38.719, -62.272] },
 ];
 
-function windySrc(lat, lon, zoom) {
-    return `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&detailLat=${lat}&detailLon=${lon}`
-        + `&zoom=${zoom}&level=surface&overlay=radar&product=ecmwf&menu=&message=true&marker=true`
+// Modelos globales que ofrece Windy (con cobertura en Sudamérica). "product"
+// es el parámetro que espera el embed de Windy para elegir el modelo.
+const MODELS = [
+    { code: 'ecmwf',    label: 'ECMWF' },
+    { code: 'gfs',      label: 'GFS' },
+    { code: 'icon',     label: 'ICON' },
+    { code: 'gem',      label: 'GEM' },
+];
+
+// Estado compartido: cambiar de ciudad no debe resetear el modelo elegido, y
+// viceversa — por eso el src del iframe siempre se arma desde este objeto.
+const state = { lat: -36.5, lon: -60.0, zoom: 6, product: 'ecmwf' };
+
+function windySrc() {
+    return `https://embed.windy.com/embed2.html?lat=${state.lat}&lon=${state.lon}&detailLat=${state.lat}&detailLon=${state.lon}`
+        + `&zoom=${state.zoom}&level=surface&overlay=radar&product=${state.product}&menu=&message=true&marker=true`
         + `&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default`
         + `&metricTemp=default&radarRange=-1`;
 }
 
-function selectCity(name, lat, lon, zoom, btn) {
-    document.getElementById('windy-frame').src = windySrc(lat, lon, zoom);
-    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
+function render() {
+    document.getElementById('windy-frame').src = windySrc();
 }
 
-const bar = document.getElementById('city-bar');
-bar.innerHTML = CITIES.map((c, i) =>
-    `<button type="button" class="city-btn" onclick="selectCity('${c.name}', ${c.coords[0]}, ${c.coords[1]}, 7, this)">${c.name}</button>`
-).join('') + `<button type="button" class="city-btn" onclick="selectCity('Región', -36.5, -60.0, 6, this)">Toda la región</button>`;
+function selectCity(lat, lon, zoom, btn) {
+    state.lat = lat; state.lon = lon; state.zoom = zoom;
+    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    render();
+}
 
-// Arranca centrado en la región completa (mismo centro que usa el mapa del
-// portal público), no en una ciudad puntual.
-document.getElementById('windy-frame').src = windySrc(-36.5, -60.0, 6);
+function selectModel(code, btn) {
+    state.product = code;
+    document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    render();
+}
+
+const cityBar = document.getElementById('city-bar');
+cityBar.innerHTML = `<button type="button" class="city-btn active" onclick="selectCity(-36.5, -60.0, 6, this)">Toda la región</button>`
+    + CITIES.map(c => `<button type="button" class="city-btn" onclick="selectCity(${c.coords[0]}, ${c.coords[1]}, 7, this)">${c.name}</button>`).join('');
+
+const modelBar = document.getElementById('model-bar');
+modelBar.innerHTML = MODELS.map((m, i) =>
+    `<button type="button" class="model-btn ${i===0?'active':''}" onclick="selectModel('${m.code}', this)">${m.label}</button>`
+).join('');
+
+render();
 </script>
 
 </body>
