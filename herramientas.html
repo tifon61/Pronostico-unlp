@@ -161,10 +161,14 @@ function openOgimet(ind) {
 }
 
 // Cada ciudad tiene un "slug" propio en la URL de meteoblue (nombre + país +
-// un ID numérico de esa ubicación). Solo se cargó La Plata por ahora — falta
-// el link de las otras 5 ciudades para completar la lista.
+// un ID numérico de esa ubicación). Son links a la página de pronóstico
+// semanal, no todavía al widget embebible de meteograma MultiModel.
 const METEOBLUE_STATIONS = [
-    { name: 'La Plata', slug: 'la-plata_argentina_3432043' },
+    { name: 'La Plata',      slug: 'la-plata_argentina_3432043' },
+    { name: 'Junín',         slug: 'junín_argentina_3853354' },
+    { name: 'Bolívar',       slug: 'san-carlos-de-bolívar_argentina_3837855' },
+    { name: 'Tandil',        slug: 'tandil_argentina_3427833' },
+    { name: 'Mar del Plata', slug: 'mar-del-plata_argentina_3430863' },
 ];
 
 function meteoblueUrl(slug) {
