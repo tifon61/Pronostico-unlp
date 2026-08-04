@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "b00f677c-8c5a-46ef-b5c1-09592ff6a925",
+      "tipo": "informe",
+      "titulo": "Informe evento lluvias",
+      "texto": "",
+      "tag": "",
+      "link_url": "",
+      "link_label": "Leer Informe",
+      "fecha": "",
+      "imagen_url": "https://drive.google.com/thumbnail?id=1aHHzc_5Ts7bFFdfMCRDnYF4rDuqJmhBk&sz=w2000",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-08-04T19:08:08.662Z"
+    },
+    {
       "id": "e1b22f7e-5abe-4720-8a55-40439d419682",
       "tipo": "informe",
       "titulo": "Informe de Otono 2026",
@@ -53,5 +66,5 @@
       "timestamp": "2026-07-10T21:57:24.569Z"
     }
   ],
-  "generated_at": "2026-08-04T19:06:12.357066+00:00"
+  "generated_at": "2026-08-04T19:08:39.229387+00:00"
 }
