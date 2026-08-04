@@ -73,6 +73,7 @@
     </div>
     <div class="toolbar-group">
         <button type="button" class="compare-btn" id="compare-toggle" onclick="toggleCompare(this)">🔀 Comparar 2 modelos</button>
+        <button type="button" class="compare-btn" onclick="openWindyMultimodel()">📊 Meteograma 4 modelos (windy.com) ↗</button>
     </div>
 </div>
 
@@ -189,6 +190,14 @@ function selectModel(code, btn) {
 function setCompareModel(idx, code) {
     state.compareModels[idx] = code;
     render();
+}
+
+// El embed (embed2.html) no incluye el panel de "comparar 4 modelos" del
+// meteograma — eso es una vista del sitio completo windy.com, no del widget
+// embebible. Este botón abre windy.com en la ciudad/capa actual, en pestaña
+// aparte, para tocar el punto ahí y usar el "Comparar" del propio Windy.
+function openWindyMultimodel() {
+    window.open(`https://www.windy.com/?${state.overlay},${state.lat},${state.lon},${state.zoom}`, '_blank');
 }
 
 function toggleCompare(btn) {
