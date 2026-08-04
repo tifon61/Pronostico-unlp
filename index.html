@@ -139,6 +139,8 @@
         .ext-icon-pop { font-size: 0.78rem; font-weight: 800; color: #0369a1; }
         .ext-icon-gust { font-size: 0.78rem; font-weight: 800; color: #9d174d; }
         .ext-desc-box { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 14px; font-size: 0.9rem; font-weight: 700; color: var(--primary); text-align: center; line-height: 1.4; }
+        .ext-desc-period { display: block; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-top: 8px; }
+        .ext-desc-period:first-child { margin-top: 0; }
         .ext-wind-box { background: rgba(255,255,255,0.4); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .ext-wind-arrows { display: flex; gap: 6px; }
         .ext-wind-txt { font-size: 0.98rem; font-weight: 700; color: var(--primary); }
@@ -674,7 +676,16 @@ function buildExtCard(day, cardClass, idx=0, showSub=true) {
     };
 
     const d1=skyDesc(p1||{}), d2=skyDesc(p2||{});
-    let desc=d1; if(d2&&d2!=='--'&&d2!==d1) desc+=` → ${d2}`;
+    // Si los dos tramos dicen lo mismo, una sola línea alcanza. Si difieren, se
+    // antepone a cada uno la misma etiqueta de tramo que ya tienen los íconos de
+    // arriba (MADRUGADA/MAÑANA, TARDE/NOCHE) para que no quede ambiguo a qué
+    // momento del día corresponde cada probabilidad/condición.
+    let desc=d1;
+    if(d2&&d2!=='--'&&d2!==d1){
+        desc = d1!=='--'
+            ? `<span class="ext-desc-period">Madrugada / mañana</span>${d1}<span class="ext-desc-period">Tarde / noche</span>${d2}`
+            : d2;
+    }
     const wt=(p1||p2)?windTextCombined(p1||{}, p2||{}):'';
     const wd1=p1?.wind_direction, wd2=p2?.wind_direction;
     const windHtml=wt?`<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1?windArrowDark(wd1,36):''} ${wd2&&wd2!==wd1?windArrowDark(wd2,36):''}</div><div class="ext-wind-txt">${wt}</div></div>`:'';
