@@ -193,8 +193,10 @@
         document.getElementById('row-fecha').classList.toggle('active', tipo === 'agenda');
         document.getElementById('row-link').classList.toggle('active', tipo !== 'agenda');
         document.getElementById('row-link-label').style.display = tipo === 'divulgacion' ? 'none' : 'block';
-        // La imagen no aplica a Divulgación: el video de Instagram trae su propia miniatura.
-        document.getElementById('row-imagen').classList.toggle('active', tipo !== 'agenda' && tipo !== 'divulgacion');
+        // Agenda y Divulgación también suelen tener foto de la actividad (Divulgación
+        // no siempre es un embed de Instagram con miniatura propia), así que la imagen
+        // queda disponible para los 4 tipos.
+        document.getElementById('row-imagen').classList.toggle('active', true);
         document.getElementById('lbl-link').innerText = LINK_FIELD_LABEL[tipo] || 'Link';
         document.getElementById('lbl-texto').innerText = TEXTO_FIELD_LABEL[tipo] || 'Texto';
         document.getElementById('lbl-titulo').innerText = TITULO_FIELD_LABEL[tipo] || 'Título';

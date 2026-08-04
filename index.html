@@ -200,6 +200,7 @@
         .agenda-date small { font-size: 0.75rem; text-transform: uppercase; }
         .agenda-info h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
         .agenda-info p { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+        .agenda-img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
         .contact-form { display: flex; flex-direction: column; gap: 12px; background: white; padding: 26px; border-radius: 12px; border: 1px solid var(--border); }
         .contact-form input,.contact-form textarea,.contact-form select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
         .contact-form button { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 800; cursor: pointer; }
@@ -544,7 +545,8 @@ function renderAgenda(items) {
         const d = it.fecha ? new Date(it.fecha) : null;
         const day = d && !isNaN(d) ? String(d.getUTCDate()).padStart(2, '0') : '--';
         const mon = d && !isNaN(d) ? AGENDA_MONTH_ABBR[d.getUTCMonth()] : '';
-        return `<div class="agenda-item"><div class="agenda-date"><span>${day}</span><small>${mon}</small></div><div class="agenda-info"><h4>${escapeHtml(it.titulo)}</h4><p>${escapeHtml(it.texto)}</p></div></div>`;
+        const img = it.imagen_url ? `<img src="${it.imagen_url}" class="agenda-img">` : '';
+        return `<div class="agenda-item">${img}<div class="agenda-date"><span>${day}</span><small>${mon}</small></div><div class="agenda-info"><h4>${escapeHtml(it.titulo)}</h4><p>${escapeHtml(it.texto)}</p></div></div>`;
     }).join('');
 }
 
@@ -577,20 +579,22 @@ function renderExtension(items) {
         </div>`).join('');
 }
 
-// A diferencia de informes/extensión, acá el link es siempre un post o reel
-// de Instagram: se arma el blockquote oficial de Meta (único método que
-// soporta forzar el embed sin que Instagram muestre un cartel de error) y
-// se reprocesa embed.js después de insertarlo en el DOM.
+// Cuando hay link, es siempre un post o reel de Instagram: se arma el
+// blockquote oficial de Meta (único método que soporta forzar el embed sin
+// que Instagram muestre un cartel de error) y se reprocesa embed.js después
+// de insertarlo en el DOM. No toda Divulgación es un embed de Instagram —
+// si se cargó una foto de la actividad (con o sin link), se muestra también.
 function renderDivulgacion(items) {
     const el = document.getElementById('ig-embeds-grid');
     if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay publicaciones cargadas.</div>'; return; }
     el.innerHTML = items.map(it => `
         <div class="ig-embed-card">
+            ${it.imagen_url ? `<img src="${it.imagen_url}" class="item-img">` : ''}
             ${(it.titulo || it.texto) ? `<div class="ig-embed-caption">
                 ${it.titulo ? `<h3 class="item-title" style="margin-bottom:4px;">${escapeHtml(it.titulo)}</h3>` : ''}
                 ${it.texto ? `<p class="item-text">${escapeHtml(it.texto)}</p>` : ''}
             </div>` : ''}
-            <blockquote class="instagram-media" data-instgrm-permalink="${escapeHtml(it.link_url)}" data-instgrm-version="14"></blockquote>
+            ${it.link_url ? `<blockquote class="instagram-media" data-instgrm-permalink="${escapeHtml(it.link_url)}" data-instgrm-version="14"></blockquote>` : ''}
         </div>`).join('');
     _igEmbedsLoaded = false; // hay blockquotes nuevos: forzar que embed.js los procese
     loadIgEmbeds();
