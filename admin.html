@@ -8,27 +8,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        @font-face {
-            font-family: 'Garet';
-            src: url('fonts/GaretBook.woff2') format('woff2'), url('fonts/GaretBook.woff') format('woff');
-            font-weight: 1 649;
-            font-style: normal;
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Garet';
-            src: url('fonts/GaretHeavy.woff2') format('woff2'), url('fonts/GaretHeavy.woff') format('woff');
-            font-weight: 650 999;
-            font-style: normal;
-            font-display: swap;
-        }
         * { box-sizing: border-box; }
         :root {
             --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --unlp-bg-pill: #c9e1f0;
             --unlp-row-wind: #d9e9f2; --unlp-row-time: #003c60; --unlp-light: #6ba4d6;
             --unlp-green: #00796b; --bg-canvas: #efefef;
         }
-        body { font-family: 'Garet', 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transform: translateZ(0); }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #333; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transform: translateZ(0); }
         
         #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
         #access-gate.unlocked { display: none; }
@@ -651,10 +637,10 @@
             return;
         }
 
-        // Margen de seguridad: html2canvas (usado al descargar la placa) puede
-        // medir tipografías de peso variable como Garet un poco distinto al
-        // navegador, así que un ajuste "justo" acá podría terminar pisando la
-        // cápsula recién en la imagen exportada.
+        // Margen de seguridad: html2canvas (usado al descargar la placa) no
+        // siempre mide el texto exactamente igual que el navegador, así que un
+        // ajuste "justo" acá podría terminar pisando la cápsula recién en la
+        // imagen exportada.
         const SAFETY_MARGIN = 6;
         els.forEach(el => {
             const text = el.innerText;
@@ -1358,12 +1344,13 @@
         }, 150);
 
         // recalculateDates() ya corrió el ajuste automático del título del día, pero
-        // puede haber medido el texto con la tipografía de reemplazo (Garet tarda en
-        // bajar, font-display:swap la muestra recién cuando termina) — con esa métrica
-        // más angosta, "MIÉRCOLES" puede entrar a 44px y no achicarse, y al llegar la
-        // tipografía real (más ancha) termina pisando la cápsula de al lado, aunque en
-        // pantalla ya no se note el cambio porque el tamaño no se vuelve a recalcular
-        // solo. Por eso se repite el ajuste en cuanto la fuente real está confirmada.
+        // puede haber medido el texto antes de que Montserrat termine de bajar de
+        // Google Fonts (font-display:swap la muestra recién cuando termina) — con
+        // esa métrica angosta de la fuente de reemplazo, "MIÉRCOLES" puede entrar a
+        // 44px y no achicarse, y al llegar la tipografía real (más ancha) termina
+        // pisando la cápsula de al lado, aunque en pantalla ya no se note el cambio
+        // porque el tamaño no se vuelve a recalcular solo. Por eso se repite el
+        // ajuste en cuanto la fuente real está confirmada.
         document.fonts.ready.then(() => {
             ['h', 'm', 'd3', 'd4'].forEach(updateDayTitleSize);
         });
