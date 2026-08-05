@@ -517,8 +517,12 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+// Se lee del caché estático (data/novedades.json), no en vivo de Apps Script:
+// así el tráfico del portal público no depende de los cupos de ejecuciones
+// simultáneas de Apps Script/Sheets. El caché lo actualiza GitHub Actions
+// apenas se publica algo (más corridas de respaldo programadas).
 function loadNovedades() {
-    fetchForecastDataJSONP(`${GOOGLE_APP_URL}?type=novedades`).then(data => {
+    fetch(`data/novedades.json?_t=${Date.now()}`).then(r => r.json()).then(data => {
         const items = (data && data.items) || [];
         renderInformes(items.filter(it => it.tipo === 'informe'));
         renderExtension(items.filter(it => it.tipo === 'extension'));
@@ -715,49 +719,20 @@ function buildExtCard(day, cardClass, idx=0, showSub=true) {
     </div>`;
 }
 
-// ─── CONEXIÓN A GOOGLE SHEETS MEDIANTE JSONP (INFALIBLE PARA CORS) ──────────
-function fetchForecastDataJSONP(url) {
-    return new Promise((resolve, reject) => {
-        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-        
-        window[callbackName] = function(data) {
-            delete window[callbackName];
-            document.body.removeChild(script);
-            resolve(data);
-        };
-
-        const script = document.createElement('script');
-        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName + '&_t=' + Date.now();
-        
-        script.onerror = function() {
-            delete window[callbackName];
-            document.body.removeChild(script);
-            reject(new Error("Falló la carga del script JSONP."));
-        };
-
-        document.body.appendChild(script);
-        
-        setTimeout(() => {
-            if (window[callbackName]) {
-                delete window[callbackName];
-                reject(new Error("Timeout conectando a Google Sheets."));
-            }
-        }, 10000);
-    });
-}
-
-// ─── LEER DE GOOGLE SHEETS ───────────────────────────────────────────────────
-const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
-
+// ─── LEER EL PRONÓSTICO ─────────────────────────────────────────────────────
+// Se lee del caché estático (data/forecasts.json, servido por GitHub Pages),
+// no en vivo de Apps Script: así el tráfico del portal público no depende de
+// los cupos de ejecuciones simultáneas de Apps Script/Sheets, que se vuelven
+// un riesgo real si entra mucha gente a la vez. El caché lo actualiza GitHub
+// Actions apenas se publica algo (más corridas de respaldo programadas).
 async function fetchForecast(city) {
     const container = document.getElementById('forecast-container');
-    container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
+    container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico...</div>`;
 
     try {
-        const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
-        
-        // Obtenemos directamente el JSON completo
-        const cityData = await fetchForecastDataJSONP(url);
+        const resp = await fetch(`data/forecasts.json?_t=${Date.now()}`);
+        const all = await resp.json();
+        const cityData = all && all.cities ? all.cities[city] : null;
 
         if (!cityData || cityData.error) {
             container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
