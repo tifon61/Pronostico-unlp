@@ -1244,6 +1244,7 @@
     async function download(id) {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
+        ['h', 'm', 'd3', 'd4'].forEach(updateDayTitleSize);
         const el = document.getElementById(id); el.classList.add('exporting');
         await new Promise(r => setTimeout(r, 50));
         const images = el.querySelectorAll("img");
@@ -1257,6 +1258,7 @@
     async function downloadPDF() {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
+        ['h', 'm', 'd3', 'd4'].forEach(updateDayTitleSize);
         const c = document.getElementById('city-selector').value.replace(/\s+/g, '_'), d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
         const pdfName = `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
         const el1 = document.getElementById('placa-1'), el2 = document.getElementById('placa-2');
@@ -1330,6 +1332,17 @@
             if (initialCity) updateCity(initialCity.value);
             generateSocialText();
         }, 150);
+
+        // recalculateDates() ya corrió el ajuste automático del título del día, pero
+        // puede haber medido el texto con la tipografía de reemplazo (Garet tarda en
+        // bajar, font-display:swap la muestra recién cuando termina) — con esa métrica
+        // más angosta, "MIÉRCOLES" puede entrar a 44px y no achicarse, y al llegar la
+        // tipografía real (más ancha) termina pisando la cápsula de al lado, aunque en
+        // pantalla ya no se note el cambio porque el tamaño no se vuelve a recalcular
+        // solo. Por eso se repite el ajuste en cuanto la fuente real está confirmada.
+        document.fonts.ready.then(() => {
+            ['h', 'm', 'd3', 'd4'].forEach(updateDayTitleSize);
+        });
     };
 
     // parseFloat(x) || null trata al 0 como "sin valor" (0 es falsy en JS).
