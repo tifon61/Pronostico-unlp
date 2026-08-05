@@ -613,6 +613,21 @@
     // el ajuste automático como para el botón manual de tamaño de título.
     const DAY_INDEX = { h: 0, m: 1, d3: 2, d4: 3 };
 
+    // scrollWidth de un elemento con overflow:hidden no es confiable en Chromium
+    // para esto: una vez que el texto deja de desbordar a cierto tamaño, el valor
+    // se queda "pegado" ahí y no vuelve a bajar aunque se siga achicando la letra
+    // (se puede reproducir bajando el font-size a mano y mirando scrollWidth).
+    // measureText en un canvas mide el ancho real del texto sin ese problema, y
+    // de paso es más parecido a como html2canvas arma el texto al exportar.
+    const _measureCanvas = document.createElement('canvas');
+    const _measureCtx = _measureCanvas.getContext('2d');
+    function measureTextWidthAt(el, text, size) {
+        const cs = getComputedStyle(el);
+        _measureCtx.font = `${cs.fontWeight} ${size}px ${cs.fontFamily}`;
+        const letterSpacing = parseFloat(cs.letterSpacing) || 0;
+        return _measureCtx.measureText(text).width + letterSpacing * Math.max(0, text.length - 1);
+    }
+
     // Título del día (MARTES, MIÉRCOLES, ...): en Día 1/2 comparte fila con la
     // cápsula de tramos (MAÑANA/TARDE/NOCHE) y un nombre largo como "MIÉRCOLES"
     // puede pisarla si no achica letra sola (no hay espacio para partir la
@@ -627,18 +642,27 @@
         const isCardTitle = idx >= 2; // Día 3/4 usan el título grande de la v-card (solo, sin cápsula al lado)
         const base = (isCardTitle ? 72 : 44) + (rowFontBoost[`${diaId}_title`] || 0);
         const min = isCardTitle ? 34 : 24;
-        // Ojo: acá se mide solo el ANCHO (no el alto como syncRowFontSize). El título
-        // es de una sola línea (white-space:nowrap en el CSS), así que scrollHeight
-        // puede quedar 1-2px por encima de clientHeight por puro redondeo de
-        // line-height aunque el texto entre perfecto — eso achicaba la letra mucho
-        // más de lo necesario para nombres largos como "MIÉRCOLES".
-        let size = base;
-        els.forEach(el => { el.style.fontSize = size + 'px'; });
-        const overflowing = () => els.some(el => el.scrollWidth > el.clientWidth);
-        while (overflowing() && size > min) {
-            size--;
-            els.forEach(el => el.style.fontSize = size + 'px');
+
+        if (isCardTitle) {
+            // Sin una caja de ancho fijo al lado (el título ocupa toda la tarjeta
+            // él solo) no hay con qué comparar el ancho del texto acá — se deja el
+            // tamaño base y el botón A-/A+ para el ajuste manual si hiciera falta.
+            els.forEach(el => { el.style.fontSize = base + 'px'; });
+            return;
         }
+
+        // Margen de seguridad: html2canvas (usado al descargar la placa) puede
+        // medir tipografías de peso variable como Garet un poco distinto al
+        // navegador, así que un ajuste "justo" acá podría terminar pisando la
+        // cápsula recién en la imagen exportada.
+        const SAFETY_MARGIN = 6;
+        els.forEach(el => {
+            const text = el.innerText;
+            const boxWidth = el.clientWidth; // ancho fijo de la caja (.day-header h2 { width:250px }), no depende del contenido
+            let size = base;
+            while (size > min && measureTextWidthAt(el, text, size) > boxWidth - SAFETY_MARGIN) size--;
+            el.style.fontSize = size + 'px';
+        });
     }
 
     function capitalizeFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : ''; }
