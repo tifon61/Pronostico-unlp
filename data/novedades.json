@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "b436628c-c903-4b68-ae5f-f9c17619b3ff",
+      "tipo": "informe",
+      "titulo": "tipo de informe",
+      "texto": "",
+      "tag": "",
+      "link_url": "https://www.fcaglp.unlp.edu.ar/wp-content/uploads/2025/08/Informe_180825-2.pdf",
+      "link_label": "Leer Informe",
+      "fecha": "",
+      "imagen_url": "",
+      "publicado_por": "Equipo FCAG",
+      "timestamp": "2026-08-05T18:10:54.746Z"
+    },
+    {
       "id": "2ece1bb7-0a7d-4a2b-b0fd-f2198d167433",
       "tipo": "divulgacion",
       "titulo": "santa rosa",
@@ -118,5 +131,5 @@
       "timestamp": "2026-07-10T21:57:24.569Z"
     }
   ],
-  "generated_at": "2026-08-05T18:09:50.016229+00:00"
+  "generated_at": "2026-08-05T18:11:18.706525+00:00"
 }
