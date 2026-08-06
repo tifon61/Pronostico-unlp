@@ -182,6 +182,8 @@
         img { display: block; position: relative; background: transparent; min-width: 40px; min-height: 40px; object-fit: contain; image-rendering: auto; }
         .column { display: flex; flex-direction: column; flex: 1; }
         .column label { font-size: 0.75em; font-weight: 600; color: var(--unlp-blue); margin-bottom: 5px; text-transform: uppercase; }
+        .icon-wind-toggle { display: flex; align-items: center; gap: 5px; font-size: 0.7em; font-weight: 600; color: #555; text-transform: none; margin: 5px 0 0; cursor: pointer; }
+        .icon-wind-toggle input { width: 14px; height: 14px; margin: 0; cursor: pointer; }
         .time-input-group { display: flex; align-items: center; gap: 5px; }
         .time-input-group input { flex: 1; }
         .time-suffix { font-size: 0.9em; font-weight: 600; color: var(--unlp-blue); text-transform: uppercase; white-space: nowrap; }
@@ -643,6 +645,21 @@
         "tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" }
     };
 
+    // Misma clave que iconMap, pero con la variante de ícono que agrega el
+    // dibujo de viento. No todos los fenómenos tienen variante (neblinas/nieblas
+    // no vinieron con viento), así que updateSky() cae al ícono normal si falta.
+    const iconMapViento = {
+        "despejado": { dia: "Despejado_dia_viento.png", noche: "Despejado_noche_viento.png" },
+        "ligeramente nublado": { dia: "Ligeramente_nublado_dia_viento.png", noche: "Ligeramente_nublado_noche_viento.png" },
+        "algo nublado": { dia: "Algo_nublado_dia_viento.png", noche: "Algo_nublado_noche_viento.png" },
+        "parcialmente nublado": { dia: "Parcialmente_nublado_dia_viento.png", noche: "Parcialmente_nublado_noche_viento.png" },
+        "cubierto": { dia: "Cubierto_dia_viento.png", noche: "Cubierto_noche_viento.png" },
+        "lluvias aisladas": { dia: "Lluvias_dia_viento.png", noche: "Lluvias_noche_viento.png" },
+        "lloviznas": { dia: "Lloviznas_dia_viento.png", noche: "Lloviznas_noche_viento.png" },
+        "lluvias y tormentas aisladas": { dia: "Lluvias_tormentas_dia_viento.png", noche: "Lluvias_tormentas_noche_viento.png" },
+        "tormentas aisladas": { dia: "Lluvias_tormentas_dia_viento.png", noche: "Lluvias_tormentas_noche_viento.png" }
+    };
+
     const windDirectionsAngles = { "norte": 180, "noreste": 225, "este": 270, "sudeste": 315, "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135 };
 
     function getMomentoDia(dia, tramo) {
@@ -734,6 +751,9 @@
                             <option value="">Cielo o Lluvia...</option>
                             ${COMBINED_WEATHER_OPTS.map(o => `<option value="${o}">${capitalizeFirst(o)}</option>`).join('')}
                         </select>
+                        <label class="icon-wind-toggle" for="${conf.id}-icon-viento-${tramoIdx}">
+                            <input type="checkbox" id="${conf.id}-icon-viento-${tramoIdx}" onchange="updateSky('${conf.id}', ${tramoIdx})"> 💨 Ícono con viento
+                        </label>
                     </div>
                     <div class="column">
                         <label for="${conf.id}-pop-${tramoIdx}">Prob. Precip.</label>
@@ -865,7 +885,10 @@
             const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
             if(imgEl && imgEl.tagName === 'IMG') {
                 if(v && iconMap[v]) {
-                    imgEl.src = `images/${iconMap[v][getMomentoDia(dia, tramo)]}`;
+                    const conViento = document.getElementById(`${dia}-icon-viento-${tramo}`)?.checked;
+                    const momento = getMomentoDia(dia, tramo);
+                    const file = (conViento && iconMapViento[v]) ? iconMapViento[v][momento] : iconMap[v][momento];
+                    imgEl.src = `images/${file}`;
                     imgEl.style.transform = v === "despejado" ? "scale(1)" : "scale(1.25)";
                 } else { imgEl.src = `images/default.png`; imgEl.style.transform = "scale(1)"; }
             }
