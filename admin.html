@@ -100,7 +100,7 @@
         .day-1 { background: #003c60; padding-top: 35px; height: 630px; }
         .day-2 { background: #3981bfde; padding-top: 35px; margin-bottom: 0; height: 630px; }
         .day-header { display: flex; align-items: flex-start; padding: 0px 15px 0px; color: white; gap: 0; margin-bottom: -5px; }
-        .day-header h2 { font-size: 44px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 250px; letter-spacing: -2px; flex-shrink: 0; line-height: 1; white-space: nowrap; overflow: hidden; }
+        .day-header h2 { font-size: 44px; font-weight: 900; margin: -5px 0 0 0; text-transform: uppercase; width: 250px; letter-spacing: -2px; flex-shrink: 0; line-height: 1.05; overflow: hidden; }
         /* La cápsula de tramos usa la MISMA grilla de columnas que day-main-grid/stripe-wind/
            stripe-time (3 o 4 columnas iguales, sin el primer carril de 250px que ya puso el h2),
            así "MAÑANA/TARDE/NOCHE" queda exactamente arriba de su columna de datos. */
@@ -599,27 +599,15 @@
     // el ajuste automático como para el botón manual de tamaño de título.
     const DAY_INDEX = { h: 0, m: 1, d3: 2, d4: 3 };
 
-    // scrollWidth de un elemento con overflow:hidden no es confiable en Chromium
-    // para esto: una vez que el texto deja de desbordar a cierto tamaño, el valor
-    // se queda "pegado" ahí y no vuelve a bajar aunque se siga achicando la letra
-    // (se puede reproducir bajando el font-size a mano y mirando scrollWidth).
-    // measureText en un canvas mide el ancho real del texto sin ese problema, y
-    // de paso es más parecido a como html2canvas arma el texto al exportar.
-    const _measureCanvas = document.createElement('canvas');
-    const _measureCtx = _measureCanvas.getContext('2d');
-    function measureTextWidthAt(el, text, size) {
-        const cs = getComputedStyle(el);
-        _measureCtx.font = `${cs.fontWeight} ${size}px ${cs.fontFamily}`;
-        const letterSpacing = parseFloat(cs.letterSpacing) || 0;
-        return _measureCtx.measureText(text).width + letterSpacing * Math.max(0, text.length - 1);
-    }
-
     // Título del día (MARTES, MIÉRCOLES, ...): en Día 1/2 comparte fila con la
-    // cápsula de tramos (MAÑANA/TARDE/NOCHE) y un nombre largo como "MIÉRCOLES"
-    // puede pisarla si no achica letra sola (no hay espacio para partir la
-    // palabra en dos líneas). Se corre automático cada vez que cambia el
-    // nombre del día, y el botón A-/A+ del panel deja subir o bajar el techo
-    // por si algún día puntual sigue necesitando un ajuste manual.
+    // cápsula de tramos (MAÑANA/TARDE/NOCHE), y "MIÉRCOLES" no entra en una sola
+    // línea a tamaño completo. En vez de achicar la letra calculando el ancho del
+    // texto —lo cual depende de medir bien, algo que resultó poco confiable al
+    // exportar la placa con html2canvas (no siempre mide el texto igual que el
+    // navegador, sea cual sea la tipografía)—, se deja un tamaño fijo y es el CSS
+    // (word wrap + el espacio de ancho cero que se agrega en recalculateDates)
+    // el que decide partir "MIÉRCOLES" en dos líneas si hace falta. El botón
+    // A-/A+ del panel queda para un ajuste manual si algún caso puntual lo pide.
     function updateDayTitleSize(diaId) {
         const idx = DAY_INDEX[diaId];
         if (idx === undefined) return;
@@ -627,28 +615,7 @@
         if (!els.length) return;
         const isCardTitle = idx >= 2; // Día 3/4 usan el título grande de la v-card (solo, sin cápsula al lado)
         const base = (isCardTitle ? 72 : 44) + (rowFontBoost[`${diaId}_title`] || 0);
-        const min = isCardTitle ? 34 : 24;
-
-        if (isCardTitle) {
-            // Sin una caja de ancho fijo al lado (el título ocupa toda la tarjeta
-            // él solo) no hay con qué comparar el ancho del texto acá — se deja el
-            // tamaño base y el botón A-/A+ para el ajuste manual si hiciera falta.
-            els.forEach(el => { el.style.fontSize = base + 'px'; });
-            return;
-        }
-
-        // Margen de seguridad: html2canvas (usado al descargar la placa) no
-        // siempre mide el texto exactamente igual que el navegador, así que un
-        // ajuste "justo" acá podría terminar pisando la cápsula recién en la
-        // imagen exportada.
-        const SAFETY_MARGIN = 6;
-        els.forEach(el => {
-            const text = el.innerText;
-            const boxWidth = el.clientWidth; // ancho fijo de la caja (.day-header h2 { width:250px }), no depende del contenido
-            let size = base;
-            while (size > min && measureTextWidthAt(el, text, size) > boxWidth - SAFETY_MARGIN) size--;
-            el.style.fontSize = size + 'px';
-        });
+        els.forEach(el => { el.style.fontSize = base + 'px'; });
     }
 
     function capitalizeFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : ''; }
@@ -797,7 +764,14 @@
         const today = new Date();
         if (document.getElementById('chk-tomorrow').checked) today.setDate(today.getDate() + 1);
 
-        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+        // "MIÉRCOLES" es el único nombre de día que no entra en una sola línea
+        // junto a la cápsula de tramos. En vez de depender de medir el ancho del
+        // texto (poco confiable al exportar la placa con html2canvas, que no
+        // siempre mide igual que el navegador), se le agrega un espacio de ancho
+        // cero como único punto de corte posible: si entra en una línea no se
+        // nota, y si no entra, el navegador parte ahí en dos líneas en vez de
+        // desbordar por el costado.
+        const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉR​COLES", "JUEVES", "VIERNES", "SÁBADO"];
         const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
 
         const dStr = String(today.getDate()).padStart(2, '0');
@@ -1243,18 +1217,21 @@
         showToast("¡Texto copiado al portapapeles!");
     }
 
+    // El nombre del día puede traer un espacio de ancho cero (el punto de corte
+    // de "MIÉRCOLES", ver recalculateDates) — no debe quedar en el nombre del archivo.
+    const dayNameForFile = sel => document.querySelector(sel).innerText.replace(/​/g, '');
+
     function getFilename(type) {
         const c = document.getElementById('city-selector').value.replace(/\s+/g, '_');
         const d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
-        if (type === 'placa-1') return `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_${document.querySelector('.n1').innerText}`;
-        if (type === 'placa-2') return `Pronostico_${c}_${d}_${document.querySelector('.n2').innerText}_${document.querySelector('.n3').innerText}`;
+        if (type === 'placa-1') return `Pronostico_${c}_${d}_${dayNameForFile('.n0')}_${dayNameForFile('.n1')}`;
+        if (type === 'placa-2') return `Pronostico_${c}_${d}_${dayNameForFile('.n2')}_${dayNameForFile('.n3')}`;
         return `Pronostico_${c}_${d}`;
     }
 
     async function download(id) {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
-        ['h', 'm', 'd3', 'd4'].forEach(updateDayTitleSize);
         const el = document.getElementById(id); el.classList.add('exporting');
         await new Promise(r => setTimeout(r, 50));
         const images = el.querySelectorAll("img");
@@ -1268,9 +1245,8 @@
     async function downloadPDF() {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
-        ['h', 'm', 'd3', 'd4'].forEach(updateDayTitleSize);
         const c = document.getElementById('city-selector').value.replace(/\s+/g, '_'), d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
-        const pdfName = `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
+        const pdfName = `Pronostico_${c}_${d}_${dayNameForFile('.n0')}_a_${dayNameForFile('.n3')}.pdf`;
         const el1 = document.getElementById('placa-1'), el2 = document.getElementById('placa-2');
         el1.classList.add('exporting'); el2.classList.add('exporting');
         await new Promise(r => setTimeout(r, 50));
@@ -1342,18 +1318,6 @@
             if (initialCity) updateCity(initialCity.value);
             generateSocialText();
         }, 150);
-
-        // recalculateDates() ya corrió el ajuste automático del título del día, pero
-        // puede haber medido el texto antes de que Montserrat termine de bajar de
-        // Google Fonts (font-display:swap la muestra recién cuando termina) — con
-        // esa métrica angosta de la fuente de reemplazo, "MIÉRCOLES" puede entrar a
-        // 44px y no achicarse, y al llegar la tipografía real (más ancha) termina
-        // pisando la cápsula de al lado, aunque en pantalla ya no se note el cambio
-        // porque el tamaño no se vuelve a recalcular solo. Por eso se repite el
-        // ajuste en cuanto la fuente real está confirmada.
-        document.fonts.ready.then(() => {
-            ['h', 'm', 'd3', 'd4'].forEach(updateDayTitleSize);
-        });
     };
 
     // parseFloat(x) || null trata al 0 como "sin valor" (0 es falsy en JS).
