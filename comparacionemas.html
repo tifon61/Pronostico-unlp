@@ -421,7 +421,11 @@
         // Arma el CSV y dispara la descarga. El BOM al principio del Blob es
         // para que Excel en Windows detecte UTF-8 y no rompa los acentos/ñ.
         function downloadCSV(filename, rows) {
-            const csv = rows.map(row => row.map(toCSVValue).join(',')).join('\r\n');
+            // Punto y coma, no coma: con configuración regional argentina/española,
+            // Excel espera ";" como separador de columnas en un CSV (usa la coma
+            // para separar decimales), así que abrir con "," de un doble clic
+            // vuelca todo en una sola columna.
+            const csv = rows.map(row => row.map(toCSVValue).join(';')).join('\r\n');
             const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
