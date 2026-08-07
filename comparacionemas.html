@@ -443,17 +443,43 @@
             return `${clean(startStr)}_a_${clean(endStr)}`;
         }
 
+        // Cuánta lluvia cayó en CADA bucket (no el acumulado corrido). Violeta,
+        // Verde y Campbell ya traen esto calculado en incrementData (viene de
+        // processStationData). Daza (Wunderground) solo trae la curva acumulada,
+        // así que se deriva restando cada punto del anterior -- se memoiza en el
+        // propio objeto para no recalcularlo si se pide más de una vez.
+        function getIncrementSeries(stationResult) {
+            if (stationResult.incrementData) return stationResult.incrementData;
+            const inc = [];
+            let prev = 0;
+            stationResult.chartData.forEach(v => {
+                const val = v != null ? v : prev;
+                inc.push(+(val - prev).toFixed(2));
+                prev = val;
+            });
+            stationResult.incrementData = inc;
+            return inc;
+        }
+
         function exportLluviaCSV() {
             if (!lastLluviaExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
             const { labels, resV, resVerde, resC, resDaza, startStr, endStr } = lastLluviaExport;
-            const rows = [['Fecha/Hora', 'EMA Violeta acum. (mm)', 'EMA Verde acum. (mm)', 'Campbell acum. (mm)', 'Daza acum. (mm)']];
+            const incV = getIncrementSeries(resV), incVerde = getIncrementSeries(resVerde),
+                  incC = getIncrementSeries(resC), incDaza = getIncrementSeries(resDaza);
+            const rows = [[
+                'Fecha/Hora',
+                'EMA Violeta - PP período (mm)', 'EMA Violeta - Acumulado (mm)',
+                'EMA Verde - PP período (mm)', 'EMA Verde - Acumulado (mm)',
+                'Campbell - PP período (mm)', 'Campbell - Acumulado (mm)',
+                'Daza - PP período (mm)', 'Daza - Acumulado (mm)'
+            ]];
             labels.forEach((label, i) => {
                 rows.push([
                     label,
-                    resV.chartData[i] != null ? resV.chartData[i].toFixed(2) : '',
-                    resVerde.chartData[i] != null ? resVerde.chartData[i].toFixed(2) : '',
-                    resC.chartData[i] != null ? resC.chartData[i].toFixed(2) : '',
-                    resDaza.chartData[i] != null ? resDaza.chartData[i].toFixed(2) : ''
+                    incV[i] != null ? incV[i].toFixed(2) : '', resV.chartData[i] != null ? resV.chartData[i].toFixed(2) : '',
+                    incVerde[i] != null ? incVerde[i].toFixed(2) : '', resVerde.chartData[i] != null ? resVerde.chartData[i].toFixed(2) : '',
+                    incC[i] != null ? incC[i].toFixed(2) : '', resC.chartData[i] != null ? resC.chartData[i].toFixed(2) : '',
+                    incDaza[i] != null ? incDaza[i].toFixed(2) : '', resDaza.chartData[i] != null ? resDaza.chartData[i].toFixed(2) : ''
                 ]);
             });
             downloadCSV(`comparacion_lluvia_${rangeForFilename(startStr, endStr)}.csv`, rows);
@@ -473,9 +499,14 @@
             const st = LLUVIA_STATIONS[stationKey];
             const { labels, startStr, endStr } = lastLluviaExport;
             const data = lastLluviaExport[st.key];
-            const rows = [['Fecha/Hora', `${st.label} acum. (mm)`]];
+            const inc = getIncrementSeries(data);
+            const rows = [['Fecha/Hora', `${st.label} - PP período (mm)`, `${st.label} - Acumulado (mm)`]];
             labels.forEach((label, i) => {
-                rows.push([label, data.chartData[i] != null ? data.chartData[i].toFixed(2) : '']);
+                rows.push([
+                    label,
+                    inc[i] != null ? inc[i].toFixed(2) : '',
+                    data.chartData[i] != null ? data.chartData[i].toFixed(2) : ''
+                ]);
             });
             downloadCSV(`lluvia_${stationKey}_${rangeForFilename(startStr, endStr)}.csv`, rows);
         }
