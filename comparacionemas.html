@@ -140,6 +140,7 @@
                         <span class="text-slate-500 font-bold text-xl">mm</span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="msgVioleta">Calculando ciclos completos de cangilones...</p>
+                    <button onclick="exportLluviaStationCSV('violeta')" class="text-[11px] text-purple-400 hover:text-purple-300 font-bold mt-2"><i class="fa-solid fa-file-csv mr-1"></i>CSV de esta estación</button>
                 </div>
 
                 <!-- EMA Verde: field 4 (Precipitaciones Intervalo) ya viene en mm directos por lectura -->
@@ -153,6 +154,7 @@
                         <span class="text-slate-500 font-bold text-xl">mm</span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="msgVerde">Sumando mm del sensor...</p>
+                    <button onclick="exportLluviaStationCSV('verde')" class="text-[11px] text-green-400 hover:text-green-300 font-bold mt-2"><i class="fa-solid fa-file-csv mr-1"></i>CSV de esta estación</button>
                 </div>
 
                 <!-- Campbell: Los valores del field son mm directos -->
@@ -166,6 +168,7 @@
                         <span class="text-slate-500 font-bold text-xl">mm</span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="msgCampbell">Sumando mm del datalogger...</p>
+                    <button onclick="exportLluviaStationCSV('campbell')" class="text-[11px] text-sky-400 hover:text-sky-300 font-bold mt-2"><i class="fa-solid fa-file-csv mr-1"></i>CSV de esta estación</button>
                 </div>
 
                 <!-- Daza (Wunderground ILAPLA66): precipTotal es acumulado DIARIO -->
@@ -179,6 +182,7 @@
                         <span class="text-slate-500 font-bold text-xl">mm</span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="msgDaza">Consultando historial de Wunderground...</p>
+                    <button onclick="exportLluviaStationCSV('daza')" class="text-[11px] text-red-400 hover:text-red-300 font-bold mt-2"><i class="fa-solid fa-file-csv mr-1"></i>CSV de esta estación</button>
                 </div>
             </div>
 
@@ -189,7 +193,7 @@
                         <h3 class="text-lg font-bold text-slate-200" id="chartTitle">Curva de Precipitación del Evento</h3>
                         <div class="flex items-center gap-3">
                             <span class="text-xs text-slate-400" id="chartSubtitle"></span>
-                            <button onclick="exportLluviaCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-file-csv mr-1"></i>Descargar CSV</button>
+                            <button onclick="exportLluviaCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-file-csv mr-1"></i>Descargar CSV (todas las estaciones)</button>
                         </div>
                     </div>
                     <div id="chartParent" class="relative w-full h-[380px]">
@@ -221,6 +225,7 @@
                         <span class="text-slate-500 font-bold text-xl" id="varVerdeUnit"></span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="varVerdeMsg">Sincronizando...</p>
+                    <button onclick="exportVariablesStationCSV('verde')" class="text-[11px] text-green-400 hover:text-green-300 font-bold mt-2"><i class="fa-solid fa-file-csv mr-1"></i>CSV de esta estación</button>
                 </div>
 
                 <div class="glass p-6 rounded-2xl border-l-4 border-sky-500 relative">
@@ -233,6 +238,7 @@
                         <span class="text-slate-500 font-bold text-xl" id="varCampbellUnit"></span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="varCampbellMsg">Sincronizando...</p>
+                    <button onclick="exportVariablesStationCSV('campbell')" class="text-[11px] text-sky-400 hover:text-sky-300 font-bold mt-2"><i class="fa-solid fa-file-csv mr-1"></i>CSV de esta estación</button>
                 </div>
 
                 <div class="glass p-6 rounded-2xl border-l-4 border-red-500 relative">
@@ -245,6 +251,7 @@
                         <span class="text-slate-500 font-bold text-xl" id="varDazaUnit"></span>
                     </div>
                     <p class="text-slate-400 text-xs mt-2" id="varDazaMsg">Sincronizando...</p>
+                    <button onclick="exportVariablesStationCSV('daza')" class="text-[11px] text-red-400 hover:text-red-300 font-bold mt-2"><i class="fa-solid fa-file-csv mr-1"></i>CSV de esta estación</button>
                 </div>
             </div>
 
@@ -255,7 +262,7 @@
                         <h3 class="text-lg font-bold text-slate-200" id="varChartTitle">Temperatura: EMA Verde vs Campbell vs Daza</h3>
                         <div class="flex items-center gap-3">
                             <span class="text-xs text-slate-400" id="varChartSubtitle"></span>
-                            <button onclick="exportVariablesCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-file-csv mr-1"></i>Descargar CSV</button>
+                            <button onclick="exportVariablesCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-file-csv mr-1"></i>Descargar CSV (todas las estaciones)</button>
                         </div>
                     </div>
                     <div class="relative w-full h-[380px]">
@@ -448,6 +455,27 @@
             downloadCSV(`comparacion_lluvia_${rangeForFilename(startStr, endStr)}.csv`, rows);
         }
 
+        // Mapea la clave de cada botón individual a su etiqueta y a la clave
+        // que usa lastLluviaExport para guardar el resultado de esa estación.
+        const LLUVIA_STATIONS = {
+            violeta: { label: 'EMA Violeta', key: 'resV' },
+            verde: { label: 'EMA Verde', key: 'resVerde' },
+            campbell: { label: 'Campbell', key: 'resC' },
+            daza: { label: 'Daza', key: 'resDaza' }
+        };
+
+        function exportLluviaStationCSV(stationKey) {
+            if (!lastLluviaExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
+            const st = LLUVIA_STATIONS[stationKey];
+            const { labels, startStr, endStr } = lastLluviaExport;
+            const data = lastLluviaExport[st.key];
+            const rows = [['Fecha/Hora', `${st.label} acum. (mm)`]];
+            labels.forEach((label, i) => {
+                rows.push([label, data.chartData[i] != null ? data.chartData[i].toFixed(2) : '']);
+            });
+            downloadCSV(`lluvia_${stationKey}_${rangeForFilename(startStr, endStr)}.csv`, rows);
+        }
+
         function exportVariablesCSV() {
             if (!lastVariablesExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
             const { cfg, labels, verdeResult, campResult, dazaResult, startStr, endStr } = lastVariablesExport;
@@ -461,6 +489,26 @@
                 ]);
             });
             downloadCSV(`comparacion_${cfg.label.toLowerCase().replace(/\s+/g, '_')}_${rangeForFilename(startStr, endStr)}.csv`, rows);
+        }
+
+        // Igual que LLUVIA_STATIONS pero para la pestaña de Variables (3 estaciones,
+        // sin Violeta, que no reporta temperatura/humedad/presión).
+        const VARIABLES_STATIONS = {
+            verde: { label: 'EMA Verde', key: 'verdeResult' },
+            campbell: { label: 'Campbell', key: 'campResult' },
+            daza: { label: 'Daza', key: 'dazaResult' }
+        };
+
+        function exportVariablesStationCSV(stationKey) {
+            if (!lastVariablesExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
+            const st = VARIABLES_STATIONS[stationKey];
+            const { cfg, labels, startStr, endStr } = lastVariablesExport;
+            const data = lastVariablesExport[st.key];
+            const rows = [['Fecha/Hora', `${st.label} (${cfg.unit})`]];
+            labels.forEach((label, i) => {
+                rows.push([label, (data && data.chartData[i] != null) ? data.chartData[i] : '']);
+            });
+            downloadCSV(`${cfg.label.toLowerCase().replace(/\s+/g, '_')}_${stationKey}_${rangeForFilename(startStr, endStr)}.csv`, rows);
         }
 
         function exportDiagnosticoCSV() {
