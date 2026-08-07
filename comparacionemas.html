@@ -185,9 +185,12 @@
             <!-- Gráfico Principal -->
             <div class="grid grid-cols-1 gap-6 mb-8">
                 <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
-                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                         <h3 class="text-lg font-bold text-slate-200" id="chartTitle">Curva de Precipitación del Evento</h3>
-                        <span class="text-xs text-slate-400" id="chartSubtitle"></span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400" id="chartSubtitle"></span>
+                            <button onclick="exportLluviaCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-file-csv mr-1"></i>Descargar CSV</button>
+                        </div>
                     </div>
                     <div id="chartParent" class="relative w-full h-[380px]">
                         <canvas id="precipChart"></canvas>
@@ -248,9 +251,12 @@
             <!-- Gráfico Combinado -->
             <div class="grid grid-cols-1 gap-6 mb-8">
                 <div class="glass p-6 rounded-2xl shadow-xl min-h-[450px]">
-                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                         <h3 class="text-lg font-bold text-slate-200" id="varChartTitle">Temperatura: EMA Verde vs Campbell vs Daza</h3>
-                        <span class="text-xs text-slate-400" id="varChartSubtitle"></span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400" id="varChartSubtitle"></span>
+                            <button onclick="exportVariablesCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-file-csv mr-1"></i>Descargar CSV</button>
+                        </div>
                     </div>
                     <div class="relative w-full h-[380px]">
                         <canvas id="varChart"></canvas>
@@ -281,7 +287,10 @@
             </div>
 
             <div class="glass p-6 rounded-2xl shadow-xl mb-6">
-                <h3 class="text-lg font-bold text-slate-200 mb-1">Comparación por evento de lluvia</h3>
+                <div class="flex justify-between items-start mb-1 flex-wrap gap-3">
+                    <h3 class="text-lg font-bold text-slate-200">Comparación por evento de lluvia</h3>
+                    <button onclick="exportDiagnosticoCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-file-csv mr-1"></i>Descargar CSV (eventos y buckets)</button>
+                </div>
                 <p class="text-xs text-slate-400 mb-4">Cada fila agrupa un tramo continuo de lluvia (separado de otros por al menos 3 buckets secos). Sirve para ver cuánto varía la lluvia real entre las dos ubicaciones evento a evento.</p>
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="w-full text-sm text-left">
@@ -385,6 +394,101 @@
 
         let currentVar = 'temp';
         let activeMainTab = 'lluvia';
+
+        // Guarda el último resultado calculado de cada pestaña para que los
+        // botones de "Descargar CSV" puedan exportar sin volver a pedirle los
+        // datos a ThingSpeak/Wunderground.
+        let lastLluviaExport = null;
+        let lastVariablesExport = null;
+        let lastDiagnosticoExport = null;
+
+        // Escapa un valor para una celda CSV (comillas dobles si tiene coma,
+        // comilla o salto de línea).
+        function toCSVValue(v) {
+            if (v === null || v === undefined) return '';
+            const s = String(v);
+            if (/[",\n;]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+            return s;
+        }
+
+        // Arma el CSV y dispara la descarga. El BOM al principio del Blob es
+        // para que Excel en Windows detecte UTF-8 y no rompa los acentos/ñ.
+        function downloadCSV(filename, rows) {
+            const csv = rows.map(row => row.map(toCSVValue).join(',')).join('\r\n');
+            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Convierte el rango de fechas del selector a algo prolijo para el nombre de archivo.
+        function rangeForFilename(startStr, endStr) {
+            const clean = s => s.replace(/[-:T]/g, '').slice(0, 12); // YYYYMMDDHHMM
+            return `${clean(startStr)}_a_${clean(endStr)}`;
+        }
+
+        function exportLluviaCSV() {
+            if (!lastLluviaExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
+            const { labels, resV, resVerde, resC, resDaza, startStr, endStr } = lastLluviaExport;
+            const rows = [['Fecha/Hora', 'EMA Violeta acum. (mm)', 'EMA Verde acum. (mm)', 'Campbell acum. (mm)', 'Daza acum. (mm)']];
+            labels.forEach((label, i) => {
+                rows.push([
+                    label,
+                    resV.chartData[i] != null ? resV.chartData[i].toFixed(2) : '',
+                    resVerde.chartData[i] != null ? resVerde.chartData[i].toFixed(2) : '',
+                    resC.chartData[i] != null ? resC.chartData[i].toFixed(2) : '',
+                    resDaza.chartData[i] != null ? resDaza.chartData[i].toFixed(2) : ''
+                ]);
+            });
+            downloadCSV(`comparacion_lluvia_${rangeForFilename(startStr, endStr)}.csv`, rows);
+        }
+
+        function exportVariablesCSV() {
+            if (!lastVariablesExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
+            const { cfg, labels, verdeResult, campResult, dazaResult, startStr, endStr } = lastVariablesExport;
+            const rows = [['Fecha/Hora', `EMA Verde (${cfg.unit})`, `Campbell (${cfg.unit})`, `Daza (${cfg.unit})`]];
+            labels.forEach((label, i) => {
+                rows.push([
+                    label,
+                    verdeResult.chartData[i] != null ? verdeResult.chartData[i] : '',
+                    campResult.chartData[i] != null ? campResult.chartData[i] : '',
+                    (dazaResult && dazaResult.chartData[i] != null) ? dazaResult.chartData[i] : ''
+                ]);
+            });
+            downloadCSV(`comparacion_${cfg.label.toLowerCase().replace(/\s+/g, '_')}_${rangeForFilename(startStr, endStr)}.csv`, rows);
+        }
+
+        function exportDiagnosticoCSV() {
+            if (!lastDiagnosticoExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
+            const { startStr, endStr, events, verdeResult, campResult } = lastDiagnosticoExport;
+
+            const rows = [['EVENTOS DE LLUVIA']];
+            rows.push(['Evento', 'Verde (mm)', 'Campbell (mm)', 'Diferencia', 'Ratio (Campbell/Verde)']);
+            events.forEach(ev => {
+                const diff = ev.camp - ev.verde;
+                const ratio = ev.verde > 0 ? (ev.camp / ev.verde).toFixed(3) : '';
+                const rangeLabel = ev.startLabel === ev.endLabel ? ev.startLabel : `${ev.startLabel} a ${ev.endLabel}`;
+                rows.push([rangeLabel, ev.verde.toFixed(2), ev.camp.toFixed(2), diff.toFixed(2), ratio]);
+            });
+
+            rows.push([]);
+            rows.push(['INCREMENTOS POR BUCKET']);
+            rows.push(['Bucket', 'Verde (crudo)', 'Campbell (mm)', 'Ratio (Campbell/Verde)']);
+            verdeResult.labels.forEach((label, i) => {
+                const verdeVal = verdeResult.incrementData[i] || 0;
+                const campVal = campResult.incrementData[i] || 0;
+                if (verdeVal === 0 && campVal === 0) return;
+                const ratio = verdeVal > 0 ? (campVal / verdeVal).toFixed(3) : '';
+                rows.push([label, verdeVal.toFixed(3), campVal.toFixed(2), ratio]);
+            });
+
+            downloadCSV(`diagnostico_calibracion_${rangeForFilename(startStr, endStr)}.csv`, rows);
+        }
 
         let myChart = null;
         let myVarChart = null;
@@ -960,6 +1064,8 @@
 
             debug.innerText = `Actualización finalizada.`;
 
+            lastLluviaExport = { labels: resV.labels, resV, resVerde, resC, resDaza, startStr, endStr };
+
             if (typeof Chart !== 'undefined') renderChart(resV, resVerde, resC, resDaza);
         }
 
@@ -1123,6 +1229,8 @@
                 ? `Total del período (reset diario, Wunderground)`
                 : (dazaResult.latestTs ? `Última lectura: ${new Date(dazaResult.latestTs).toLocaleString('es-AR')}` : 'Sin datos (revisar CORS)');
 
+            lastVariablesExport = { cfg, labels: verdeResult.labels, verdeResult, campResult, dazaResult, startStr, endStr };
+
             if (typeof Chart !== 'undefined') renderVarChart(verdeResult, campResult, cfg, dazaResult);
         }
 
@@ -1284,6 +1392,7 @@
             document.getElementById('diagRatio').innerText = overallRatio != null ? overallRatio.toFixed(3) : '--';
 
             const events = groupIntoEvents(verdeResult.labels, verdeResult.incrementData, campResult.incrementData);
+            lastDiagnosticoExport = { startStr, endStr, events, verdeResult, campResult };
             const eventsBody = document.getElementById('diagEventsBody');
             eventsBody.innerHTML = '';
             events.forEach(ev => {
