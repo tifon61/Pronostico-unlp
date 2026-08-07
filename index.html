@@ -92,8 +92,8 @@
         .fcast-temps { display: flex; gap: 18px; }
         .fcast-temp-col { display: flex; align-items: center; gap: 8px; }
         .fcast-temp-vals { display: flex; flex-direction: column; gap: 1px; }
-        .fcast-temp-urb { font-size: 1.65rem; font-weight: 800; color: white; line-height: 1.1; }
-        .fcast-temp-sub { font-size: 0.95rem; font-weight: 600; opacity: 0.7; color: white; line-height: 1.1; }
+        .fcast-temp-urb { font-size: 1.65rem; font-weight: 800; color: white; line-height: 1.1; cursor: default; }
+        .fcast-temp-sub { font-size: 1.2rem; font-weight: 700; opacity: 0.8; color: white; line-height: 1.1; cursor: default; }
         .fcast-temp-lbl { font-size: 0.7rem; font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
         .fcast-periods-wrap { background: white; display: grid; }
         .fcast-periods-wrap.cols3 { grid-template-columns: repeat(3, 1fr); }
@@ -129,8 +129,8 @@
         .ext-temps-row { display: flex; justify-content: center; gap: 20px; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 10px; }
         .ext-temp-item { display: flex; align-items: center; gap: 8px; }
         .ext-temp-vals { display: flex; flex-direction: column; }
-        .ext-temp-urb { font-size: 1.9rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
-        .ext-temp-sub { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
+        .ext-temp-urb { font-size: 1.9rem; font-weight: 800; color: var(--primary); line-height: 1.1; cursor: default; }
+        .ext-temp-sub { font-size: 1.3rem; font-weight: 700; color: var(--text-muted); cursor: default; }
         .ext-temp-lbl { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
         .ext-icons-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .ext-icon-half { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -626,8 +626,8 @@ function tempBlock(day, showSub=true) {
     const mS = day.temp_min_suburban!=null ? day.temp_min_suburban+'°*' : '--*';
     const xS = day.temp_max_suburban!=null ? day.temp_max_suburban+'°*' : '--*';
     return `<div class="fcast-temps">
-        <div class="fcast-temp-col">${thermoSVG('blue')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÍN</div><div class="fcast-temp-urb">${mU}</div>${showSub?`<div class="fcast-temp-sub">${mS}</div>`:''}</div></div>
-        <div class="fcast-temp-col">${thermoSVG('red')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÁX</div><div class="fcast-temp-urb">${xU}</div>${showSub?`<div class="fcast-temp-sub">${xS}</div>`:''}</div></div>
+        <div class="fcast-temp-col">${thermoSVG('blue')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÍN</div><div class="fcast-temp-urb" title="Temperatura urbana">${mU}</div>${showSub?`<div class="fcast-temp-sub" title="Temperatura suburbana">${mS}</div>`:''}</div></div>
+        <div class="fcast-temp-col">${thermoSVG('red')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÁX</div><div class="fcast-temp-urb" title="Temperatura urbana">${xU}</div>${showSub?`<div class="fcast-temp-sub" title="Temperatura suburbana">${xS}</div>`:''}</div></div>
     </div>`;
 }
 
@@ -711,8 +711,8 @@ function buildExtCard(day, cardClass, idx=0, showSub=true) {
         <div class="ext-card-hdr"><div class="ext-card-name">${day.day_name?.toUpperCase()||'--'}</div><div class="ext-card-date">${dateStr}</div></div>
         <div class="ext-card-body">
             <div class="ext-icons-row">${half(p1,'MADRUGADA / MAÑANA')}${half(p2,'TARDE / NOCHE')}</div>
-            <div class="ext-temps-row"><div class="ext-temp-item">${thermoSVG('blue')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÍN</div><div class="ext-temp-urb">${mU}</div>${showSub?`<div class="ext-temp-sub">${mS}</div>`:''}</div></div>
-            <div class="ext-temp-item">${thermoSVG('red')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÁX</div><div class="ext-temp-urb">${xU}</div>${showSub?`<div class="ext-temp-sub">${xS}</div>`:''}</div></div></div>
+            <div class="ext-temps-row"><div class="ext-temp-item">${thermoSVG('blue')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÍN</div><div class="ext-temp-urb" title="Temperatura urbana">${mU}</div>${showSub?`<div class="ext-temp-sub" title="Temperatura suburbana">${mS}</div>`:''}</div></div>
+            <div class="ext-temp-item">${thermoSVG('red')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÁX</div><div class="ext-temp-urb" title="Temperatura urbana">${xU}</div>${showSub?`<div class="ext-temp-sub" title="Temperatura suburbana">${xS}</div>`:''}</div></div></div>
             ${desc!=='--'?`<div class="ext-desc-box">${desc}</div>`:''}
             ${windHtml}
         </div>
