@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T17:40:27.878054+00:00",
+  "generated_at": "2026-08-10T18:26:10.333072+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -354,7 +354,7 @@
       "forecast_date": "2026-08-10",
       "emission_time": "07:39:00",
       "publicado_por": "Equipo FCAG",
-      "es_correccion": false,
+      "es_correccion": true,
       "team_password": "Maraton",
       "daily_forecasts": [
         {
@@ -463,7 +463,7 @@
           "temp_max": 9,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo algo nublao a cubierto",
+          "custom_description": null,
           "period_forecasts": [
             {
               "period": "mañana",
@@ -496,7 +496,7 @@
           "temp_max": 10,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo cubierto con 10-40% de probabilidad de lluvias aisladas por la tarde",
+          "custom_description": null,
           "period_forecasts": [
             {
               "period": "mañana",
