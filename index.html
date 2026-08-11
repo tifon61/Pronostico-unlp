@@ -290,6 +290,20 @@
                 </select>
             </div>
             <div class="map-card"><div id="map"></div></div>
+            <div id="map-extras" class="hidden">
+                <button class="glossary-toggle" id="glossary-btn" onclick="toggleGlossary()">
+                    <span>💡 ¿Qué significan estos datos?</span>
+                    <span id="glossary-arrow">▾</span>
+                </button>
+                <div class="glossary-panel" id="glossary-panel">
+                    <div class="glossary-item">Para completar.</div>
+                </div>
+                <div id="alert-section" class="alert-card hidden" style="margin-top:14px;">
+                    <h3>⚠ Alertas SMN</h3>
+                    <p style="font-size:0.82rem; color:var(--text-main); margin-bottom:10px;">Alertas del Servicio Meteorológico Nacional</p>
+                    <a href="https://www.smn.gob.ar/alertas" target="_blank" style="display:inline-block; background:var(--danger); color:white; padding:7px 14px; border-radius:6px; text-decoration:none; font-weight:800; font-size:0.78rem;">Ver Alerta →</a>
+                </div>
+            </div>
         </div>
         <div class="data-panel" id="data-panel">
             <div id="welcome-panel">
@@ -310,18 +324,6 @@
                         <div>EMISIÓN</div>
                         <span id="cd-emission-time">--:--</span>
                     </div>
-                </div>
-                <button class="glossary-toggle" id="glossary-btn" onclick="toggleGlossary()">
-                    <span>💡 ¿Qué significan estos datos?</span>
-                    <span id="glossary-arrow">▾</span>
-                </button>
-                <div class="glossary-panel" id="glossary-panel">
-                    <div class="glossary-item">Para completar.</div>
-                </div>
-                <div id="alert-section" class="alert-card hidden" style="margin-top:14px;">
-                    <h3>⚠ Alertas SMN</h3>
-                    <p style="font-size:0.82rem; color:var(--text-main); margin-bottom:10px;">Alertas del Servicio Meteorológico Nacional</p>
-                    <a href="https://www.smn.gob.ar/alertas" target="_blank" style="display:inline-block; background:var(--danger); color:white; padding:7px 14px; border-radius:6px; text-decoration:none; font-weight:800; font-size:0.78rem;">Ver Alerta →</a>
                 </div>
                 <div id="outdated-banner" class="outdated-banner hidden" style="margin-top:14px;">
                     <h3>⏳ Pronóstico desactualizado</h3>
@@ -484,6 +486,7 @@ function toggleGlossary() {
 async function loadCity(city) {
     document.getElementById('welcome-panel').classList.add('hidden');
     document.getElementById('city-dashboard').classList.remove('hidden');
+    document.getElementById('map-extras').classList.remove('hidden');
     document.getElementById('cd-title').innerText = city;
     const now = new Date();
     document.getElementById('cd-time-lbl').innerText = `Actualizado ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
