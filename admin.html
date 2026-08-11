@@ -300,7 +300,7 @@
         <button class="btn btn-clear" style="margin-bottom: 0;" onclick="regenerateSocialText()">🔄 Regenerar texto automático</button>
     </div>
 
-    <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
+    <button class="btn btn-save" id="btn-publicar-api" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
     <button class="btn btn-p1" onclick="download('placa-1')">⬇ PLACA 1 (D1-D2)</button>
     <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
     <button class="btn btn-pdf" onclick="downloadPDF()">📄 DESCARGAR PDF</button>
@@ -1338,6 +1338,26 @@
     const numOrNull = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
 
     async function saveToWeb() {
+        // Evita publicaciones duplicadas por doble clic (o por clic de nuevo
+        // porque tarda en responder): mientras el botón está deshabilitado,
+        // un clic de más no dispara un segundo POST en paralelo. Esto es la
+        // mitad del arreglo -- la otra mitad (LockService en Code.gs) evita
+        // el mismo problema si dos personas publican casi al mismo tiempo.
+        const btnPublicar = document.getElementById('btn-publicar-api');
+        if (btnPublicar.disabled) return;
+        btnPublicar.disabled = true;
+        const btnPublicarLabel = btnPublicar.innerHTML;
+        btnPublicar.innerHTML = '⏳ Publicando...';
+
+        try {
+            await saveToWebInner();
+        } finally {
+            btnPublicar.disabled = false;
+            btnPublicar.innerHTML = btnPublicarLabel;
+        }
+    }
+
+    async function saveToWebInner() {
         const city = document.getElementById('city-selector').value;
         const outHora = document.getElementById('in-hora-emision').value.trim();
         const baseDate = new Date();
