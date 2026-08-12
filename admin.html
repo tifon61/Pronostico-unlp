@@ -171,11 +171,12 @@
         .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
         .card-split img { width: 176px; height: 220px; object-fit: contain; flex-shrink: 0; }
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
+        .card-temps-row.temp-row-lg { padding-top: 10px; }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
         .card-temp-numbers { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
         .card-temp-urb { font-size: 28px; font-weight: 500; line-height: 1.2; color: white; }
         .card-temp-sub { font-size: 28px; font-weight: 500; line-height: 1.2; color: rgba(255,255,255,0.9); }
-        .card-temp-urb.temp-lg { font-size: 36px; }
+        .card-temp-urb.temp-lg { font-size: 32px; }
         .card-temp-sub.temp-lg { font-size: 32px; }
         .weather-desc { height: 140px; width: 100%; margin-top: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .weather-desc span { font-size: 28px; line-height: 1.2; font-weight: 800; text-align: center; padding: 0 10px; display: inline-block; width: 100%; }
@@ -434,13 +435,13 @@
                         <div class="card-split-col"><span class="card-split-title">MADRUGADA/MAÑANA</span><img id="d3-icon-1" src="images/default.png"></div>
                         <div class="card-split-col"><span class="card-split-title">TARDE/NOCHE</span><img id="d3-icon-2" src="images/default.png"></div>
                     </div>
-                    <div class="card-temps-row">
+                    <div class="card-temps-row temp-row-lg">
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="32" height="96"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#00bcd4"/><rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/></svg>
+                            <svg viewBox="0 0 30 90" width="29" height="88"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#00bcd4"/><rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/></svg>
                             <div class="card-temp-numbers"><span class="card-temp-urb temp-lg" id="d3-min">--</span><span class="card-temp-sub temp-lg" id="d3-min-sub">--*</span></div>
                         </div>
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="32" height="96"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#ef4444"/><rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/></svg>
+                            <svg viewBox="0 0 30 90" width="29" height="88"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#ef4444"/><rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/></svg>
                             <div class="card-temp-numbers"><span class="card-temp-urb temp-lg" id="d3-max">--</span><span class="card-temp-sub temp-lg" id="d3-max-sub">--*</span></div>
                         </div>
                     </div>
@@ -457,13 +458,13 @@
                         <div class="card-split-col"><span class="card-split-title">MADRUGADA/MAÑANA</span><img id="d4-icon-1" src="images/default.png"></div>
                         <div class="card-split-col"><span class="card-split-title">TARDE/NOCHE</span><img id="d4-icon-2" src="images/default.png"></div>
                     </div>
-                    <div class="card-temps-row">
+                    <div class="card-temps-row temp-row-lg">
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="32" height="96"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#00bcd4"/><rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/></svg>
+                            <svg viewBox="0 0 30 90" width="29" height="88"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#00bcd4"/><rect x="12" y="25" width="6" height="42" rx="3" fill="#00bcd4"/></svg>
                             <div class="card-temp-numbers"><span class="card-temp-urb temp-lg" id="d4-min">--</span><span class="card-temp-sub temp-lg" id="d4-min-sub">--*</span></div>
                         </div>
                         <div class="card-temp-item">
-                            <svg viewBox="0 0 30 90" width="32" height="96"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#ef4444"/><rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/></svg>
+                            <svg viewBox="0 0 30 90" width="29" height="88"><path d="M 15 5 C 10 5, 10 12, 10 15 L 10 55 C 5 60, 5 70, 10 75 C 15 80, 20 80, 25 75 C 30 70, 30 60, 25 55 L 25 15 C 25 12, 25 5, 15 5 Z" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="#ef4444"/><rect x="12" y="15" width="6" height="52" rx="3" fill="#ef4444"/></svg>
                             <div class="card-temp-numbers"><span class="card-temp-urb temp-lg" id="d4-max">--</span><span class="card-temp-sub temp-lg" id="d4-max-sub">--*</span></div>
                         </div>
                     </div>
