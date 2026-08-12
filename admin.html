@@ -36,6 +36,11 @@
         .day-collapse-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
         .day-collapse-arrow { display: inline-block; font-size: 0.85em; }
         .day-content.collapsed { display: none; }
+        .day-content { border-radius: 0 0 6px 6px; padding: 10px 8px 2px; margin: -10px 0 15px; }
+        .day-content.day-color-h { background: #eaf3fb; }
+        .day-content.day-color-m { background: #eaf7f0; }
+        .day-content.day-color-d3 { background: #fdf3e4; }
+        .day-content.day-color-d4 { background: #f5edf9; }
         .field-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
         .font-adj-group { padding: 8px 12px; }
         .font-adj-col { flex: 1; align-items: center; }
@@ -714,7 +719,7 @@
                     <button type="button" class="btn-font-adj-mini" onclick="adjustFontBoost('${conf.id}_title', 1)">+</button>
                 </span>
             </div>`;
-            html += `<div class="day-content" id="day-content-${conf.id}">`;
+            html += `<div class="day-content day-color-${conf.id}" id="day-content-${conf.id}">`;
             html += `<div class="field-group">
                 <h4>Temperaturas Mín / Máx <span class="sub-field">(Urbana / Suburbana)</span></h4>
                 <div class="row">
