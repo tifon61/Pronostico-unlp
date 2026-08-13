@@ -218,12 +218,15 @@
     const WEEKDAY_NAMES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
     // Color fijo por pronosticador (mismo orden que FORECASTERS, así no cambia de
-    // un cronograma a otro): tonos repartidos parejo alrededor del círculo de
-    // colores para que se distingan entre sí de un vistazo en la tabla.
+    // un cronograma a otro). En vez de repartir los tonos en línea recta
+    // (24° entre cada uno con 15 personas, muy parecidos entre vecinos), se
+    // usa el "ángulo dorado" (~137.5°) para que ningún color quede pegado al
+    // de al lado en el círculo cromático, y se baja un poco el brillo/sube la
+    // saturación para que se note más la diferencia.
     const FORECASTER_COLORS = {};
     FORECASTERS.forEach((n, i) => {
-        const hue = Math.round((i * 360) / FORECASTERS.length);
-        FORECASTER_COLORS[n] = { bg: `hsl(${hue}, 65%, 87%)`, dot: `hsl(${hue}, 60%, 50%)` };
+        const hue = Math.round((i * 137.508) % 360);
+        FORECASTER_COLORS[n] = { bg: `hsl(${hue}, 62%, 80%)`, dot: `hsl(${hue}, 68%, 44%)` };
     });
     function colorForName(name) {
         return FORECASTER_COLORS[name] || { bg: '#eee', dot: '#999' };

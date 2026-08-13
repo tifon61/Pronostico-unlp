@@ -112,10 +112,13 @@
     const FORECASTERS = ["Camila","Victoria","Lisandro","Micaela","Narela","Lorenzo","Matias","Renata","Gabriel","Juli","Mate","Dylan","Delfi","Leo","Romi"];
     const CITIES = ["La Plata","Junín","Mar del Plata","Tandil","Bahía Blanca"];
 
+    // Ángulo dorado (~137.5°) para que colores vecinos en la lista no queden
+    // pegados en el círculo cromático -- mismo criterio que turnos-admin.html,
+    // así los colores coinciden entre las dos páginas.
     const FORECASTER_COLORS = {};
     FORECASTERS.forEach((n, i) => {
-        const hue = Math.round((i * 360) / FORECASTERS.length);
-        FORECASTER_COLORS[n] = { bg: `hsl(${hue}, 65%, 87%)`, dot: `hsl(${hue}, 60%, 50%)` };
+        const hue = Math.round((i * 137.508) % 360);
+        FORECASTER_COLORS[n] = { bg: `hsl(${hue}, 62%, 80%)`, dot: `hsl(${hue}, 68%, 44%)` };
     });
     function colorForName(name) {
         return FORECASTER_COLORS[name] || { bg: '#eee', dot: '#999' };
