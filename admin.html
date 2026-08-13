@@ -32,6 +32,14 @@
         @media (max-width: 900px) {
             .sidebar-toggle-btn { top: 10px; left: 10px; width: 40px; height: 40px; font-size: 17px; }
         }
+        .viewer-zoom-controls { position: fixed; top: 14px; right: 14px; z-index: 1000; background: white; border-radius: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.35); display: flex; align-items: center; gap: 2px; padding: 4px; }
+        .viewer-zoom-controls button { width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--unlp-blue); color: white; font-size: 19px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .viewer-zoom-controls button:hover { background: #002240; }
+        .viewer-zoom-controls span { font-size: 0.8em; font-weight: 800; color: var(--unlp-blue); min-width: 42px; text-align: center; }
+        @media (max-width: 900px) {
+            .viewer-zoom-controls { top: 10px; right: 10px; }
+            .viewer-zoom-controls button { width: 28px; height: 28px; font-size: 16px; }
+        }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0 10px; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .day-collapse-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
         .day-collapse-arrow { display: inline-block; font-size: 0.85em; }
@@ -221,6 +229,12 @@
 </div>
 
 <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Ocultar/mostrar panel de datos" id="sidebar-toggle-btn">☰</button>
+
+<div class="viewer-zoom-controls">
+    <button type="button" onclick="adjustViewerZoom(-0.1)" title="Achicar vista">−</button>
+    <span id="viewer-zoom-label">100%</span>
+    <button type="button" onclick="adjustViewerZoom(0.1)" title="Agrandar vista">+</button>
+</div>
 
 <div id="sidebar">
     <h2 style="font-size: 1.1em; color: var(--unlp-blue); border-bottom: 3px solid var(--unlp-blue); padding-bottom: 8px; margin-top: 0;">ADMIN PRONÓSTICO UNLP</h2>
@@ -515,6 +529,22 @@
         document.body.classList.toggle('sidebar-hidden');
         localStorage.setItem('adminSidebarHidden', document.body.classList.contains('sidebar-hidden') ? '1' : '0');
     }
+
+    // Zoom del visualizador (achicar/agrandar la vista previa de la placa
+    // mientras se cargan los datos, sin tocar el tamaño real de exportación).
+    // Usa "zoom" de CSS en vez de transform: así el scroll del panel se
+    // ajusta solo al tamaño visible, en vez de dejar espacio vacío alrededor.
+    let viewerZoom = parseFloat(localStorage.getItem('adminViewerZoom')) || 1;
+    function applyViewerZoom() {
+        document.getElementById('viewer').style.zoom = viewerZoom;
+        document.getElementById('viewer-zoom-label').textContent = Math.round(viewerZoom * 100) + '%';
+        localStorage.setItem('adminViewerZoom', viewerZoom);
+    }
+    function adjustViewerZoom(delta) {
+        viewerZoom = Math.max(0.3, Math.min(1.5, Math.round((viewerZoom + delta) * 100) / 100));
+        applyViewerZoom();
+    }
+    applyViewerZoom();
 
     // ⚠️ REEMPLAZAR CON TU URL DE GOOGLE APPS SCRIPT
     const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
@@ -1277,12 +1307,19 @@
     async function download(id) {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
+        // La descarga siempre sale a tamaño completo, sin importar el zoom de
+        // vista que se esté usando para editar (si no, el ícono grabado saldría
+        // achicado/agrandado según cómo estuviera la vista en ese momento).
+        const viewer = document.getElementById('viewer');
+        const prevZoom = viewer.style.zoom;
+        viewer.style.zoom = 1;
         const el = document.getElementById(id); el.classList.add('exporting');
         await new Promise(r => setTimeout(r, 50));
         const images = el.querySelectorAll("img");
         await Promise.all([...images].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
         const canvas = await html2canvas(el, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
         el.classList.remove('exporting');
+        viewer.style.zoom = prevZoom;
         const link = document.createElement("a"); link.download = getFilename(id) + `.png`; link.href = canvas.toDataURL("image/png"); link.click();
         showToast(`Placa descargada correctamente`);
     }
@@ -1292,6 +1329,9 @@
         await document.fonts.ready;
         const c = document.getElementById('city-selector').value.replace(/\s+/g, '_'), d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
         const pdfName = `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
+        const viewer = document.getElementById('viewer');
+        const prevZoom = viewer.style.zoom;
+        viewer.style.zoom = 1;
         const el1 = document.getElementById('placa-1'), el2 = document.getElementById('placa-2');
         el1.classList.add('exporting'); el2.classList.add('exporting');
         await new Promise(r => setTimeout(r, 50));
@@ -1299,6 +1339,7 @@
         await Promise.all([...images].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
         const canvas1 = await html2canvas(el1, { scale: 4, useCORS: true, logging: false, backgroundColor: null }), canvas2 = await html2canvas(el2, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
         el1.classList.remove('exporting'); el2.classList.remove('exporting');
+        viewer.style.zoom = prevZoom;
         const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
         doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350); doc.addPage(); doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350); doc.save(pdfName);
         showToast(`PDF generado exitosamente`);
