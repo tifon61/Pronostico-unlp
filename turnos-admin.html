@@ -94,6 +94,8 @@
 
 <div class="container">
     <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
+    &nbsp;·&nbsp;
+    <a href="cronograma-equipo.html" class="back-link">Ver cronograma publicado del equipo →</a>
     <h1>Turnos del equipo</h1>
     <p class="subtitle">
         Cada pronosticador carga acá qué días del mes puede pronosticar (y si algún día quiere hacer 2 ciudades).
@@ -653,12 +655,19 @@
         const registros = scheduleData.stats.map(s => ({
             pronosticador: s.name, total: s.total, cuota: s.quota, saldoDelta: s.saldoNuevo, laPlata: s.laPlata
         }));
-        const payload = { action: 'guardar_historial_turnos', team_password: TEAM_PASSWORD, mes: scheduleData.mes, registros: registros };
-        fetch(GOOGLE_APP_URL, {
-            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(payload)
-        }).then(() => {
-            showToast('¡Cronograma guardado! El mes que viene el reparto lo tiene en cuenta.');
+        const payloadHistorial = { action: 'guardar_historial_turnos', team_password: TEAM_PASSWORD, mes: scheduleData.mes, registros: registros };
+        // Además del historial (para el saldo del mes que viene), publica el
+        // detalle día por día para que todo el equipo lo vea en
+        // cronograma-equipo.html, sin necesitar generarlo de nuevo.
+        const payloadPublicar = {
+            action: 'publicar_cronograma', team_password: TEAM_PASSWORD, mes: scheduleData.mes,
+            cronograma: { days: scheduleData.days }
+        };
+        Promise.all([
+            fetch(GOOGLE_APP_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadHistorial) }),
+            fetch(GOOGLE_APP_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadPublicar) })
+        ]).then(() => {
+            showToast('¡Cronograma guardado y publicado para todo el equipo!');
             setTimeout(verHistorial, 1200);
         }).catch(() => showToast('Error de conexión', true));
     }
