@@ -523,9 +523,9 @@
     const COMBINED_WEATHER_OPTS = [
         "despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado",
         "cubierto", "neblinas", "nieblas",
-        "lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"
+        "lluvias", "lluvias aisladas", "lloviznas", "lluvias y tormentas", "lluvias y tormentas aisladas", "tormentas aisladas"
     ];
-    const WIND_INT = ["leves", "moderados", "regulares", "fuertes o muy fuertes"];
+    const WIND_INT = ["leves", "moderados", "regulares", "fuertes"];
     const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
 
     // Ajuste manual de tamaño de letra por COLUMNA (cada tramo de Vientos/Tiempo
@@ -662,8 +662,10 @@
         "cubierto": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
         "neblinas": { dia: "Neblina.png", noche: "Neblina.png" },
         "nieblas": { dia: "Nieblas_dia.png", noche: "Nieblas_dia.png" },
+        "lluvias": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
         "lluvias aisladas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
         "lloviznas": { dia: "Lloviznas_dia.png", noche: "Lloviznas_noche.png" },
+        "lluvias y tormentas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" },
         "lluvias y tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" },
         "tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" }
     };
@@ -677,8 +679,10 @@
         "algo nublado": { dia: "Algo_nublado_dia_viento.png", noche: "Algo_nublado_noche_viento.png" },
         "parcialmente nublado": { dia: "Parcialmente_nublado_dia_viento.png", noche: "Parcialmente_nublado_noche_viento.png" },
         "cubierto": { dia: "Cubierto_dia_viento.png", noche: "Cubierto_noche_viento.png" },
+        "lluvias": { dia: "Lluvias_dia_viento.png", noche: "Lluvias_noche_viento.png" },
         "lluvias aisladas": { dia: "Lluvias_dia_viento.png", noche: "Lluvias_noche_viento.png" },
         "lloviznas": { dia: "Lloviznas_dia_viento.png", noche: "Lloviznas_noche_viento.png" },
+        "lluvias y tormentas": { dia: "Lluvias_tormentas_dia_viento.png", noche: "Lluvias_tormentas_noche_viento.png" },
         "lluvias y tormentas aisladas": { dia: "Lluvias_tormentas_dia_viento.png", noche: "Lluvias_tormentas_noche_viento.png" },
         "tormentas aisladas": { dia: "Lluvias_tormentas_dia_viento.png", noche: "Lluvias_tormentas_noche_viento.png" }
     };
@@ -1432,7 +1436,7 @@
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`)?.value || null;
                 const rafagasStr = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`)?.value || "";
                 const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`)?.value || null;
-                const isRain = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"].includes(skyCond);
+                const isRain = ["lluvias", "lluvias aisladas", "lloviznas", "lluvias y tormentas", "lluvias y tormentas aisladas", "tormentas aisladas"].includes(skyCond);
                 
                 let temp = null;
                 if (conf.id === 'h' || conf.id === 'm') {
