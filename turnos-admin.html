@@ -96,8 +96,10 @@
     <p class="subtitle">
         Cada pronosticador carga acá qué días del mes puede pronosticar (y si algún día quiere hacer 2 ciudades).
         Cargalo antes de fin de mes para que el cronograma del mes siguiente salga a tiempo. El reparto automático
-        intenta que todos tengan la misma cantidad de turnos al mes, que La Plata se reparta parejo entre todos,
-        y que nadie quede dos días seguidos. Los sábados y domingos solo se pronostica La Plata.
+        calcula una cuota pareja de pronósticos para todos, y a quien cargó menos días disponibles le va asignando
+        automáticamente una segunda ciudad el mismo día (sin que lo pida) las veces que haga falta para llegar a
+        esa misma cuota. También reparte La Plata pareja entre todos, y nadie queda dos días seguidos. Los sábados
+        y domingos solo se pronostica La Plata.
     </p>
 
     <div class="card">
@@ -318,8 +320,20 @@
 
     // Reparto greedy: cada día primero asigna La Plata (a quien tenga menos La
     // Plata acumulada, para repartirla pareja), y después las otras 4 ciudades
-    // (a quien tenga menos turnos totales). Nadie repite dos días seguidos, y
-    // solo se le da una segunda ciudad el mismo día a quien lo pidió para ese día.
+    // (a quien tenga menos turnos totales, respecto de su propia cuota). Nadie
+    // repite dos días seguidos.
+    //
+    // Cuota: se calcula cuántos pronósticos (ciudad-día) le tocarían a cada
+    // persona si el total de turnos del mes se repartiera exactamente parejo
+    // entre todos los que cargaron disponibilidad. A quien le sobran días
+    // disponibles para llegar a su cuota con un turno por día, no hace falta
+    // tocarlo. A quien le faltan días (cargó menos disponibilidad que el resto)
+    // se le va asignando automáticamente una segunda ciudad el mismo día --sin
+    // que lo haya pedido-- las veces que haga falta para alcanzar la misma
+    // cuota que todos, siempre dentro de los días que sí marcó disponible. El
+    // pedido manual de "2 ciudades" de un día puntual se sigue respetando
+    // igual, incluso si ya llegó a la cuota (es una preferencia personal, no
+    // depende del reparto).
     function construirCronograma(mes, items) {
         const [y, m] = mes.split('-').map(Number);
         const total = daysInMonth(y, m);
@@ -331,23 +345,47 @@
                 name: it.pronosticador,
                 available: new Set(disponibles),
                 doubleWanted: new Set((it.dias_doble || []).filter(d => disponibles.includes(d))),
-                total: 0, laPlata: 0, lastDay: -99
+                total: 0, laPlata: 0, lastDay: -99, quota: 0
             };
         });
         const roster = Object.values(people);
+
+        // Total de turnos (ciudad-día) que hay que cubrir en el mes, para poder
+        // calcular la cuota pareja de cada uno antes de empezar a repartir.
+        let totalSlots = 0;
+        for (let day = 1; day <= total; day++) {
+            const dow = new Date(y, m - 1, day).getDay();
+            totalSlots += (dow === 0 || dow === 6) ? 1 : CITIES.length;
+        }
+        if (roster.length > 0) {
+            const base = Math.floor(totalSlots / roster.length);
+            const remainder = totalSlots % roster.length;
+            // El resto (cuota +1) se lo damos a quienes cargaron más días
+            // disponibles: son los que menos les cuesta absorberlo sin doblar.
+            const porDisponibilidad = roster.slice().sort((a, b) => b.available.size - a.available.size);
+            porDisponibilidad.forEach((p, i) => { p.quota = base + (i < remainder ? 1 : 0); });
+        }
 
         const days = [];
         for (let day = 1; day <= total; day++) {
             const assign = {};
             const usedToday = {};
             const isAvailable = (p) => p.available.has(day) && p.lastDay !== day - 1;
-            const isFreeSlot = (p) => !usedToday[p.name] || (usedToday[p.name] === 1 && p.doubleWanted.has(day));
+            // Primer turno del día: solo si todavía le falta para su cuota.
+            // Segundo turno del mismo día: si lo pidió a mano, o -automático-
+            // si todavía le falta para su cuota aun después del primero.
+            const canTakeSlot = (p) => {
+                const used = usedToday[p.name] || 0;
+                if (used === 0) return p.total < p.quota;
+                if (used === 1) return p.doubleWanted.has(day) || p.total < p.quota;
+                return false;
+            };
 
             const dow = new Date(y, m - 1, day).getDay();
             const isWeekend = dow === 0 || dow === 6; // Sábado/domingo: solo se pronostica La Plata.
             const cities = isWeekend ? ['La Plata'] : CITIES;
 
-            let candidates = roster.filter(p => isAvailable(p) && isFreeSlot(p));
+            let candidates = roster.filter(p => isAvailable(p) && canTakeSlot(p));
             candidates.sort((a, b) => a.laPlata - b.laPlata || a.total - b.total || a.name.localeCompare(b.name));
             let chosen = candidates[0] || null;
             assign['La Plata'] = chosen ? chosen.name : null;
@@ -355,7 +393,7 @@
 
             if (!isWeekend) {
                 CITIES.filter(c => c !== 'La Plata').forEach(city => {
-                    const cands = roster.filter(p => isAvailable(p) && isFreeSlot(p));
+                    const cands = roster.filter(p => isAvailable(p) && canTakeSlot(p));
                     cands.sort((a, b) => {
                         const usedA = usedToday[a.name] ? 1 : 0, usedB = usedToday[b.name] ? 1 : 0;
                         return usedA - usedB || a.total - b.total || a.name.localeCompare(b.name);
@@ -377,7 +415,8 @@
         const counts = {};
         scheduleData.roster.forEach(n => counts[n] = {
             name: n, total: 0, laPlata: 0,
-            diasDisponibles: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].available.size : 0
+            diasDisponibles: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].available.size : 0,
+            quota: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].quota : 0
         });
         scheduleData.days.forEach(d => {
             CITIES.forEach(city => {
@@ -406,8 +445,8 @@
     function renderStats() {
         recalcStats();
         document.getElementById('cronograma-stats').innerHTML = `<table class="stats">
-            <tr><th>Pronosticador</th><th>Total turnos</th><th>La Plata</th><th>Días marcados disponible</th></tr>
-            ${scheduleData.stats.map(s => `<tr><td><span class="color-dot" style="background:${colorForName(s.name).dot};"></span>${s.name}</td><td>${s.total}</td><td>${s.laPlata}</td><td>${s.diasDisponibles}</td></tr>`).join('')}
+            <tr><th>Pronosticador</th><th>Total turnos</th><th>Cuota objetivo</th><th>La Plata</th><th>Días marcados disponible</th></tr>
+            ${scheduleData.stats.map(s => `<tr><td><span class="color-dot" style="background:${colorForName(s.name).dot};"></span>${s.name}</td><td>${s.total}</td><td>${s.quota}</td><td>${s.laPlata}</td><td>${s.diasDisponibles}</td></tr>`).join('')}
         </table>`;
     }
 
