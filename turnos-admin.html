@@ -411,8 +411,16 @@
             const isWeekend = dow === 0 || dow === 6; // Sábado/domingo: solo se pronostica La Plata.
             const cities = isWeekend ? ['La Plata'] : CITIES;
 
+            // Cuánto le falta a alguien para llegar a SU cuota (más negativo = más
+            // atrasado). Se usa como prioridad principal, por delante de si ya
+            // trabajó hoy: así se dobla ciudad de manera proactiva a quien lo
+            // necesita para emparejar, en vez de solo como último recurso cuando
+            // no queda nadie más libre (eso dejaba a algunos por debajo de su
+            // cuota todo el mes, sin arreglo posible sobre el final).
+            const gap = (p) => p.total - p.quota;
+
             let candidates = roster.filter(p => isAvailable(p) && canTakeSlot(p));
-            candidates.sort((a, b) => a.laPlata - b.laPlata || a.total - b.total || a.name.localeCompare(b.name));
+            candidates.sort((a, b) => a.laPlata - b.laPlata || gap(a) - gap(b) || a.name.localeCompare(b.name));
             let chosen = candidates[0] || null;
             assign['La Plata'] = chosen ? chosen.name : null;
             if (chosen) { usedToday[chosen.name] = (usedToday[chosen.name] || 0) + 1; chosen.total++; chosen.laPlata++; chosen.lastDay = day; }
@@ -422,7 +430,7 @@
                     const cands = roster.filter(p => isAvailable(p) && canTakeSlot(p));
                     cands.sort((a, b) => {
                         const usedA = usedToday[a.name] ? 1 : 0, usedB = usedToday[b.name] ? 1 : 0;
-                        return usedA - usedB || a.total - b.total || a.name.localeCompare(b.name);
+                        return gap(a) - gap(b) || usedA - usedB || a.name.localeCompare(b.name);
                     });
                     const pick = cands[0] || null;
                     assign[city] = pick ? pick.name : null;
