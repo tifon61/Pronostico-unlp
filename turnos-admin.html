@@ -51,7 +51,11 @@
     table.cronograma td.not-applicable { text-align: center; color: #bbb; background: #fafafa; }
     table.cronograma select { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 4px; font-family: inherit; font-size: 0.95em; background: white; }
     table.cronograma select.unfilled { background: #fdeceb; border-color: #e0a29b; color: #c0392b; font-weight: 700; }
+    table.cronograma select.warn { background: #fff8e1; border-color: #f0c419; }
+    table.cronograma optgroup { font-style: normal; font-weight: 800; color: var(--unlp-blue); }
+    .cronograma-legend { font-size: 0.78em; color: #777; margin-top: 8px; }
     table.stats th, table.stats td { border: 1px solid #e5e5e5; padding: 6px 10px; text-align: left; }
+    .color-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
     table.stats th { background: #eef2f5; color: var(--unlp-blue); }
 
     .cronograma-ok { color: #1e7e34; font-weight: 800; margin-top: 10px; }
@@ -134,6 +138,7 @@
             <div id="cronograma-unfilled"></div>
             <div id="cronograma-missing" class="cronograma-missing"></div>
             <div class="table-wrap" id="cronograma-table"></div>
+            <div class="cronograma-legend">🔴 Sin asignar &nbsp; 🟡 Asignado pero rompe alguna regla (pasá el mouse para ver cuál) &nbsp; Cada desplegable agrupa primero a quienes se marcaron disponibles ese día, para intercambiar fácil.</div>
 
             <h2>Resumen por pronosticador</h2>
             <div class="table-wrap" id="cronograma-stats"></div>
@@ -179,6 +184,18 @@
     // Bolívar todavía no entra en el reparto diario.
     const CITIES = ["La Plata","Junín","Mar del Plata","Tandil","Bahía Blanca"];
     const WEEKDAY_NAMES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+    // Color fijo por pronosticador (mismo orden que FORECASTERS, así no cambia de
+    // un cronograma a otro): tonos repartidos parejo alrededor del círculo de
+    // colores para que se distingan entre sí de un vistazo en la tabla.
+    const FORECASTER_COLORS = {};
+    FORECASTERS.forEach((n, i) => {
+        const hue = Math.round((i * 360) / FORECASTERS.length);
+        FORECASTER_COLORS[n] = { bg: `hsl(${hue}, 65%, 87%)`, dot: `hsl(${hue}, 60%, 50%)` };
+    });
+    function colorForName(name) {
+        return FORECASTER_COLORS[name] || { bg: '#eee', dot: '#999' };
+    }
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('notification-toast');
@@ -353,12 +370,15 @@
         }
 
         const missing = FORECASTERS.filter(n => !items.some(it => it.pronosticador === n));
-        return { mes, days, roster: roster.map(p => p.name), missing, stats: [] };
+        return { mes, days, roster: roster.map(p => p.name), missing, stats: [], disponibilidad: people };
     }
 
     function recalcStats() {
         const counts = {};
-        scheduleData.roster.forEach(n => counts[n] = { name: n, total: 0, laPlata: 0 });
+        scheduleData.roster.forEach(n => counts[n] = {
+            name: n, total: 0, laPlata: 0,
+            diasDisponibles: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].available.size : 0
+        });
         scheduleData.days.forEach(d => {
             CITIES.forEach(city => {
                 const n = d.assign[city];
@@ -386,15 +406,50 @@
     function renderStats() {
         recalcStats();
         document.getElementById('cronograma-stats').innerHTML = `<table class="stats">
-            <tr><th>Pronosticador</th><th>Total turnos</th><th>La Plata</th></tr>
-            ${scheduleData.stats.map(s => `<tr><td>${s.name}</td><td>${s.total}</td><td>${s.laPlata}</td></tr>`).join('')}
+            <tr><th>Pronosticador</th><th>Total turnos</th><th>La Plata</th><th>Días marcados disponible</th></tr>
+            ${scheduleData.stats.map(s => `<tr><td><span class="color-dot" style="background:${colorForName(s.name).dot};"></span>${s.name}</td><td>${s.total}</td><td>${s.laPlata}</td><td>${s.diasDisponibles}</td></tr>`).join('')}
         </table>`;
     }
 
-    function optionsHtml(selectedName) {
+    // Junta a los pronosticadores en dos grupos según si se marcaron disponibles
+    // ese día puntual, para que al reasignar a mano se vea de entrada quién puede
+    // ese día sin tener que ir a buscarlo a otro lado.
+    function optionsHtml(selectedName, day) {
+        const disp = scheduleData.disponibilidad;
+        const isAvailable = (n) => disp[n] && disp[n].available.has(day);
+        const available = scheduleData.roster.filter(isAvailable).sort();
+        const notAvailable = scheduleData.roster.filter(n => !isAvailable(n)).sort();
+        const opt = (n) => `<option value="${n}" ${n === selectedName ? 'selected' : ''}>${n}</option>`;
         let html = `<option value="" ${!selectedName ? 'selected' : ''}>— SIN ASIGNAR —</option>`;
-        html += scheduleData.roster.map(n => `<option value="${n}" ${n === selectedName ? 'selected' : ''}>${n}</option>`).join('');
+        if (available.length) html += `<optgroup label="Disponible este día">${available.map(opt).join('')}</optgroup>`;
+        if (notAvailable.length) html += `<optgroup label="No se marcó disponible">${notAvailable.map(opt).join('')}</optgroup>`;
         return html;
+    }
+
+    function escapeAttr(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
+    // Detecta si una asignación (manual o automática) choca con alguna de las
+    // reglas, para avisarle al admin en vez de dejarlo pasar en silencio. No
+    // bloquea nada: a veces hace falta forzar una excepción a mano.
+    function cellWarning(dayNum, city, name) {
+        if (!name) return null;
+        const disp = scheduleData.disponibilidad[name];
+        const day = scheduleData.days.find(x => x.day === dayNum);
+        const warnings = [];
+        if (!disp || !disp.available.has(dayNum)) warnings.push('no se marcó disponible este día');
+
+        const otraCiudadHoy = day.cities.some(c => c !== city && day.assign[c] === name);
+        if (otraCiudadHoy && !(disp && disp.doubleWanted.has(dayNum))) warnings.push('ya tiene otra ciudad este mismo día');
+
+        const prevDay = scheduleData.days.find(x => x.day === dayNum - 1);
+        const nextDay = scheduleData.days.find(x => x.day === dayNum + 1);
+        const trabajaAyer = prevDay && prevDay.cities.some(c => prevDay.assign[c] === name);
+        const trabajaManana = nextDay && nextDay.cities.some(c => nextDay.assign[c] === name);
+        if (trabajaAyer || trabajaManana) warnings.push('trabaja un día consecutivo');
+
+        return warnings.length ? warnings.join('; ') : null;
     }
 
     function renderTable() {
@@ -403,7 +458,10 @@
             const cells = CITIES.map(city => {
                 if (!d.cities.includes(city)) return `<td class="not-applicable">—</td>`;
                 const name = d.assign[city];
-                return `<td><select class="${name ? '' : 'unfilled'}" onchange="editarCelda(${d.day}, '${city}', this.value)">${optionsHtml(name)}</select></td>`;
+                const warn = cellWarning(d.day, city, name);
+                const cls = !name ? 'unfilled' : (warn ? 'warn' : '');
+                const bgStyle = (name && !warn) ? ` style="background:${colorForName(name).bg};"` : '';
+                return `<td><select class="${cls}"${bgStyle} title="${warn ? escapeAttr(warn) : ''}" onchange="editarCelda(${d.day}, '${city}', this.value)">${optionsHtml(name, d.day)}</select></td>`;
             }).join('');
             return `<tr><td class="day-lbl">${String(d.day).padStart(2, '0')} · ${d.weekday.slice(0, 3)}</td>${cells}</tr>`;
         }).join('');
@@ -422,6 +480,7 @@
     function editarCelda(day, city, newName) {
         const d = scheduleData.days.find(x => x.day === day);
         d.assign[city] = newName || null;
+        renderTable();
         renderStats();
         renderUnfilledBanner();
     }
