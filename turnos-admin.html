@@ -48,6 +48,7 @@
     table.cronograma th, table.cronograma td { border: 1px solid #e5e5e5; padding: 6px 8px; text-align: left; white-space: nowrap; }
     table.cronograma th { background: var(--unlp-blue); color: white; font-size: 0.85em; text-transform: uppercase; }
     table.cronograma td.day-lbl { font-weight: 800; color: var(--unlp-blue); background: #f8f9fa; }
+    table.cronograma td.not-applicable { text-align: center; color: #bbb; background: #fafafa; }
     table.cronograma select { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 4px; font-family: inherit; font-size: 0.95em; background: white; }
     table.cronograma select.unfilled { background: #fdeceb; border-color: #e0a29b; color: #c0392b; font-weight: 700; }
     table.stats th, table.stats td { border: 1px solid #e5e5e5; padding: 6px 10px; text-align: left; }
@@ -92,7 +93,7 @@
         Cada pronosticador carga acá qué días del mes puede pronosticar (y si algún día quiere hacer 2 ciudades).
         Cargalo antes de fin de mes para que el cronograma del mes siguiente salga a tiempo. El reparto automático
         intenta que todos tengan la misma cantidad de turnos al mes, que La Plata se reparta parejo entre todos,
-        y que nadie quede dos días seguidos.
+        y que nadie quede dos días seguidos. Los sábados y domingos solo se pronostica La Plata.
     </p>
 
     <div class="card">
@@ -325,25 +326,30 @@
             const isAvailable = (p) => p.available.has(day) && p.lastDay !== day - 1;
             const isFreeSlot = (p) => !usedToday[p.name] || (usedToday[p.name] === 1 && p.doubleWanted.has(day));
 
+            const dow = new Date(y, m - 1, day).getDay();
+            const isWeekend = dow === 0 || dow === 6; // Sábado/domingo: solo se pronostica La Plata.
+            const cities = isWeekend ? ['La Plata'] : CITIES;
+
             let candidates = roster.filter(p => isAvailable(p) && isFreeSlot(p));
             candidates.sort((a, b) => a.laPlata - b.laPlata || a.total - b.total || a.name.localeCompare(b.name));
             let chosen = candidates[0] || null;
             assign['La Plata'] = chosen ? chosen.name : null;
             if (chosen) { usedToday[chosen.name] = (usedToday[chosen.name] || 0) + 1; chosen.total++; chosen.laPlata++; chosen.lastDay = day; }
 
-            CITIES.filter(c => c !== 'La Plata').forEach(city => {
-                const cands = roster.filter(p => isAvailable(p) && isFreeSlot(p));
-                cands.sort((a, b) => {
-                    const usedA = usedToday[a.name] ? 1 : 0, usedB = usedToday[b.name] ? 1 : 0;
-                    return usedA - usedB || a.total - b.total || a.name.localeCompare(b.name);
+            if (!isWeekend) {
+                CITIES.filter(c => c !== 'La Plata').forEach(city => {
+                    const cands = roster.filter(p => isAvailable(p) && isFreeSlot(p));
+                    cands.sort((a, b) => {
+                        const usedA = usedToday[a.name] ? 1 : 0, usedB = usedToday[b.name] ? 1 : 0;
+                        return usedA - usedB || a.total - b.total || a.name.localeCompare(b.name);
+                    });
+                    const pick = cands[0] || null;
+                    assign[city] = pick ? pick.name : null;
+                    if (pick) { usedToday[pick.name] = (usedToday[pick.name] || 0) + 1; pick.total++; pick.lastDay = day; }
                 });
-                const pick = cands[0] || null;
-                assign[city] = pick ? pick.name : null;
-                if (pick) { usedToday[pick.name] = (usedToday[pick.name] || 0) + 1; pick.total++; pick.lastDay = day; }
-            });
+            }
 
-            const dow = new Date(y, m - 1, day).getDay();
-            days.push({ day, date: `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`, weekday: WEEKDAY_NAMES[dow], assign });
+            days.push({ day, date: `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`, weekday: WEEKDAY_NAMES[dow], cities, assign });
         }
 
         const missing = FORECASTERS.filter(n => !items.some(it => it.pronosticador === n));
@@ -364,7 +370,7 @@
 
     function countUnfilled() {
         let n = 0;
-        scheduleData.days.forEach(d => CITIES.forEach(city => { if (!d.assign[city]) n++; }));
+        scheduleData.days.forEach(d => d.cities.forEach(city => { if (!d.assign[city]) n++; }));
         return n;
     }
 
@@ -395,6 +401,7 @@
         const thead = `<tr><th>Día</th>${CITIES.map(c => `<th>${c}</th>`).join('')}</tr>`;
         const rows = scheduleData.days.map(d => {
             const cells = CITIES.map(city => {
+                if (!d.cities.includes(city)) return `<td class="not-applicable">—</td>`;
                 const name = d.assign[city];
                 return `<td><select class="${name ? '' : 'unfilled'}" onchange="editarCelda(${d.day}, '${city}', this.value)">${optionsHtml(name)}</select></td>`;
             }).join('');
@@ -423,7 +430,7 @@
         if (!scheduleData) return;
         const lines = [`Cronograma ${scheduleData.mes}`, ['Día', 'Fecha', ...CITIES].join('\t')];
         scheduleData.days.forEach(d => {
-            lines.push([`${String(d.day).padStart(2, '0')} ${d.weekday}`, d.date, ...CITIES.map(c => d.assign[c] || 'SIN ASIGNAR')].join('\t'));
+            lines.push([`${String(d.day).padStart(2, '0')} ${d.weekday}`, d.date, ...CITIES.map(c => d.cities.includes(c) ? (d.assign[c] || 'SIN ASIGNAR') : '—')].join('\t'));
         });
         const ta = document.getElementById('cronograma-clipboard');
         ta.value = lines.join('\n');
