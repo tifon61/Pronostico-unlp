@@ -71,6 +71,12 @@
                 <label>Mes</label>
                 <input type="month" id="f-mes" onchange="cargarCronograma()">
             </div>
+            <div>
+                <label>Ver solo los días de</label>
+                <select id="f-filtro" onchange="renderTabla(ultimosDias)">
+                    <option value="">Todos</option>
+                </select>
+            </div>
         </div>
 
         <h2>Quién es cada color</h2>
@@ -135,26 +141,37 @@
     document.getElementById('legend').innerHTML = FORECASTERS.map(n =>
         `<span class="legend-item"><span class="legend-dot" style="background:${colorForName(n).dot};"></span>${n}</span>`
     ).join('');
+    document.getElementById('f-filtro').innerHTML += FORECASTERS.map(n => `<option value="${n}">${n}</option>`).join('');
+
+    let ultimosDias = [];
 
     function cargarCronograma() {
         const mes = document.getElementById('f-mes').value;
         document.getElementById('contenido').innerHTML = '<div class="empty-msg">Cargando...</div>';
         fetchJsonp(`${GOOGLE_APP_URL}?type=cronograma_publicado&mes=${encodeURIComponent(mes)}`, (data) => {
             if (!data || data.error || !data.cronograma || !data.cronograma.days) {
+                ultimosDias = [];
                 document.getElementById('contenido').innerHTML = `<div class="empty-msg">Todavía no se publicó el cronograma de ${mes}.</div>`;
                 return;
             }
-            renderTabla(data.cronograma.days);
+            ultimosDias = data.cronograma.days;
+            renderTabla(ultimosDias);
         });
     }
 
+    // Con un pronosticador elegido en el filtro, se blanquean las celdas de
+    // los demás y solo quedan resaltadas (con su color) las que le tocan a
+    // esa persona, para que encuentre sus días de un vistazo.
     function renderTabla(days) {
+        if (!days || !days.length) return;
+        const filtro = document.getElementById('f-filtro').value;
         const thead = `<tr><th>Día</th>${CITIES.map(c => `<th>${c}</th>`).join('')}</tr>`;
         const rows = days.map(d => {
             const cells = CITIES.map(city => {
                 if (!d.cities.includes(city)) return `<td class="not-applicable">—</td>`;
                 const name = d.assign[city];
-                if (!name) return `<td class="unfilled">SIN ASIGNAR</td>`;
+                if (!name) return filtro ? `<td></td>` : `<td class="unfilled">SIN ASIGNAR</td>`;
+                if (filtro && name !== filtro) return `<td></td>`;
                 return `<td class="assigned" style="background:${colorForName(name).bg};">${name}</td>`;
             }).join('');
             return `<tr><td class="day-lbl">${String(d.day).padStart(2, '0')} · ${d.weekday.slice(0, 3)}</td>${cells}</tr>`;
