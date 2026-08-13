@@ -164,6 +164,20 @@
             </div>
         </div>
     </div>
+
+    <div class="card">
+        <h2 style="margin-top:0;">3. Historial de turnos</h2>
+        <p class="subtitle" style="margin-bottom:12px;">
+            Cuántos pronósticos lleva hecho cada uno desde que se empezaron a guardar los cronogramas (botón
+            "Guardar cronograma del mes" de arriba). Sirve para ver, mes a mes, si se van emparejando.
+        </p>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="verHistorial()">🔄 Actualizar historial</button>
+        </div>
+        <div class="table-wrap" id="historial-resumen"></div>
+        <h2>Detalle por mes</h2>
+        <div class="table-wrap" id="historial-detalle"></div>
+    </div>
 </div>
 
 <textarea id="cronograma-clipboard" readonly></textarea>
@@ -368,11 +382,13 @@
         const people = {};
         items.forEach(it => {
             const disponibles = it.dias_disponibles || [];
+            const porCiudad = {};
+            CITIES.forEach(c => { porCiudad[c] = 0; });
             people[it.pronosticador] = {
                 name: it.pronosticador,
                 available: new Set(disponibles),
                 doubleWanted: new Set((it.dias_doble || []).filter(d => disponibles.includes(d))),
-                total: 0, laPlata: 0, lastDay: -99, quota: 0
+                total: 0, porCiudad, lastDay: -99, quota: 0
             };
         });
         const roster = Object.values(people);
@@ -419,24 +435,21 @@
             // cuota todo el mes, sin arreglo posible sobre el final).
             const gap = (p) => p.total - p.quota;
 
-            let candidates = roster.filter(p => isAvailable(p) && canTakeSlot(p));
-            candidates.sort((a, b) => a.laPlata - b.laPlata || gap(a) - gap(b) || a.name.localeCompare(b.name));
-            let chosen = candidates[0] || null;
-            assign['La Plata'] = chosen ? chosen.name : null;
-            if (chosen) { usedToday[chosen.name] = (usedToday[chosen.name] || 0) + 1; chosen.total++; chosen.laPlata++; chosen.lastDay = day; }
-
-            if (!isWeekend) {
-                CITIES.filter(c => c !== 'La Plata').forEach(city => {
-                    const cands = roster.filter(p => isAvailable(p) && canTakeSlot(p));
-                    cands.sort((a, b) => {
-                        const usedA = usedToday[a.name] ? 1 : 0, usedB = usedToday[b.name] ? 1 : 0;
-                        return gap(a) - gap(b) || usedA - usedB || a.name.localeCompare(b.name);
-                    });
-                    const pick = cands[0] || null;
-                    assign[city] = pick ? pick.name : null;
-                    if (pick) { usedToday[pick.name] = (usedToday[pick.name] || 0) + 1; pick.total++; pick.lastDay = day; }
+            // Se reparte cada ciudad del día en orden (La Plata primero, como
+            // antes), y además de la prioridad general por cuota se desempata
+            // por quién hizo MENOS veces esa ciudad puntual -- así no solo se
+            // empareja el total de pronósticos, sino también que a nadie le
+            // toque siempre la misma ciudad más que al resto.
+            cities.forEach(city => {
+                const cands = roster.filter(p => isAvailable(p) && canTakeSlot(p));
+                cands.sort((a, b) => {
+                    const usedA = usedToday[a.name] ? 1 : 0, usedB = usedToday[b.name] ? 1 : 0;
+                    return gap(a) - gap(b) || (a.porCiudad[city] - b.porCiudad[city]) || usedA - usedB || a.name.localeCompare(b.name);
                 });
-            }
+                const pick = cands[0] || null;
+                assign[city] = pick ? pick.name : null;
+                if (pick) { usedToday[pick.name] = (usedToday[pick.name] || 0) + 1; pick.total++; pick.porCiudad[city]++; pick.lastDay = day; }
+            });
 
             days.push({ day, date: `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`, weekday: WEEKDAY_NAMES[dow], cities, assign });
         }
@@ -644,8 +657,10 @@
         fetch(GOOGLE_APP_URL, {
             method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
-        }).then(() => showToast('¡Cronograma guardado! El mes que viene el reparto lo tiene en cuenta.'))
-          .catch(() => showToast('Error de conexión', true));
+        }).then(() => {
+            showToast('¡Cronograma guardado! El mes que viene el reparto lo tiene en cuenta.');
+            setTimeout(verHistorial, 1200);
+        }).catch(() => showToast('Error de conexión', true));
     }
 
     function copiarCronograma() {
@@ -661,12 +676,58 @@
         showToast('¡Cronograma copiado! Pegalo en un mensaje o una hoja de cálculo.');
     }
 
+    // ─── SECCIÓN 3: Historial de turnos ────────────────────────────────────
+    function verHistorial() {
+        fetchJsonp(`${GOOGLE_APP_URL}?type=historial_turnos`, (data) => {
+            renderHistorial((data && data.items) || []);
+        });
+    }
+
+    function renderHistorial(items) {
+        const resumenEl = document.getElementById('historial-resumen');
+        const detalleEl = document.getElementById('historial-detalle');
+        if (!items.length) {
+            resumenEl.innerHTML = '<div class="empty-msg">Todavía no se guardó ningún cronograma como definitivo.</div>';
+            detalleEl.innerHTML = '';
+            return;
+        }
+
+        const porPersona = {};
+        items.forEach(it => {
+            if (!porPersona[it.pronosticador]) porPersona[it.pronosticador] = { name: it.pronosticador, total: 0, saldo: 0 };
+            porPersona[it.pronosticador].total += it.total;
+            porPersona[it.pronosticador].saldo += it.saldoDelta;
+        });
+        const resumen = Object.values(porPersona).sort((a, b) => b.total - a.total);
+
+        resumenEl.innerHTML = `<table class="stats">
+            <tr><th>Pronosticador</th><th>Total histórico</th><th>Saldo acumulado</th></tr>
+            ${resumen.map(p => `<tr>
+                <td><span class="color-dot" style="background:${colorForName(p.name).dot};"></span>${p.name}</td>
+                <td>${p.total}</td><td>${fmtSaldo(p.saldo)}</td>
+            </tr>`).join('')}
+        </table>`;
+
+        const meses = Array.from(new Set(items.map(it => it.mes))).sort();
+        const personas = resumen.map(p => p.name);
+        const thead = `<tr><th>Mes</th>${personas.map(n => `<th>${n}</th>`).join('')}</tr>`;
+        const rows = meses.map(mes => {
+            const cells = personas.map(n => {
+                const row = items.find(it => it.mes === mes && it.pronosticador === n);
+                return `<td>${row ? row.total : '—'}</td>`;
+            }).join('');
+            return `<tr><td class="day-lbl">${mes}</td>${cells}</tr>`;
+        }).join('');
+        detalleEl.innerHTML = `<table class="cronograma">${thead}${rows}</table>`;
+    }
+
     // ─── Init ───────────────────────────────────────────────────────────────
     document.getElementById('f-pronosticador').innerHTML = FORECASTERS.map(n => `<option value="${n}">${n}</option>`).join('');
     document.getElementById('f-mes').value = nextMonthStr();
     document.getElementById('g-mes').value = nextMonthStr();
     renderCalendar();
     cargarMiDisponibilidad();
+    verHistorial();
 </script>
 </body>
 </html>
