@@ -56,6 +56,8 @@
     .cronograma-legend { font-size: 0.78em; color: #777; margin-top: 8px; }
     table.stats th, table.stats td { border: 1px solid #e5e5e5; padding: 6px 10px; text-align: left; }
     .color-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .individual-summary { font-size: 0.95em; margin: 10px 0; }
+    .empty-msg { color: #888; font-size: 0.9em; padding: 10px 0; }
     table.stats th { background: #eef2f5; color: var(--unlp-blue); }
 
     .cronograma-ok { color: #1e7e34; font-weight: 800; margin-top: 10px; }
@@ -139,13 +141,25 @@
         <div id="cronograma-section">
             <div id="cronograma-unfilled"></div>
             <div id="cronograma-missing" class="cronograma-missing"></div>
+
+            <h2>Vista general</h2>
             <div class="table-wrap" id="cronograma-table"></div>
             <div class="cronograma-legend">🔴 Sin asignar &nbsp; 🟡 Asignado pero rompe alguna regla (pasá el mouse para ver cuál) &nbsp; Cada desplegable agrupa primero a quienes se marcaron disponibles ese día, para intercambiar fácil.</div>
+
+            <h2>Vista por pronosticador</h2>
+            <div class="row">
+                <div>
+                    <label>Pronosticador</label>
+                    <select id="v-pronosticador" onchange="renderVistaIndividual()"><option value="">— Elegí —</option></select>
+                </div>
+            </div>
+            <div id="vista-individual"></div>
 
             <h2>Resumen por pronosticador</h2>
             <div class="table-wrap" id="cronograma-stats"></div>
 
             <div class="btn-row">
+                <button class="btn-primary" onclick="guardarCronogramaFinal()">💾 Guardar cronograma del mes</button>
                 <button class="btn-secondary" onclick="copiarCronograma()">📋 Copiar cronograma</button>
             </div>
         </div>
@@ -207,6 +221,19 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
+    // GET vía JSONP (Apps Script no responde CORS para fetch normal).
+    function fetchJsonp(url, callback) {
+        const callbackName = 'jsonp_' + Math.round(1e6 * Math.random());
+        window[callbackName] = function (data) {
+            delete window[callbackName];
+            document.body.removeChild(script);
+            callback(data);
+        };
+        const script = document.createElement('script');
+        script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}&_t=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
     function nextMonthStr() {
         const now = new Date();
         let y = now.getFullYear(), m = now.getMonth() + 2; // +1 para pasar a 1-based, +1 más para "el mes que viene"
@@ -263,19 +290,13 @@
         const mes = document.getElementById('f-mes').value;
         const nombre = document.getElementById('f-pronosticador').value;
         if (!mes || !nombre) return;
-        const callbackName = 'jsonp_disp_' + Math.round(100000 * Math.random());
-        window[callbackName] = function (data) {
-            delete window[callbackName];
-            document.body.removeChild(script);
+        fetchJsonp(`${GOOGLE_APP_URL}?type=disponibilidad&mes=${encodeURIComponent(mes)}`, (data) => {
             const items = (data && data.items) || [];
             const mine = items.find(it => it.pronosticador === nombre);
             availableDays = new Set(mine ? mine.dias_disponibles : []);
             doubleDays = new Set(mine ? mine.dias_doble : []);
             renderCalendar();
-        };
-        const script = document.createElement('script');
-        script.src = `${GOOGLE_APP_URL}?type=disponibilidad&mes=${encodeURIComponent(mes)}&callback=${callbackName}&_t=${Date.now()}`;
-        document.body.appendChild(script);
+        });
     }
 
     function guardarDisponibilidad() {
@@ -303,19 +324,23 @@
     function generarCronograma() {
         const mes = document.getElementById('g-mes').value;
         if (!mes) { showToast('Elegí el mes a generar', true); return; }
-        const callbackName = 'jsonp_gen_' + Math.round(100000 * Math.random());
-        window[callbackName] = function (data) {
-            delete window[callbackName];
-            document.body.removeChild(script);
-            const items = (data && data.items) || [];
+        fetchJsonp(`${GOOGLE_APP_URL}?type=disponibilidad&mes=${encodeURIComponent(mes)}`, (dataDisp) => {
+            const items = (dataDisp && dataDisp.items) || [];
             if (!items.length) { showToast('Nadie cargó disponibilidad para este mes todavía', true); return; }
-            scheduleData = construirCronograma(mes, items);
-            renderCronograma();
-            showToast('Cronograma generado');
-        };
-        const script = document.createElement('script');
-        script.src = `${GOOGLE_APP_URL}?type=disponibilidad&mes=${encodeURIComponent(mes)}&callback=${callbackName}&_t=${Date.now()}`;
-        document.body.appendChild(script);
+            // El historial de meses guardados dice quién quedó con saldo (hizo de
+            // más o de menos respecto de la parte pareja), para darle prioridad
+            // este mes a quien le deben.
+            fetchJsonp(`${GOOGLE_APP_URL}?type=historial_turnos`, (dataHist) => {
+                const historial = (dataHist && dataHist.items) || [];
+                const saldoPrevio = {};
+                historial.forEach(h => {
+                    if (h.mes < mes) saldoPrevio[h.pronosticador] = (saldoPrevio[h.pronosticador] || 0) + h.saldoDelta;
+                });
+                scheduleData = construirCronograma(mes, items, saldoPrevio);
+                renderCronograma();
+                showToast('Cronograma generado');
+            });
+        });
     }
 
     // Reparto greedy: cada día primero asigna La Plata (a quien tenga menos La
@@ -323,18 +348,20 @@
     // (a quien tenga menos turnos totales, respecto de su propia cuota). Nadie
     // repite dos días seguidos.
     //
-    // Cuota: se calcula cuántos pronósticos (ciudad-día) le tocarían a cada
-    // persona si el total de turnos del mes se repartiera exactamente parejo
-    // entre todos los que cargaron disponibilidad. A quien le sobran días
-    // disponibles para llegar a su cuota con un turno por día, no hace falta
-    // tocarlo. A quien le faltan días (cargó menos disponibilidad que el resto)
-    // se le va asignando automáticamente una segunda ciudad el mismo día --sin
-    // que lo haya pedido-- las veces que haga falta para alcanzar la misma
-    // cuota que todos, siempre dentro de los días que sí marcó disponible. El
-    // pedido manual de "2 ciudades" de un día puntual se sigue respetando
-    // igual, incluso si ya llegó a la cuota (es una preferencia personal, no
-    // depende del reparto).
-    function construirCronograma(mes, items) {
+    // Cuota: en lugar de repartir el total de turnos del mes en partes
+    // exactamente iguales, se usa el saldo acumulado de meses anteriores
+    // (saldoPrevio: cuánto hizo cada uno de más o de menos respecto de la
+    // parte pareja, guardado al confirmar cada cronograma) para darle
+    // prioridad este mes a quien quedó debiéndosele, e ir emparejando de a
+    // poco -- no hace falta que un solo mes lo resuelva todo. A quien le
+    // faltan días disponibles para llegar a su cuota se le va asignando
+    // automáticamente una segunda ciudad el mismo día -sin que lo haya
+    // pedido- las veces que haga falta, siempre dentro de los días que sí
+    // marcó disponible. El pedido manual de "2 ciudades" de un día puntual se
+    // sigue respetando igual, incluso pasada la cuota (es una preferencia
+    // personal, no depende del reparto).
+    function construirCronograma(mes, items, saldoPrevio) {
+        saldoPrevio = saldoPrevio || {};
         const [y, m] = mes.split('-').map(Number);
         const total = daysInMonth(y, m);
 
@@ -351,20 +378,19 @@
         const roster = Object.values(people);
 
         // Total de turnos (ciudad-día) que hay que cubrir en el mes, para poder
-        // calcular la cuota pareja de cada uno antes de empezar a repartir.
+        // calcular la cuota de cada uno antes de empezar a repartir.
         let totalSlots = 0;
         for (let day = 1; day <= total; day++) {
             const dow = new Date(y, m - 1, day).getDay();
             totalSlots += (dow === 0 || dow === 6) ? 1 : CITIES.length;
         }
-        if (roster.length > 0) {
-            const base = Math.floor(totalSlots / roster.length);
-            const remainder = totalSlots % roster.length;
-            // El resto (cuota +1) se lo damos a quienes cargaron más días
-            // disponibles: son los que menos les cuesta absorberlo sin doblar.
-            const porDisponibilidad = roster.slice().sort((a, b) => b.available.size - a.available.size);
-            porDisponibilidad.forEach((p, i) => { p.quota = base + (i < remainder ? 1 : 0); });
-        }
+        // Parte pareja "ideal" (de referencia, no entera): es contra lo que se
+        // mide el saldo de cada mes al guardar el cronograma, independiente de
+        // cómo se haya redondeado la cuota real de este mes en particular.
+        const baseShare = roster.length > 0 ? totalSlots / roster.length : 0;
+
+        const quotas = computeQuotas(roster, totalSlots, saldoPrevio);
+        roster.forEach(p => { p.quota = quotas[p.name] || 0; });
 
         const days = [];
         for (let day = 1; day <= total; day++) {
@@ -408,7 +434,39 @@
         }
 
         const missing = FORECASTERS.filter(n => !items.some(it => it.pronosticador === n));
-        return { mes, days, roster: roster.map(p => p.name), missing, stats: [], disponibilidad: people };
+        return { mes, days, roster: roster.map(p => p.name), missing, stats: [], disponibilidad: people, baseShare, saldoPrevio };
+    }
+
+    // Reparte los totalSlots del mes en cuotas por persona, en orden de
+    // prioridad: en cada vuelta le da un turno más a quien -sumando su saldo
+    // previo (de meses anteriores) más lo que ya se le asignó en este mismo
+    // reparto- esté peor parado, y entre empatados prefiere a quien tenga más
+    // disponibilidad cargada (así se dobla ciudad el mínimo necesario). Nunca
+    // le da a nadie más de lo que puede llegar a cubrir doblando ciudad todos
+    // sus días disponibles.
+    function computeQuotas(roster, totalSlots, saldoPrevio) {
+        const state = roster.map(p => ({
+            name: p.name,
+            availSize: p.available.size,
+            maxFeasible: p.available.size * 2,
+            assigned: 0,
+            carry: saldoPrevio[p.name] || 0
+        }));
+        let remaining = totalSlots;
+        while (remaining > 0) {
+            const eligibles = state.filter(s => s.assigned < s.maxFeasible);
+            if (!eligibles.length) break; // nadie puede absorber más este mes
+            eligibles.sort((a, b) =>
+                (a.carry + a.assigned) - (b.carry + b.assigned) ||
+                b.availSize - a.availSize ||
+                a.name.localeCompare(b.name)
+            );
+            eligibles[0].assigned++;
+            remaining--;
+        }
+        const quotas = {};
+        state.forEach(s => { quotas[s.name] = s.assigned; });
+        return quotas;
     }
 
     function recalcStats() {
@@ -416,7 +474,8 @@
         scheduleData.roster.forEach(n => counts[n] = {
             name: n, total: 0, laPlata: 0,
             diasDisponibles: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].available.size : 0,
-            quota: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].quota : 0
+            quota: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].quota : 0,
+            saldoPrevio: (scheduleData.saldoPrevio && scheduleData.saldoPrevio[n]) || 0
         });
         scheduleData.days.forEach(d => {
             CITIES.forEach(city => {
@@ -424,7 +483,13 @@
                 if (n && counts[n]) { counts[n].total++; if (city === 'La Plata') counts[n].laPlata++; }
             });
         });
+        Object.values(counts).forEach(c => { c.saldoNuevo = +(c.saldoPrevio + (c.total - scheduleData.baseShare)).toFixed(2); });
         scheduleData.stats = Object.values(counts).sort((a, b) => b.total - a.total);
+    }
+
+    function fmtSaldo(n) {
+        const r = Math.round(n * 10) / 10;
+        return r > 0 ? `+${r}` : String(r);
     }
 
     function countUnfilled() {
@@ -445,9 +510,14 @@
     function renderStats() {
         recalcStats();
         document.getElementById('cronograma-stats').innerHTML = `<table class="stats">
-            <tr><th>Pronosticador</th><th>Total turnos</th><th>Cuota objetivo</th><th>La Plata</th><th>Días marcados disponible</th></tr>
-            ${scheduleData.stats.map(s => `<tr><td><span class="color-dot" style="background:${colorForName(s.name).dot};"></span>${s.name}</td><td>${s.total}</td><td>${s.quota}</td><td>${s.laPlata}</td><td>${s.diasDisponibles}</td></tr>`).join('')}
-        </table>`;
+            <tr><th>Pronosticador</th><th>Total turnos</th><th>Cuota objetivo</th><th>La Plata</th><th>Días marcados disponible</th><th>Saldo antes</th><th>Saldo después</th></tr>
+            ${scheduleData.stats.map(s => `<tr>
+                <td><span class="color-dot" style="background:${colorForName(s.name).dot};"></span>${s.name}</td>
+                <td>${s.total}</td><td>${s.quota}</td><td>${s.laPlata}</td><td>${s.diasDisponibles}</td>
+                <td>${fmtSaldo(s.saldoPrevio)}</td><td>${fmtSaldo(s.saldoNuevo)}</td>
+            </tr>`).join('')}
+        </table>
+        <div class="cronograma-legend">Saldo: cuánto hizo cada uno de más (+) o de menos (−) respecto de la parte pareja del mes. Guardá el cronograma para que ese saldo se tenga en cuenta el mes que viene.</div>`;
     }
 
     // Junta a los pronosticadores en dos grupos según si se marcaron disponibles
@@ -514,6 +584,12 @@
         const missingEl = document.getElementById('cronograma-missing');
         missingEl.innerText = scheduleData.missing.length ? `Sin cargar disponibilidad este mes: ${scheduleData.missing.join(', ')}` : '';
         document.getElementById('cronograma-section').style.display = 'block';
+
+        const sel = document.getElementById('v-pronosticador');
+        const prev = sel.value;
+        sel.innerHTML = '<option value="">— Elegí —</option>' + scheduleData.roster.map(n => `<option value="${n}">${n}</option>`).join('');
+        sel.value = scheduleData.roster.includes(prev) ? prev : '';
+        renderVistaIndividual();
     }
 
     function editarCelda(day, city, newName) {
@@ -522,6 +598,46 @@
         renderTable();
         renderStats();
         renderUnfilledBanner();
+        renderVistaIndividual();
+    }
+
+    // Vista individual: en vez de tener que leer toda la tabla general para
+    // encontrar los días de una sola persona, se elige el nombre y se ve nada
+    // más lo suyo (qué día, qué ciudad, y el total del mes).
+    function renderVistaIndividual() {
+        if (!scheduleData) return;
+        const nombre = document.getElementById('v-pronosticador').value;
+        const cont = document.getElementById('vista-individual');
+        if (!nombre) { cont.innerHTML = ''; return; }
+
+        const rows = [];
+        scheduleData.days.forEach(d => {
+            d.cities.forEach(city => { if (d.assign[city] === nombre) rows.push({ day: d.day, weekday: d.weekday, city }); });
+        });
+
+        let html = `<div class="individual-summary"><span class="color-dot" style="background:${colorForName(nombre).dot};"></span><strong>${nombre}</strong> tiene <strong>${rows.length}</strong> pronóstico(s) este mes.</div>`;
+        if (rows.length) {
+            html += `<table class="stats"><tr><th>Día</th><th>Ciudad</th></tr>
+                ${rows.map(r => `<tr><td>${String(r.day).padStart(2, '0')} · ${r.weekday}</td><td>${r.city}</td></tr>`).join('')}
+            </table>`;
+        } else {
+            html += `<div class="empty-msg">No tiene turnos asignados este mes.</div>`;
+        }
+        cont.innerHTML = html;
+    }
+
+    function guardarCronogramaFinal() {
+        if (!scheduleData) return;
+        recalcStats();
+        const registros = scheduleData.stats.map(s => ({
+            pronosticador: s.name, total: s.total, cuota: s.quota, saldoDelta: s.saldoNuevo, laPlata: s.laPlata
+        }));
+        const payload = { action: 'guardar_historial_turnos', team_password: TEAM_PASSWORD, mes: scheduleData.mes, registros: registros };
+        fetch(GOOGLE_APP_URL, {
+            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        }).then(() => showToast('¡Cronograma guardado! El mes que viene el reparto lo tiene en cuenta.'))
+          .catch(() => showToast('Error de conexión', true));
     }
 
     function copiarCronograma() {
