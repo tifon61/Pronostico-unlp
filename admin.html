@@ -951,7 +951,7 @@
                     const momento = getMomentoDia(dia, tramo);
                     const file = (conViento && iconMapViento[v]) ? iconMapViento[v][momento] : iconMap[v][momento];
                     imgEl.src = `images/${file}`;
-                    imgEl.style.transform = v === "despejado" ? "scale(1)" : "scale(1.25)";
+                    imgEl.style.transform = "scale(1)";
                 } else { imgEl.src = `images/default.png`; imgEl.style.transform = "scale(1)"; }
             }
             saveDraft();
