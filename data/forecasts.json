@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T11:25:53.820973+00:00",
+  "generated_at": "2026-08-17T11:36:09.137376+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -519,7 +519,7 @@
               "temperature": null,
               "weather_icon_code": "Ligeramente_nublado_noche_viento",
               "wind_direction": "sur",
-              "wind_intensity": "leves",
+              "wind_intensity": "moderados",
               "wind_gusts": "30-45"
             }
           ]
