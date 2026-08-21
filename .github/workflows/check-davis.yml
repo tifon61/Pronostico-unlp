@@ -1,0 +1,26 @@
+name: Chequear disponibilidad de la Davis
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Chequear la Davis y actualizar data/davis-monitor.json
+        run: python3 scripts/check_davis.py
+
+      - name: Commitear si hubo cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/davis-monitor.json
+          git diff --staged --quiet || git commit -m "Actualizar relevamiento de disponibilidad de la Davis"
+          git push

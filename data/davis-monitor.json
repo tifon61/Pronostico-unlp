@@ -1,0 +1,10 @@
+{
+  "monitoring_since": null,
+  "current_status": "pending",
+  "current_reason": "Todavía no corrió el primer chequeo automático.",
+  "down_since": null,
+  "last_data_timestamp": null,
+  "last_check": null,
+  "current_issue_number": 0,
+  "incidents": []
+}
