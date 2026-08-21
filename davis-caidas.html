@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relevamiento de disponibilidad — Davis | FCAG</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            margin: 0;
+        }
+
+        .metric-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top-width: 4px;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-title {
+            font-size: 0.70rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .metric-unit {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-left: 0.25rem;
+        }
+
+        .chart-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-banner {
+            border-radius: 16px;
+            padding: 1.75rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+        }
+
+        table { border-collapse: collapse; width: 100%; }
+        th, td { text-align: left; padding: 0.65rem 0.9rem; font-size: 0.85rem; }
+        thead th { color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; }
+        tbody tr { border-bottom: 1px solid #f1f5f9; }
+        tbody tr:hover { background-color: #f8fafc; }
+
+        .badge-ongoing {
+            background-color: #fef2f2; color: #b91c1c;
+            font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.55rem;
+            border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+
+        <header class="bg-white p-6 rounded-2xl border border-slate-200 border-t-4 border-t-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-5 w-full md:w-auto">
+                <div class="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 shrink-0">
+                    <i class="fa-solid fa-server text-2xl text-slate-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tight">Relevamiento de disponibilidad</h1>
+                    <p class="text-slate-500 font-semibold text-sm mt-1">
+                        <i class="fa-solid fa-link mr-1"></i>
+                        meteo.fcaglp.unlp.edu.ar/davis/campo/downld08.txt
+                    </p>
+                </div>
+            </div>
+            <a href="admin.html" class="text-sm font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 shrink-0">
+                <i class="fa-solid fa-arrow-left"></i> Volver al panel
+            </a>
+        </header>
+
+        <div id="statusBanner" class="status-banner bg-slate-100 border border-slate-200">
+            <i id="statusIcon" class="fa-solid fa-circle-notch fa-spin text-3xl text-slate-500"></i>
+            <div>
+                <div class="text-lg font-black" id="statusTitle">Cargando estado...</div>
+                <div class="text-sm text-slate-600" id="statusSubtitle">&nbsp;</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="metric-card border-t-[#0f766e]">
+                <div class="metric-title mb-3"><i class="fa-solid fa-chart-line mr-1"></i> Disponibilidad</div>
+                <div class="flex items-baseline">
+                    <span class="metric-value" id="valUptime">--</span>
+                    <span class="metric-unit">%</span>
+                </div>
+            </div>
+            <div class="metric-card border-t-[#dc2626]">
+                <div class="metric-title mb-3"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Caídas registradas</div>
+                <div class="flex items-baseline">
+                    <span class="metric-value" id="valCount">--</span>
+                </div>
+            </div>
+            <div class="metric-card border-t-[#9333ea]">
+                <div class="metric-title mb-3"><i class="fa-solid fa-clock mr-1"></i> Tiempo caído (total)</div>
+                <div class="flex items-baseline">
+                    <span class="metric-value" id="valTotalDown" style="font-size:1.5rem;">--</span>
+                </div>
+            </div>
+            <div class="metric-card border-t-[#ea580c]">
+                <div class="metric-title mb-3"><i class="fa-solid fa-hourglass-half mr-1"></i> Caída más larga</div>
+                <div class="flex items-baseline">
+                    <span class="metric-value" id="valLongest" style="font-size:1.5rem;">--</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center">
+                <i class="fa-solid fa-chart-column mr-2 text-slate-500"></i> Minutos caído por día
+            </h3>
+            <div class="relative w-full h-[220px]">
+                <canvas id="chartDowntime"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center">
+                <i class="fa-solid fa-list mr-2 text-slate-500"></i> Historial de incidentes
+            </h3>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Duración</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidentsBody">
+                        <tr><td colspan="4" class="text-slate-400 text-center py-6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="text-xs text-slate-400 text-center pb-4">
+            Relevamiento automático: se revisa la página pública cada 15 minutos.
+            Se considera "caída" cuando no responde, o cuando los datos que muestra
+            tienen más de 60 minutos de antigüedad.
+        </p>
+
+    </div>
+
+<script>
+    function fmtDuration(minutes) {
+        if (minutes === null || minutes === undefined) return '--';
+        if (minutes < 60) return `${minutes.toFixed(0)} min`;
+        const hours = minutes / 60;
+        if (hours < 24) return `${hours.toFixed(1)} h`;
+        return `${(hours / 24).toFixed(1)} días`;
+    }
+
+    function fmtDate(iso) {
+        if (!iso) return '--';
+        return new Date(iso).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    // Se lee del caché estático (data/davis-monitor.json), que actualiza
+    // GitHub Actions cada 15 minutos corriendo scripts/check_davis.py.
+    async function loadMonitor() {
+        try {
+            const resp = await fetch(`data/davis-monitor.json?_t=${Date.now()}`);
+            const data = await resp.json();
+            render(data);
+        } catch (err) {
+            document.getElementById('statusTitle').textContent = 'Error al cargar el relevamiento';
+            document.getElementById('statusSubtitle').textContent = err.message;
+        }
+    }
+
+    function render(data) {
+        const now = new Date();
+        const isDown = data.current_status === 'down';
+        const isPending = data.current_status === 'pending' || !data.monitoring_since;
+        const banner = document.getElementById('statusBanner');
+        const icon = document.getElementById('statusIcon');
+        const title = document.getElementById('statusTitle');
+        const subtitle = document.getElementById('statusSubtitle');
+
+        if (isPending) {
+            banner.className = 'status-banner bg-slate-100 border border-slate-200';
+            icon.className = 'fa-solid fa-hourglass-half text-3xl text-slate-500';
+            title.textContent = 'Esperando el primer chequeo automático';
+            title.className = 'text-lg font-black text-slate-700';
+            subtitle.textContent = data.current_reason || '';
+        } else if (isDown) {
+            banner.className = 'status-banner bg-red-50 border border-red-200';
+            icon.className = 'fa-solid fa-circle-exclamation text-3xl text-red-600';
+            const downSince = data.down_since ? new Date(data.down_since) : null;
+            const mins = downSince ? (now - downSince) / 60000 : null;
+            title.textContent = 'Caída en curso';
+            title.className = 'text-lg font-black text-red-700';
+            subtitle.textContent = `${data.current_reason || ''} · desde hace ${fmtDuration(mins)}`;
+        } else {
+            banner.className = 'status-banner bg-emerald-50 border border-emerald-200';
+            icon.className = 'fa-solid fa-circle-check text-3xl text-emerald-600';
+            title.textContent = 'En línea';
+            title.className = 'text-lg font-black text-emerald-700';
+            subtitle.textContent = data.last_check
+                ? `Último chequeo: ${fmtDate(data.last_check)}`
+                : '';
+        }
+
+        // --- Métricas ---
+        const incidents = data.incidents || [];
+        const closedIncidents = incidents.filter(i => i.duration_minutes !== null);
+        let totalDown = closedIncidents.reduce((sum, i) => sum + i.duration_minutes, 0);
+        if (isDown && data.down_since) {
+            totalDown += (now - new Date(data.down_since)) / 60000;
+        }
+
+        const monitoringSince = data.monitoring_since ? new Date(data.monitoring_since) : now;
+        const totalMonitoredMin = Math.max((now - monitoringSince) / 60000, 1);
+        const uptimePct = isPending ? 100 : Math.max(0, 100 * (1 - totalDown / totalMonitoredMin));
+
+        document.getElementById('valUptime').textContent = isPending ? '--' : uptimePct.toFixed(2);
+        document.getElementById('valCount').textContent = data.current_issue_number ?? incidents.length;
+        document.getElementById('valTotalDown').textContent = fmtDuration(totalDown);
+
+        const longest = closedIncidents.length
+            ? Math.max(...closedIncidents.map(i => i.duration_minutes))
+            : (isDown ? totalDown : 0);
+        document.getElementById('valLongest').textContent = fmtDuration(longest);
+
+        // --- Tabla de incidentes (más reciente primero) ---
+        const tbody = document.getElementById('incidentsBody');
+        if (incidents.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-slate-400 text-center py-6">Sin incidentes registrados todavía.</td></tr>';
+        } else {
+            tbody.innerHTML = [...incidents].reverse().map(i => `
+                <tr>
+                    <td class="font-semibold text-slate-700">${fmtDate(i.start)}</td>
+                    <td>${i.end ? fmtDate(i.end) : '<span class="badge-ongoing">En curso</span>'}</td>
+                    <td>${i.duration_minutes !== null ? fmtDuration(i.duration_minutes) : fmtDuration((now - new Date(i.start)) / 60000)}</td>
+                    <td class="text-slate-500">${i.reason || '--'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // --- Gráfico: minutos caído por día ---
+        const byDay = new Map();
+        incidents.forEach(inc => {
+            const start = new Date(inc.start);
+            const end = inc.end ? new Date(inc.end) : now;
+            // Reparte los minutos de la caída entre los días que abarca (simplificado: los suma todos al día de inicio si es corta)
+            const key = start.toLocaleDateString('es-AR');
+            const dur = inc.duration_minutes !== null ? inc.duration_minutes : (now - start) / 60000;
+            byDay.set(key, (byDay.get(key) || 0) + dur);
+        });
+        const labels = Array.from(byDay.keys());
+        const values = Array.from(byDay.values());
+
+        new Chart(document.getElementById('chartDowntime'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Minutos caído',
+                    data: values,
+                    backgroundColor: '#dc2626aa',
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } } },
+                    y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    loadMonitor();
+</script>
+</body>
+</html>
