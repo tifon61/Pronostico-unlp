@@ -40,6 +40,14 @@
             .viewer-zoom-controls { top: 10px; right: 10px; }
             .viewer-zoom-controls button { width: 28px; height: 28px; font-size: 16px; }
         }
+        .btn-preview { background: #34495e; border-bottom: 4px solid #22303d; }
+        .btn-preview:hover { background: #2c3e50; }
+        .preview-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .preview-modal-box { position: relative; max-width: 95vw; max-height: 95vh; }
+        .preview-modal-box img { display: block; max-width: 95vw; max-height: 95vh; border-radius: 6px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); background: white; }
+        .preview-modal-hint { text-align: center; color: white; font-size: 0.8em; margin-top: 10px; opacity: 0.85; }
+        .preview-modal-close { position: absolute; top: -14px; right: -14px; width: 36px; height: 36px; border-radius: 50%; border: none; background: white; color: #111; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        .preview-modal-close:hover { background: #eee; }
         .section-title { background: var(--unlp-blue); color: white; padding: 10px; margin: 15px 0 10px; font-weight: 900; font-size: 0.8em; border-radius: 4px; text-transform: uppercase; }
         .day-collapse-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
         .day-collapse-arrow { display: inline-block; font-size: 0.85em; }
@@ -236,6 +244,16 @@
     <button type="button" onclick="adjustViewerZoom(0.1)" title="Agrandar vista">+</button>
 </div>
 
+<div id="preview-modal-overlay" class="preview-modal-overlay" onclick="if(event.target===this) closePreviewModal()">
+    <div>
+        <div class="preview-modal-box">
+            <button type="button" class="preview-modal-close" onclick="closePreviewModal()" title="Cerrar">×</button>
+            <img id="preview-modal-img" alt="Vista previa de la placa exportada">
+        </div>
+        <div class="preview-modal-hint">Así se ve la placa exportada (el archivo real, sin descargarlo) — Esc o clic afuera para cerrar</div>
+    </div>
+</div>
+
 <div id="sidebar">
     <h2 style="font-size: 1.1em; color: var(--unlp-blue); border-bottom: 3px solid var(--unlp-blue); padding-bottom: 8px; margin-top: 0;">ADMIN PRONÓSTICO UNLP</h2>
     <a href="novedades-admin.html" style="display:block; text-align:center; font-size:0.8em; font-weight:800; color:var(--unlp-blue); text-decoration:none; background:#eef2f5; border-radius:6px; padding:8px; margin-bottom:8px;">📰 Administrar Novedades del sitio →</a>
@@ -328,7 +346,9 @@
     </div>
 
     <button class="btn btn-save" id="btn-publicar-api" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
+    <button class="btn btn-preview" onclick="previewExport('placa-1')">👁 VISTA PREVIA PLACA 1</button>
     <button class="btn btn-p1" onclick="download('placa-1')">⬇ PLACA 1 (D1-D2)</button>
+    <button class="btn btn-preview" onclick="previewExport('placa-2')">👁 VISTA PREVIA PLACA 2</button>
     <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
     <button class="btn btn-pdf" onclick="downloadPDF()">📄 DESCARGAR PDF</button>
     <button class="btn btn-clear" onclick="clearDraft()">🗑️ Limpiar Borrador Guardado</button>
@@ -1304,11 +1324,14 @@
         return `Pronostico_${c}_${d}`;
     }
 
-    async function download(id) {
+    // Renderiza la placa exactamente como sale en el archivo exportado
+    // (mismo html2canvas, mismo reseteo de zoom) sin decidir qué hacer con
+    // el resultado -- lo reusan tanto la descarga real como la vista previa.
+    async function renderPlacaCanvas(id) {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
-        // La descarga siempre sale a tamaño completo, sin importar el zoom de
-        // vista que se esté usando para editar (si no, el ícono grabado saldría
+        // Siempre sale a tamaño completo, sin importar el zoom de vista que
+        // se esté usando para editar (si no, el ícono grabado saldría
         // achicado/agrandado según cómo estuviera la vista en ese momento).
         const viewer = document.getElementById('viewer');
         const prevZoom = viewer.style.zoom;
@@ -1320,6 +1343,26 @@
         const canvas = await html2canvas(el, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
         el.classList.remove('exporting');
         viewer.style.zoom = prevZoom;
+        return canvas;
+    }
+
+    async function previewExport(id) {
+        showToast("Generando vista previa...");
+        const canvas = await renderPlacaCanvas(id);
+        document.getElementById('preview-modal-img').src = canvas.toDataURL('image/png');
+        document.getElementById('preview-modal-overlay').style.display = 'flex';
+    }
+
+    function closePreviewModal() {
+        document.getElementById('preview-modal-overlay').style.display = 'none';
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closePreviewModal();
+    });
+
+    async function download(id) {
+        const canvas = await renderPlacaCanvas(id);
         const link = document.createElement("a"); link.download = getFilename(id) + `.png`; link.href = canvas.toDataURL("image/png"); link.click();
         showToast(`Placa descargada correctamente`);
     }
