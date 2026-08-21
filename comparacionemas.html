@@ -514,15 +514,38 @@
         function exportVariablesCSV() {
             if (!lastVariablesExport) { alert('Todavía no hay datos cargados para exportar.'); return; }
             const { cfg, labels, verdeResult, campResult, dazaResult, startStr, endStr } = lastVariablesExport;
-            const rows = [['Fecha/Hora', `EMA Verde (${cfg.unit})`, `Campbell (${cfg.unit})`, `Daza (${cfg.unit})`]];
-            labels.forEach((label, i) => {
-                rows.push([
-                    label,
-                    verdeResult.chartData[i] != null ? verdeResult.chartData[i] : '',
-                    campResult.chartData[i] != null ? campResult.chartData[i] : '',
-                    (dazaResult && dazaResult.chartData[i] != null) ? dazaResult.chartData[i] : ''
-                ]);
-            });
+
+            let rows;
+            if (!cfg.accumulated && verdeResult.raw) {
+                // Variables continuas (temp/hum/pres): cada estación reporta en sus
+                // propios instantes, así que exportamos una fila por lectura real de
+                // cada una en vez de forzarlas a un bucket común (que era lo que
+                // colapsaba todo el día en un solo promedio).
+                const vRaw = verdeResult.raw, cRaw = campResult.raw, dRaw = (dazaResult && dazaResult.raw) || [];
+                const maxLen = Math.max(vRaw.length, cRaw.length, dRaw.length);
+                rows = [[
+                    'Fecha/Hora Verde', `EMA Verde (${cfg.unit})`,
+                    'Fecha/Hora Campbell', `Campbell (${cfg.unit})`,
+                    'Fecha/Hora Daza', `Daza (${cfg.unit})`
+                ]];
+                for (let i = 0; i < maxLen; i++) {
+                    rows.push([
+                        vRaw[i] ? formatRawTs(vRaw[i].ts) : '', vRaw[i] != null ? vRaw[i].val : '',
+                        cRaw[i] ? formatRawTs(cRaw[i].ts) : '', cRaw[i] != null ? cRaw[i].val : '',
+                        dRaw[i] ? formatRawTs(dRaw[i].ts) : '', dRaw[i] != null ? dRaw[i].val : ''
+                    ]);
+                }
+            } else {
+                rows = [['Fecha/Hora', `EMA Verde (${cfg.unit})`, `Campbell (${cfg.unit})`, `Daza (${cfg.unit})`]];
+                labels.forEach((label, i) => {
+                    rows.push([
+                        label,
+                        verdeResult.chartData[i] != null ? verdeResult.chartData[i] : '',
+                        campResult.chartData[i] != null ? campResult.chartData[i] : '',
+                        (dazaResult && dazaResult.chartData[i] != null) ? dazaResult.chartData[i] : ''
+                    ]);
+                });
+            }
             downloadCSV(`comparacion_${cfg.label.toLowerCase().replace(/\s+/g, '_')}_${rangeForFilename(startStr, endStr)}.csv`, rows);
         }
 
@@ -539,10 +562,18 @@
             const st = VARIABLES_STATIONS[stationKey];
             const { cfg, labels, startStr, endStr } = lastVariablesExport;
             const data = lastVariablesExport[st.key];
-            const rows = [['Fecha/Hora', `${st.label} (${cfg.unit})`]];
-            labels.forEach((label, i) => {
-                rows.push([label, (data && data.chartData[i] != null) ? data.chartData[i] : '']);
-            });
+
+            let rows;
+            if (!cfg.accumulated && data && data.raw) {
+                // Una fila por lectura real de esta estación, sin promediar por bucket.
+                rows = [['Fecha/Hora', `${st.label} (${cfg.unit})`]];
+                data.raw.forEach(r => rows.push([formatRawTs(r.ts), r.val]));
+            } else {
+                rows = [['Fecha/Hora', `${st.label} (${cfg.unit})`]];
+                labels.forEach((label, i) => {
+                    rows.push([label, (data && data.chartData[i] != null) ? data.chartData[i] : '']);
+                });
+            }
             downloadCSV(`${cfg.label.toLowerCase().replace(/\s+/g, '_')}_${stationKey}_${rangeForFilename(startStr, endStr)}.csv`, rows);
         }
 
@@ -1015,6 +1046,41 @@
             }
         }
 
+        // Formatea un timestamp para las filas de CSV "crudo" (una fila por lectura real).
+        function formatRawTs(ts) {
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `${pad(ts.getDate())}/${pad(ts.getMonth()+1)}/${ts.getFullYear()} ${pad(ts.getHours())}:${pad(ts.getMinutes())}`;
+        }
+
+        // Extrae la serie cruda (una lectura real por entrada, sin promediar por
+        // bucket) de un field de ThingSpeak, para que el CSV pueda exportar todas
+        // las lecturas del período en vez del promedio diario usado en el gráfico.
+        function extractRawSeries(feeds, fieldNum) {
+            const fieldKey = "field" + fieldNum;
+            const out = [];
+            feeds.forEach(f => {
+                const val = parseFloat(f[fieldKey]);
+                if (isNaN(val)) return;
+                out.push({ ts: new Date(f.created_at), val });
+            });
+            out.sort((a, b) => a.ts - b.ts);
+            return out;
+        }
+
+        // Igual que extractRawSeries pero para observaciones de Wunderground.
+        function extractRawWUSeries(observations, extractFn) {
+            const out = [];
+            observations.forEach(o => {
+                if (!o.obsTimeLocal && !o.obsTimeUtc) return;
+                const val = extractFn(o);
+                if (val == null) return;
+                const ts = new Date((o.obsTimeLocal || o.obsTimeUtc).replace(' ', 'T'));
+                out.push({ ts, val });
+            });
+            out.sort((a, b) => a.ts - b.ts);
+            return out;
+        }
+
         // Procesar una variable continua (temperatura, humedad, presión): promedia las
         // lecturas por bucket en vez de sumarlas, porque no son cantidades acumulables.
         function processContinuousSeries(feeds, fieldNum, startStr, endStr) {
@@ -1296,6 +1362,11 @@
                 verdeResult = processContinuousSeries(feedsVerde.feeds, cfg.verdeField, startStr, endStr);
                 campResult = processContinuousSeries(feedsCampbell.feeds, cfg.campbellField, startStr, endStr);
                 dazaResult = processWUContinuousVariable(wuObservations, cfg.dazaExtract, startStr, endStr);
+                // Serie cruda (una fila por lectura real) para que el CSV no dependa
+                // del bucket diario que usa el gráfico en rangos largos (> 72 hs).
+                verdeResult.raw = extractRawSeries(feedsVerde.feeds, cfg.verdeField);
+                campResult.raw = extractRawSeries(feedsCampbell.feeds, cfg.campbellField);
+                dazaResult.raw = extractRawWUSeries(wuObservations, cfg.dazaExtract);
             }
 
             document.getElementById('varVerdeValue').innerText = verdeResult.latestValue != null ? verdeResult.latestValue.toFixed(2) : '--';
