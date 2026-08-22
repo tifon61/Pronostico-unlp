@@ -4,7 +4,7 @@
   "current_reason": "No se pudo conectar: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)>",
   "down_since": "2026-08-21T20:38:48.907356+00:00",
   "last_data_timestamp": null,
-  "last_check": "2026-08-22T11:56:35.583667+00:00",
+  "last_check": "2026-08-22T12:32:12.697831+00:00",
   "current_issue_number": 1,
   "incidents": [
     {
