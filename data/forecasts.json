@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-08-22T23:12:13.012141+00:00",
+  "generated_at": "2026-08-23T01:23:57.669629+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
-      "forecast_date": "2026-08-18",
+      "forecast_date": "2026-08-22",
       "emission_time": "08:09:00",
       "publicado_por": "Camila",
       "es_correccion": true,
       "team_password": "Maraton",
       "daily_forecasts": [
         {
-          "date": "2026-08-18",
-          "day_name": "martes",
+          "date": "2026-08-22",
+          "day_name": "sábado",
           "temp_min": 8,
           "temp_max": 13,
           "temp_min_suburban": 7,
@@ -54,8 +54,8 @@
           ]
         },
         {
-          "date": "2026-08-19",
-          "day_name": "miércoles",
+          "date": "2026-08-23",
+          "day_name": "domingo",
           "temp_min": 4,
           "temp_max": 14,
           "temp_min_suburban": 3,
@@ -109,13 +109,13 @@
           ]
         },
         {
-          "date": "2026-08-20",
-          "day_name": "jueves",
+          "date": "2026-08-24",
+          "day_name": "lunes",
           "temp_min": 7,
           "temp_max": 17,
           "temp_min_suburban": 6,
           "temp_max_suburban": 16,
-          "custom_description": "Cielo ligeramente nublado.",
+          "custom_description": null,
           "period_forecasts": [
             {
               "period": "mañana",
@@ -142,13 +142,13 @@
           ]
         },
         {
-          "date": "2026-08-21",
-          "day_name": "viernes",
+          "date": "2026-08-25",
+          "day_name": "martes",
           "temp_min": 5,
           "temp_max": 10,
           "temp_min_suburban": 4,
           "temp_max_suburban": 10,
-          "custom_description": "Cielo algo nublado.",
+          "custom_description": null,
           "period_forecasts": [
             {
               "period": "mañana",
