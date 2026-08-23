@@ -185,6 +185,10 @@
         .card-split { display: grid; grid-template-columns: 1fr 1fr; padding-top: 20px; width: 100%; }
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
+        .card-split-pill { border-radius: 20px; padding: 5px 16px; margin-bottom: 4px; display: inline-block; }
+        .v-card.celeste .card-split-pill { background: #245687; }
+        .v-card.oscuro .card-split-pill { background: #d4e2eb; }
+        .v-card.oscuro .card-split-pill .card-split-title { color: var(--unlp-blue); opacity: 1; }
         .card-split img { width: 176px; height: 220px; object-fit: contain; flex-shrink: 0; }
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
         .card-temps-row.temp-row-lg { padding-top: 10px; gap: 70px; }
@@ -469,8 +473,8 @@
                     <h2 class="n2">--</h2>
                     <div class="date f2">--</div>
                     <div class="card-split">
-                        <div class="card-split-col"><span class="card-split-title">MADRUGADA/MAÑANA</span><img id="d3-icon-1" src="images/default.png"></div>
-                        <div class="card-split-col"><span class="card-split-title">TARDE/NOCHE</span><img id="d3-icon-2" src="images/default.png"></div>
+                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d3-icon-1" src="images/default.png"></div>
+                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">TARDE/NOCHE</span></div><img id="d3-icon-2" src="images/default.png"></div>
                     </div>
                     <div class="card-temps-row temp-row-lg">
                         <div class="card-temp-item">
@@ -492,8 +496,8 @@
                     <h2 class="n3">--</h2>
                     <div class="date f3">--</div>
                     <div class="card-split">
-                        <div class="card-split-col"><span class="card-split-title">MADRUGADA/MAÑANA</span><img id="d4-icon-1" src="images/default.png"></div>
-                        <div class="card-split-col"><span class="card-split-title">TARDE/NOCHE</span><img id="d4-icon-2" src="images/default.png"></div>
+                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d4-icon-1" src="images/default.png"></div>
+                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">TARDE/NOCHE</span></div><img id="d4-icon-2" src="images/default.png"></div>
                     </div>
                     <div class="card-temps-row temp-row-lg">
                         <div class="card-temp-item">
