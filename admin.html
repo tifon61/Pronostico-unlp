@@ -183,12 +183,12 @@
         .v-card h2 { font-size: 72px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: -2px; }
         .v-card .date { font-size: 46px; font-weight: 300; margin-bottom: 25px; opacity: 0.85; }
         .card-split { display: grid; grid-template-columns: 1fr 1fr; padding-top: 20px; width: 100%; }
-        .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .card-split-title { font-size: 18px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
-        .card-split-pill { border-radius: 20px; padding: 5px 16px; margin-bottom: 4px; display: inline-block; }
-        .v-card.celeste .card-split-pill { background: #245687; }
-        .v-card.oscuro .card-split-pill { background: #d4e2eb; }
-        .v-card.oscuro .card-split-pill .card-split-title { color: var(--unlp-blue); opacity: 1; }
+        .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
+        .card-split-title { font-size: 16px; font-weight: 800; opacity: 0.9; text-transform: uppercase; white-space: nowrap; }
+        .card-split-pill { border-radius: 20px; padding: 5px 10px; margin-bottom: 4px; display: inline-block; max-width: 100%; box-sizing: border-box; }
+        .v-card.celeste .card-split-pill { background: #d4e2eb; }
+        .v-card.celeste .card-split-pill .card-split-title { color: var(--unlp-blue); opacity: 1; }
+        .v-card.oscuro .card-split-pill { background: #245687; }
         .card-split img { width: 176px; height: 220px; object-fit: contain; flex-shrink: 0; }
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
         .card-temps-row.temp-row-lg { padding-top: 10px; gap: 70px; }
