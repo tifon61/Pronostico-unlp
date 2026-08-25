@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-25T10:49:48.647235+00:00",
+  "generated_at": "2026-08-25T10:50:49.446683+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
       "forecast_date": "2026-08-25",
       "emission_time": "07:45:00",
-      "publicado_por": "Equipo FCAG",
+      "publicado_por": "Victoria",
       "es_correccion": false,
       "team_password": "Maraton",
       "daily_forecasts": [
