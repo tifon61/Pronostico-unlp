@@ -156,6 +156,7 @@
         .exporting .card-temps-row svg, .exporting .card-temps-row img { transform: translateY(6px); }
         .temp-v-urb { font-size: 31px; font-weight: 500; line-height: 1.2; color: white; }
         .temp-v-sub { font-size: 31px; font-weight: 500; line-height: 1.2; color: rgba(255,255,255,0.9); }
+        .unit-c { font-size: 0.55em; font-weight: 400; }
         
         .forecast-item { text-align: center; padding: 0 0 5px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 0; flex-shrink: 0; padding-top: 10px; }
         .forecast-item img { width: 156px; height: 195px; object-fit: contain; flex-shrink: 0; image-rendering: -webkit-optimize-contrast; }
@@ -185,7 +186,8 @@
         .card-split { display: grid; grid-template-columns: 1fr 1fr; padding-top: 20px; width: 100%; }
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
         .card-split-title { font-size: 16px; font-weight: 400; opacity: 0.9; text-transform: uppercase; white-space: nowrap; line-height: 26px; }
-        .card-split-pill { border-radius: 20px; height: 26px; margin-bottom: 4px; width: 188px; box-sizing: border-box; text-align: center; }
+        .card-split-pill { border-radius: 20px; height: 26px; margin-bottom: 4px; width: 150px; box-sizing: border-box; text-align: center; }
+        .card-split-pill.wide { width: 220px; margin-left: -14px; }
         .v-card.celeste .card-split-pill { background: #d4e2eb; }
         .v-card.celeste .card-split-pill .card-split-title { color: var(--unlp-blue); opacity: 1; }
         .v-card.oscuro .card-split-pill { background: #245687; }
@@ -474,7 +476,7 @@
                     <h2 class="n2">--</h2>
                     <div class="date f2">--</div>
                     <div class="card-split">
-                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d3-icon-1" src="images/default.png"></div>
+                        <div class="card-split-col"><div class="card-split-pill wide"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d3-icon-1" src="images/default.png"></div>
                         <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">TARDE/NOCHE</span></div><img id="d3-icon-2" src="images/default.png"></div>
                     </div>
                     <div class="card-temps-row temp-row-lg">
@@ -497,7 +499,7 @@
                     <h2 class="n3">--</h2>
                     <div class="date f3">--</div>
                     <div class="card-split">
-                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d4-icon-1" src="images/default.png"></div>
+                        <div class="card-split-col"><div class="card-split-pill wide"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d4-icon-1" src="images/default.png"></div>
                         <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">TARDE/NOCHE</span></div><img id="d4-icon-2" src="images/default.png"></div>
                     </div>
                     <div class="card-temps-row temp-row-lg">
@@ -1002,13 +1004,19 @@
     }
 
     // MODIFICADO: Se corrigió la lógica para que el '°' aplique solo a temperaturas reales
+    // El "°C" se envuelve en un <span> más chico (ver .unit-c) para que no compita en
+    // tamaño con el número de la temperatura.
     function up(id, v) {
         let val = v ? String(v).trim() : '--';
         const isTemp = id.includes('min') || id.includes('max') || id.match(/-t[1-4]$/);
-        if(isTemp && !id.includes('sub') && val !== '--') val += '°C';
-        if(id.includes('sub') && val !== '--') val += '°C*';
+        const isSub = id.includes('sub');
         const el = document.getElementById(id);
-        if(el) el.innerText = val;
+        if (!el) return;
+        if (isTemp && val !== '--') {
+            el.innerHTML = `${val}<span class="unit-c">°C</span>${isSub ? '*' : ''}`;
+        } else {
+            el.innerText = val;
+        }
     }
 
     // El texto de esta caja es 100% lo que se escribe a mano en "Descripción extendida":
