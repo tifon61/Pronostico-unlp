@@ -1005,8 +1005,8 @@
     function up(id, v) {
         let val = v ? String(v).trim() : '--';
         const isTemp = id.includes('min') || id.includes('max') || id.match(/-t[1-4]$/);
-        if(isTemp && !id.includes('sub') && val !== '--') val += '°';
-        if(id.includes('sub') && val !== '--') val += '*';
+        if(isTemp && !id.includes('sub') && val !== '--') val += '°C';
+        if(id.includes('sub') && val !== '--') val += '°C*';
         const el = document.getElementById(id);
         if(el) el.innerText = val;
     }
