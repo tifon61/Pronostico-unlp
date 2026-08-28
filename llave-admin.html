@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Llave de la oficina | Admin UNLP</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap">
+<style>
+    * { box-sizing: border-box; }
+    :root { --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --bg: #f4f6f8; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: #333; margin: 0; padding: 30px 20px 80px; }
+    .container { max-width: 640px; margin: 0 auto; }
+    h1 { color: var(--unlp-blue); font-size: 1.4em; margin-bottom: 4px; }
+    .subtitle { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+    a.back-link { color: var(--unlp-blue); font-weight: 700; text-decoration: none; font-size: 0.85em; }
+    a.back-link:hover { text-decoration: underline; }
+
+    .card { background: white; border-radius: 10px; padding: 22px 24px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
+    .estado-box { border-radius: 10px; padding: 22px 24px; margin-bottom: 22px; text-align: center; color: white; transition: background 0.2s; }
+    .estado-box.en-intendencia { background: #6c757d; }
+    .estado-box.con-persona { background: var(--unlp-blue); }
+    .estado-emoji { font-size: 2.2em; line-height: 1; margin-bottom: 6px; }
+    .estado-titulo { font-size: 1.3em; font-weight: 900; margin-bottom: 2px; }
+    .estado-detalle { font-size: 0.85em; opacity: 0.85; }
+
+    label { display: block; font-size: 0.75em; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; margin: 14px 0 5px; }
+    label:first-of-type { margin-top: 0; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95em; }
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    button { border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 0.9em; transition: 0.2s; }
+    .btn-primary { background: var(--unlp-blue); color: white; flex: 1; }
+    .btn-primary:hover { background: #002240; }
+    .btn-primary:disabled { background: #99a; cursor: not-allowed; }
+    .btn-refresh { background: #eef2f5; color: var(--unlp-blue); }
+
+    .historial-title { color: var(--unlp-blue); font-size: 1em; margin: 0 0 10px; }
+    .historial-row { display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9em; }
+    .historial-row:last-child { border-bottom: none; }
+    .historial-hora { color: #888; font-size: 0.85em; flex-shrink: 0; width: 48px; }
+    .historial-persona { font-weight: 700; color: var(--unlp-blue); }
+    .historial-nota { color: #777; font-size: 0.85em; }
+    .empty-msg { color: #888; font-size: 0.9em; text-align: center; padding: 10px; }
+
+    #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+    #access-gate.unlocked { display: none; }
+    .access-gate-box { background: white; border-radius: 12px; padding: 35px 40px; width: 320px; max-width: 90vw; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .access-gate-box h2 { font-size: 1.1em; color: var(--unlp-blue); margin: 0 0 8px; }
+    .access-gate-box p { font-size: 0.85em; color: #555; margin: 0 0 16px; }
+    .access-gate-box input { text-align: center; }
+    #access-error { display: none; color: #c0392b; font-size: 0.8em; margin-top: 8px; font-weight: 700; }
+    #access-error.show { display: block; }
+
+    #notification-toast { position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 25px; border-radius: 8px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(150%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
+    #notification-toast.show { transform: translateY(0); }
+    #notification-toast.error { background: #e74c3c; }
+</style>
+</head>
+<body>
+
+<div id="access-gate">
+    <div class="access-gate-box">
+        <h2>LLAVE DE LA OFICINA</h2>
+        <p>Ingresá la clave del equipo para continuar.</p>
+        <input type="password" id="access-pw" placeholder="Clave" autocomplete="off" onkeydown="if(event.key==='Enter') checkAccess()">
+        <button type="button" class="btn-primary" style="margin-top:10px;" onclick="checkAccess()">Ingresar</button>
+        <div id="access-error">Clave incorrecta, probá de nuevo.</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
+    <h1>🔑 Llave de la oficina</h1>
+    <p class="subtitle">Anotá acá quién retira la llave (se pide en Intendencia a la mañana) para que todo el equipo sepa quién la tiene sin necesidad de preguntar. Al otro día se reinicia solo: si nadie anotó nada todavía, figura como "En Intendencia".</p>
+
+    <div id="estado-box" class="estado-box en-intendencia">
+        <div class="estado-emoji">⏳</div>
+        <div class="estado-titulo" id="estado-titulo">Buscando...</div>
+        <div class="estado-detalle" id="estado-detalle"></div>
+    </div>
+
+    <div class="card">
+        <label>¿Quién tiene la llave ahora?</label>
+        <input type="text" id="f-persona" placeholder="Nombre y apellido" onkeydown="if(event.key==='Enter') submitLlave()">
+        <label>Nota (opcional)</label>
+        <input type="text" id="f-nota" placeholder="Ej: se la dio Juan al retirarse">
+        <div class="btn-row">
+            <button class="btn-primary" id="btn-submit" onclick="submitLlave()">Anotar</button>
+            <button class="btn-refresh" onclick="cargarEstado()">🔄 Actualizar</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="historial-title">Hoy</h2>
+        <div id="historial-list"><div class="empty-msg">Cargando...</div></div>
+    </div>
+</div>
+
+<div id="notification-toast">✅ Listo</div>
+
+<script>
+    // ⚠️ CAMBIAR esta clave por la MISMA que se usa en admin.html (y en Apps Script,
+    // Script Properties > TEAM_PASSWORD). Si no coinciden, esta pantalla te deja pasar
+    // pero el Sheet va a rechazar el anotado en silencio.
+    const TEAM_PASSWORD = 'Maraton';
+
+    function checkAccess() {
+        const val = document.getElementById('access-pw').value;
+        if (val === TEAM_PASSWORD) {
+            localStorage.setItem('teamAccessGranted', '1');
+            document.getElementById('access-gate').classList.add('unlocked');
+        } else {
+            document.getElementById('access-error').classList.add('show');
+        }
+    }
+    if (localStorage.getItem('teamAccessGranted') === '1') {
+        document.getElementById('access-gate').classList.add('unlocked');
+    }
+
+    // ⚠️ Misma URL de Apps Script que usa admin.html / novedades-admin.html.
+    const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
+
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('notification-toast');
+        toast.innerText = message;
+        toast.classList.toggle('error', isError);
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.innerText = str || '';
+        return div.innerHTML;
+    }
+
+    function submitLlave() {
+        const persona = document.getElementById('f-persona').value.trim();
+        if (!persona) { showToast('Falta el nombre de quién tiene la llave', true); return; }
+        const nota = document.getElementById('f-nota').value.trim();
+
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        fetch(GOOGLE_APP_URL, {
+            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'actualizar_llave', team_password: TEAM_PASSWORD, persona: persona, nota: nota })
+        }).then(() => {
+            showToast('¡Anotado!');
+            document.getElementById('f-persona').value = '';
+            document.getElementById('f-nota').value = '';
+            setTimeout(cargarEstado, 1200);
+        }).catch(() => showToast('Error de conexión', true))
+          .finally(() => { btn.disabled = false; });
+    }
+
+    function cargarEstado() {
+        const box = document.getElementById('estado-box');
+        const titulo = document.getElementById('estado-titulo');
+        const detalle = document.getElementById('estado-detalle');
+        const historialList = document.getElementById('historial-list');
+        titulo.innerText = 'Buscando...';
+        detalle.innerText = '';
+
+        const callbackName = 'jsonp_llave_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(data) {
+            delete window[callbackName];
+            document.body.removeChild(script);
+
+            if (data && !data.error && !data.en_intendencia) {
+                box.className = 'estado-box con-persona';
+                document.querySelector('.estado-emoji').innerText = '🔑';
+                titulo.innerText = `${data.persona} tiene la llave`;
+                detalle.innerText = data.hora ? `Desde las ${data.hora} hs` : '';
+            } else {
+                box.className = 'estado-box en-intendencia';
+                document.querySelector('.estado-emoji').innerText = '🏢';
+                titulo.innerText = 'En Intendencia';
+                detalle.innerText = 'Nadie la retiró todavía hoy';
+            }
+
+            const historial = (data && data.historial) || [];
+            if (!historial.length) {
+                historialList.innerHTML = '<div class="empty-msg">Todavía no hay movimientos hoy.</div>';
+            } else {
+                historialList.innerHTML = historial.slice().reverse().map(h => `
+                    <div class="historial-row">
+                        <span class="historial-hora">${escapeHtml(h.hora)}</span>
+                        <span class="historial-persona">${escapeHtml(h.persona)}</span>
+                        ${h.nota ? `<span class="historial-nota">— ${escapeHtml(h.nota)}</span>` : ''}
+                    </div>
+                `).join('');
+            }
+        };
+        const script = document.createElement('script');
+        script.src = `${GOOGLE_APP_URL}?type=llave&callback=${callbackName}&_t=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
+    cargarEstado();
+    // Se refresca sola cada 60s para que quien la esté mirando no tenga que
+    // acordarse de apretar "Actualizar".
+    setInterval(cargarEstado, 60000);
+</script>
+</body>
+</html>
