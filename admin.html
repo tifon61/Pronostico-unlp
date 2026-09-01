@@ -1399,24 +1399,24 @@
         showToast(`Placa descargada correctamente`);
     }
 
+    // Genera cada placa UNA A LA VEZ (en vez de tener las dos imágenes de
+    // 4320x5400 en memoria al mismo tiempo, como pasaba antes) y la vuelca
+    // al PDF antes de generar la siguiente. Con las dos juntas, la memoria
+    // que pedía esta función se duplicaba respecto a descargar un solo PNG,
+    // y en computadoras con poca RAM eso podía colgar o cerrar la pestaña
+    // ("se me cierra Google") al armar el PDF.
     async function downloadPDF() {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-        await document.fonts.ready;
         const c = document.getElementById('city-selector').value.replace(/\s+/g, '_'), d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
         const pdfName = `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
-        const viewer = document.getElementById('viewer');
-        const prevZoom = viewer.style.zoom;
-        viewer.style.zoom = 1;
-        const el1 = document.getElementById('placa-1'), el2 = document.getElementById('placa-2');
-        el1.classList.add('exporting'); el2.classList.add('exporting');
-        await new Promise(r => setTimeout(r, 50));
-        const images = document.querySelectorAll("img");
-        await Promise.all([...images].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
-        const canvas1 = await html2canvas(el1, { scale: 4, useCORS: true, logging: false, backgroundColor: null }), canvas2 = await html2canvas(el2, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
-        el1.classList.remove('exporting'); el2.classList.remove('exporting');
-        viewer.style.zoom = prevZoom;
         const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
-        doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350); doc.addPage(); doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350); doc.save(pdfName);
+        const ids = ['placa-1', 'placa-2'];
+        for (let i = 0; i < ids.length; i++) {
+            const canvas = await renderPlacaCanvas(ids[i]);
+            if (i > 0) doc.addPage();
+            doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
+        }
+        doc.save(pdfName);
         showToast(`PDF generado exitosamente`);
     }
 
