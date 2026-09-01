@@ -976,7 +976,7 @@
         if(i1 && d1) arrows += getWindArrowSVG(d1);
         if(i2 && d2) arrows += getWindArrowSVG(d2);
 
-        if (!i1 && !d1 && !i2 && !d2 && !r1 && !r2) { tw.innerHTML = '--'; ac.innerHTML = ''; return; }
+        if (!i1 && !d1 && !i2 && !d2 && !r1 && !r2) { tw.innerHTML = '--'; ac.innerHTML = ''; fitDayDescription(dia); return; }
 
         // Intensidad/dirección por un lado, ráfagas por otro: antes, si un tramo
         // tenía ráfagas, esa frase pisaba por completo la intensidad/dirección de
@@ -1003,6 +1003,10 @@
         tw.style.fontSize = sz + 'px';
         const lc = document.getElementById(`${dia}-wind-legend`);
         while (lc.scrollHeight > lc.clientHeight && sz > 14) { sz--; tw.style.fontSize = sz + 'px'; }
+        // El texto de viento puede crecer y "subir" la sección de viento (está
+        // pegada al pie de la tarjeta), así que la descripción de arriba tiene
+        // que volver a chequear cuánto espacio real le queda (ver fitDayDescription).
+        fitDayDescription(dia);
     }
 
     function updateSky(dia, tramo) {
@@ -1074,15 +1078,35 @@
     // desplegables de cielo/probabilidad de otros tramos no reordene ni reformatee
     // lo que el usuario ya escribió acá.
     function updateFullDesc(dia, v) {
-        const target = document.getElementById(`${dia}-w1`), container = document.getElementById(`${dia}-desc-container`);
+        const target = document.getElementById(`${dia}-w1`);
         let str = (v && v.trim() !== '') ? v : "--";
-
-        if (target && container) {
-            let sz = 28 + (rowFontBoost[`${dia}_desc`] || 0);
-            target.innerText = str; target.style.fontSize = sz + 'px';
-            while (target.scrollHeight > container.clientHeight && sz > 12) { sz--; target.style.fontSize = sz + 'px'; }
-        } else if (target) { target.innerText = str; }
+        if (target) target.innerText = str;
+        fitDayDescription(dia);
         saveDraft();
+    }
+
+    // La caja de descripción (arriba) y la de viento (abajo, con .wind-section
+    // "pegada" al pie de la tarjeta) crecen cada una por su lado según cuánto
+    // texto tenga cada una -- si las dos son largas a la vez terminaban
+    // superponiéndose, porque la descripción siempre se probaba contra un tope
+    // fijo de 140px sin importar dónde terminaba quedando realmente la sección
+    // de viento. Acá se mide la distancia real hasta donde arranca el viento
+    // (recalculada en cada cambio, tanto de descripción como de viento) y se
+    // usa eso como tope en vez del fijo, así nunca se pisan.
+    function fitDayDescription(dia) {
+        const target = document.getElementById(`${dia}-w1`), container = document.getElementById(`${dia}-desc-container`);
+        if (!target || !container) return;
+        const vCard = container.closest('.v-card');
+        const windSection = vCard ? vCard.querySelector('.wind-section') : null;
+        let maxHeight = 140;
+        if (windSection) {
+            const gap = windSection.getBoundingClientRect().top - container.getBoundingClientRect().top;
+            if (gap > 0) maxHeight = Math.min(140, Math.max(40, gap - 10));
+        }
+        container.style.height = maxHeight + 'px';
+        let sz = 28 + (rowFontBoost[`${dia}_desc`] || 0);
+        target.style.fontSize = sz + 'px';
+        while (target.scrollHeight > container.clientHeight && sz > 12) { sz--; target.style.fontSize = sz + 'px'; }
     }
 
     // MODIFICADO: Se agrega el boton y se guarda en memoria el ultimo pronóstico
