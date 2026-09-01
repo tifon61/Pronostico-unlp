@@ -1100,7 +1100,14 @@
         const windSection = vCard ? vCard.querySelector('.wind-section') : null;
         let maxHeight = 140;
         if (windSection) {
-            const gap = windSection.getBoundingClientRect().top - container.getBoundingClientRect().top;
+            // getBoundingClientRect() da píxeles YA afectados por el zoom con el
+            // que se esté viendo la placa en ese momento (el panel se suele mirar
+            // achicado mientras se edita), pero 140/40 son constantes pensadas
+            // para la placa a tamaño real -- sin este ajuste, con zoom < 100% la
+            // distancia medida da más chica de lo que es en realidad y el texto
+            // se achicaba de más aunque sobrara espacio.
+            const zoom = parseFloat(document.getElementById('viewer').style.zoom) || 1;
+            const gap = (windSection.getBoundingClientRect().top - container.getBoundingClientRect().top) / zoom;
             if (gap > 0) maxHeight = Math.min(140, Math.max(40, gap - 10));
         }
         container.style.height = maxHeight + 'px';
