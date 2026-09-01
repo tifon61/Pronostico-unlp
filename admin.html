@@ -174,7 +174,16 @@
            stripe-wind-4/stripe-time-4), así que "Vientos"/"Tiempo" pueden ser del mismo
            tamaño en ambos días sin superponerse con las celdas de datos. */
         .stripe-wind-4 .stripe-label, .stripe-time-4 .stripe-label { font-size: 44px; padding-left: 12px; }
-        .stripe-data { font-size: 34px; font-weight: 800; letter-spacing: -0.7px; text-align: center; display: flex; align-items: center; justify-content: center; padding: 10px 3px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; cursor: text; outline: none; transform: translateY(-6px); }
+        .stripe-data { font-size: 34px; font-weight: 800; letter-spacing: -0.7px; text-align: center; display: flex; align-items: center; justify-content: center; padding: 10px 3px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; cursor: text; outline: none; transform: translateY(-6px); position: relative; }
+        /* Marca visible cuando una celda de Vientos/Tiempo quedó "trabada" en modo
+           manual (se editó a mano en algún momento) y por eso el desplegable de
+           arriba dejó de actualizarla sola. Doble clic la limpia y la vuelve a
+           poner en automático (ver dblclick en .stripe-data más abajo en el JS). */
+        .stripe-data.is-manual { box-shadow: inset 0 0 0 3px #f39c12; border-radius: 6px; cursor: pointer; }
+        .stripe-data.is-manual::after { content: '✎ manual — doble clic para volver a automático'; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%) translateY(100%); font-size: 12px; font-weight: 700; letter-spacing: 0; color: #f39c12; background: rgba(0,0,0,0.75); padding: 2px 6px; border-radius: 4px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 20; }
+        .stripe-data.is-manual:hover::after { opacity: 1; }
+        .exporting .stripe-data.is-manual { box-shadow: none; }
+        .exporting .stripe-data.is-manual::after { display: none; }
         .stripe-data:hover { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.35); }
         .stripe-data:focus { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.8); }
         .exporting .stripe-data:hover, .exporting .stripe-data:focus { box-shadow: none; }
@@ -639,14 +648,25 @@
                     const el = document.getElementById(id);
                     if (el) el.innerText = _cellTexts[id];
                 }
+                refreshManualIndicator(id);
             });
         }
     } catch (e) {}
+
+    // Marca visualmente (borde naranja) una celda de Vientos/Tiempo que quedó
+    // trabada en modo manual, para que se note por qué el desplegable de
+    // arriba dejó de actualizarla sola -- antes era invisible y la única forma
+    // de darse cuenta era comparando con lo que decía el desplegable.
+    function refreshManualIndicator(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('is-manual', !!manualCellOverrides[id]);
+    }
 
     function onCellManualInput(id) {
         const el = document.getElementById(id);
         if (!el) return;
         manualCellOverrides[id] = el.innerText.trim() !== '';
+        refreshManualIndicator(id);
         saveDraft();
     }
 
@@ -654,11 +674,23 @@
         const el = document.getElementById(id);
         if (!el || el.innerText.trim() !== '') return;
         manualCellOverrides[id] = false;
+        refreshManualIndicator(id);
         const m = id.match(/^([a-z0-9]+)-(w|v)(\d+)$/);
         if (!m) return;
         const [, dia, kind, tramo] = m;
         if (kind === 'w') updateSky(dia, Number(tramo)); else updateWind(dia, Number(tramo));
     }
+
+    // Doble clic en una celda "trabada" en modo manual (ver refreshManualIndicator):
+    // la limpia y la vuelve a poner en automático sin que haga falta saber que
+    // hay que borrar todo el texto a mano y hacer clic afuera.
+    document.addEventListener('dblclick', (e) => {
+        const el = e.target.closest('.stripe-data.is-manual');
+        if (!el) return;
+        e.preventDefault();
+        el.innerText = '';
+        onCellManualBlur(el.id);
+    });
 
     function handleCellKeydown(e) {
         if (e.key === 'Enter') {
