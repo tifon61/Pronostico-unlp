@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T01:31:17.692634+00:00",
+  "generated_at": "2026-09-01T10:05:20.925217+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -178,15 +178,15 @@
     },
     "Junín": {
       "city": "Junín",
-      "forecast_date": "2026-08-31",
+      "forecast_date": "2026-09-01",
       "emission_time": "07:02:00",
       "publicado_por": "Lisandro",
       "es_correccion": false,
       "team_password": "Maraton",
       "daily_forecasts": [
         {
-          "date": "2026-08-31",
-          "day_name": "lunes",
+          "date": "2026-09-01",
+          "day_name": "martes",
           "temp_min": 8,
           "temp_max": 21,
           "temp_min_suburban": null,
@@ -229,8 +229,8 @@
           ]
         },
         {
-          "date": "2026-09-01",
-          "day_name": "martes",
+          "date": "2026-09-02",
+          "day_name": "miércoles",
           "temp_min": 8,
           "temp_max": 22,
           "temp_min_suburban": null,
@@ -284,13 +284,13 @@
           ]
         },
         {
-          "date": "2026-09-02",
-          "day_name": "miércoles",
+          "date": "2026-09-03",
+          "day_name": "jueves",
           "temp_min": 10,
           "temp_max": 24,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo ligeramente a parcialmente nublado",
+          "custom_description": "Cielo cubierto con prob. 10 a 40%  de lluvias aisladas a ligeramente nublado.",
           "period_forecasts": [
             {
               "period": "mañana",
@@ -317,13 +317,13 @@
           ]
         },
         {
-          "date": "2026-09-03",
-          "day_name": "jueves",
+          "date": "2026-09-04",
+          "day_name": "viernes",
           "temp_min": 12,
           "temp_max": 18,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo cubierto con 40-70% de probabilidad de lluvias aisladas por la mañana",
+          "custom_description": "Cielo despejado durante todo el día",
           "period_forecasts": [
             {
               "period": "mañana",
