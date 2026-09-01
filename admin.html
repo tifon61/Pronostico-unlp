@@ -197,14 +197,11 @@
         .card-split { display: grid; grid-template-columns: 1fr 1fr; padding-top: 20px; width: 100%; }
         .card-split-col:nth-child(2) { transform: translateX(30px); }
         .card-split-col { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
-        .card-split-title { font-size: 17px; font-weight: 400; opacity: 0.9; text-transform: uppercase; white-space: nowrap; line-height: 26px; }
         .card-split-pill { border-radius: 20px; height: 26px; margin-bottom: 4px; width: 165px; box-sizing: border-box; text-align: center; }
         .card-split-pill.wide { width: 240px; margin-left: -8px; }
         .v-card.celeste .card-split-pill { background: #d4e2eb; }
-        .v-card.celeste .card-split-pill .card-split-title { color: var(--unlp-blue); opacity: 1; }
         .v-card.oscuro .card-split-pill { background: #245687; }
-        .card-split img { width: 176px; height: 220px; object-fit: contain; flex-shrink: 0; }
-        .exporting .card-split-title { transform: translateY(-5px); display: inline-block; }
+        .card-split img:not(.card-split-pill) { width: 176px; height: 220px; object-fit: contain; flex-shrink: 0; }
         .card-temps-row { display: flex; justify-content: center; gap: 40px; width: 100%; padding-top: 20px; margin-top: 15px; transform: translateX(-12px); }
         .card-temps-row.temp-row-lg { padding-top: 10px; gap: 70px; }
         .card-temp-item { display: flex; align-items: center; gap: 8px; }
@@ -228,7 +225,7 @@
         .bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 45px; background-color: var(--unlp-blue); }
         
         img { display: block; position: relative; background: transparent; min-width: 40px; min-height: 40px; object-fit: contain; image-rendering: auto; }
-        .temp-v-item img, .card-temp-item img { min-width: 0; min-height: 0; }
+        .temp-v-item img, .card-temp-item img, img.card-split-pill { min-width: 0; min-height: 0; }
         .column { display: flex; flex-direction: column; flex: 1; }
         .column label { font-size: 0.75em; font-weight: 600; color: var(--unlp-blue); margin-bottom: 5px; text-transform: uppercase; }
         .icon-wind-toggle { display: flex; align-items: center; gap: 5px; font-size: 0.7em; font-weight: 600; color: #555; text-transform: none; margin: 5px 0 0; cursor: pointer; }
@@ -491,8 +488,8 @@
                     <h2 class="n2">--</h2>
                     <div class="date f2">--</div>
                     <div class="card-split">
-                        <div class="card-split-col"><div class="card-split-pill wide"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d3-icon-1" src="images/default.png"></div>
-                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">TARDE/NOCHE</span></div><img id="d3-icon-2" src="images/default.png"></div>
+                        <div class="card-split-col"><img class="card-split-pill wide" src="images/periodo_madrugada_manana_claro.png" alt="Madrugada/Mañana"><img id="d3-icon-1" src="images/default.png"></div>
+                        <div class="card-split-col"><img class="card-split-pill" src="images/periodo_tarde_noche_claro.png" alt="Tarde/Noche"><img id="d3-icon-2" src="images/default.png"></div>
                     </div>
                     <div class="card-temps-row temp-row-lg">
                         <div class="card-temp-col">
@@ -520,8 +517,8 @@
                     <h2 class="n3">--</h2>
                     <div class="date f3">--</div>
                     <div class="card-split">
-                        <div class="card-split-col"><div class="card-split-pill wide"><span class="card-split-title">MADRUGADA/MAÑANA</span></div><img id="d4-icon-1" src="images/default.png"></div>
-                        <div class="card-split-col"><div class="card-split-pill"><span class="card-split-title">TARDE/NOCHE</span></div><img id="d4-icon-2" src="images/default.png"></div>
+                        <div class="card-split-col"><img class="card-split-pill wide" src="images/periodo_madrugada_manana_oscuro.png" alt="Madrugada/Mañana"><img id="d4-icon-1" src="images/default.png"></div>
+                        <div class="card-split-col"><img class="card-split-pill" src="images/periodo_tarde_noche_oscuro.png" alt="Tarde/Noche"><img id="d4-icon-2" src="images/default.png"></div>
                     </div>
                     <div class="card-temps-row temp-row-lg">
                         <div class="card-temp-col">
