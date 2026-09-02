@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T10:40:37.231746+00:00",
+  "generated_at": "2026-09-02T10:46:16.407987+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -179,7 +179,7 @@
     "Junín": {
       "city": "Junín",
       "forecast_date": "2026-09-02",
-      "emission_time": "07:09:00",
+      "emission_time": "07:40:00",
       "publicado_por": "Dylan",
       "es_correccion": false,
       "team_password": "Maraton",
