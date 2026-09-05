@@ -1,17 +1,17 @@
 {
   "monitoring_since": "2026-08-21T20:38:48.907356+00:00",
   "current_status": "down",
-  "current_reason": "No se pudo conectar: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)>",
+  "current_reason": "No se pudo conectar: <urlopen error timed out>",
   "down_since": "2026-08-21T20:38:48.907356+00:00",
   "last_data_timestamp": null,
-  "last_check": "2026-09-05T05:59:36.411624+00:00",
+  "last_check": "2026-09-05T10:19:54.228654+00:00",
   "current_issue_number": 1,
   "incidents": [
     {
       "start": "2026-08-21T20:38:48.907356+00:00",
       "end": null,
       "duration_minutes": null,
-      "reason": "No se pudo conectar: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)>"
+      "reason": "No se pudo conectar: <urlopen error timed out>"
     }
   ]
 }
