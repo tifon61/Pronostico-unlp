@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-08T11:34:34.304544+00:00",
+  "generated_at": "2026-09-08T11:36:59.098906+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -701,7 +701,7 @@
       "forecast_date": "2026-09-08",
       "emission_time": "08:31:00",
       "publicado_por": "Lorenzo",
-      "es_correccion": false,
+      "es_correccion": true,
       "team_password": "Maraton",
       "daily_forecasts": [
         {
@@ -810,7 +810,7 @@
           "temp_max": 20,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo parcialmente a algo nublado",
+          "custom_description": "Cielo parcialmente a algo nublado.",
           "period_forecasts": [
             {
               "period": "mañana",
@@ -843,7 +843,7 @@
           "temp_max": 15,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": null,
+          "custom_description": "Nieblas matutinas y 10-40% probabilidad de lluvias aisladas durante la noche.",
           "period_forecasts": [
             {
               "period": "mañana",
