@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T11:06:47.291716+00:00",
+  "generated_at": "2026-09-09T11:08:01.814706+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -874,7 +874,7 @@
     "Bahía Blanca": {
       "city": "Bahía Blanca",
       "forecast_date": "2026-09-09",
-      "emission_time": "07:48:00",
+      "emission_time": "08:05:00",
       "publicado_por": "Mate",
       "es_correccion": false,
       "team_password": "Maraton",
