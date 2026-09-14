@@ -106,6 +106,7 @@
                 <li><strong>EMA Verde, Campbell y Daza están las tres en el mismo predio de FCAGLP</strong> (La Plata) — al estar co-ubicadas, las diferencias que se ven en este informe son atribuibles sobre todo a instrumental, calibración o exposición del sensor, y no a variabilidad meteorológica entre sitios distintos. (EMA Violeta, que no forma parte de este informe, es la que está en la Escuela Nº23, Bavío.)</li>
                 <li><strong>Davis no está incluida en este informe</strong>: no hay historial de sus lecturas guardado (solo un monitor de caídas que además estuvo roto desde el 21/08/2026), así que no hay con qué comparar retroactivamente. Se puede sumar más adelante una vez que se junten semanas de datos.</li>
                 <li>Los datos se agregan a <strong>promedio diario</strong> (temperatura, humedad, presión) o <strong>total diario</strong> (lluvia) para que la comparación estadística no dependa de que las 3 estaciones midan exactamente en el mismo instante.</li>
+                <li><strong>Días sin ninguna lectura se excluyen del análisis</strong>, no se cuentan como "0" — esto vale también para lluvia: si una estación no reportó nada un día, ese día queda afuera de las estadísticas y de los totales en vez de sumar 0mm silenciosamente (lo cual antes podía hacer ver "menos lluvia" a una estación con caídas, cuando en realidad faltaba el dato). El "N" y la "Cobertura" de cada tabla reflejan esto.</li>
                 <li>ThingSpeak limita cada consulta a 8000 puntos; en rangos muy largos con alta frecuencia de muestreo, los días más antiguos del rango podrían quedar con menos datos.</li>
             </ul>
         </div>
@@ -138,6 +139,11 @@
 
             <div id="variablesContainer" class="space-y-8"></div>
 
+            <div class="glass p-6 rounded-2xl mt-8 border-l-4 border-orange-500">
+                <h3 class="text-sm font-bold text-orange-400 uppercase tracking-wide mb-3"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>Recomendaciones y acciones correctivas</h3>
+                <ul id="recomendacionesList" class="text-sm text-slate-200 space-y-2 list-disc list-inside"></ul>
+            </div>
+
             <div class="glass p-6 rounded-2xl mt-8 border-l-4 border-slate-500">
                 <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wide mb-2"><i class="fa-solid fa-circle-info mr-1"></i>Cómo leer las métricas</h3>
                 <ul class="text-sm text-slate-400 space-y-1.5 list-disc list-inside">
@@ -147,6 +153,9 @@
                     <li><strong>r (Pearson)</strong>: qué tan bien se mueven juntas las dos series (1 = idéntico patrón, 0 = sin relación).</li>
                     <li><strong>Pendiente/Intercepto</strong>: recta de regresión Verde = pendiente × otra estación + intercepto. Pendiente ≈1 e intercepto ≈0 indica buena calibración relativa.</li>
                     <li><strong>Cobertura</strong>: % de días del período con dato válido en esa estación.</li>
+                    <li><strong>Concordancia de eventos</strong> (solo lluvia): de los días con dato en ambas estaciones, cuántos tuvieron lluvia (&gt;0.2mm) detectada por ninguna, una sola o las dos — para ver si el problema es de magnitud o de directamente no detectar el mismo evento.</li>
+                    <li><strong>r restringido a días con lluvia &gt;1mm</strong>: la misma correlación de Pearson pero excluyendo los días sin lluvia en ninguna estación, que pueden inflar el r general al ser mayoría.</li>
+                    <li><strong>Promedio por franja horaria</strong> (solo temperatura): separa el promedio en horas de sol pleno (11-17h) y de noche (23-05h) para distinguir un sesgo por sobrecalentamiento diurno (garita) de un desvío general del sensor.</li>
                 </ul>
             </div>
         </div>
@@ -319,21 +328,29 @@
         let totalPeriod = 0;
         let recordsCount = 0;
         const seenTimestamps = new Set();
+        // Días/horas en los que la estación efectivamente reportó algo (aunque sea
+        // 0mm) — distinto de "cayó 0mm", que es un dato válido. Se usa para no
+        // confundir un bucket sin ninguna lectura con un bucket que sí tuvo
+        // lecturas pero sin lluvia.
+        const bucketsWithData = new Set();
 
         allFeedsData.forEach(source => {
             const fieldKey = "field" + source.field;
             source.feeds.forEach(f => {
                 const val = parseFloat(f[fieldKey]);
+                if (isNaN(val)) return;
                 const ts = f.created_at;
-                if (!isNaN(val) && val > 0 && !seenTimestamps.has(ts)) {
+                const dateObj = new Date(ts);
+                const key = bucketByHour
+                    ? `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)} ${pad(dateObj.getHours())}:00`
+                    : `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)}/${dateObj.getFullYear()}`;
+                if (buckets.has(key)) bucketsWithData.add(key);
+
+                if (val > 0 && !seenTimestamps.has(ts)) {
                     seenTimestamps.add(ts);
                     let amount = isCampbell ? val : mult;
                     totalPeriod += amount;
                     recordsCount++;
-                    const dateObj = new Date(ts);
-                    const key = bucketByHour
-                        ? `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)} ${pad(dateObj.getHours())}:00`
-                        : `${pad(dateObj.getDate())}/${pad(dateObj.getMonth()+1)}/${dateObj.getFullYear()}`;
                     if (buckets.has(key)) buckets.set(key, buckets.get(key) + amount);
                 }
             });
@@ -341,13 +358,14 @@
 
         const labels = Array.from(buckets.keys());
         const incrementData = Array.from(buckets.values());
+        const hasData = labels.map(k => bucketsWithData.has(k));
         const chartData = [];
         let runningSum = 0;
         for (let [, val] of buckets) {
             runningSum += val;
             chartData.push(runningSum);
         }
-        return { total: totalPeriod.toFixed(2), chartData, incrementData, labels, recordsCount };
+        return { total: totalPeriod.toFixed(2), chartData, incrementData, labels, recordsCount, hasData };
     }
 
     function formatDateForWU(date) {
@@ -439,6 +457,9 @@
         let lastDayTotal = 0;
         let lastDayKey = null;
         let recordsCount = 0;
+        // Buckets que tuvieron al menos una observación real (para no confundir
+        // "sin dato" con "0mm confirmados" al armar la serie diaria).
+        const bucketsWithData = new Set();
 
         sortedDays.forEach((dayKey, idx) => {
             if (idx > 0) previousDaysOffset += lastDayTotal;
@@ -451,7 +472,7 @@
                 const key = bucketByHour
                     ? `${pad(o.ts.getDate())}/${pad(o.ts.getMonth()+1)} ${pad(o.ts.getHours())}:00`
                     : `${pad(o.ts.getDate())}/${pad(o.ts.getMonth()+1)}/${o.ts.getFullYear()}`;
-                if (buckets.has(key)) buckets.set(key, cumulative);
+                if (buckets.has(key)) { buckets.set(key, cumulative); bucketsWithData.add(key); }
             });
             lastDayKey = dayKey;
         });
@@ -469,13 +490,14 @@
                     const key = bucketByHour
                         ? `${pad(curTs.getDate())}/${pad(curTs.getMonth()+1)} ${pad(curTs.getHours())}:00`
                         : `${pad(curTs.getDate())}/${pad(curTs.getMonth()+1)}/${curTs.getFullYear()}`;
-                    if (buckets.has(key)) buckets.set(key, previousDaysOffset + curPrecip);
+                    if (buckets.has(key)) { buckets.set(key, previousDaysOffset + curPrecip); bucketsWithData.add(key); }
                 }
             }
         }
 
         // Forward-fill: entre lecturas, el acumulado se mantiene en el último valor conocido.
         const labels = Array.from(buckets.keys());
+        const hasData = labels.map(k => bucketsWithData.has(k));
         const chartData = [];
         let lastKnown = 0;
         labels.forEach(k => {
@@ -484,7 +506,7 @@
             chartData.push(lastKnown);
         });
         const dayOffset = lastKnown;
-        return { total: dayOffset.toFixed(2), chartData, labels, recordsCount };
+        return { total: dayOffset.toFixed(2), chartData, labels, recordsCount, hasData };
     }
 
     function getIncrementSeries(stationResult) {
@@ -498,6 +520,15 @@
         });
         stationResult.incrementData = inc;
         return inc;
+    }
+
+    // Igual que getIncrementSeries, pero deja en null los días sin ninguna
+    // lectura real en vez de mostrarlos como "0mm" — así no se confunde un
+    // hueco de datos con un día efectivamente sin lluvia.
+    function getIncrementSeriesMasked(stationResult) {
+        const inc = getIncrementSeries(stationResult);
+        if (!stationResult.hasData) return inc;
+        return inc.map((v, i) => stationResult.hasData[i] ? v : null);
     }
 
     // ============================================================
@@ -552,6 +583,92 @@
         return { text: 'baja', cls: 'pill-bad' };
     }
 
+    // pairStats, pero solo sobre los días donde al menos una de las dos series
+    // superó el umbral — para lluvia, evita que la correlación quede "inflada"
+    // por la enorme cantidad de días sin lluvia en ninguna de las dos.
+    function pairStatsAboveThreshold(a, b, threshold) {
+        const xs = [], ys = [];
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] == null || b[i] == null || isNaN(a[i]) || isNaN(b[i])) continue;
+            if (Math.max(a[i], b[i]) > threshold) { xs.push(a[i]); ys.push(b[i]); }
+        }
+        return pairStats(xs, ys);
+    }
+
+    // Concordancia de detección de eventos de lluvia entre dos estaciones:
+    // cuántos días llovió (por encima del umbral) según ninguna, una sola o
+    // ambas. Solo cuenta días donde las dos tienen dato válido.
+    function rainConcordance(a, b, threshold = 0.2) {
+        let both = 0, onlyA = 0, onlyB = 0, neither = 0, n = 0;
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] == null || b[i] == null || isNaN(a[i]) || isNaN(b[i])) continue;
+            n++;
+            const ra = a[i] > threshold, rb = b[i] > threshold;
+            if (ra && rb) both++;
+            else if (ra) onlyA++;
+            else if (rb) onlyB++;
+            else neither++;
+        }
+        return { n, both, onlyA, onlyB, neither };
+    }
+
+    // Si el total acumulado de una estación es mucho mayor al de las otras dos
+    // (todas en el mismo predio), es más probable que sea un problema de esa
+    // estación (falsos pulsos, factor de calibración) que lluvia real distinta.
+    function rainAnomalyWarning(totals) {
+        const entries = [['Verde', totals.verde], ['Campbell', totals.camp], ['Daza', totals.daza]];
+        const positive = entries.filter(e => e[1] > 0);
+        if (positive.length < 2) return null;
+        const max = positive.reduce((a, b) => a[1] > b[1] ? a : b);
+        const min = positive.reduce((a, b) => a[1] < b[1] ? a : b);
+        if (min[1] <= 0 || max[1] / min[1] < 2) return null;
+        return `El total de <strong>${max[0]}</strong> (${max[1].toFixed(1)} mm) es ${(max[1]/min[1]).toFixed(1)}&times; el de <strong>${min[0]}</strong> (${min[1].toFixed(1)} mm) en el mismo período, y las tres estaciones están en el mismo predio. Antes de asumir que llovió tan distinto en un mismo lugar, conviene revisar ${max[0]} (falsos pulsos por viento/vibración en el pluviómetro, o una diferencia de unidades/factor de calibración).`;
+    }
+
+    // Media de una variable en las horas del día que cumplen el predicado (hora
+    // local del navegador, igual criterio que el resto de la app).
+    function hourlyMean(feeds, fieldNum, hourPredicate) {
+        const fieldKey = "field" + fieldNum;
+        let sum = 0, n = 0;
+        feeds.forEach(f => {
+            const val = parseFloat(f[fieldKey]);
+            if (isNaN(val)) return;
+            if (hourPredicate(new Date(f.created_at).getHours())) { sum += val; n++; }
+        });
+        return n > 0 ? { mean: +(sum / n).toFixed(2), n } : { mean: null, n: 0 };
+    }
+
+    function hourlyMeanWU(observations, extractFn, hourPredicate) {
+        let sum = 0, n = 0;
+        observations.forEach(o => {
+            if (!o.obsTimeLocal && !o.obsTimeUtc) return;
+            const val = extractFn(o);
+            if (val == null) return;
+            const ts = new Date((o.obsTimeLocal || o.obsTimeUtc).replace(' ', 'T'));
+            if (hourPredicate(ts.getHours())) { sum += val; n++; }
+        });
+        return n > 0 ? { mean: +(sum / n).toFixed(2), n } : { mean: null, n: 0 };
+    }
+
+    const isDayHour = h => h >= 11 && h < 17;   // horas de radiación solar máxima
+    const isNightHour = h => h >= 23 || h < 5;  // horas sin radiación
+
+    // Tramos de días consecutivos sin dato válido, para listar los huecos de
+    // cobertura en vez de solo mostrar el % total.
+    function findGaps(labels, series) {
+        const gaps = [];
+        let gapStart = null;
+        for (let i = 0; i <= labels.length; i++) {
+            const missing = i < labels.length && (series[i] == null || isNaN(series[i]));
+            if (missing && gapStart == null) gapStart = i;
+            if (!missing && gapStart != null) {
+                gaps.push({ start: labels[gapStart], end: labels[i - 1], days: i - gapStart });
+                gapStart = null;
+            }
+        }
+        return gaps;
+    }
+
     // ============================================================
     // Orquestación
     // ============================================================
@@ -590,7 +707,7 @@
                 fetchWURangeData(D_ILAPLATA.stationId, D_ILAPLATA.apiKey, startStr, endStr)
             ]);
 
-            let verdeSeries, campSeries, dazaSeries, labels, totals = null;
+            let verdeSeries, campSeries, dazaSeries, labels, totals = null, dayNight = null;
 
             if (cfg.accumulated) {
                 const wuCurrentObs = await fetchWUCurrentObs(D_ILAPLATA.stationId, D_ILAPLATA.apiKey);
@@ -598,9 +715,11 @@
                 const campResult = processStationData([feedsCampbell], 1.0, startStr, endStr, true);
                 const dazaResult = processWUData(wuObservations, startStr, endStr, wuCurrentObs);
                 labels = verdeResult.labels;
-                verdeSeries = getIncrementSeries(verdeResult);
-                campSeries = getIncrementSeries(campResult);
-                dazaSeries = getIncrementSeries(dazaResult);
+                // Enmascarado: un día sin ninguna lectura real queda en null, no en
+                // 0mm, para no confundir "sin dato" con "no llovió".
+                verdeSeries = getIncrementSeriesMasked(verdeResult);
+                campSeries = getIncrementSeriesMasked(campResult);
+                dazaSeries = getIncrementSeriesMasked(dazaResult);
                 totals = { verde: parseFloat(verdeResult.total), camp: parseFloat(campResult.total), daza: parseFloat(dazaResult.total) };
             } else {
                 const verdeResult = processContinuousSeries(feedsVerde.feeds, cfg.verdeField, startStr, endStr);
@@ -610,9 +729,20 @@
                 verdeSeries = verdeResult.chartData;
                 campSeries = campResult.chartData;
                 dazaSeries = dazaResult.chartData;
+
+                if (varKey === 'temp') {
+                    dayNight = {
+                        verdeDay: hourlyMean(feedsVerde.feeds, cfg.verdeField, isDayHour),
+                        verdeNight: hourlyMean(feedsVerde.feeds, cfg.verdeField, isNightHour),
+                        campDay: hourlyMean(feedsCampbell.feeds, cfg.campbellField, isDayHour),
+                        campNight: hourlyMean(feedsCampbell.feeds, cfg.campbellField, isNightHour),
+                        dazaDay: hourlyMeanWU(wuObservations, cfg.dazaExtract, isDayHour),
+                        dazaNight: hourlyMeanWU(wuObservations, cfg.dazaExtract, isNightHour)
+                    };
+                }
             }
 
-            report.variables[varKey] = { cfg, labels, verde: verdeSeries, camp: campSeries, daza: dazaSeries, totals };
+            report.variables[varKey] = { cfg, labels, verde: verdeSeries, camp: campSeries, daza: dazaSeries, totals, dayNight };
         }
 
         lastReport = report;
@@ -631,6 +761,7 @@
         container.innerHTML = '';
 
         const resumen = [];
+        const recomendaciones = [];
         const rangeLabel = `${report.startStr.replace('T', ' ')} → ${report.endStr.replace('T', ' ')}`;
         resumen.push(`Período analizado: ${rangeLabel} (agregado a valores diarios).`);
 
@@ -640,16 +771,32 @@
             const compVerde = completeness(v.verde);
             const compCamp = completeness(v.camp);
             const compDaza = completeness(v.daza);
+            const gapsVerde = findGaps(v.labels, v.verde);
+            const gapsCamp = findGaps(v.labels, v.camp);
+            const gapsDaza = findGaps(v.labels, v.daza);
 
             // -- resumen ejecutivo --
+            let rainWarning = null;
+            let concordCamp = null, concordDaza = null, rHighCamp = null, rHighDaza = null;
             if (v.cfg.accumulated && v.totals) {
                 resumen.push(`Lluvia acumulada en el período: Verde ${v.totals.verde.toFixed(1)} mm, Campbell ${v.totals.camp.toFixed(1)} mm, Daza ${v.totals.daza.toFixed(1)} mm.`);
+                rainWarning = rainAnomalyWarning(v.totals);
+                concordCamp = rainConcordance(v.verde, v.camp);
+                concordDaza = rainConcordance(v.verde, v.daza);
+                rHighCamp = pairStatsAboveThreshold(v.verde, v.camp, 1.0);
+                rHighDaza = pairStatsAboveThreshold(v.verde, v.daza, 1.0);
+                recomendaciones.push('Lluvia: hacer una prueba de calibración estática en el pluviómetro de EMA Verde (volumen de agua conocido) y verificar la nivelación del balancín — a 0.816 mm/pulso, lloviznas finas o eventos menores a ese umbral pueden no volcarlo y quedar "guardados" hasta el próximo evento, corriendo el registro en el tiempo.');
+                if (rainWarning) recomendaciones.push(`Lluvia: ${rainWarning}`);
             } else {
                 const lc = rLabel(statsCamp.r), ld = rLabel(statsDaza.r);
                 const sesgoTxt = statsCamp.bias != null
                     ? `${v.cfg.label}: Verde ${statsCamp.bias >= 0 ? 'mide más alto' : 'mide más bajo'} que Campbell en promedio (${statsCamp.bias > 0 ? '+' : ''}${statsCamp.bias} ${v.cfg.unit}), correlación ${lc.text} (r=${statsCamp.r}).`
                     : `${v.cfg.label}: datos insuficientes para comparar con Campbell.`;
                 resumen.push(sesgoTxt);
+
+                if (varKey === 'pres' && statsCamp.r != null && Math.abs(statsCamp.r) >= 0.9 && Math.abs(statsCamp.bias) >= 0.1) {
+                    recomendaciones.push(`Presión: la correlación con Campbell es ${lc.text} (r=${statsCamp.r}) con un sesgo casi constante de ${statsCamp.bias > 0 ? '+' : ''}${statsCamp.bias} hPa — un patrón típico de desvío de punto cero (offset) más que de error aleatorio. Sumando un offset fijo de ${statsCamp.bias > 0 ? '−' : '+'}${Math.abs(statsCamp.bias)} hPa en EMA Verde, el sesgo promedio quedaría cerca de 0. Antes de aplicarlo, confirmar que ambas estaciones reporten el mismo tipo de presión (de estación / QFE, o corregida a nivel del mar / QNH-MSLP) — el offset fijo solo tiene sentido si miden lo mismo.`);
+                }
             }
 
             const sectionEl = document.createElement('div');
@@ -676,14 +823,41 @@
                     <div><p class="card-title">Cobertura Campbell</p><p class="text-xl font-bold text-sky-400">${compCamp}%</p></div>
                     <div><p class="card-title">Cobertura Daza</p><p class="text-xl font-bold text-red-400">${compDaza}%</p></div>
                 </div>
+                ${gapsHtml('Verde', gapsVerde)}${gapsHtml('Campbell', gapsCamp)}${gapsHtml('Daza', gapsDaza)}
                 ${v.cfg.accumulated && v.totals ? `
                 <div class="grid grid-cols-3 gap-4 mt-4 text-center border-t border-white/10 pt-4">
                     <div><p class="card-title">Total Verde</p><p class="text-xl font-bold text-emerald-400">${v.totals.verde.toFixed(1)} mm</p></div>
                     <div><p class="card-title">Total Campbell</p><p class="text-xl font-bold text-sky-400">${v.totals.camp.toFixed(1)} mm</p></div>
                     <div><p class="card-title">Total Daza</p><p class="text-xl font-bold text-red-400">${v.totals.daza.toFixed(1)} mm</p></div>
                 </div>` : ''}
+                ${rainWarning ? `<div class="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-sm text-amber-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${rainWarning}</div>` : ''}
+                ${v.cfg.accumulated ? `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4 border-t border-white/10 pt-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Concordancia de eventos — Verde vs Campbell (umbral 0.2mm)</h4>
+                        ${concordanceTable(concordCamp)}
+                        <p class="text-xs text-slate-500 mt-2">r restringido a días con lluvia &gt;1mm en alguna de las dos: <strong>${rHighCamp.r ?? 's/d'}</strong> (n=${rHighCamp.n})</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Concordancia de eventos — Verde vs Daza (umbral 0.2mm)</h4>
+                        ${concordanceTable(concordDaza)}
+                        <p class="text-xs text-slate-500 mt-2">r restringido a días con lluvia &gt;1mm en alguna de las dos: <strong>${rHighDaza.r ?? 's/d'}</strong> (n=${rHighDaza.n})</p>
+                    </div>
+                </div>` : ''}
+                ${varKey === 'temp' && v.dayNight ? dayNightBlock(v.dayNight, v.cfg.unit) : ''}
             `;
             container.appendChild(sectionEl);
+
+            if (varKey === 'temp' && v.dayNight) {
+                const dn = v.dayNight;
+                if (dn.verdeDay.mean != null && dn.campDay.mean != null && dn.verdeNight.mean != null && dn.campNight.mean != null) {
+                    const biasDay = +(dn.verdeDay.mean - dn.campDay.mean).toFixed(2);
+                    const biasNight = +(dn.verdeNight.mean - dn.campNight.mean).toFixed(2);
+                    if (Math.sign(biasDay) === Math.sign(biasNight) && Math.abs(biasDay) - Math.abs(biasNight) > 0.3) {
+                        recomendaciones.push(`Temperatura: el sesgo de Verde vs Campbell es notablemente mayor en horas de radiación solar máxima (11-17h: ${biasDay > 0 ? '+' : ''}${biasDay} °C) que de noche (23-05h: ${biasNight > 0 ? '+' : ''}${biasNight} °C). Ese patrón diurno suele indicar sobrecalentamiento por ventilación o protección solar insuficiente en la garita de la estación que mide más alto — conviene revisar el escudo de radiación de EMA Verde.`);
+                    }
+                }
+            }
 
             const ctx = document.getElementById(`chart-line-${varKey}`).getContext('2d');
             chartInstances.push(new Chart(ctx, {
@@ -705,9 +879,62 @@
                     }
                 }
             }));
+
+            const lowCoverage = [['Verde', compVerde], ['Campbell', compCamp], ['Daza', compDaza]].filter(e => e[1] < 90);
+            if (lowCoverage.length) {
+                recomendaciones.push(`${v.cfg.label}: cobertura baja en ${lowCoverage.map(e => `${e[0]} (${e[1]}%)`).join(', ')} — revisar conectividad/energía de esa estación en las fechas listadas arriba como "sin dato" antes de sacar conclusiones fuertes sobre esta variable.`);
+            }
         });
 
         document.getElementById('resumenList').innerHTML = resumen.map(t => `<li>${t}</li>`).join('');
+        document.getElementById('recomendacionesList').innerHTML = recomendaciones.length
+            ? recomendaciones.map(t => `<li>${t}</li>`).join('')
+            : '<li>Sin recomendaciones automáticas para este período — los sesgos encontrados no superaron los umbrales de alerta.</li>';
+    }
+
+    function gapsHtml(stationLabel, gaps) {
+        if (!gaps.length) return '';
+        const items = gaps.map(g => g.start === g.end ? `${g.start} (1 día)` : `${g.start} – ${g.end} (${g.days} días)`).join(', ');
+        return `<p class="text-xs text-slate-500 mt-2"><strong>${stationLabel}</strong> sin dato: ${items}</p>`;
+    }
+
+    function concordanceTable(c) {
+        if (c.n < 1) return `<p class="text-sm text-slate-500">Sin días pareados para evaluar.</p>`;
+        return `
+            <table>
+                <tbody>
+                    <tr><td>Lluvia detectada por ambas</td><td class="num">${c.both}</td></tr>
+                    <tr><td>Detectada solo por Verde</td><td class="num">${c.onlyA}</td></tr>
+                    <tr><td>Detectada solo por la otra</td><td class="num">${c.onlyB}</td></tr>
+                    <tr><td>Sin lluvia en ninguna</td><td class="num">${c.neither}</td></tr>
+                    <tr><td>N total de días comparados</td><td class="num">${c.n}</td></tr>
+                </tbody>
+            </table>
+        `;
+    }
+
+    function dayNightBlock(dn, unit) {
+        const row = (label, d) => `<tr><td>${label}</td><td class="num">${d.mean != null ? d.mean + ' ' + unit : 's/d'} (n=${d.n})</td></tr>`;
+        return `
+            <div class="mt-4 border-t border-white/10 pt-4">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Promedio por franja horaria (día 11-17h vs noche 23-05h)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <table><tbody>
+                        <tr><td colspan="2" class="font-bold text-slate-300">EMA Verde</td></tr>
+                        ${row('Día', dn.verdeDay)}${row('Noche', dn.verdeNight)}
+                    </tbody></table>
+                    <table><tbody>
+                        <tr><td colspan="2" class="font-bold text-slate-300">Campbell</td></tr>
+                        ${row('Día', dn.campDay)}${row('Noche', dn.campNight)}
+                    </tbody></table>
+                    <table><tbody>
+                        <tr><td colspan="2" class="font-bold text-slate-300">Daza</td></tr>
+                        ${row('Día', dn.dazaDay)}${row('Noche', dn.dazaNight)}
+                    </tbody></table>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Si el sesgo de Verde es mayor de día que de noche, suele apuntar a sobrecalentamiento por radiación solar (ventilación/escudo de la garita) más que a un desvío general del sensor.</p>
+            </div>
+        `;
     }
 
     function statsTable(s, unit) {
