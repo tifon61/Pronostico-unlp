@@ -60,6 +60,13 @@
     .dot.pend { background: var(--muted); }
     .empty-msg { color: #888; font-size: 0.9em; text-align: center; padding: 10px; }
 
+    .stats-help { background: #f4f7fb; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
+    .stats-help summary { cursor: pointer; font-weight: 800; color: var(--unlp-blue); font-size: 0.85em; }
+    .stats-help dl { margin: 12px 0 2px; font-size: 0.85em; }
+    .stats-help dt { font-weight: 800; color: var(--unlp-blue); margin-top: 10px; }
+    .stats-help dt:first-child { margin-top: 0; }
+    .stats-help dd { margin: 3px 0 0; color: #555; line-height: 1.4; }
+
     #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
     #access-gate.unlocked { display: none; }
     .access-gate-box { background: white; border-radius: 12px; padding: 35px 40px; width: 320px; max-width: 90vw; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
@@ -232,6 +239,27 @@
     <div class="card">
         <h2>Verificación general por período</h2>
         <p class="subtitle" style="margin-bottom:10px;">Estadísticas de acierto sobre un rango de fechas entero (para esto sirve tener años de historial importado) -- error promedio de temperatura y % de acierto de precipitación/viento/etc, desglosado por plazo (D+1/D+2/D+3) para ver cómo se degrada el pronóstico con la antelación.</p>
+
+        <details class="stats-help">
+            <summary>¿Qué significan estos números?</summary>
+            <dl>
+                <dt>MAE (Error Absoluto Medio)</dt>
+                <dd>Para temperatura. Promedio de |pronóstico − observado| en todos los días comparables. Si un día se pronosticaron 20° y salieron 22°, ese día aporta 2° de error, sin importar el signo. Cuanto más bajo, mejor -- 0° sería acierto perfecto todos los días. Se expresa en °C.</dd>
+
+                <dt>Sesgo</dt>
+                <dd>También de temperatura. Promedio de (pronóstico − observado) <em>con signo</em> (acá si importa el signo). Un sesgo de <strong>+1.5°</strong> quiere decir que, en promedio, se pronostica 1.5° más de lo que termina pasando (el pronóstico "se pasa de largo" para arriba); <strong>−1.5°</strong> sería lo opuesto (se queda corto). Un sesgo cercano a 0° no significa que no haya errores día a día (para eso está el MAE) -- significa que los errores para arriba y para abajo se cancelan en promedio, sin una tendencia sistemática.</dd>
+
+                <dt>% de acierto</dt>
+                <dd>Para precipitación, tipo de precipitación, dirección e intensidad de viento, niebla, tormenta y mínima nocturna (campos de categoría, no de número). Porcentaje de días donde el valor pronosticado coincide EXACTO con el observado, después de normalizar formato (mayúsculas, espacios, orden de las direcciones de viento) para no penalizar diferencias que son solo de escritura.</dd>
+
+                <dt>n</dt>
+                <dd>Cantidad de días que entraron en el cálculo de esa celda. Un día cuenta solo si HAY pronóstico para ese plazo Y HAY observación cargada para esa fecha -- si falta cualquiera de los dos, ese día no suma ni resta (no se lo cuenta como error ni como acierto, directamente se excluye). Por eso el n puede ser bajo si todavía falta cargar observaciones de gran parte del período elegido.</dd>
+
+                <dt>Por qué por plazo (D+1/D+2/D+3)</dt>
+                <dd>Cada columna usa el pronóstico que se publicó con esa antelación para el mismo día verificado (ej. D+3 es lo que se dijo 3 días antes de que pasara). Comparar por plazo por separado es lo que deja ver si el pronóstico a más días se degrada (algo esperable meteorológicamente) o si en este equipo/ciudad se mantiene parejo.</dd>
+            </dl>
+        </details>
+
         <div class="row">
             <div class="col"><label for="stat-desde">Desde</label><input type="date" id="stat-desde"></div>
             <div class="col"><label for="stat-hasta">Hasta</label><input type="date" id="stat-hasta"></div>
