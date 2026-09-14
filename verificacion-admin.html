@@ -549,13 +549,33 @@
     }
 
     let importParsedRows = [];
+    // Contenido del archivo subido, guardado acá en vez de en el textarea --
+    // el .lst nacional del SMN tiene ~180.000 líneas (varios MB) y meter eso
+    // en un <textarea> tilda el navegador (no está pensado para tanto
+    // texto). Si el usuario después escribe/pega algo a mano en el
+    // textarea, eso tiene prioridad (ver el listener de "input" abajo).
+    let importFileRawText = null;
 
     function onImportFile(event) {
         const file = event.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (e) => { document.getElementById('imp-text').value = e.target.result; };
+        reader.onload = (e) => {
+            importFileRawText = e.target.result;
+            const kb = Math.round(file.size / 1024);
+            document.getElementById('imp-text').value = '';
+            document.getElementById('imp-text').placeholder = `Archivo cargado: ${file.name} (${kb} KB) -- no se muestra acá para no trabar el navegador. Tocá "Previsualizar".`;
+            document.getElementById('estado-import').innerText = `Listo para previsualizar (${file.name}, ${kb} KB).`;
+        };
         reader.readAsText(file);
+    }
+
+    // Si el usuario escribe o pega algo a mano, eso reemplaza al archivo
+    // que hubiera cargado antes (evita mezclar las dos fuentes por error).
+    document.getElementById('imp-text').addEventListener('input', () => { importFileRawText = null; });
+
+    function getImportText() {
+        return importFileRawText !== null ? importFileRawText : document.getElementById('imp-text').value;
     }
 
     function convertirFilaCsv(row) {
@@ -661,7 +681,16 @@
     }
 
     function previsualizarImport() {
-        const text = document.getElementById('imp-text').value;
+        // El .lst nacional puede tener ~180.000 líneas -- se avisa "Procesando..."
+        // y se corre el parseo pesado en el siguiente tick para que el navegador
+        // llegue a pintar ese mensaje antes de trabarse un rato con el parseo.
+        document.getElementById('estado-import').innerText = 'Procesando archivo...';
+        document.getElementById('btn-importar').disabled = true;
+        setTimeout(procesarImport, 30);
+    }
+
+    function procesarImport() {
+        const text = getImportText();
         const esSmn = text.includes('NRO_OMM');
         let rows;
         if (esSmn) {

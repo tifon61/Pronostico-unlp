@@ -594,6 +594,13 @@ function mergeObservacionRow(existingRow, headers, ciudad, fecha, incoming, carg
   ];
 }
 
+// Igual que sameDateStr pero devuelve la fecha como string "yyyy-MM-dd" en
+// vez de comparar contra una -- para armar una clave de índice por fecha.
+function fechaKeyStr(cellValue, tz) {
+  if (cellValue instanceof Date) return Utilities.formatDate(cellValue, tz, "yyyy-MM-dd");
+  return String(cellValue);
+}
+
 function handleImportarObservacionesLote(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getObservacionesSheet(ss);
@@ -607,16 +614,23 @@ function handleImportarObservacionesLote(data) {
   lock.waitLock(30000);
   try {
     const allData = sheet.getDataRange().getValues();
+
+    // Índice ciudad+fecha -> número de fila real, armado una sola vez. Con
+    // una importación de varios años (miles de fechas) buscar cada una con
+    // un for lineal contra todas las filas existentes (miles x miles) era
+    // el cuello de botella real -- esto lo deja en una sola pasada.
+    const indice = new Map();
+    for (let i = 1; i < allData.length; i++) {
+      indice.set(allData[i][colCiudad] + "||" + fechaKeyStr(allData[i][colFecha], tz), i + 1);
+    }
+
+    const nuevasFilas = [];
     let importadas = 0;
+
     filas.forEach(f => {
       if (!f.fecha) return;
-      let existingRow = -1;
-      for (let i = 1; i < allData.length; i++) {
-        if (allData[i][colCiudad] === data.ciudad && sameDateStr(allData[i][colFecha], f.fecha, tz)) {
-          existingRow = i + 1;
-          break;
-        }
-      }
+      const existingRow = indice.get(data.ciudad + "||" + f.fecha) || -1;
+
       const incoming = {};
       ["tmin_urb", "tmax_urb", "tmin_sub", "tmax_sub", "precip", "v_dir", "v_int"].forEach(k => {
         if (f[k] !== undefined && f[k] !== null && f[k] !== "") incoming[k] = f[k];
@@ -625,15 +639,27 @@ function handleImportarObservacionesLote(data) {
         existingRow > 0 ? allData[existingRow - 1] : null,
         headers, data.ciudad, f.fecha, incoming, data.cargado_por
       );
+
       if (existingRow > 0) {
+        // Fecha que ya tenía fila (reimportación/corrección): se
+        // sobreescribe en el lugar -- son las menos, una llamada cada una.
         sheet.getRange(existingRow, 1, 1, fila.length).setValues([fila]);
         allData[existingRow - 1] = fila;
       } else {
-        sheet.appendRow(fila);
-        allData.push(fila);
+        // Fecha nueva: se junta para escribirlas todas de una en vez de un
+        // appendRow() por cada una (miles de llamadas sueltas a Sheets es
+        // lo que hace que una importación grande tarde minutos en vez de
+        // segundos, o directamente se corte por el límite de ejecución).
+        nuevasFilas.push(fila);
       }
       importadas++;
     });
+
+    if (nuevasFilas.length > 0) {
+      const startRow = sheet.getLastRow() + 1;
+      sheet.getRange(startRow, 1, nuevasFilas.length, headers.length).setValues(nuevasFilas);
+    }
+
     return { status: "ok", importadas: importadas };
   } finally {
     lock.releaseLock();
