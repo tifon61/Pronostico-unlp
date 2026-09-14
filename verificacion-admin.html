@@ -230,6 +230,25 @@
     </div>
 
     <div class="card">
+        <h2>Verificación general por período</h2>
+        <p class="subtitle" style="margin-bottom:10px;">Estadísticas de acierto sobre un rango de fechas entero (para esto sirve tener años de historial importado) -- error promedio de temperatura y % de acierto de precipitación/viento/etc, desglosado por plazo (D+1/D+2/D+3) para ver cómo se degrada el pronóstico con la antelación.</p>
+        <div class="row">
+            <div class="col"><label for="stat-desde">Desde</label><input type="date" id="stat-desde"></div>
+            <div class="col"><label for="stat-hasta">Hasta</label><input type="date" id="stat-hasta"></div>
+        </div>
+        <div class="btn-row">
+            <button class="btn-primary" onclick="calcularEstadisticas()">Calcular</button>
+            <span class="estado-carga" id="estado-stats"></span>
+        </div>
+        <div class="cmp-wrap" style="margin-top:14px;">
+            <table class="cmp" id="tabla-stats" style="display:none;">
+                <thead><tr><th>Campo</th><th>D+1</th><th>D+2</th><th>D+3</th></tr></thead>
+                <tbody id="stats-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
         <h2>Comparación para esta fecha</h2>
         <div class="cmp-wrap">
             <table class="cmp">
@@ -240,8 +259,8 @@
     </div>
 
     <div class="card">
-        <h2>Últimos días</h2>
-        <p class="subtitle" style="margin-bottom:10px;">Un vistazo rápido: verde = pronóstico y observación coinciden, rojo = difieren en algo, gris = todavía no hay observación cargada. Tocá una fecha para verla en detalle arriba.</p>
+        <h2>Días cercanos a la fecha elegida</h2>
+        <p class="subtitle" style="margin-bottom:10px;">Un vistazo rápido alrededor de la fecha que tenés arriba (no siempre "hoy" -- si estás mirando un día viejo, esto muestra los días cercanos a ESE): verde = pronóstico y observación coinciden, rojo = difieren en algo, gris = todavía no hay observación cargada. Tocá una fecha para verla en detalle arriba.</p>
         <div class="cmp-wrap">
             <table class="hist">
                 <thead><tr><th>Fecha</th><th>D+1</th><th>D+2</th><th>D+3</th></tr></thead>
@@ -320,6 +339,16 @@
 
     function todayMinus(days) {
         const d = new Date(); d.setDate(d.getDate() - days);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    // Como todayMinus, pero contando desde una fecha "yyyy-mm-dd" cualquiera
+    // en vez de desde hoy -- para centrar la ventana de comparación en la
+    // fecha que se está mirando, no siempre en la fecha de hoy (si no, al
+    // importar años de historial nunca se veía nada: la ventana se quedaba
+    // fija alrededor de "hoy" aunque se estuviera mirando 2021).
+    function fechaMinus(iso, days) {
+        const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() - days);
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
@@ -500,12 +529,90 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // Agrega, por plazo y por campo, todas las comparaciones pronóstico vs
+    // observación de un conjunto de items (ver getVerificacionComparada).
+    // Numéricos: error absoluto medio (MAE) y sesgo (error promedio con
+    // signo, positivo = el pronóstico se pasó de largo). Categóricos:
+    // % de acierto (comparación exacta, ya normalizada por valoresIguales).
+    function calcularStats(items) {
+        const isLaPlata = document.getElementById('f-ciudad').value === 'La Plata';
+        const campos = FIELDS.filter(f => !f.sub || isLaPlata);
+        const stats = { plazo1: {}, plazo2: {}, plazo3: {} };
+
+        items.forEach(item => {
+            if (!item.observacion) return;
+            ['plazo1', 'plazo2', 'plazo3'].forEach(p => {
+                const pron = item.pronosticos[p];
+                if (!pron) return;
+                campos.forEach(f => {
+                    if (!stats[p][f.key]) stats[p][f.key] = f.num
+                        ? { sumErr: 0, sumAbsErr: 0, n: 0 }
+                        : { hits: 0, n: 0 };
+                    const s = stats[p][f.key];
+                    if (f.num) {
+                        const pv = normNum(pron[f.key]), ov = normNum(item.observacion[f.key]);
+                        if (pv === null || ov === null) return;
+                        s.sumErr += (pv - ov); s.sumAbsErr += Math.abs(pv - ov); s.n++;
+                    } else {
+                        const eq = valoresIguales(pron[f.key], item.observacion[f.key], false);
+                        if (eq === null) return;
+                        s.n++; if (eq) s.hits++;
+                    }
+                });
+            });
+        });
+        return { stats, campos };
+    }
+
+    function renderStats(stats, campos) {
+        const tbody = document.getElementById('stats-body');
+        const tabla = document.getElementById('tabla-stats');
+        tabla.style.display = '';
+        tbody.innerHTML = campos.map(f => {
+            const cells = ['plazo1', 'plazo2', 'plazo3'].map(p => {
+                const s = stats[p][f.key];
+                if (!s || s.n === 0) return `<td class="missing">sin datos</td>`;
+                if (f.num) {
+                    const mae = (s.sumAbsErr / s.n).toFixed(1);
+                    const sesgo = (s.sumErr / s.n).toFixed(1);
+                    const signo = s.sumErr > 0 ? '+' : '';
+                    return `<td>MAE ${mae}° (sesgo ${signo}${sesgo}°)<br><span style="color:var(--muted); font-size:0.85em;">n=${s.n}</span></td>`;
+                }
+                const pct = Math.round(100 * s.hits / s.n);
+                const cls = pct >= 80 ? 'match' : (pct < 50 ? 'mismatch' : '');
+                return `<td class="${cls}">${pct}% acierto<br><span style="color:var(--muted); font-size:0.85em;">n=${s.n}</span></td>`;
+            }).join('');
+            return `<tr><td class="campo">${f.label}</td>${cells}</tr>`;
+        }).join('');
+    }
+
+    async function calcularEstadisticas() {
+        const ciudad = document.getElementById('f-ciudad').value;
+        const desde = document.getElementById('stat-desde').value;
+        const hasta = document.getElementById('stat-hasta').value;
+        if (!desde || !hasta) { showToast('Elegí desde y hasta', true); return; }
+        document.getElementById('estado-stats').innerText = 'Calculando...';
+        const data = await jsonp({ type: 'verificacion_comparada', ciudad: ciudad, desde: desde, hasta: hasta });
+        const items = (data && data.items) || [];
+        const conObs = items.filter(i => i.observacion);
+        if (!conObs.length) {
+            document.getElementById('tabla-stats').style.display = 'none';
+            document.getElementById('estado-stats').innerText = `No hay observaciones cargadas para ${ciudad} entre ${desde} y ${hasta}.`;
+            return;
+        }
+        const { stats, campos } = calcularStats(items);
+        renderStats(stats, campos);
+        document.getElementById('estado-stats').innerText = `${conObs.length} día(s) con observación cargada en el rango (de ${items.length} con algún dato).`;
+    }
+
     async function cargarTodo() {
         await cargarObservacionEnFormulario();
         const ciudad = document.getElementById('f-ciudad').value;
         const fecha = document.getElementById('f-fecha').value;
-        const desde = todayMinus(20);
-        const hasta = todayMinus(-5); // incluye D+3/D+4 de hoy, que ya pueden tener fila
+        // Ventana centrada en la fecha elegida (no en "hoy"): así funciona
+        // igual de bien mirando ayer que mirando una fecha importada de 2021.
+        const desde = fecha ? fechaMinus(fecha, 20) : todayMinus(20);
+        const hasta = fecha ? fechaMinus(fecha, -10) : todayMinus(-5);
         const data = await jsonp({ type: 'verificacion_comparada', ciudad: ciudad, desde: desde, hasta: hasta });
         const items = (data && data.items) || [];
         const actual = items.find(i => i.fecha === fecha);
@@ -768,6 +875,8 @@
     }
 
     document.getElementById('f-fecha').value = todayMinus(1);
+    document.getElementById('stat-desde').value = todayMinus(365);
+    document.getElementById('stat-hasta').value = todayMinus(1);
     onCiudadOFechaChange();
 </script>
 </body>
