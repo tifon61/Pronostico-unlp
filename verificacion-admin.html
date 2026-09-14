@@ -193,11 +193,11 @@
     </div>
 
     <div class="card">
-        <h2>Importar de una estación automática (CSV)</h2>
-        <p class="subtitle" style="margin-bottom:10px;">Para archivos tipo IEM/ASOS (columnas <code>station,day,max_temp_f,min_temp_f,precip_in,avg_wind_speed_kts,avg_wind_drct</code>). Convierte unidades solas y completa temperatura y viento de varios días de una — el tipo de precipitación, niebla, tormenta y mínima nocturna quedan en blanco porque una estación automática no los mide, se completan a mano por fecha si hace falta.</p>
+        <h2>Importar de una estación automática</h2>
+        <p class="subtitle" style="margin-bottom:10px;">Soporta dos formatos, se detectan solos: archivos <strong>IEM/ASOS</strong> (columnas <code>station,day,max_temp_f,min_temp_f,precip_in,avg_wind_speed_kts,avg_wind_drct</code>) y listados <strong>SMN</strong> (<code>.lst</code>, columnas <code>NRO_OMM NOMBRE FECHA TMAX TMIN ... PRECIP ... VTO_MDIR VEL_MED ...</code> — si el archivo trae varias ciudades/estaciones mezcladas, se filtra sola por la que tengas elegida arriba). En los dos casos convierte unidades sola y completa temperatura, viento y (si el archivo lo trae) precipitación de varios días de una — el tipo de precipitación, niebla, tormenta y mínima nocturna quedan en blanco porque una estación automática no los mide, se completan a mano por fecha si hace falta.</p>
 
-        <label for="imp-file">Archivo CSV</label>
-        <input type="file" id="imp-file" accept=".csv,.txt" onchange="onImportFile(event)">
+        <label for="imp-file">Archivo (CSV o .lst)</label>
+        <input type="file" id="imp-file" accept=".csv,.txt,.lst" onchange="onImportFile(event)">
         <label for="imp-text">...o pegá el contenido acá</label>
         <textarea id="imp-text" rows="4" placeholder="station,day,max_temp_f,min_temp_f,precip_in,avg_wind_speed_kts,avg_wind_drct&#10;SADL,2026-01-01,80.6,59.0,,8.086957,130.05193"></textarea>
 
@@ -572,9 +572,95 @@
         return { fecha, tmin, tmax, precip, precipMm: precipIn === null ? null : Math.round(inToMm(precipIn) * 10) / 10, v_int: vInt, v_dir: vDir };
     }
 
+    // Estaciones de superficie del SMN (listados .lst tipo
+    // "smn_datos_meteorologicos_desde_2021.lst") para las 6 ciudades del
+    // sistema. El archivo puede traer el país entero mezclado -- se filtra
+    // por el número de estación (NRO_OMM) de la ciudad elegida arriba.
+    const OMM_POR_CIUDAD = {
+        'La Plata': '87593', 'Junín': '87548', 'Bolívar': '87640',
+        'Tandil': '87645', 'Mar del Plata': '87692', 'Bahía Blanca': '87750'
+    };
+
+    // Convierte "dd/mm/yyyy" (como viene en FECHA) a "yyyy-mm-dd".
+    function fechaSmnAIso(f) {
+        const m = String(f).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (!m) return null;
+        return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    }
+
+    // Parser del listado del SMN: tab-separado, cada valor con espacios de
+    // relleno (se limpia con trim), fin de línea con \r\n. Encabezado
+    // esperado: NRO_OMM NOMBRE FECHA TMAX TMIN TMEDIA PRECIP HELIOF
+    // VTO_MDIR VTO_MVEL VEL_MED PRE_EST HUM_REL NUB_TOT.
+    // NOTA: la unidad de VEL_MED (velocidad media de viento) no está
+    // documentada públicamente -- se asume km/h, que es lo habitual en las
+    // publicaciones del SMN. Revisá la previsualización antes de importar.
+    function parseSmnLst(text, ommTarget) {
+        const lines = text.split(/\r?\n/);
+        const headerIdx = lines.findIndex(l => l.includes('NRO_OMM'));
+        if (headerIdx === -1) return [];
+        const headers = lines[headerIdx].split('\t').map(h => h.trim());
+        const idx = {};
+        headers.forEach((h, i) => idx[h] = i);
+
+        const out = [];
+        for (let i = headerIdx + 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line.trim()) continue;
+            const cells = line.split('\t').map(c => c.trim());
+            if (cells[idx['NRO_OMM']] !== ommTarget) continue;
+
+            const fecha = fechaSmnAIso(cells[idx['FECHA']]);
+            if (!fecha) continue;
+
+            const tmax = cells[idx['TMAX']] !== '' ? parseFloat(cells[idx['TMAX']]) : null;
+            const tmin = cells[idx['TMIN']] !== '' ? parseFloat(cells[idx['TMIN']]) : null;
+
+            // PRECIP en blanco = sin dato (no se asume "no llovió"); ya viene
+            // en mm y el SMN sí usa "0" explícito cuando no llovió, así que
+            // blanco es genuinamente "no sabemos", no cero.
+            const precipCell = cells[idx['PRECIP']];
+            const precipMm = precipCell !== '' && precipCell !== undefined ? parseFloat(precipCell) : null;
+            const precip = precipMm === null ? null : (precipMm > 0 ? 'SI' : 'NO');
+
+            const dirCell = cells[idx['VTO_MDIR']];
+            const dirDecenas = dirCell !== '' ? parseInt(dirCell, 10) : null;
+            // 00 = calma (sin viento): no hay dirección que asignar.
+            const vDir = (dirDecenas === null || isNaN(dirDecenas) || dirDecenas === 0) ? null : degToCompass(dirDecenas * 10);
+
+            const velCell = cells[idx['VEL_MED']];
+            const velKmh = velCell !== '' ? parseFloat(velCell) : null;
+            const vInt = (velKmh === null || isNaN(velKmh)) ? null : vientoACategoria(velKmh);
+
+            out.push({
+                fecha,
+                tmin: isNaN(tmin) ? null : tmin,
+                tmax: isNaN(tmax) ? null : tmax,
+                precip, precipMm: precipMm === null ? null : Math.round(precipMm * 10) / 10,
+                v_int: vInt, v_dir: vDir
+            });
+        }
+        return out;
+    }
+
     function previsualizarImport() {
         const text = document.getElementById('imp-text').value;
-        const rows = parseCsvSimple(text).map(convertirFilaCsv).filter(Boolean);
+        const esSmn = text.includes('NRO_OMM');
+        let rows;
+        if (esSmn) {
+            const ciudad = document.getElementById('f-ciudad').value;
+            const omm = OMM_POR_CIUDAD[ciudad];
+            rows = parseSmnLst(text, omm);
+            if (!rows.length) {
+                document.getElementById('tabla-import').style.display = 'none';
+                document.getElementById('btn-importar').disabled = true;
+                document.getElementById('estado-import').innerText = `No se encontraron filas de la estación de ${ciudad} (OMM ${omm}) en este archivo.`;
+                importParsedRows = [];
+                return;
+            }
+        } else {
+            rows = parseCsvSimple(text).map(convertirFilaCsv).filter(Boolean);
+        }
         importParsedRows = rows;
         const tbody = document.getElementById('import-preview-body');
         const tabla = document.getElementById('tabla-import');
