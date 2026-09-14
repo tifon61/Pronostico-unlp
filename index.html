@@ -95,7 +95,7 @@
         .fcast-temp-urb { font-size: 1.65rem; font-weight: 800; color: white; line-height: 1.1; cursor: default; }
         .fcast-temp-sub { font-size: 1.2rem; font-weight: 700; opacity: 0.8; color: white; line-height: 1.1; cursor: default; }
         .fcast-temp-lbl { font-size: 0.7rem; font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
-        .fcast-periods-wrap { background: white; display: grid; }
+        .fcast-periods-wrap { background: var(--border); display: grid; }
         .fcast-periods-wrap.cols3 { grid-template-columns: repeat(3, 1fr); }
         .fcast-periods-wrap.cols4 { grid-template-columns: repeat(4, 1fr); }
         .period-col { display: flex; flex-direction: column; align-items: center; padding: 14px 8px 16px; border-right: 1px solid var(--border); position: relative; transition: background 0.15s; min-width: 0; }
@@ -448,7 +448,7 @@ const CITIES = [
 ];
 
 function initMap() {
-    const std = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution:'© OpenStreetMap' });
+    const std = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', maxZoom: 19 });
     const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution:'© Esri' });
     window._map = L.map('map', { center:[-36.5,-60.0], zoom:6, layers:[std] });
     L.control.layers({ "Estándar":std, "Satélite":sat }).addTo(window._map);
