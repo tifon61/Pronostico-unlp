@@ -193,6 +193,43 @@
     </div>
 
     <div class="card">
+        <h2>Importar de una estación automática (CSV)</h2>
+        <p class="subtitle" style="margin-bottom:10px;">Para archivos tipo IEM/ASOS (columnas <code>station,day,max_temp_f,min_temp_f,precip_in,avg_wind_speed_kts,avg_wind_drct</code>). Convierte unidades solas y completa temperatura y viento de varios días de una — el tipo de precipitación, niebla, tormenta y mínima nocturna quedan en blanco porque una estación automática no los mide, se completan a mano por fecha si hace falta.</p>
+
+        <label for="imp-file">Archivo CSV</label>
+        <input type="file" id="imp-file" accept=".csv,.txt" onchange="onImportFile(event)">
+        <label for="imp-text">...o pegá el contenido acá</label>
+        <textarea id="imp-text" rows="4" placeholder="station,day,max_temp_f,min_temp_f,precip_in,avg_wind_speed_kts,avg_wind_drct&#10;SADL,2026-01-01,80.6,59.0,,8.086957,130.05193"></textarea>
+
+        <div class="row" style="margin-top:14px;">
+            <div class="col">
+                <label>¿A qué columna mapea esta estación?</label>
+                <div class="toggle-group" id="g-imp-target">
+                    <button type="button" class="toggle-btn" data-val="urb" onclick="toggleSelect('g-imp-target', this)">Urbana</button>
+                    <button type="button" class="toggle-btn" data-val="sub" onclick="toggleSelect('g-imp-target', this)">Suburbana</button>
+                </div>
+            </div>
+            <div class="col">
+                <label for="imp-cargado-por">Atribución (queda como "cargado por" en filas nuevas)</label>
+                <input type="text" id="imp-cargado-por" placeholder="Ej: Importado - Estación La Plata Aero (IEM)">
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-refresh" onclick="previsualizarImport()">Previsualizar</button>
+            <button class="btn-primary" id="btn-importar" onclick="confirmarImport()" disabled>Importar</button>
+            <span class="estado-carga" id="estado-import"></span>
+        </div>
+
+        <div class="cmp-wrap" style="margin-top:14px;">
+            <table class="cmp" id="tabla-import" style="display:none;">
+                <thead><tr><th>Fecha</th><th>Mín</th><th>Máx</th><th>Precip</th><th>Viento</th><th>Dirección</th></tr></thead>
+                <tbody id="import-preview-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
         <h2>Comparación para esta fecha</h2>
         <div class="cmp-wrap">
             <table class="cmp">
@@ -474,6 +511,128 @@
         const actual = items.find(i => i.fecha === fecha);
         renderComparacion(actual);
         renderHistorial(items);
+    }
+
+    // ── Importador de CSV de estación automática (tipo IEM/ASOS) ──
+    // Umbrales de velocidad de viento (km/h) para pasar de un número a una de
+    // las 4 categorías que ya usa el equipo (WIND_INT en admin.html). No hay
+    // ninguno documentado en el sitio -- esto es una estimación razonable,
+    // ajustala si el equipo usa otro corte.
+    const WIND_SPEED_THRESHOLDS_KMH = { leves: 15, moderados: 25, regulares: 40 }; // > regulares = FUERTES
+
+    const knotsToKmh = (kt) => kt * 1.852;
+    const fToC = (f) => (f - 32) * 5 / 9;
+    const inToMm = (inch) => inch * 25.4;
+    const degToCompass = (deg) => {
+        const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        return dirs[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
+    };
+    const vientoACategoria = (kmh) => {
+        if (kmh <= WIND_SPEED_THRESHOLDS_KMH.leves) return 'LEVES';
+        if (kmh <= WIND_SPEED_THRESHOLDS_KMH.moderados) return 'MODERADOS';
+        if (kmh <= WIND_SPEED_THRESHOLDS_KMH.regulares) return 'REGULARES';
+        return 'FUERTES';
+    };
+
+    // Parser simple de CSV (sin comillas ni comas dentro de campos, como
+    // vienen estos exports) -- separa por coma y mapea contra el encabezado.
+    function parseCsvSimple(text) {
+        const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+        if (lines.length < 2) return [];
+        const headers = lines[0].split(',').map(h => h.trim());
+        return lines.slice(1).map(line => {
+            const cells = line.split(',').map(c => c.trim());
+            const obj = {};
+            headers.forEach((h, i) => obj[h] = cells[i]);
+            return obj;
+        });
+    }
+
+    let importParsedRows = [];
+
+    function onImportFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => { document.getElementById('imp-text').value = e.target.result; };
+        reader.readAsText(file);
+    }
+
+    function convertirFilaCsv(row) {
+        const fecha = row.day;
+        if (!fecha) return null;
+        const tmin = row.min_temp_f !== undefined && row.min_temp_f !== '' ? Math.round(fToC(parseFloat(row.min_temp_f)) * 10) / 10 : null;
+        const tmax = row.max_temp_f !== undefined && row.max_temp_f !== '' ? Math.round(fToC(parseFloat(row.max_temp_f)) * 10) / 10 : null;
+        // precip_in en blanco = sin dato (no se asume "no llovió"), no cero.
+        const precipIn = row.precip_in !== undefined && row.precip_in !== '' ? parseFloat(row.precip_in) : null;
+        const precip = precipIn === null ? null : (precipIn > 0 ? 'SI' : 'NO');
+        const kmh = row.avg_wind_speed_kts !== undefined && row.avg_wind_speed_kts !== '' ? knotsToKmh(parseFloat(row.avg_wind_speed_kts)) : null;
+        const vInt = kmh === null ? null : vientoACategoria(kmh);
+        const vDir = row.avg_wind_drct !== undefined && row.avg_wind_drct !== '' ? degToCompass(parseFloat(row.avg_wind_drct)) : null;
+        return { fecha, tmin, tmax, precip, precipMm: precipIn === null ? null : Math.round(inToMm(precipIn) * 10) / 10, v_int: vInt, v_dir: vDir };
+    }
+
+    function previsualizarImport() {
+        const text = document.getElementById('imp-text').value;
+        const rows = parseCsvSimple(text).map(convertirFilaCsv).filter(Boolean);
+        importParsedRows = rows;
+        const tbody = document.getElementById('import-preview-body');
+        const tabla = document.getElementById('tabla-import');
+        if (!rows.length) {
+            tabla.style.display = 'none';
+            document.getElementById('btn-importar').disabled = true;
+            document.getElementById('estado-import').innerText = 'No se pudo leer ninguna fila. Revisá el formato.';
+            return;
+        }
+        tabla.style.display = '';
+        const muestra = rows.slice(0, 15);
+        tbody.innerHTML = muestra.map(r => `
+            <tr>
+                <td class="campo">${r.fecha}</td>
+                <td>${fmtVal(r.tmin)}</td>
+                <td>${fmtVal(r.tmax)}</td>
+                <td>${fmtVal(r.precip)}${r.precipMm ? ` (${r.precipMm}mm)` : ''}</td>
+                <td>${fmtVal(r.v_int)}</td>
+                <td>${fmtVal(r.v_dir)}</td>
+            </tr>
+        `).join('') + (rows.length > 15 ? `<tr><td colspan="6" class="empty-msg">... y ${rows.length - 15} fecha(s) más</td></tr>` : '');
+        document.getElementById('estado-import').innerText = `${rows.length} fecha(s) listas para importar.`;
+        document.getElementById('btn-importar').disabled = false;
+    }
+
+    async function confirmarImport() {
+        const target = getSelectVal('g-imp-target');
+        if (!target) { showToast('Elegí si mapea a Urbana o Suburbana', true); return; }
+        if (!importParsedRows.length) { showToast('Primero previsualizá el archivo', true); return; }
+        const ciudad = document.getElementById('f-ciudad').value;
+        const cargadoPor = document.getElementById('imp-cargado-por').value.trim() || 'Importación automática';
+
+        const filas = importParsedRows.map(r => {
+            const fila = { fecha: r.fecha };
+            fila[target === 'urb' ? 'tmin_urb' : 'tmin_sub'] = r.tmin;
+            fila[target === 'urb' ? 'tmax_urb' : 'tmax_sub'] = r.tmax;
+            if (r.precip !== null) fila.precip = r.precip;
+            if (r.v_int !== null) fila.v_int = r.v_int;
+            if (r.v_dir !== null) fila.v_dir = r.v_dir;
+            return fila;
+        });
+
+        const btn = document.getElementById('btn-importar');
+        btn.disabled = true;
+        document.getElementById('estado-import').innerText = `Importando ${filas.length} fecha(s)...`;
+        try {
+            await fetch(GOOGLE_APP_URL, {
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'importar_observaciones_lote', team_password: TEAM_PASSWORD, ciudad: ciudad, cargado_por: cargadoPor, filas: filas })
+            });
+            showToast(`¡Importadas ${filas.length} fechas!`);
+            document.getElementById('estado-import').innerText = `Listo. Si alguna de estas fechas ya tenía tipo de precipitación / niebla / tormenta cargados a mano, no se pisaron.`;
+            setTimeout(cargarTodo, 1500);
+        } catch (e) {
+            showToast('Error de conexión', true);
+        } finally {
+            btn.disabled = false;
+        }
     }
 
     document.getElementById('f-fecha').value = todayMinus(1);
