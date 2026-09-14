@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Verificación de pronósticos | Admin UNLP</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap">
+<style>
+    * { box-sizing: border-box; }
+    :root { --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --bg: #f4f6f8; --ok: #1a8754; --bad: #c0392b; --muted: #9aa5b1; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: #333; margin: 0; padding: 30px 20px 80px; }
+    .container { max-width: 920px; margin: 0 auto; }
+    h1 { color: var(--unlp-blue); font-size: 1.4em; margin-bottom: 4px; }
+    .subtitle { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+    a.back-link { color: var(--unlp-blue); font-weight: 700; text-decoration: none; font-size: 0.85em; }
+    a.back-link:hover { text-decoration: underline; }
+
+    .card { background: white; border-radius: 10px; padding: 22px 24px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .card h2 { color: var(--unlp-blue); font-size: 1.05em; margin: 0 0 14px; }
+
+    label { display: block; font-size: 0.75em; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; margin: 14px 0 5px; }
+    label:first-of-type { margin-top: 0; }
+    input[type=text], input[type=number], input[type=date], select, textarea { width: 100%; padding: 9px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95em; }
+    textarea { min-height: 60px; resize: vertical; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .row > .col { flex: 1; min-width: 140px; }
+    body.single-station .sub-field { display: none; }
+
+    .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .toggle-btn { border: 1px solid #ccc; background: white; color: #555; padding: 7px 14px; border-radius: 20px; font-size: 0.8em; font-weight: 800; cursor: pointer; transition: 0.15s; }
+    .toggle-btn.active { background: var(--unlp-blue); border-color: var(--unlp-blue); color: white; }
+    .toggle-btn.active.opt-si { background: var(--ok); border-color: var(--ok); }
+    .toggle-btn.active.opt-no { background: var(--bad); border-color: var(--bad); }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; align-items: center; }
+    button { border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 0.9em; transition: 0.2s; }
+    .btn-primary { background: var(--unlp-blue); color: white; }
+    .btn-primary:hover { background: #002240; }
+    .btn-primary:disabled { background: #99a; cursor: not-allowed; }
+    .btn-refresh { background: #eef2f5; color: var(--unlp-blue); }
+    .estado-carga { font-size: 0.8em; color: #888; }
+
+    table.cmp { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+    table.cmp th, table.cmp td { padding: 8px 10px; text-align: center; border-bottom: 1px solid #eee; }
+    table.cmp th { color: var(--unlp-blue); font-size: 0.78em; text-transform: uppercase; }
+    table.cmp td.campo { text-align: left; font-weight: 700; color: #444; }
+    table.cmp td.match { color: var(--ok); }
+    table.cmp td.mismatch { color: var(--bad); font-weight: 800; background: #fdecea; }
+    table.cmp td.missing { color: var(--muted); }
+    .cmp-wrap { overflow-x: auto; }
+
+    table.hist { width: 100%; border-collapse: collapse; font-size: 0.82em; }
+    table.hist th, table.hist td { padding: 7px 8px; text-align: center; border-bottom: 1px solid #eee; }
+    table.hist th { color: var(--unlp-blue); font-size: 0.75em; text-transform: uppercase; }
+    table.hist td.fecha { text-align: left; font-weight: 700; cursor: pointer; color: var(--unlp-blue); }
+    table.hist td.fecha:hover { text-decoration: underline; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+    .dot.ok { background: var(--ok); }
+    .dot.bad { background: var(--bad); }
+    .dot.pend { background: var(--muted); }
+    .empty-msg { color: #888; font-size: 0.9em; text-align: center; padding: 10px; }
+
+    #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+    #access-gate.unlocked { display: none; }
+    .access-gate-box { background: white; border-radius: 12px; padding: 35px 40px; width: 320px; max-width: 90vw; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .access-gate-box h2 { font-size: 1.1em; color: var(--unlp-blue); margin: 0 0 8px; }
+    .access-gate-box p { font-size: 0.85em; color: #555; margin: 0 0 16px; }
+    .access-gate-box input { text-align: center; }
+    #access-error { display: none; color: #c0392b; font-size: 0.8em; margin-top: 8px; font-weight: 700; }
+    #access-error.show { display: block; }
+
+    #notification-toast { position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 25px; border-radius: 8px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(150%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
+    #notification-toast.show { transform: translateY(0); }
+    #notification-toast.error { background: #e74c3c; }
+</style>
+</head>
+<body>
+
+<div id="access-gate">
+    <div class="access-gate-box">
+        <h2>VERIFICACIÓN DE PRONÓSTICOS</h2>
+        <p>Ingresá la clave del equipo para continuar.</p>
+        <input type="password" id="access-pw" placeholder="Clave" autocomplete="off" onkeydown="if(event.key==='Enter') checkAccess()">
+        <button type="button" class="btn-primary" style="margin-top:10px;" onclick="checkAccess()">Ingresar</button>
+        <div id="access-error">Clave incorrecta, probá de nuevo.</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
+    <h1>✅ Verificación de pronósticos</h1>
+    <p class="subtitle">Cargá acá lo que realmente pasó cada día y comparalo al instante contra los pronósticos ya publicados (D+1/D+2/D+3) para esa fecha -- reemplaza los excel sueltos que se llevaban antes por ciudad.</p>
+
+    <div class="card">
+        <div class="row">
+            <div class="col">
+                <label for="f-ciudad">Ciudad</label>
+                <select id="f-ciudad" onchange="onCiudadOFechaChange()">
+                    <option value="La Plata">La Plata</option>
+                    <option value="Junín">Junín</option>
+                    <option value="Mar del Plata">Mar del Plata</option>
+                    <option value="Bolívar">Bolívar</option>
+                    <option value="Tandil">Tandil</option>
+                    <option value="Bahía Blanca">Bahía Blanca</option>
+                </select>
+            </div>
+            <div class="col">
+                <label for="f-fecha">Fecha (el día que se quiere verificar)</label>
+                <input type="date" id="f-fecha" onchange="onCiudadOFechaChange()">
+            </div>
+        </div>
+
+        <h2 style="margin-top:22px;">¿Qué pasó ese día?</h2>
+        <div class="row">
+            <div class="col"><label for="f-tmin-urb">Mín. urbana</label><input type="number" step="0.1" id="f-tmin-urb"></div>
+            <div class="col"><label for="f-tmax-urb">Máx. urbana</label><input type="number" step="0.1" id="f-tmax-urb"></div>
+            <div class="col sub-field"><label for="f-tmin-sub">Mín. suburbana</label><input type="number" step="0.1" id="f-tmin-sub"></div>
+            <div class="col sub-field"><label for="f-tmax-sub">Máx. suburbana</label><input type="number" step="0.1" id="f-tmax-sub"></div>
+        </div>
+
+        <label>¿Hubo precipitación?</label>
+        <div class="toggle-group" id="g-precip">
+            <button type="button" class="toggle-btn opt-si" data-val="SI" onclick="toggleSelect('g-precip', this)">SI</button>
+            <button type="button" class="toggle-btn opt-no" data-val="NO" onclick="toggleSelect('g-precip', this)">NO</button>
+        </div>
+
+        <label for="f-precip-tipo">Tipo de precipitación</label>
+        <select id="f-precip-tipo">
+            <option value="">--</option>
+            <option value="LLUVIAS">LLUVIAS</option>
+            <option value="LLUVIAS AISLADAS">LLUVIAS AISLADAS</option>
+            <option value="LLOVIZNAS">LLOVIZNAS</option>
+            <option value="LLUVIAS Y TORMENTAS">LLUVIAS Y TORMENTAS</option>
+            <option value="LLUVIAS Y TORMENTAS AISLADAS">LLUVIAS Y TORMENTAS AISLADAS</option>
+            <option value="TORMENTAS AISLADAS">TORMENTAS AISLADAS</option>
+        </select>
+
+        <label>Dirección del viento (predominante, se puede marcar más de una)</label>
+        <div class="toggle-group" id="g-vdir">
+            <button type="button" class="toggle-btn" data-val="N" onclick="toggleMulti('g-vdir', this)">N</button>
+            <button type="button" class="toggle-btn" data-val="NE" onclick="toggleMulti('g-vdir', this)">NE</button>
+            <button type="button" class="toggle-btn" data-val="E" onclick="toggleMulti('g-vdir', this)">E</button>
+            <button type="button" class="toggle-btn" data-val="SE" onclick="toggleMulti('g-vdir', this)">SE</button>
+            <button type="button" class="toggle-btn" data-val="S" onclick="toggleMulti('g-vdir', this)">S</button>
+            <button type="button" class="toggle-btn" data-val="SW" onclick="toggleMulti('g-vdir', this)">SW</button>
+            <button type="button" class="toggle-btn" data-val="W" onclick="toggleMulti('g-vdir', this)">W</button>
+            <button type="button" class="toggle-btn" data-val="NW" onclick="toggleMulti('g-vdir', this)">NW</button>
+        </div>
+
+        <label for="f-vint">Intensidad del viento</label>
+        <select id="f-vint">
+            <option value="">--</option>
+            <option value="LEVES">LEVES</option>
+            <option value="MODERADOS">MODERADOS</option>
+            <option value="REGULARES">REGULARES</option>
+            <option value="FUERTES">FUERTES</option>
+        </select>
+
+        <div class="row">
+            <div class="col">
+                <label>¿Niebla?</label>
+                <div class="toggle-group" id="g-niebla">
+                    <button type="button" class="toggle-btn opt-si" data-val="SI" onclick="toggleSelect('g-niebla', this)">SI</button>
+                    <button type="button" class="toggle-btn opt-no" data-val="NO" onclick="toggleSelect('g-niebla', this)">NO</button>
+                </div>
+            </div>
+            <div class="col">
+                <label>¿Tormenta?</label>
+                <div class="toggle-group" id="g-tormenta">
+                    <button type="button" class="toggle-btn opt-si" data-val="SI" onclick="toggleSelect('g-tormenta', this)">SI</button>
+                    <button type="button" class="toggle-btn opt-no" data-val="NO" onclick="toggleSelect('g-tormenta', this)">NO</button>
+                </div>
+            </div>
+            <div class="col">
+                <label>¿Mínima nocturna?</label>
+                <div class="toggle-group" id="g-minnoc">
+                    <button type="button" class="toggle-btn opt-si" data-val="SI" onclick="toggleSelect('g-minnoc', this)">SI</button>
+                    <button type="button" class="toggle-btn opt-no" data-val="NO" onclick="toggleSelect('g-minnoc', this)">NO</button>
+                </div>
+            </div>
+        </div>
+
+        <label for="f-comentarios">Comentarios</label>
+        <textarea id="f-comentarios" placeholder="Cualquier detalle adicional..."></textarea>
+
+        <label for="f-cargado-por">Cargado por</label>
+        <input type="text" id="f-cargado-por" placeholder="Nombre y apellido">
+
+        <div class="btn-row">
+            <button class="btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observación</button>
+            <span class="estado-carga" id="estado-carga"></span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Comparación para esta fecha</h2>
+        <div class="cmp-wrap">
+            <table class="cmp">
+                <thead><tr><th>Campo</th><th>D+1</th><th>D+2</th><th>D+3</th><th>Observado</th></tr></thead>
+                <tbody id="cmp-body"><tr><td colspan="5" class="empty-msg">Elegí ciudad y fecha arriba.</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Últimos días</h2>
+        <p class="subtitle" style="margin-bottom:10px;">Un vistazo rápido: verde = pronóstico y observación coinciden, rojo = difieren en algo, gris = todavía no hay observación cargada. Tocá una fecha para verla en detalle arriba.</p>
+        <div class="cmp-wrap">
+            <table class="hist">
+                <thead><tr><th>Fecha</th><th>D+1</th><th>D+2</th><th>D+3</th></tr></thead>
+                <tbody id="hist-body"><tr><td colspan="4" class="empty-msg">Cargando...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="notification-toast">✅ Listo</div>
+
+<script>
+    // ⚠️ Misma clave que en admin.html / llave-admin.html / novedades-admin.html
+    // (y que Script Properties > TEAM_PASSWORD en Apps Script).
+    const TEAM_PASSWORD = 'Maraton';
+
+    function checkAccess() {
+        const val = document.getElementById('access-pw').value;
+        if (val === TEAM_PASSWORD) {
+            localStorage.setItem('teamAccessGranted', '1');
+            document.getElementById('access-gate').classList.add('unlocked');
+        } else {
+            document.getElementById('access-error').classList.add('show');
+        }
+    }
+    if (localStorage.getItem('teamAccessGranted') === '1') {
+        document.getElementById('access-gate').classList.add('unlocked');
+    }
+
+    // ⚠️ Misma URL de Apps Script que usa admin.html.
+    const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
+
+    const FIELDS = [
+        { key: 'tmin_urb', label: 'Mín. urbana', num: true },
+        { key: 'tmax_urb', label: 'Máx. urbana', num: true },
+        { key: 'tmin_sub', label: 'Mín. suburbana', num: true, sub: true },
+        { key: 'tmax_sub', label: 'Máx. suburbana', num: true, sub: true },
+        { key: 'precip', label: 'Precipitación' },
+        { key: 'precip_tipo', label: 'Tipo de precipitación' },
+        { key: 'v_dir', label: 'Dirección del viento' },
+        { key: 'v_int', label: 'Intensidad del viento' },
+        { key: 'niebla', label: 'Niebla' },
+        { key: 'tormenta', label: 'Tormenta' },
+        { key: 'min_noc', label: 'Mínima nocturna' }
+    ];
+
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('notification-toast');
+        toast.innerText = message;
+        toast.classList.toggle('error', isError);
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function toggleSelect(groupId, btn) {
+        document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    function toggleMulti(groupId, btn) {
+        btn.classList.toggle('active');
+    }
+    function getSelectVal(groupId) {
+        const active = document.querySelector(`#${groupId} .toggle-btn.active`);
+        return active ? active.dataset.val : '';
+    }
+    function getMultiVal(groupId) {
+        return Array.from(document.querySelectorAll(`#${groupId} .toggle-btn.active`)).map(b => b.dataset.val).join(', ');
+    }
+    function setSelectVal(groupId, val) {
+        document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
+    }
+    function setMultiVal(groupId, val) {
+        const parts = String(val || '').split(',').map(s => s.trim()).filter(Boolean);
+        document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(b => b.classList.toggle('active', parts.includes(b.dataset.val)));
+    }
+
+    function todayMinus(days) {
+        const d = new Date(); d.setDate(d.getDate() - days);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function limpiarFormulario() {
+        ['f-tmin-urb', 'f-tmax-urb', 'f-tmin-sub', 'f-tmax-sub', 'f-comentarios'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('f-precip-tipo').value = '';
+        document.getElementById('f-vint').value = '';
+        ['g-precip', 'g-niebla', 'g-tormenta', 'g-minnoc', 'g-vdir'].forEach(g =>
+            document.querySelectorAll(`#${g} .toggle-btn`).forEach(b => b.classList.remove('active')));
+    }
+
+    function jsonp(params) {
+        return new Promise((resolve) => {
+            const callbackName = 'jsonp_verif_' + Math.round(100000 * Math.random());
+            window[callbackName] = function (data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                resolve(data);
+            };
+            const qs = new URLSearchParams({ ...params, callback: callbackName, _t: Date.now() }).toString();
+            const script = document.createElement('script');
+            script.src = `${GOOGLE_APP_URL}?${qs}`;
+            document.body.appendChild(script);
+        });
+    }
+
+    function onCiudadOFechaChange() {
+        const isLaPlata = document.getElementById('f-ciudad').value === 'La Plata';
+        document.body.classList.toggle('single-station', !isLaPlata);
+        cargarTodo();
+    }
+
+    async function cargarObservacionEnFormulario() {
+        limpiarFormulario();
+        const ciudad = document.getElementById('f-ciudad').value;
+        const fecha = document.getElementById('f-fecha').value;
+        if (!fecha) return;
+        document.getElementById('estado-carga').innerText = 'Buscando observación cargada...';
+        const data = await jsonp({ type: 'observacion', ciudad: ciudad, fecha: fecha });
+        if (data && !data.error) {
+            document.getElementById('f-tmin-urb').value = data.tmin_urb ?? '';
+            document.getElementById('f-tmax-urb').value = data.tmax_urb ?? '';
+            document.getElementById('f-tmin-sub').value = data.tmin_sub ?? '';
+            document.getElementById('f-tmax-sub').value = data.tmax_sub ?? '';
+            setSelectVal('g-precip', data.precip || '');
+            document.getElementById('f-precip-tipo').value = data.precip_tipo || '';
+            setMultiVal('g-vdir', data.v_dir || '');
+            document.getElementById('f-vint').value = data.v_int || '';
+            setSelectVal('g-niebla', data.niebla || '');
+            setSelectVal('g-tormenta', data.tormenta || '');
+            setSelectVal('g-minnoc', data.min_noc || '');
+            document.getElementById('f-comentarios').value = data.comentarios || '';
+            if (data.cargado_por) document.getElementById('f-cargado-por').value = data.cargado_por;
+            document.getElementById('estado-carga').innerText = `Ya había una observación cargada por ${data.cargado_por || '—'}, la estás editando.`;
+        } else {
+            document.getElementById('estado-carga').innerText = 'Todavía no hay observación cargada para esta fecha.';
+        }
+    }
+
+    async function guardarObservacion() {
+        const ciudad = document.getElementById('f-ciudad').value;
+        const fecha = document.getElementById('f-fecha').value;
+        if (!fecha) { showToast('Elegí una fecha', true); return; }
+        const cargadoPor = document.getElementById('f-cargado-por').value.trim();
+        if (!cargadoPor) { showToast('Falta el nombre de quién carga la observación', true); return; }
+
+        const payload = {
+            action: 'guardar_observacion',
+            team_password: TEAM_PASSWORD,
+            ciudad: ciudad,
+            fecha: fecha,
+            tmin_urb: document.getElementById('f-tmin-urb').value || null,
+            tmax_urb: document.getElementById('f-tmax-urb').value || null,
+            tmin_sub: document.getElementById('f-tmin-sub').value || null,
+            tmax_sub: document.getElementById('f-tmax-sub').value || null,
+            precip: getSelectVal('g-precip'),
+            precip_tipo: document.getElementById('f-precip-tipo').value,
+            v_dir: getMultiVal('g-vdir'),
+            v_int: document.getElementById('f-vint').value,
+            niebla: getSelectVal('g-niebla'),
+            tormenta: getSelectVal('g-tormenta'),
+            min_noc: getSelectVal('g-minnoc'),
+            comentarios: document.getElementById('f-comentarios').value,
+            cargado_por: cargadoPor
+        };
+
+        const btn = document.getElementById('btn-guardar');
+        btn.disabled = true;
+        try {
+            await fetch(GOOGLE_APP_URL, {
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            });
+            showToast('¡Observación guardada!');
+            setTimeout(cargarTodo, 1000);
+        } catch (e) {
+            showToast('Error de conexión', true);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function normNum(v) {
+        if (v === null || v === undefined || v === '') return null;
+        const n = parseFloat(v);
+        return isNaN(n) ? null : Math.round(n * 10) / 10;
+    }
+    function normTxt(v) {
+        if (v === null || v === undefined || v === '') return null;
+        return String(v).trim().toUpperCase();
+    }
+    function valoresIguales(a, b, isNum) {
+        const na = isNum ? normNum(a) : normTxt(a);
+        const nb = isNum ? normNum(b) : normTxt(b);
+        if (na === null || nb === null) return null; // no comparable
+        return na === nb;
+    }
+    function fmtVal(v) {
+        return (v === null || v === undefined || v === '') ? '—' : v;
+    }
+
+    function renderComparacion(item) {
+        const tbody = document.getElementById('cmp-body');
+        if (!item) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Sin pronósticos ni observación para esta fecha todavía.</td></tr>';
+            return;
+        }
+        const isLaPlata = document.getElementById('f-ciudad').value === 'La Plata';
+        const obs = item.observacion || {};
+        const rows = FIELDS.filter(f => !f.sub || isLaPlata).map(f => {
+            const cells = ['plazo1', 'plazo2', 'plazo3'].map(p => {
+                const pron = item.pronosticos[p];
+                const val = pron ? pron[f.key] : null;
+                if (val === null || val === undefined || val === '') return `<td class="missing">—</td>`;
+                const eq = valoresIguales(val, obs[f.key], f.num);
+                const cls = eq === null ? '' : (eq ? 'match' : 'mismatch');
+                return `<td class="${cls}">${fmtVal(val)}</td>`;
+            }).join('');
+            const obsVal = obs[f.key];
+            return `<tr><td class="campo">${f.label}</td>${cells}<td>${fmtVal(obsVal)}</td></tr>`;
+        }).join('');
+        tbody.innerHTML = rows;
+    }
+
+    function renderHistorial(items) {
+        const tbody = document.getElementById('hist-body');
+        if (!items || !items.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">Sin datos en este rango todavía.</td></tr>';
+            return;
+        }
+        const isLaPlata = document.getElementById('f-ciudad').value === 'La Plata';
+        const camposComparables = FIELDS.filter(f => !f.sub || isLaPlata);
+        const estadoPlazo = (item, plazo) => {
+            const pron = item.pronosticos[plazo];
+            if (!pron) return 'pend';
+            if (!item.observacion) return 'pend';
+            let algunaComparacion = false, algunaDiferencia = false;
+            camposComparables.forEach(f => {
+                const eq = valoresIguales(pron[f.key], item.observacion[f.key], f.num);
+                if (eq !== null) { algunaComparacion = true; if (!eq) algunaDiferencia = true; }
+            });
+            if (!algunaComparacion) return 'pend';
+            return algunaDiferencia ? 'bad' : 'ok';
+        };
+        tbody.innerHTML = items.slice().reverse().map(item => `
+            <tr>
+                <td class="fecha" onclick="irAFecha('${item.fecha}')">${item.fecha}</td>
+                <td><span class="dot ${estadoPlazo(item, 'plazo1')}"></span></td>
+                <td><span class="dot ${estadoPlazo(item, 'plazo2')}"></span></td>
+                <td><span class="dot ${estadoPlazo(item, 'plazo3')}"></span></td>
+            </tr>
+        `).join('');
+    }
+
+    function irAFecha(fecha) {
+        document.getElementById('f-fecha').value = fecha;
+        cargarTodo();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function cargarTodo() {
+        await cargarObservacionEnFormulario();
+        const ciudad = document.getElementById('f-ciudad').value;
+        const fecha = document.getElementById('f-fecha').value;
+        const desde = todayMinus(20);
+        const hasta = todayMinus(-5); // incluye D+3/D+4 de hoy, que ya pueden tener fila
+        const data = await jsonp({ type: 'verificacion_comparada', ciudad: ciudad, desde: desde, hasta: hasta });
+        const items = (data && data.items) || [];
+        const actual = items.find(i => i.fecha === fecha);
+        renderComparacion(actual);
+        renderHistorial(items);
+    }
+
+    document.getElementById('f-fecha').value = todayMinus(1);
+    onCiudadOFechaChange();
+</script>
+</body>
+</html>
