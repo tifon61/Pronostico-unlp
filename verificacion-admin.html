@@ -592,9 +592,14 @@
     // relleno (se limpia con trim), fin de línea con \r\n. Encabezado
     // esperado: NRO_OMM NOMBRE FECHA TMAX TMIN TMEDIA PRECIP HELIOF
     // VTO_MDIR VTO_MVEL VEL_MED PRE_EST HUM_REL NUB_TOT.
-    // NOTA: la unidad de VEL_MED (velocidad media de viento) no está
-    // documentada públicamente -- se asume km/h, que es lo habitual en las
-    // publicaciones del SMN. Revisá la previsualización antes de importar.
+    // Convenciones según el LÉAME oficial del SMN (LEAME_SMN21-26.xlsx):
+    // - "S/D" en cualquier celda = sin dato (no "" -- eso significa otra cosa
+    //   distinta según la columna, ver PRECIP).
+    // - VEL_MED SÍ está en km/h (confirmado, no era una suposición).
+    // - VTO_MDIR es la dirección del viento MÁXIMO del día (no del promedio
+    //   -- no hay una "dirección media" en este dataset), en decenas de
+    //   grado; 0 = calma, 99 = dirección variable (ninguno de los dos tiene
+    //   una dirección real que asignar).
     function parseSmnLst(text, ommTarget) {
         const lines = text.split(/\r?\n/);
         const headerIdx = lines.findIndex(l => l.includes('NRO_OMM'));
@@ -616,20 +621,32 @@
             const tmax = cells[idx['TMAX']] !== '' ? parseFloat(cells[idx['TMAX']]) : null;
             const tmin = cells[idx['TMIN']] !== '' ? parseFloat(cells[idx['TMIN']]) : null;
 
-            // PRECIP en blanco = sin dato (no se asume "no llovió"); ya viene
-            // en mm y el SMN sí usa "0" explícito cuando no llovió, así que
-            // blanco es genuinamente "no sabemos", no cero.
+            // PRECIP: al revés de lo que parecía a ojo -- según el LÉAME,
+            // celda VACÍA = sin precipitación (0mm), y "0" explícito = trazas
+            // (menos de 0.1mm). "S/D" (si aparece) es lo único que es
+            // realmente "sin dato". A fines de comparar SI/NO contra el
+            // pronóstico, las trazas cuentan como NO (no llegan a 0.1mm).
             const precipCell = cells[idx['PRECIP']];
-            const precipMm = precipCell !== '' && precipCell !== undefined ? parseFloat(precipCell) : null;
-            const precip = precipMm === null ? null : (precipMm > 0 ? 'SI' : 'NO');
+            let precip = null, precipMm = null;
+            if (precipCell === 'S/D') {
+                // sin dato real: no se carga nada para este campo.
+            } else if (precipCell === '' || precipCell === undefined) {
+                precip = 'NO'; precipMm = 0;
+            } else {
+                const v = parseFloat(precipCell);
+                if (!isNaN(v)) { precipMm = Math.round(v * 10) / 10; precip = v > 0 ? 'SI' : 'NO'; }
+            }
 
             const dirCell = cells[idx['VTO_MDIR']];
-            const dirDecenas = dirCell !== '' ? parseInt(dirCell, 10) : null;
-            // 00 = calma (sin viento): no hay dirección que asignar.
-            const vDir = (dirDecenas === null || isNaN(dirDecenas) || dirDecenas === 0) ? null : degToCompass(dirDecenas * 10);
+            let vDir = null;
+            if (dirCell !== '' && dirCell !== 'S/D') {
+                const dirDecenas = parseInt(dirCell, 10);
+                // 0 = calma, 99 = dirección variable: ninguno tiene un rumbo real.
+                if (!isNaN(dirDecenas) && dirDecenas !== 0 && dirDecenas !== 99) vDir = degToCompass(dirDecenas * 10);
+            }
 
             const velCell = cells[idx['VEL_MED']];
-            const velKmh = velCell !== '' ? parseFloat(velCell) : null;
+            const velKmh = (velCell !== '' && velCell !== 'S/D') ? parseFloat(velCell) : null;
             const vInt = (velKmh === null || isNaN(velKmh)) ? null : vientoACategoria(velKmh);
 
             out.push({
