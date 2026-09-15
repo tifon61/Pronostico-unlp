@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Turnos | Admin UNLP</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap">
+<style>
+    * { box-sizing: border-box; }
+    :root { --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --bg: #f4f6f8; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: #333; margin: 0; padding: 30px 20px 80px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { color: var(--unlp-blue); font-size: 1.4em; margin-bottom: 4px; }
+    h2 { color: var(--unlp-blue); font-size: 1.1em; }
+    .subtitle { color: #666; font-size: 0.9em; margin-bottom: 24px; line-height: 1.5; }
+    a.back-link { color: var(--unlp-blue); font-weight: 700; text-decoration: none; font-size: 0.85em; }
+    a.back-link:hover { text-decoration: underline; }
+
+    .card { background: white; border-radius: 10px; padding: 22px 24px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    label { display: block; font-size: 0.75em; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; margin: 14px 0 5px; }
+    label:first-of-type { margin-top: 0; }
+    input, select { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95em; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .row > div { flex: 1; min-width: 160px; }
+    .row select, .row input { width: 100%; }
+    button { border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 0.9em; transition: 0.2s; }
+    .btn-primary { background: var(--unlp-blue); color: white; }
+    .btn-primary:hover { background: #002240; }
+    .btn-secondary { background: #eef2f5; color: var(--unlp-blue); }
+    .btn-secondary:hover { background: #dce6ec; }
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+    .turnos-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 14px 0; }
+    .turnos-weekday { font-size: 0.68em; font-weight: 800; text-transform: uppercase; color: #888; text-align: center; padding: 4px 0; }
+    .turnos-day { background: #f4f6f8; border: 2px solid #e5e5e5; border-radius: 8px; padding: 8px 3px; text-align: center; cursor: pointer; transition: 0.15s; user-select: none; min-height: 52px; }
+    .turnos-day:hover { border-color: var(--unlp-accent-blue); }
+    .turnos-day.empty { visibility: hidden; cursor: default; }
+    .turnos-day .tday-num { font-weight: 800; font-size: 0.95em; color: var(--unlp-blue); }
+    .turnos-day.selected { background: #e3f0fb; border-color: var(--unlp-blue); }
+    .turnos-day .tday-doble { display: none; margin-top: 4px; }
+    .turnos-day.selected .tday-doble { display: block; }
+    .turnos-day .tday-doble label { display: flex; align-items: center; justify-content: center; gap: 3px; font-weight: 700; color: #555; cursor: pointer; font-size: 0.62em; line-height: 1.2; }
+    .turnos-day .tday-doble input { margin: 0; }
+    .cal-legend { font-size: 0.78em; color: #777; margin-top: 4px; }
+
+    .table-wrap { overflow-x: auto; margin-top: 10px; }
+    table.cronograma { border-collapse: collapse; width: 100%; font-size: 0.82em; }
+    table.cronograma th, table.cronograma td { border: 1px solid #e5e5e5; padding: 6px 8px; text-align: left; white-space: nowrap; }
+    table.cronograma th { background: var(--unlp-blue); color: white; font-size: 0.85em; text-transform: uppercase; }
+    table.cronograma td.day-lbl { font-weight: 800; color: var(--unlp-blue); background: #f8f9fa; }
+    table.cronograma td.not-applicable { text-align: center; color: #bbb; background: #fafafa; }
+    table.cronograma select { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 4px; font-family: inherit; font-size: 0.95em; background: white; }
+    table.cronograma select.unfilled { background: #fdeceb; border-color: #e0a29b; color: #c0392b; font-weight: 700; }
+    table.cronograma select.warn { background: #fff8e1; border-color: #f0c419; }
+    table.cronograma optgroup { font-style: normal; font-weight: 800; color: var(--unlp-blue); }
+    .cronograma-legend { font-size: 0.78em; color: #777; margin-top: 8px; }
+    table.stats th, table.stats td { border: 1px solid #e5e5e5; padding: 6px 10px; text-align: left; }
+    .color-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .individual-summary { font-size: 0.95em; margin: 10px 0; }
+    .empty-msg { color: #888; font-size: 0.9em; padding: 10px 0; }
+    table.stats th { background: #eef2f5; color: var(--unlp-blue); }
+
+    .cronograma-ok { color: #1e7e34; font-weight: 800; margin-top: 10px; }
+    .cronograma-warn { color: #c0392b; font-weight: 800; margin-top: 10px; }
+    .cronograma-missing { color: #856404; font-size: 0.85em; margin-top: 6px; }
+    #cronograma-section { display: none; }
+    #cronograma-clipboard { position: absolute; left: -9999px; top: -9999px; }
+
+    #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+    #access-gate.unlocked { display: none; }
+    .access-gate-box { background: white; border-radius: 12px; padding: 35px 40px; width: 320px; max-width: 90vw; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .access-gate-box h2 { font-size: 1.1em; color: var(--unlp-blue); margin: 0 0 8px; }
+    .access-gate-box p { font-size: 0.85em; color: #555; margin: 0 0 16px; }
+    .access-gate-box input { text-align: center; width: 100%; }
+    #access-error { display: none; color: #c0392b; font-size: 0.8em; margin-top: 8px; font-weight: 700; }
+    #access-error.show { display: block; }
+
+    #notification-toast { position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 25px; border-radius: 8px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(150%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
+    #notification-toast.show { transform: translateY(0); }
+    #notification-toast.error { background: #e74c3c; }
+</style>
+</head>
+<body>
+
+<div id="access-gate">
+    <div class="access-gate-box">
+        <h2>TURNOS UNLP</h2>
+        <p>Ingresá la clave del equipo para continuar.</p>
+        <input type="password" id="access-pw" placeholder="Clave" autocomplete="off" onkeydown="if(event.key==='Enter') checkAccess()">
+        <button type="button" class="btn-primary" style="margin-top:10px; width:100%;" onclick="checkAccess()">Ingresar</button>
+        <div id="access-error">Clave incorrecta, probá de nuevo.</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
+    &nbsp;·&nbsp;
+    <a href="cronograma-equipo.html" class="back-link">Ver cronograma publicado del equipo →</a>
+    <h1>Turnos del equipo</h1>
+    <p class="subtitle">
+        Cada pronosticador carga acá qué días del mes puede pronosticar (y si algún día quiere hacer 2 ciudades).
+        Cargalo antes de fin de mes para que el cronograma del mes siguiente salga a tiempo. El reparto automático
+        calcula una cuota pareja de pronósticos para todos, y a quien cargó menos días disponibles le va asignando
+        automáticamente una segunda ciudad el mismo día (sin que lo pida) las veces que haga falta para llegar a
+        esa misma cuota. También reparte La Plata pareja entre todos, y nadie queda dos días seguidos. Los sábados
+        y domingos solo se pronostica La Plata.
+    </p>
+
+    <div class="card">
+        <h2 style="margin-top:0;">1. Mi disponibilidad</h2>
+        <div class="row">
+            <div>
+                <label>Pronosticador</label>
+                <select id="f-pronosticador" onchange="onDisponibilidadInputsChange()"></select>
+            </div>
+            <div>
+                <label>Mes</label>
+                <input type="month" id="f-mes" onchange="onDisponibilidadInputsChange()">
+            </div>
+        </div>
+
+        <label style="margin-top:18px;">Días disponibles (tocá un día para marcarlo; si querés hacer 2 ciudades ese día, tildá "2 ciudades")</label>
+        <div class="turnos-calendar" id="turnos-calendar"></div>
+        <div class="cal-legend">🔵 = día marcado como disponible</div>
+
+        <div class="btn-row">
+            <button class="btn-primary" onclick="guardarDisponibilidad()">💾 Guardar mi disponibilidad</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0;">2. Generar cronograma del mes</h2>
+        <div class="row">
+            <div>
+                <label>Mes a generar</label>
+                <input type="month" id="g-mes">
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn-primary" onclick="generarCronograma()">🔄 Generar cronograma</button>
+        </div>
+
+        <div id="cronograma-section">
+            <div id="cronograma-unfilled"></div>
+            <div id="cronograma-missing" class="cronograma-missing"></div>
+
+            <h2>Vista general</h2>
+            <div class="table-wrap" id="cronograma-table"></div>
+            <div class="cronograma-legend">🔴 Sin asignar &nbsp; 🟡 Asignado pero rompe alguna regla (pasá el mouse para ver cuál) &nbsp; Cada desplegable agrupa primero a quienes se marcaron disponibles ese día, para intercambiar fácil.</div>
+
+            <h2>Vista por pronosticador</h2>
+            <div class="row">
+                <div>
+                    <label>Pronosticador</label>
+                    <select id="v-pronosticador" onchange="renderVistaIndividual()"><option value="">— Elegí —</option></select>
+                </div>
+            </div>
+            <div id="vista-individual"></div>
+
+            <h2>Resumen por pronosticador</h2>
+            <div class="table-wrap" id="cronograma-stats"></div>
+
+            <div class="btn-row">
+                <button class="btn-primary" onclick="guardarCronogramaFinal()">💾 Guardar cronograma del mes</button>
+                <button class="btn-secondary" onclick="copiarCronograma()">📋 Copiar cronograma</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0;">3. Historial de turnos</h2>
+        <p class="subtitle" style="margin-bottom:12px;">
+            Cuántos pronósticos lleva hecho cada uno desde que se empezaron a guardar los cronogramas (botón
+            "Guardar cronograma del mes" de arriba). Sirve para ver, mes a mes, si se van emparejando.
+        </p>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="verHistorial()">🔄 Actualizar historial</button>
+        </div>
+        <div class="table-wrap" id="historial-resumen"></div>
+        <h2>Detalle por mes</h2>
+        <div class="table-wrap" id="historial-detalle"></div>
+    </div>
+</div>
+
+<textarea id="cronograma-clipboard" readonly></textarea>
+<div id="notification-toast">✅ Listo</div>
+
+<script>
+    // La clave real vive solo en Apps Script (Propiedades del proyecto >
+    // Script Properties > TEAM_PASSWORD) -- acá nunca queda escrita, se
+    // valida contra el servidor (type=verificar_clave). Si era correcta
+    // queda guardada en el navegador de quien la tipeó (localStorage) para
+    // no pedirla de nuevo en esa misma computadora.
+    function checkAccess() {
+        const val = document.getElementById('access-pw').value;
+        const btn = document.querySelector('#access-gate button');
+        if (btn) btn.disabled = true;
+        verificarClaveEnServidor(val).then(ok => {
+            if (ok) {
+                localStorage.setItem('teamPassword', val);
+                document.getElementById('access-gate').classList.add('unlocked');
+            } else {
+                document.getElementById('access-error').classList.add('show');
+            }
+        }).finally(() => { if (btn) btn.disabled = false; });
+    }
+
+    function verificarClaveEnServidor(clave) {
+        return new Promise((resolve) => {
+            const callbackName = 'jsonp_clave_' + Math.round(100000 * Math.random());
+            window[callbackName] = function (data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                resolve(!!(data && data.ok));
+            };
+            const script = document.createElement('script');
+            script.src = `${GOOGLE_APP_URL}?type=verificar_clave&clave=${encodeURIComponent(clave)}&callback=${callbackName}&_t=${Date.now()}`;
+            document.body.appendChild(script);
+        });
+    }
+
+    if (localStorage.getItem('teamPassword')) {
+        document.getElementById('access-gate').classList.add('unlocked');
+    }
+
+    // ⚠️ Misma URL de Apps Script que usa admin.html.
+    const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
+
+    // Mismos nombres que aparecen en "Publicado por" de admin.html, sin Equipo FCAG
+    // (es un valor genérico, no una persona), sin Mauricio (coordina el reparto, no
+    // entra en la rotación) y sin Alejandro Godoy ni Horacio Sarochar (asesores,
+    // no hacen turnos de pronosticador de rotación).
+    const FORECASTERS = ["Camila","Victoria","Lisandro","Micaela","Narela","Lorenzo","Matias","Renata","Gabriel","Juli","Mate","Dylan","Delfi","Leo","Romi"];
+
+    // Bolívar todavía no entra en el reparto diario.
+    const CITIES = ["La Plata","Junín","Mar del Plata","Tandil","Bahía Blanca"];
+    const WEEKDAY_NAMES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+    // Color fijo por pronosticador (mismo orden que FORECASTERS, así no cambia de
+    // un cronograma a otro). En vez de repartir los tonos en línea recta
+    // (24° entre cada uno con 15 personas, muy parecidos entre vecinos), se
+    // usa el "ángulo dorado" (~137.5°) para que ningún color quede pegado al
+    // de al lado en el círculo cromático, y se baja un poco el brillo/sube la
+    // saturación para que se note más la diferencia.
+    const FORECASTER_COLORS = {};
+    FORECASTERS.forEach((n, i) => {
+        const hue = Math.round((i * 137.508) % 360);
+        FORECASTER_COLORS[n] = { bg: `hsl(${hue}, 62%, 80%)`, dot: `hsl(${hue}, 68%, 44%)` };
+    });
+    function colorForName(name) {
+        return FORECASTER_COLORS[name] || { bg: '#eee', dot: '#999' };
+    }
+
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('notification-toast');
+        toast.innerText = message;
+        toast.classList.toggle('error', isError);
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // GET vía JSONP (Apps Script no responde CORS para fetch normal).
+    function fetchJsonp(url, callback) {
+        const callbackName = 'jsonp_' + Math.round(1e6 * Math.random());
+        window[callbackName] = function (data) {
+            delete window[callbackName];
+            document.body.removeChild(script);
+            callback(data);
+        };
+        const script = document.createElement('script');
+        script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}&_t=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
+    function nextMonthStr() {
+        const now = new Date();
+        let y = now.getFullYear(), m = now.getMonth() + 2; // +1 para pasar a 1-based, +1 más para "el mes que viene"
+        if (m > 12) { m -= 12; y += 1; }
+        return `${y}-${String(m).padStart(2, '0')}`;
+    }
+
+    function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); } // m: 1-12
+    function firstWeekday(y, m) { return new Date(y, m - 1, 1).getDay(); } // 0=Domingo
+
+    // ─── SECCIÓN 1: Mi disponibilidad ──────────────────────────────────────
+    let availableDays = new Set();
+    let doubleDays = new Set();
+
+    function renderCalendar() {
+        const val = document.getElementById('f-mes').value;
+        if (!val) { document.getElementById('turnos-calendar').innerHTML = ''; return; }
+        const [y, m] = val.split('-').map(Number);
+        const total = daysInMonth(y, m);
+        const startDow = firstWeekday(y, m);
+        let html = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'].map(w => `<div class="turnos-weekday">${w}</div>`).join('');
+        for (let i = 0; i < startDow; i++) html += `<div class="turnos-day empty"></div>`;
+        for (let d = 1; d <= total; d++) {
+            const sel = availableDays.has(d), dbl = doubleDays.has(d);
+            html += `<div class="turnos-day ${sel ? 'selected' : ''}" id="tday-${d}" onclick="toggleDay(${d})">
+                <div class="tday-num">${d}</div>
+                <div class="tday-doble">
+                    <label onclick="event.stopPropagation()">
+                        <input type="checkbox" ${dbl ? 'checked' : ''} onchange="toggleDouble(${d}, this.checked)"> 2 ciudades
+                    </label>
+                </div>
+            </div>`;
+        }
+        document.getElementById('turnos-calendar').innerHTML = html;
+    }
+
+    function toggleDay(d) {
+        if (availableDays.has(d)) { availableDays.delete(d); doubleDays.delete(d); }
+        else availableDays.add(d);
+        renderCalendar();
+    }
+    function toggleDouble(d, checked) {
+        if (checked) doubleDays.add(d); else doubleDays.delete(d);
+    }
+
+    function onDisponibilidadInputsChange() {
+        availableDays = new Set();
+        doubleDays = new Set();
+        renderCalendar();
+        cargarMiDisponibilidad();
+    }
+
+    function cargarMiDisponibilidad() {
+        const mes = document.getElementById('f-mes').value;
+        const nombre = document.getElementById('f-pronosticador').value;
+        if (!mes || !nombre) return;
+        fetchJsonp(`${GOOGLE_APP_URL}?type=disponibilidad&mes=${encodeURIComponent(mes)}`, (data) => {
+            const items = (data && data.items) || [];
+            const mine = items.find(it => it.pronosticador === nombre);
+            availableDays = new Set(mine ? mine.dias_disponibles : []);
+            doubleDays = new Set(mine ? mine.dias_doble : []);
+            renderCalendar();
+        });
+    }
+
+    function guardarDisponibilidad() {
+        const nombre = document.getElementById('f-pronosticador').value;
+        const mes = document.getElementById('f-mes').value;
+        if (!mes) { showToast('Elegí el mes', true); return; }
+        const payload = {
+            action: 'guardar_disponibilidad',
+            team_password: localStorage.getItem('teamPassword'),
+            pronosticador: nombre,
+            mes: mes,
+            dias_disponibles: Array.from(availableDays).sort((a, b) => a - b),
+            dias_doble: Array.from(doubleDays).sort((a, b) => a - b)
+        };
+        fetch(GOOGLE_APP_URL, {
+            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        }).then(() => showToast(`¡Disponibilidad de ${nombre} guardada!`))
+          .catch(() => showToast('Error de conexión', true));
+    }
+
+    // ─── SECCIÓN 2: Generar cronograma ─────────────────────────────────────
+    let scheduleData = null;
+
+    function generarCronograma() {
+        const mes = document.getElementById('g-mes').value;
+        if (!mes) { showToast('Elegí el mes a generar', true); return; }
+        fetchJsonp(`${GOOGLE_APP_URL}?type=disponibilidad&mes=${encodeURIComponent(mes)}`, (dataDisp) => {
+            const items = (dataDisp && dataDisp.items) || [];
+            if (!items.length) { showToast('Nadie cargó disponibilidad para este mes todavía', true); return; }
+            // El historial de meses guardados dice quién quedó con saldo (hizo de
+            // más o de menos respecto de la parte pareja), para darle prioridad
+            // este mes a quien le deben.
+            fetchJsonp(`${GOOGLE_APP_URL}?type=historial_turnos`, (dataHist) => {
+                const historial = (dataHist && dataHist.items) || [];
+                const saldoPrevio = {};
+                historial.forEach(h => {
+                    if (h.mes < mes) saldoPrevio[h.pronosticador] = (saldoPrevio[h.pronosticador] || 0) + h.saldoDelta;
+                });
+                scheduleData = construirCronograma(mes, items, saldoPrevio);
+                renderCronograma();
+                showToast('Cronograma generado');
+            });
+        });
+    }
+
+    // Reparto greedy: cada día primero asigna La Plata (a quien tenga menos La
+    // Plata acumulada, para repartirla pareja), y después las otras 4 ciudades
+    // (a quien tenga menos turnos totales, respecto de su propia cuota). Nadie
+    // repite dos días seguidos.
+    //
+    // Cuota: en lugar de repartir el total de turnos del mes en partes
+    // exactamente iguales, se usa el saldo acumulado de meses anteriores
+    // (saldoPrevio: cuánto hizo cada uno de más o de menos respecto de la
+    // parte pareja, guardado al confirmar cada cronograma) para darle
+    // prioridad este mes a quien quedó debiéndosele, e ir emparejando de a
+    // poco -- no hace falta que un solo mes lo resuelva todo. A quien le
+    // faltan días disponibles para llegar a su cuota se le va asignando
+    // automáticamente una segunda ciudad el mismo día -sin que lo haya
+    // pedido- las veces que haga falta, siempre dentro de los días que sí
+    // marcó disponible. El pedido manual de "2 ciudades" de un día puntual se
+    // sigue respetando igual, incluso pasada la cuota (es una preferencia
+    // personal, no depende del reparto).
+    function construirCronograma(mes, items, saldoPrevio) {
+        saldoPrevio = saldoPrevio || {};
+        const [y, m] = mes.split('-').map(Number);
+        const total = daysInMonth(y, m);
+
+        const people = {};
+        items.forEach(it => {
+            const disponibles = it.dias_disponibles || [];
+            const porCiudad = {};
+            CITIES.forEach(c => { porCiudad[c] = 0; });
+            people[it.pronosticador] = {
+                name: it.pronosticador,
+                available: new Set(disponibles),
+                doubleWanted: new Set((it.dias_doble || []).filter(d => disponibles.includes(d))),
+                total: 0, porCiudad, lastDay: -99, quota: 0
+            };
+        });
+        const roster = Object.values(people);
+
+        // Total de turnos (ciudad-día) que hay que cubrir en el mes, para poder
+        // calcular la cuota de cada uno antes de empezar a repartir.
+        let totalSlots = 0;
+        for (let day = 1; day <= total; day++) {
+            const dow = new Date(y, m - 1, day).getDay();
+            totalSlots += (dow === 0 || dow === 6) ? 1 : CITIES.length;
+        }
+        // Parte pareja "ideal" (de referencia, no entera): es contra lo que se
+        // mide el saldo de cada mes al guardar el cronograma, independiente de
+        // cómo se haya redondeado la cuota real de este mes en particular.
+        const baseShare = roster.length > 0 ? totalSlots / roster.length : 0;
+
+        const quotas = computeQuotas(roster, totalSlots, saldoPrevio);
+        roster.forEach(p => { p.quota = quotas[p.name] || 0; });
+
+        const days = [];
+        for (let day = 1; day <= total; day++) {
+            const assign = {};
+            const usedToday = {};
+            const isAvailable = (p) => p.available.has(day) && p.lastDay !== day - 1;
+            // Primer turno del día: solo si todavía le falta para su cuota.
+            // Segundo turno del mismo día: si lo pidió a mano, o -automático-
+            // si todavía le falta para su cuota aun después del primero.
+            const canTakeSlot = (p) => {
+                const used = usedToday[p.name] || 0;
+                if (used === 0) return p.total < p.quota;
+                if (used === 1) return p.doubleWanted.has(day) || p.total < p.quota;
+                return false;
+            };
+
+            const dow = new Date(y, m - 1, day).getDay();
+            const isWeekend = dow === 0 || dow === 6; // Sábado/domingo: solo se pronostica La Plata.
+            const cities = isWeekend ? ['La Plata'] : CITIES;
+
+            // Cuánto le falta a alguien para llegar a SU cuota (más negativo = más
+            // atrasado). Se usa como prioridad principal, por delante de si ya
+            // trabajó hoy: así se dobla ciudad de manera proactiva a quien lo
+            // necesita para emparejar, en vez de solo como último recurso cuando
+            // no queda nadie más libre (eso dejaba a algunos por debajo de su
+            // cuota todo el mes, sin arreglo posible sobre el final).
+            const gap = (p) => p.total - p.quota;
+
+            // Se reparte cada ciudad del día en orden (La Plata primero, como
+            // antes), y además de la prioridad general por cuota se desempata
+            // por quién hizo MENOS veces esa ciudad puntual -- así no solo se
+            // empareja el total de pronósticos, sino también que a nadie le
+            // toque siempre la misma ciudad más que al resto.
+            cities.forEach(city => {
+                const cands = roster.filter(p => isAvailable(p) && canTakeSlot(p));
+                cands.sort((a, b) => {
+                    const usedA = usedToday[a.name] ? 1 : 0, usedB = usedToday[b.name] ? 1 : 0;
+                    return gap(a) - gap(b) || (a.porCiudad[city] - b.porCiudad[city]) || usedA - usedB || a.name.localeCompare(b.name);
+                });
+                const pick = cands[0] || null;
+                assign[city] = pick ? pick.name : null;
+                if (pick) { usedToday[pick.name] = (usedToday[pick.name] || 0) + 1; pick.total++; pick.porCiudad[city]++; pick.lastDay = day; }
+            });
+
+            days.push({ day, date: `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`, weekday: WEEKDAY_NAMES[dow], cities, assign });
+        }
+
+        const missing = FORECASTERS.filter(n => !items.some(it => it.pronosticador === n));
+        return { mes, days, roster: roster.map(p => p.name), missing, stats: [], disponibilidad: people, baseShare, saldoPrevio };
+    }
+
+    // Reparte los totalSlots del mes en cuotas por persona, en orden de
+    // prioridad: en cada vuelta le da un turno más a quien -sumando su saldo
+    // previo (de meses anteriores) más lo que ya se le asignó en este mismo
+    // reparto- esté peor parado, y entre empatados prefiere a quien tenga más
+    // disponibilidad cargada (así se dobla ciudad el mínimo necesario). Nunca
+    // le da a nadie más de lo que puede llegar a cubrir doblando ciudad todos
+    // sus días disponibles.
+    function computeQuotas(roster, totalSlots, saldoPrevio) {
+        const state = roster.map(p => ({
+            name: p.name,
+            availSize: p.available.size,
+            maxFeasible: p.available.size * 2,
+            assigned: 0,
+            carry: saldoPrevio[p.name] || 0
+        }));
+        let remaining = totalSlots;
+        while (remaining > 0) {
+            const eligibles = state.filter(s => s.assigned < s.maxFeasible);
+            if (!eligibles.length) break; // nadie puede absorber más este mes
+            eligibles.sort((a, b) =>
+                (a.carry + a.assigned) - (b.carry + b.assigned) ||
+                b.availSize - a.availSize ||
+                a.name.localeCompare(b.name)
+            );
+            eligibles[0].assigned++;
+            remaining--;
+        }
+        const quotas = {};
+        state.forEach(s => { quotas[s.name] = s.assigned; });
+        return quotas;
+    }
+
+    function recalcStats() {
+        const counts = {};
+        scheduleData.roster.forEach(n => counts[n] = {
+            name: n, total: 0, laPlata: 0,
+            diasDisponibles: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].available.size : 0,
+            quota: scheduleData.disponibilidad[n] ? scheduleData.disponibilidad[n].quota : 0,
+            saldoPrevio: (scheduleData.saldoPrevio && scheduleData.saldoPrevio[n]) || 0
+        });
+        scheduleData.days.forEach(d => {
+            CITIES.forEach(city => {
+                const n = d.assign[city];
+                if (n && counts[n]) { counts[n].total++; if (city === 'La Plata') counts[n].laPlata++; }
+            });
+        });
+        Object.values(counts).forEach(c => { c.saldoNuevo = +(c.saldoPrevio + (c.total - scheduleData.baseShare)).toFixed(2); });
+        scheduleData.stats = Object.values(counts).sort((a, b) => b.total - a.total);
+    }
+
+    function fmtSaldo(n) {
+        const r = Math.round(n * 10) / 10;
+        return r > 0 ? `+${r}` : String(r);
+    }
+
+    function countUnfilled() {
+        let n = 0;
+        scheduleData.days.forEach(d => d.cities.forEach(city => { if (!d.assign[city]) n++; }));
+        return n;
+    }
+
+    function renderUnfilledBanner() {
+        const n = countUnfilled();
+        const el = document.getElementById('cronograma-unfilled');
+        el.innerText = n
+            ? `⚠️ ${n} turno(s) sin asignar (nadie disponible sin romper alguna regla). Reasigná a mano con los desplegables de la tabla.`
+            : '✅ Todos los turnos quedaron cubiertos.';
+        el.className = n ? 'cronograma-warn' : 'cronograma-ok';
+    }
+
+    function renderStats() {
+        recalcStats();
+        document.getElementById('cronograma-stats').innerHTML = `<table class="stats">
+            <tr><th>Pronosticador</th><th>Total turnos</th><th>Cuota objetivo</th><th>La Plata</th><th>Días marcados disponible</th><th>Saldo antes</th><th>Saldo después</th></tr>
+            ${scheduleData.stats.map(s => `<tr>
+                <td><span class="color-dot" style="background:${colorForName(s.name).dot};"></span>${s.name}</td>
+                <td>${s.total}</td><td>${s.quota}</td><td>${s.laPlata}</td><td>${s.diasDisponibles}</td>
+                <td>${fmtSaldo(s.saldoPrevio)}</td><td>${fmtSaldo(s.saldoNuevo)}</td>
+            </tr>`).join('')}
+        </table>
+        <div class="cronograma-legend">Saldo: cuánto hizo cada uno de más (+) o de menos (−) respecto de la parte pareja del mes. Guardá el cronograma para que ese saldo se tenga en cuenta el mes que viene.</div>`;
+    }
+
+    // Junta a los pronosticadores en dos grupos según si se marcaron disponibles
+    // ese día puntual, para que al reasignar a mano se vea de entrada quién puede
+    // ese día sin tener que ir a buscarlo a otro lado.
+    function optionsHtml(selectedName, day) {
+        const disp = scheduleData.disponibilidad;
+        const isAvailable = (n) => disp[n] && disp[n].available.has(day);
+        const available = scheduleData.roster.filter(isAvailable).sort();
+        const notAvailable = scheduleData.roster.filter(n => !isAvailable(n)).sort();
+        const opt = (n) => `<option value="${n}" ${n === selectedName ? 'selected' : ''}>${n}</option>`;
+        let html = `<option value="" ${!selectedName ? 'selected' : ''}>— SIN ASIGNAR —</option>`;
+        if (available.length) html += `<optgroup label="Disponible este día">${available.map(opt).join('')}</optgroup>`;
+        if (notAvailable.length) html += `<optgroup label="No se marcó disponible">${notAvailable.map(opt).join('')}</optgroup>`;
+        return html;
+    }
+
+    function escapeAttr(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
+    // Detecta si una asignación (manual o automática) choca con alguna de las
+    // reglas, para avisarle al admin en vez de dejarlo pasar en silencio. No
+    // bloquea nada: a veces hace falta forzar una excepción a mano.
+    function cellWarning(dayNum, city, name) {
+        if (!name) return null;
+        const disp = scheduleData.disponibilidad[name];
+        const day = scheduleData.days.find(x => x.day === dayNum);
+        const warnings = [];
+        if (!disp || !disp.available.has(dayNum)) warnings.push('no se marcó disponible este día');
+
+        const otraCiudadHoy = day.cities.some(c => c !== city && day.assign[c] === name);
+        if (otraCiudadHoy && !(disp && disp.doubleWanted.has(dayNum))) warnings.push('ya tiene otra ciudad este mismo día');
+
+        const prevDay = scheduleData.days.find(x => x.day === dayNum - 1);
+        const nextDay = scheduleData.days.find(x => x.day === dayNum + 1);
+        const trabajaAyer = prevDay && prevDay.cities.some(c => prevDay.assign[c] === name);
+        const trabajaManana = nextDay && nextDay.cities.some(c => nextDay.assign[c] === name);
+        if (trabajaAyer || trabajaManana) warnings.push('trabaja un día consecutivo');
+
+        return warnings.length ? warnings.join('; ') : null;
+    }
+
+    function renderTable() {
+        const thead = `<tr><th>Día</th>${CITIES.map(c => `<th>${c}</th>`).join('')}</tr>`;
+        const rows = scheduleData.days.map(d => {
+            const cells = CITIES.map(city => {
+                if (!d.cities.includes(city)) return `<td class="not-applicable">—</td>`;
+                const name = d.assign[city];
+                const warn = cellWarning(d.day, city, name);
+                const cls = !name ? 'unfilled' : (warn ? 'warn' : '');
+                const bgStyle = (name && !warn) ? ` style="background:${colorForName(name).bg};"` : '';
+                return `<td><select class="${cls}"${bgStyle} title="${warn ? escapeAttr(warn) : ''}" onchange="editarCelda(${d.day}, '${city}', this.value)">${optionsHtml(name, d.day)}</select></td>`;
+            }).join('');
+            return `<tr><td class="day-lbl">${String(d.day).padStart(2, '0')} · ${d.weekday.slice(0, 3)}</td>${cells}</tr>`;
+        }).join('');
+        document.getElementById('cronograma-table').innerHTML = `<table class="cronograma">${thead}${rows}</table>`;
+    }
+
+    function renderCronograma() {
+        renderTable();
+        renderStats();
+        renderUnfilledBanner();
+        const missingEl = document.getElementById('cronograma-missing');
+        missingEl.innerText = scheduleData.missing.length ? `Sin cargar disponibilidad este mes: ${scheduleData.missing.join(', ')}` : '';
+        document.getElementById('cronograma-section').style.display = 'block';
+
+        const sel = document.getElementById('v-pronosticador');
+        const prev = sel.value;
+        sel.innerHTML = '<option value="">— Elegí —</option>' + scheduleData.roster.map(n => `<option value="${n}">${n}</option>`).join('');
+        sel.value = scheduleData.roster.includes(prev) ? prev : '';
+        renderVistaIndividual();
+    }
+
+    function editarCelda(day, city, newName) {
+        const d = scheduleData.days.find(x => x.day === day);
+        d.assign[city] = newName || null;
+        renderTable();
+        renderStats();
+        renderUnfilledBanner();
+        renderVistaIndividual();
+    }
+
+    // Vista individual: en vez de tener que leer toda la tabla general para
+    // encontrar los días de una sola persona, se elige el nombre y se ve nada
+    // más lo suyo (qué día, qué ciudad, y el total del mes).
+    function renderVistaIndividual() {
+        if (!scheduleData) return;
+        const nombre = document.getElementById('v-pronosticador').value;
+        const cont = document.getElementById('vista-individual');
+        if (!nombre) { cont.innerHTML = ''; return; }
+
+        const rows = [];
+        scheduleData.days.forEach(d => {
+            d.cities.forEach(city => { if (d.assign[city] === nombre) rows.push({ day: d.day, weekday: d.weekday, city }); });
+        });
+
+        let html = `<div class="individual-summary"><span class="color-dot" style="background:${colorForName(nombre).dot};"></span><strong>${nombre}</strong> tiene <strong>${rows.length}</strong> pronóstico(s) este mes.</div>`;
+        if (rows.length) {
+            html += `<table class="stats"><tr><th>Día</th><th>Ciudad</th></tr>
+                ${rows.map(r => `<tr><td>${String(r.day).padStart(2, '0')} · ${r.weekday}</td><td>${r.city}</td></tr>`).join('')}
+            </table>`;
+        } else {
+            html += `<div class="empty-msg">No tiene turnos asignados este mes.</div>`;
+        }
+        cont.innerHTML = html;
+    }
+
+    function guardarCronogramaFinal() {
+        if (!scheduleData) return;
+        recalcStats();
+        const registros = scheduleData.stats.map(s => ({
+            pronosticador: s.name, total: s.total, cuota: s.quota, saldoDelta: s.saldoNuevo, laPlata: s.laPlata
+        }));
+        const payloadHistorial = { action: 'guardar_historial_turnos', team_password: localStorage.getItem('teamPassword'), mes: scheduleData.mes, registros: registros };
+        // Además del historial (para el saldo del mes que viene), publica el
+        // detalle día por día para que todo el equipo lo vea en
+        // cronograma-equipo.html, sin necesitar generarlo de nuevo.
+        const payloadPublicar = {
+            action: 'publicar_cronograma', team_password: localStorage.getItem('teamPassword'), mes: scheduleData.mes,
+            cronograma: { days: scheduleData.days }
+        };
+        Promise.all([
+            fetch(GOOGLE_APP_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadHistorial) }),
+            fetch(GOOGLE_APP_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadPublicar) })
+        ]).then(() => {
+            showToast('¡Cronograma guardado y publicado para todo el equipo!');
+            setTimeout(verHistorial, 1200);
+        }).catch(() => showToast('Error de conexión', true));
+    }
+
+    function copiarCronograma() {
+        if (!scheduleData) return;
+        const lines = [`Cronograma ${scheduleData.mes}`, ['Día', 'Fecha', ...CITIES].join('\t')];
+        scheduleData.days.forEach(d => {
+            lines.push([`${String(d.day).padStart(2, '0')} ${d.weekday}`, d.date, ...CITIES.map(c => d.cities.includes(c) ? (d.assign[c] || 'SIN ASIGNAR') : '—')].join('\t'));
+        });
+        const ta = document.getElementById('cronograma-clipboard');
+        ta.value = lines.join('\n');
+        ta.select();
+        document.execCommand('copy');
+        showToast('¡Cronograma copiado! Pegalo en un mensaje o una hoja de cálculo.');
+    }
+
+    // ─── SECCIÓN 3: Historial de turnos ────────────────────────────────────
+    function verHistorial() {
+        fetchJsonp(`${GOOGLE_APP_URL}?type=historial_turnos`, (data) => {
+            renderHistorial((data && data.items) || []);
+        });
+    }
+
+    function renderHistorial(items) {
+        const resumenEl = document.getElementById('historial-resumen');
+        const detalleEl = document.getElementById('historial-detalle');
+        if (!items.length) {
+            resumenEl.innerHTML = '<div class="empty-msg">Todavía no se guardó ningún cronograma como definitivo.</div>';
+            detalleEl.innerHTML = '';
+            return;
+        }
+
+        const porPersona = {};
+        items.forEach(it => {
+            if (!porPersona[it.pronosticador]) porPersona[it.pronosticador] = { name: it.pronosticador, total: 0, saldo: 0 };
+            porPersona[it.pronosticador].total += it.total;
+            porPersona[it.pronosticador].saldo += it.saldoDelta;
+        });
+        const resumen = Object.values(porPersona).sort((a, b) => b.total - a.total);
+
+        resumenEl.innerHTML = `<table class="stats">
+            <tr><th>Pronosticador</th><th>Total histórico</th><th>Saldo acumulado</th></tr>
+            ${resumen.map(p => `<tr>
+                <td><span class="color-dot" style="background:${colorForName(p.name).dot};"></span>${p.name}</td>
+                <td>${p.total}</td><td>${fmtSaldo(p.saldo)}</td>
+            </tr>`).join('')}
+        </table>`;
+
+        const meses = Array.from(new Set(items.map(it => it.mes))).sort();
+        const personas = resumen.map(p => p.name);
+        const thead = `<tr><th>Mes</th>${personas.map(n => `<th>${n}</th>`).join('')}</tr>`;
+        const rows = meses.map(mes => {
+            const cells = personas.map(n => {
+                const row = items.find(it => it.mes === mes && it.pronosticador === n);
+                return `<td>${row ? row.total : '—'}</td>`;
+            }).join('');
+            return `<tr><td class="day-lbl">${mes}</td>${cells}</tr>`;
+        }).join('');
+        detalleEl.innerHTML = `<table class="cronograma">${thead}${rows}</table>`;
+    }
+
+    // ─── Init ───────────────────────────────────────────────────────────────
+    document.getElementById('f-pronosticador').innerHTML = FORECASTERS.map(n => `<option value="${n}">${n}</option>`).join('');
+    document.getElementById('f-mes').value = nextMonthStr();
+    document.getElementById('g-mes').value = nextMonthStr();
+    renderCalendar();
+    cargarMiDisponibilidad();
+    verHistorial();
+</script>
+</body>
+</html>

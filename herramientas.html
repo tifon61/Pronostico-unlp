@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Herramientas del Pronosticador | FCAG</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #0d1117; }
+
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; background: #003f6b; color: white; flex-wrap: wrap; }
+    .hdr-left { display: flex; align-items: center; gap: 10px; }
+    .hdr-left img { height: 32px; }
+    .hdr-left h1 { font-size: 1rem; margin: 0; font-weight: 800; }
+    .back-link { color: white; text-decoration: none; font-weight: 700; font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 7px 14px; border-radius: 6px; white-space: nowrap; }
+    .back-link:hover { background: rgba(255,255,255,0.28); }
+
+    .toolbar { display: flex; align-items: center; gap: 14px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; }
+    .toolbar-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .toolbar-group-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.4px; margin-right: 2px; }
+    .city-btn, .overlay-btn { border: 1px solid #cbd5e1; background: white; color: #003f6b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+    .city-btn:hover, .overlay-btn:hover { background: #e0edf7; }
+    .city-btn.active, .overlay-btn.active { background: #003f6b; color: white; border-color: #003f6b; }
+    .model-btn { border: 1px solid #cbd5e1; background: white; color: #00796b; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+    .model-btn:hover { background: #e0f2ef; }
+    .model-btn.active { background: #00796b; color: white; border-color: #00796b; }
+    .model-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .compare-btn { border: 1px solid #b45309; background: white; color: #b45309; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+    .compare-btn:hover { background: #fef3e2; }
+    .compare-btn.active { background: #b45309; color: white; border-color: #b45309; }
+
+    .status-line { padding: 4px 16px; background: #0b2a45; color: #cfe3f5; font-size: 0.72rem; font-weight: 700; }
+    .status-note { color: #ffcf7a; }
+
+    .map-wrap { flex: 1; position: relative; }
+    .map-wrap > iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    .compare-wrap { position: absolute; inset: 0; display: none; gap: 2px; background: #000; }
+    .compare-half { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .compare-hdr { background: #1e293b; padding: 4px 8px; }
+    .compare-hdr select { width: 100%; font-weight: 700; font-size: 0.8rem; padding: 4px; border-radius: 4px; border: none; }
+    .compare-half iframe { flex: 1; border: 0; width: 100%; }
+
+    .other-links { display: flex; gap: 8px; padding: 8px 16px; background: #f1f5f9; flex-wrap: wrap; border-top: 1px solid #dde4ed; align-items: center; }
+    .other-links a { font-size: 0.78rem; font-weight: 700; color: #003f6b; text-decoration: none; background: white; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; }
+    .other-links a:hover { background: #e0edf7; }
+    .link-select { font-size: 0.78rem; font-weight: 700; color: #003f6b; background: white; border: 1px solid #cbd5e1; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="hdr-left">
+        <img src="images/Logo astronomicas y geofisicas.png" alt="FCAG" onerror="this.src='https://placehold.co/100x32/003f6b/white?text=FCAG'">
+        <img src="images/Logo pronounlp.jfif" alt="Grupo de Pronóstico" style="height:32px;">
+        <h1>Herramientas del Pronosticador — Modelos / Radar / Satélite</h1>
+    </div>
+    <a class="back-link" href="admin.html">← Volver al panel de carga</a>
+</header>
+
+<div class="toolbar">
+    <div class="toolbar-group">
+        <span class="toolbar-group-label">Ciudad</span>
+        <span class="toolbar-group" id="city-bar"></span>
+    </div>
+    <div class="toolbar-group">
+        <span class="toolbar-group-label">Capa</span>
+        <span class="toolbar-group" id="overlay-bar"></span>
+    </div>
+    <div class="toolbar-group">
+        <span class="toolbar-group-label">Modelo</span>
+        <span class="toolbar-group" id="model-bar"></span>
+    </div>
+    <div class="toolbar-group">
+        <button type="button" class="compare-btn" id="compare-toggle" onclick="toggleCompare(this)">🔀 Comparar 2 modelos</button>
+    </div>
+</div>
+
+<div class="status-line" id="status-line"></div>
+
+<div class="map-wrap" id="map-wrap">
+    <iframe id="windy-frame" title="Windy"></iframe>
+    <div class="compare-wrap" id="compare-wrap">
+        <div class="compare-half">
+            <div class="compare-hdr"><select id="compare-model-0" onchange="setCompareModel(0, this.value)"></select></div>
+            <iframe id="windy-frame-0" title="Windy A"></iframe>
+        </div>
+        <div class="compare-half">
+            <div class="compare-hdr"><select id="compare-model-1" onchange="setCompareModel(1, this.value)"></select></div>
+            <iframe id="windy-frame-1" title="Windy B"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="other-links">
+    <a href="https://mna.fcaglp.unlp.edu.ar/variables.html" target="_blank">Portal de Modelos WRF (FCAG) →</a>
+    <a href="https://www.smn.gob.ar/satelite" target="_blank">Satélite SMN →</a>
+    <a href="https://meteo.fcaglp.unlp.edu.ar/" target="_blank">Estación FCAG →</a>
+    <select id="ogimet-select" class="link-select" onchange="openOgimet(this.value)"></select>
+    <select id="meteoblue-select" class="link-select" onchange="openMeteoblue(this.value)"></select>
+</div>
+
+<script>
+// Mismas ciudades/coordenadas que usa el mapa Leaflet del portal público
+// (index.html), para que el botón de cada ciudad recentre el mapa de Windy ahí.
+const CITIES = [
+    { name: "La Plata",       coords: [-34.921, -57.955] },
+    { name: "Junín",          coords: [-34.585, -60.944] },
+    { name: "Bolívar",        coords: [-36.233, -61.116] },
+    { name: "Tandil",         coords: [-37.321, -59.133] },
+    { name: "Mar del Plata",  coords: [-38.005, -57.542] },
+    { name: "Bahía Blanca",   coords: [-38.719, -62.272] },
+];
+
+// Capas del embed de Windy. "radar" es el radar OBSERVADO (no depende del
+// modelo elegido); el resto son pronósticos, ahí sí cambia según el modelo.
+const OVERLAYS = [
+    { code: 'radar',    label: 'Radar (observado)' },
+    { code: 'rain',     label: 'Lluvia' },
+    { code: 'wind',     label: 'Viento' },
+    { code: 'clouds',   label: 'Nubes' },
+    { code: 'temp',     label: 'Temperatura' },
+    { code: 'pressure', label: 'Presión' },
+];
+
+// Modelos globales que ofrece Windy (con cobertura en Sudamérica).
+const MODELS = [
+    { code: 'ecmwf', label: 'ECMWF' },
+    { code: 'gfs',   label: 'GFS' },
+    { code: 'icon',  label: 'ICON' },
+    { code: 'gem',   label: 'GEM' },
+];
+
+const overlayLabel = code => OVERLAYS.find(o => o.code === code)?.label || code;
+const modelLabel   = code => MODELS.find(m => m.code === code)?.label || code;
+
+// Indicativos OMM (5 dígitos) de la estación SYNOP de cada ciudad en Ogimet.
+const OGIMET_STATIONS = [
+    { name: 'La Plata',      ind: '87593' },
+    { name: 'Junín',         ind: '87548' },
+    { name: 'Bolívar',       ind: '87640' },
+    { name: 'Tandil',        ind: '87645' },
+    { name: 'Mar del Plata', ind: '87692' },
+    { name: 'Bahía Blanca',  ind: '87750' },
+];
+
+// gsynres (a diferencia del formulario gsynop.phtml) acepta fecha/hora por
+// query string, así que se arma con la hora actual (UTC, como usa Ogimet)
+// en vez de tener que cargarla a mano cada vez.
+function ogimetUrl(ind) {
+    const now = new Date();
+    const ano = now.getUTCFullYear(), mes = now.getUTCMonth() + 1, day = now.getUTCDate(), hora = now.getUTCHours();
+    return `https://www.ogimet.com/cgi-bin/gsynres?ind=${ind}&ano=${ano}&mes=${mes}&day=${day}&hora=${hora}&min=0&ndays=30`;
+}
+
+function openOgimet(ind) {
+    if (!ind) return;
+    window.open(ogimetUrl(ind), '_blank');
+    document.getElementById('ogimet-select').value = '';
+}
+
+// Cada ciudad tiene un "slug" propio en la URL de meteoblue (nombre + país +
+// un ID numérico de esa ubicación). Son links a la página de pronóstico
+// semanal, no todavía al widget embebible de meteograma MultiModel.
+const METEOBLUE_STATIONS = [
+    { name: 'La Plata',      slug: 'la-plata_argentina_3432043' },
+    { name: 'Junín',         slug: 'junín_argentina_3853354' },
+    { name: 'Bolívar',       slug: 'san-carlos-de-bolívar_argentina_3837855' },
+    { name: 'Tandil',        slug: 'tandil_argentina_3427833' },
+    { name: 'Mar del Plata', slug: 'mar-del-plata_argentina_3430863' },
+    { name: 'Bahía Blanca',  slug: 'bahía-blanca_argentina_3865086' },
+];
+
+function meteoblueUrl(slug) {
+    return `https://www.meteoblue.com/es/tiempo/semana/${slug}`;
+}
+
+function openMeteoblue(slug) {
+    if (!slug) return;
+    window.open(meteoblueUrl(slug), '_blank');
+    document.getElementById('meteoblue-select').value = '';
+}
+
+// Estado compartido: cambiar de ciudad/capa no debe resetear el modelo
+// elegido, y viceversa — por eso el src de cada iframe siempre se arma desde
+// este objeto en vez de guardarse suelto en cada botón.
+const state = { lat: -36.5, lon: -60.0, zoom: 6, product: 'ecmwf', overlay: 'rain', compareMode: false, compareModels: ['ecmwf', 'gfs'] };
+
+function windySrc(product, overlay) {
+    return `https://embed.windy.com/embed2.html?lat=${state.lat}&lon=${state.lon}&detailLat=${state.lat}&detailLon=${state.lon}`
+        + `&zoom=${state.zoom}&level=surface&overlay=${overlay}&product=${product}&menu=&message=true&marker=true`
+        + `&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default`
+        + `&metricTemp=default&radarRange=-1`;
+}
+
+function render() {
+    const modelDisabled = state.overlay === 'radar';
+    document.querySelectorAll('#model-bar .model-btn').forEach(b => b.disabled = modelDisabled);
+
+    if (state.compareMode) {
+        document.getElementById('windy-frame').style.display = 'none';
+        document.getElementById('compare-wrap').style.display = 'flex';
+        document.getElementById('windy-frame-0').src = windySrc(state.compareModels[0], state.overlay);
+        document.getElementById('windy-frame-1').src = windySrc(state.compareModels[1], state.overlay);
+        document.getElementById('status-line').innerHTML =
+            `Comparando ${modelLabel(state.compareModels[0])} vs ${modelLabel(state.compareModels[1])} — capa: ${overlayLabel(state.overlay)}`;
+    } else {
+        document.getElementById('windy-frame').style.display = 'block';
+        document.getElementById('compare-wrap').style.display = 'none';
+        document.getElementById('windy-frame').src = windySrc(state.product, state.overlay);
+        const modelPart = modelDisabled
+            ? `<span class="status-note">el radar es observado, no depende del modelo</span>`
+            : `modelo: ${modelLabel(state.product)}`;
+        document.getElementById('status-line').innerHTML = `Mostrando: ${overlayLabel(state.overlay)} — ${modelPart}`;
+    }
+}
+
+function selectCity(lat, lon, zoom, btn) {
+    state.lat = lat; state.lon = lon; state.zoom = zoom;
+    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    render();
+}
+
+function selectOverlay(code, btn) {
+    state.overlay = code;
+    document.querySelectorAll('.overlay-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    render();
+}
+
+function selectModel(code, btn) {
+    state.product = code;
+    document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    render();
+}
+
+function setCompareModel(idx, code) {
+    state.compareModels[idx] = code;
+    render();
+}
+
+function toggleCompare(btn) {
+    state.compareMode = !state.compareMode;
+    btn.classList.toggle('active', state.compareMode);
+    render();
+}
+
+const cityBar = document.getElementById('city-bar');
+cityBar.innerHTML = `<button type="button" class="city-btn active" onclick="selectCity(-36.5, -60.0, 6, this)">Toda la región</button>`
+    + CITIES.map(c => `<button type="button" class="city-btn" onclick="selectCity(${c.coords[0]}, ${c.coords[1]}, 7, this)">${c.name}</button>`).join('');
+
+const overlayBar = document.getElementById('overlay-bar');
+overlayBar.innerHTML = OVERLAYS.map(o =>
+    `<button type="button" class="overlay-btn ${o.code===state.overlay?'active':''}" onclick="selectOverlay('${o.code}', this)">${o.label}</button>`
+).join('');
+
+const modelBar = document.getElementById('model-bar');
+modelBar.innerHTML = MODELS.map((m, i) =>
+    `<button type="button" class="model-btn ${m.code===state.product?'active':''}" onclick="selectModel('${m.code}', this)">${m.label}</button>`
+).join('');
+
+const optsHtml = MODELS.map(m => `<option value="${m.code}">${m.label}</option>`).join('');
+document.getElementById('compare-model-0').innerHTML = optsHtml;
+document.getElementById('compare-model-1').innerHTML = optsHtml;
+document.getElementById('compare-model-0').value = state.compareModels[0];
+document.getElementById('compare-model-1').value = state.compareModels[1];
+
+document.getElementById('ogimet-select').innerHTML = `<option value="">Ogimet: elegí ciudad…</option>`
+    + OGIMET_STATIONS.map(s => `<option value="${s.ind}">Ogimet ${s.name}</option>`).join('');
+
+document.getElementById('meteoblue-select').innerHTML = `<option value="">Meteoblue: elegí ciudad…</option>`
+    + METEOBLUE_STATIONS.map(s => `<option value="${s.slug}">Meteoblue ${s.name}</option>`).join('');
+
+render();
+</script>
+
+</body>
+</html>

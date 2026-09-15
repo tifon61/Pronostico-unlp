@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo de Pronóstico de la UNLP | FCAG</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root { 
+            --primary:      #003f6b; 
+            --primary-mid:  #005a99;
+            --secondary:    #6ba4d6; 
+            --secondary-lt: #c9e1f0;
+            --green:        #00796b;
+            --bg-body:      #eef2f7; 
+            --bg-panel:     #ffffff; 
+            --text-main:    #1e293b;
+            --text-muted:   #64748b;
+            --border:       #dde4ed;
+            --accent:       #0ea5e9;
+            --danger:       #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); overflow-x: hidden; height: 100vh; display: flex; flex-direction: column; }
+        h1,h2,h3,.montserrat { font-family: 'Montserrat', sans-serif; }
+
+        /* HEADER */
+        header { background: white; padding: 0 2rem; height: 66px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary); box-shadow: 0 2px 12px rgba(0,0,0,0.06); z-index: 1000; flex-shrink: 0; }
+        .header-left { display: flex; align-items: center; gap: 14px; }
+        .header-left img { height: 42px; object-fit: contain; }
+        .header-logo-prono { width: 42px; border-radius: 50%; }
+        .header-title { font-size: 1.1rem; color: var(--primary); font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .header-nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+        .nav-btn { background: transparent; border: none; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px; }
+        .nav-btn:hover { background: var(--bg-body); color: var(--primary); }
+        .nav-btn.active { background: var(--primary); color: white; }
+
+        /* LAYOUT */
+        .app-container { display: flex; flex: 1; overflow: hidden; }
+        .view-section { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 28px; }
+        .view-section.active { display: block; }
+        #view-dashboard.active { display: flex; align-items: flex-start; justify-content: center; gap: 24px; padding: 24px; max-width: 1280px; margin: 0 auto; width: 100%; }
+        #view-welcome { position: relative; padding: 0; overflow: hidden; }
+        #view-welcome.active { display: flex; align-items: center; justify-content: center; }
+        .welcome-bg-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; z-index: 0; }
+        .welcome-overlay { position: absolute; inset: 0; background: rgba(0,20,40,0.4); z-index: 1; }
+        .welcome-wrap { position: relative; z-index: 2; max-width: 480px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 24px 60px; }
+        .welcome-title { font-family: 'Montserrat', sans-serif; font-size: 2.2rem; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+        .welcome-sub { color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-top: -12px; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+        .btn-enter-forecast { background: var(--primary); color: white; border: none; padding: 16px 34px; border-radius: 30px; font-weight: 900; font-size: 1.05rem; font-family: inherit; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.35); transition: transform 0.15s ease, background 0.15s ease; margin-top: 28px; }
+        .btn-enter-forecast:hover { background: var(--primary-mid); transform: translateY(-2px); }
+        .welcome-hint { color: rgba(255,255,255,0.85); font-size: 0.78rem; margin-top: -4px; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+        .map-col { flex: 0 0 380px; position: sticky; top: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .map-card { height: 400px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid var(--border); position: relative; }
+        #map { width: 100%; height: 100%; }
+        .city-select-bar { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 10px; }
+        .city-select-bar label { font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+        .city-select-bar select { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 7px 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: var(--bg-body); cursor: pointer; }
+        .data-panel { flex: 1; max-width: 820px; margin: 0; background: transparent; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+        .card { background: white; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+        /* CIUDAD HEADER */
+        .city-bar { background: var(--primary); border-radius: 14px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .city-bar h2 { font-size: 1.85rem; font-weight: 900; text-transform: uppercase; line-height: 1; }
+        .city-bar .sub { font-size: 0.7rem; opacity: 0.7; font-weight: 600; margin-top: 2px; }
+        .emission-pill { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 6px 14px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+        .emission-pill span { display: block; font-size: 1.1rem; font-weight: 900; margin-top: 1px; }
+
+        /* ANIMACIONES */
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes iconFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        .view-section.active { animation: fadeSlideIn 0.35s ease both; }
+        .fcast-block, .ext-card { animation: fadeSlideIn 0.45s ease both; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .fcast-block:hover, .ext-card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,0.16); }
+        .pc-icon, .ext-icon-img { animation: iconFloat 3.2s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+            .view-section.active, .fcast-block, .ext-card, .pc-icon, .ext-icon-img { animation: none !important; transition: none !important; }
+        }
+
+        /* PRONÓSTICO */
+        .fcast-block { border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        .fcast-day-hdr { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; color: white; }
+        .fcast-day-hdr.d0 { background: var(--primary); }
+        .fcast-day-hdr.d1 { background: var(--secondary); }
+        .fcast-day-name { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .fcast-day-date { font-size: 0.78rem; font-weight: 600; opacity: 0.75; margin-top: 2px; }
+        .fcast-temps { display: flex; gap: 18px; }
+        .fcast-temp-col { display: flex; align-items: center; gap: 8px; }
+        .fcast-temp-vals { display: flex; flex-direction: column; gap: 1px; }
+        .fcast-temp-urb { font-size: 1.65rem; font-weight: 800; color: white; line-height: 1.1; cursor: default; }
+        .fcast-temp-sub { font-size: 1.2rem; font-weight: 700; opacity: 0.8; color: white; line-height: 1.1; cursor: default; }
+        .fcast-temp-lbl { font-size: 0.7rem; font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+        .fcast-periods-wrap { background: var(--border); display: grid; }
+        .fcast-periods-wrap.cols3 { grid-template-columns: repeat(3, 1fr); }
+        .fcast-periods-wrap.cols4 { grid-template-columns: repeat(4, 1fr); }
+        .period-col { display: flex; flex-direction: column; align-items: center; padding: 14px 8px 16px; border-right: 1px solid var(--border); position: relative; transition: background 0.15s; min-width: 0; }
+        .period-col:last-child { border-right: none; }
+        .period-col:hover { background: #f8fafc; }
+        .pc-period-lbl { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 10px; background: var(--bg-body); border-radius: 20px; padding: 3px 9px; }
+        .pc-icon { width: 104px; height: 104px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); margin-bottom: 8px; }
+        .pc-temp { font-size: 2.6rem; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 12px; }
+        .pc-temp.night { color: #4a6080; }
+        .pc-sep { width: 30px; height: 2px; background: var(--border); border-radius: 2px; margin-bottom: 10px; }
+        .pc-wind-block { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-bottom: 8px; }
+        .wind-circle { width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
+        .pc-wind-txt { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-align: center; line-height: 1.2; max-width: 90px; }
+        .pc-pop { font-size: 0.78rem; font-weight: 800; padding: 3px 8px; border-radius: 12px; white-space: normal; text-align: center; max-width: 92px; margin: 4px auto 0; }
+        .pc-pop.low  { background: #e0f2fe; color: #0369a1; }
+        .pc-pop.med  { background: #fef9c3; color: #854d0e; }
+        .pc-pop.high { background: #fee2e2; color: #991b1b; }
+        .pc-gust { font-size: 0.78rem; font-weight: 800; padding: 3px 8px; border-radius: 12px; background: #fce7f3; color: #9d174d; white-space: normal; text-align: center; max-width: 92px; margin: 4px auto 0; }
+        .pc-sky { font-size: 0.86rem; font-weight: 600; color: var(--text-muted); text-align: center; line-height: 1.3; max-width: 108px; margin-top: 4px; }
+
+        .fcast-ext-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+        .ext-card { border-radius: 22px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; }
+        .ext-card-hdr { padding: 18px 20px 14px; color: white; }
+        .ext-card.celeste .ext-card-hdr { background: var(--secondary); }
+        .ext-card.oscuro  .ext-card-hdr { background: var(--primary); }
+        .ext-card-name { font-family: 'Montserrat', sans-serif; font-size: 1.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
+        .ext-card-date { font-size: 0.8rem; font-weight: 600; opacity: 0.75; margin-top: 2px; }
+        .ext-card-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+        .ext-card.celeste .ext-card-body { background: #deeef9; }
+        .ext-card.oscuro  .ext-card-body { background: #d0dfe8; }
+        .ext-temps-row { display: flex; justify-content: center; gap: 20px; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 10px; }
+        .ext-temp-item { display: flex; align-items: center; gap: 8px; }
+        .ext-temp-vals { display: flex; flex-direction: column; }
+        .ext-temp-urb { font-size: 1.9rem; font-weight: 800; color: var(--primary); line-height: 1.1; cursor: default; }
+        .ext-temp-sub { font-size: 1.3rem; font-weight: 700; color: var(--text-muted); cursor: default; }
+        .ext-temp-lbl { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+        .ext-icons-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .ext-icon-half { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .ext-icon-lbl { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.4px; }
+        .ext-icon-img { width: 86px; height: 86px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12)); }
+        .ext-icon-pop { font-size: 0.78rem; font-weight: 800; color: #0369a1; }
+        .ext-icon-gust { font-size: 0.78rem; font-weight: 800; color: #9d174d; }
+        .ext-desc-box { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 14px; font-size: 0.9rem; font-weight: 700; color: var(--primary); text-align: center; line-height: 1.4; }
+        .ext-desc-period { display: block; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-top: 8px; }
+        .ext-desc-period:first-child { margin-top: 0; }
+        .ext-wind-box { background: rgba(255,255,255,0.4); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .ext-wind-arrows { display: flex; gap: 6px; }
+        .ext-wind-txt { font-size: 0.98rem; font-weight: 700; color: var(--primary); }
+
+        /* GLOSARIO / DIVULGACIÓN */
+        .glossary-toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 12px; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 700; color: var(--primary); cursor: pointer; transition: background 0.15s; }
+        .glossary-toggle:hover { background: var(--bg-body); }
+        #glossary-arrow { transition: transform 0.2s; }
+        .glossary-toggle.open #glossary-arrow { transform: rotate(180deg); }
+        .glossary-panel { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; display: flex; flex-direction: column; gap: 10px; }
+        .glossary-panel.open { max-height: 600px; margin-top: 10px; }
+        .glossary-item { display: flex; gap: 10px; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.8rem; line-height: 1.5; color: var(--text-main); }
+        .glossary-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+        /* ALERTAS y ESTADOS */
+        .alert-card { background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--danger); border-radius: 12px; padding: 14px 16px; }
+        .alert-card h3 { font-size: 0.8rem; color: var(--danger); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; }
+        .outdated-banner { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 14px 16px; }
+        .outdated-banner h3 { font-size: 0.8rem; color: #b45309; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; }
+        .outdated-banner p { font-size: 0.82rem; color: var(--text-main); }
+        #welcome-panel { text-align: center; color: var(--text-muted); padding: 50px 20px; }
+        #welcome-panel h2 { color: var(--primary); margin-bottom: 8px; }
+        .fcast-loading { text-align: center; padding: 40px; color: var(--text-muted); }
+        .fcast-empty   { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.9rem; background: white; border-radius: 12px; }
+        .spin { animation: spin 1s linear infinite; display: inline-block; font-size: 1.8rem; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+
+        /* VISTAS ESTÁTICAS */
+        .content-layout { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; padding-bottom: 50px; }
+        .section-heading { font-size: 1.6rem; color: var(--primary); font-weight: 900; margin: 0 0 5px 0; border-bottom: 3px solid var(--secondary); padding-bottom: 8px; display: inline-block; }
+        .section-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 18px; }
+        /* Fondo y título con un poco más de vida en las secciones de contenido "liviano"
+           (Extensión, Institucional) — se deja Modelos e Informes con el fondo plano, más
+           sobrio, porque ahí lo que importa es que se lea el contenido sin distracciones. */
+        #view-extension, #view-institucional { background: linear-gradient(180deg, #eef2f7 0%, #e5eef7 55%, #dbe7f2 100%); }
+        #view-extension .section-heading, #view-institucional .section-heading { background: linear-gradient(90deg, rgba(107,164,214,0.22), rgba(107,164,214,0) 85%); border-bottom: none; border-left: 4px solid var(--secondary); border-radius: 6px; padding: 10px 20px 10px 14px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 18px; }
+        .item-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 3px 8px rgba(0,0,0,0.04); transition: transform 0.2s; }
+        .item-card:hover { transform: translateY(-4px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
+        .item-img { width: 100%; height: 170px; object-fit: contain; background: var(--bg-body); }
+        .item-body { padding: 18px; }
+        .item-tag { background: #e0f2fe; color: #0284c7; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 9px; display: inline-block; }
+        .item-title { font-size: 1rem; font-weight: 800; color: var(--text-main); margin: 0 0 8px 0; }
+        .item-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 12px 0; }
+        .item-btn { display: inline-block; background: var(--bg-body); color: var(--primary); font-weight: 700; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; }
+        .item-btn:hover { background: var(--primary); color: white; }
+        .banner-wrf { background: linear-gradient(135deg, var(--primary), #001f35); color: white; border-radius: 16px; padding: 36px; box-shadow: 0 8px 28px rgba(0,63,107,0.3); }
+        .banner-wrf h3 { font-size: 1.9rem; margin: 0 0 8px 0; font-weight: 900; }
+        .btn-wrf { background: var(--accent); color: white; padding: 11px 22px; border-radius: 8px; font-weight: 800; text-decoration: none; display: inline-block; }
+        .btn-wrf:hover { background: #0284c7; }
+        .agenda-list { display: flex; flex-direction: column; gap: 10px; }
+        .agenda-item { display: flex; align-items: center; gap: 18px; background: white; padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border); }
+        .agenda-date { background: var(--bg-body); color: var(--primary); font-weight: 900; text-align: center; padding: 10px; border-radius: 8px; min-width: 76px; }
+        .agenda-date span { display: block; font-size: 1.5rem; line-height: 1; }
+        .agenda-date small { font-size: 0.75rem; text-transform: uppercase; }
+        .agenda-info h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
+        .agenda-info p { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+        .agenda-img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .contact-form { display: flex; flex-direction: column; gap: 12px; background: white; padding: 26px; border-radius: 12px; border: 1px solid var(--border); }
+        .contact-form input,.contact-form textarea,.contact-form select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+        .contact-form button { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+
+        /* INSTAGRAM EMBEDS */
+        .ig-embed-card { border-radius: 16px; overflow: hidden; background: white; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 420px; }
+        .ig-embed-card blockquote.instagram-media { margin: 0 !important; width: 100% !important; }
+        .ig-embed-caption { padding: 14px 16px 0; text-align: left; align-self: stretch; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1100px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .monitor-main-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 900px) {
+            header { padding: 0 1rem; height: auto; flex-direction: column; padding-bottom: 10px; }
+            .header-left { width: 100%; justify-content: center; padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+            .header-nav { width: 100%; }
+            #view-dashboard.active { display: block; padding: 14px; }
+            .map-col { position: static; flex: none; width: 100%; margin-bottom: 16px; }
+            .map-card { height: 180px; }
+            .data-panel { max-width: 100%; }
+            .fcast-ext-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .view-section { padding: 14px; }
+            .pc-icon { width: 86px; height: 86px; }
+            .pc-temp { font-size: 2.2rem; }
+            .pc-wind-txt { max-width: 78px; }
+            .pc-sky { max-width: 92px; }
+            .ext-icon-img { width: 76px; height: 76px; }
+            .fcast-periods-wrap.cols4 .pc-icon { width: 62px; height: 62px; }
+            .fcast-periods-wrap.cols4 .pc-temp { font-size: 1.7rem; margin-bottom: 8px; }
+            .fcast-periods-wrap.cols4 .pc-wind-txt { max-width: 68px; font-size: 0.72rem; }
+            .fcast-periods-wrap.cols4 .pc-sky { max-width: 78px; font-size: 0.74rem; }
+            .fcast-periods-wrap.cols4 .pc-period-lbl { font-size: 0.62rem; padding: 3px 6px; }
+            .fcast-periods-wrap.cols4 .pc-pop, .fcast-periods-wrap.cols4 .pc-gust { font-size: 0.6rem; padding: 3px 5px; max-width: 74px; }
+            .fcast-periods-wrap.cols4 .period-col { padding: 14px 4px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <img src="images/Logo astronomicas y geofisicas.png" alt="FCAG" onerror="this.src='https://placehold.co/100x42/003f6b/white?text=FCAG'">
+        <img src="images/Logo pronounlp.jfif" alt="Grupo de Pronóstico" class="header-logo-prono">
+        <h1 class="header-title">Grupo de Pronóstico de la UNLP</h1>
+    </div>
+    <div class="header-nav">
+        <button class="nav-btn active" onclick="switchView('dashboard', this)">Pronósticos</button>
+        <button class="nav-btn" onclick="switchView('modelos', this)">Modelos e Informes</button>
+        <button class="nav-btn" onclick="switchView('extension', this)">Extensión y Divulgación</button>
+        <button class="nav-btn" onclick="switchView('institucional', this)">Institucional</button>
+    </div>
+</header>
+
+<div class="app-container">
+
+    <!-- BIENVENIDA -->
+    <div id="view-welcome" class="view-section active">
+        <video class="welcome-bg-video" autoplay muted loop playsinline>
+            <source src="videos/Sere.mp4" type="video/mp4">
+        </video>
+        <div class="welcome-overlay"></div>
+        <div class="welcome-wrap">
+            <h1 class="welcome-title">Grupo de Pronóstico de la UNLP</h1>
+            <p class="welcome-sub">Facultad de Ciencias Astronómicas y Geofísicas — UNLP</p>
+            <button class="btn-enter-forecast" onclick="enterForecast()">🌤️ Ver Pronóstico →</button>
+            <p class="welcome-hint">O elegí otra sección arriba: Informes, Talleres, Institucional.</p>
+        </div>
+    </div>
+
+    <!-- PRONÓSTICOS -->
+    <div id="view-dashboard" class="view-section">
+        <div class="map-col">
+            <div class="city-select-bar">
+                <label for="city-select-dropdown">📍 Ciudad</label>
+                <select id="city-select-dropdown" onchange="selectCityFromDropdown(this.value)">
+                    <option value="">Elegí una ciudad...</option>
+                    <option value="La Plata">La Plata</option>
+                    <option value="Junín">Junín</option>
+                    <option value="Mar del Plata">Mar del Plata</option>
+                    <option value="Bolívar">Bolívar</option>
+                    <option value="Tandil">Tandil</option>
+                    <option value="Bahía Blanca">Bahía Blanca</option>
+                </select>
+            </div>
+            <div class="map-card"><div id="map"></div></div>
+            <div id="map-extras" class="hidden">
+                <button class="glossary-toggle" id="glossary-btn" onclick="toggleGlossary()">
+                    <span>💡 ¿Qué significan estos datos?</span>
+                    <span id="glossary-arrow">▾</span>
+                </button>
+                <div class="glossary-panel" id="glossary-panel">
+                    <div class="glossary-item">Para completar.</div>
+                </div>
+                <div id="alert-section" class="alert-card hidden" style="margin-top:14px;">
+                    <h3>⚠ Alertas SMN</h3>
+                    <p style="font-size:0.82rem; color:var(--text-main); margin-bottom:10px;">Alertas del Servicio Meteorológico Nacional</p>
+                    <a href="https://www.smn.gob.ar/alertas" target="_blank" style="display:inline-block; background:var(--danger); color:white; padding:7px 14px; border-radius:6px; text-decoration:none; font-weight:800; font-size:0.78rem;">Ver Alerta →</a>
+                </div>
+            </div>
+        </div>
+        <div class="data-panel" id="data-panel">
+            <div id="welcome-panel">
+                <svg width="52" height="52" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#cbd5e1; margin-bottom:14px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <h2>Panel de Pronósticos</h2>
+                <p style="margin-top:8px;">Seleccioná una ciudad en el mapa para ver su pronóstico.</p>
+            </div>
+            <div id="city-dashboard" class="hidden">
+                <div class="city-bar">
+                    <div>
+                        <h2 id="cd-title">--</h2>
+                        <div class="sub" id="cd-time-lbl">Actualizado --:--</div>
+                    </div>
+                    <div id="cd-emission" class="emission-pill hidden">
+                        <div>EMISIÓN</div>
+                        <span id="cd-emission-time">--:--</span>
+                    </div>
+                </div>
+                <div id="outdated-banner" class="outdated-banner hidden" style="margin-top:14px;">
+                    <h3>⏳ Pronóstico desactualizado</h3>
+                    <p>Estás viendo el último pronóstico publicado, correspondiente a un día anterior. En breve se va a subir el de hoy.</p>
+                </div>
+                <div id="forecast-container" style="margin-top:14px; display:flex; flex-direction:column; gap:14px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODELOS -->
+    <div id="view-modelos" class="view-section">
+        <div class="content-layout">
+            <div class="banner-wrf" style="display:flex; flex-direction:column; gap:22px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div>
+                        <span style="background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:6px;font-size:0.8rem;font-weight:800;text-transform:uppercase;display:inline-block;margin-bottom:10px;">Grupo MNA — Modelado Numérico</span>
+                        <h3>Portal de Modelos WRF</h3>
+                    </div>
+                    <a href="https://mna.fcaglp.unlp.edu.ar/variables.html#" target="_blank" class="btn-wrf">Ir al Portal →</a>
+                </div>
+                <div style="background:#fef2f2;color:#991b1b;padding:14px 18px;border-radius:8px;font-size:0.82rem;font-weight:700;border:1px solid #fecaca;display:flex;gap:10px;">
+                    <span>⚠️</span><span><strong>IMPORTANTE:</strong> La FCAG-UNLP declina responsabilidad por la exactitud o uso indebido de la información generada por el modelo WRF.</span>
+                </div>
+            </div>
+            <section>
+                <h2 class="section-heading">⚠️ Informes Especiales</h2>
+                <p class="section-desc">Análisis de eventos meteorológicos en la región.</p>
+                <div class="grid-3" id="informes-grid"><div class="fcast-loading">Cargando…</div></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- EXTENSIÓN -->
+    <div id="view-extension" class="view-section">
+        <div class="content-layout">
+            <section>
+                <h2 class="section-heading">📹 Divulgación en Redes</h2>
+                <p class="section-desc">Publicaciones de @pronostico.unlp.</p>
+                <div class="grid-3" id="ig-embeds-grid"><div class="fcast-loading">Cargando…</div></div>
+            </section>
+            <div class="grid-2">
+                <section>
+                    <h2 class="section-heading">🎓 Extensión Universitaria</h2>
+                    <div id="extension-cards"><div class="fcast-loading">Cargando…</div></div>
+                </section>
+                <section>
+                    <h2 class="section-heading">📅 Agenda</h2>
+                    <div id="agenda-list" class="agenda-list"><div class="fcast-loading">Cargando…</div></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- INSTITUCIONAL -->
+    <div id="view-institucional" class="view-section">
+        <div class="content-layout">
+            <div class="grid-2">
+                <section>
+                    <h2 class="section-heading">👥 Quiénes Somos</h2>
+                    <div style="background:white;padding:28px;border-radius:12px;border:1px solid var(--border);font-size:1rem;line-height:1.65;">
+                        <p>Somos un equipo de docentes, investigadores y estudiantes de la <strong>Facultad de Ciencias Astronómicas y Geofísicas de La Plata</strong> de la FCAG-UNLP.</p>
+                        <p style="margin-top:12px;">Generamos información de calidad y extendemos el conocimiento científico a toda la comunidad bonaerense.</p>
+                        <h4 style="color:var(--primary);margin:24px 0 8px;">Directores</h4>
+                        <ul style="color:var(--text-muted);padding-left:20px;line-height:1.85;">
+                            <li>Dr. Alejandro Godoy</li>
+                            <li>Lic. Horacio Sarochar</li>
+                        </ul>
+                    </div>
+                </section>
+                <section>
+                    <h2 class="section-heading">📞 Contacto</h2>
+                    <form class="contact-form" onsubmit="event.preventDefault();alert('Mensaje enviado');">
+                        <p style="color:var(--text-muted);font-size:0.9rem;">Consultas, charlas para escuelas o reportes meteorológicos.</p>
+                        <input type="text" placeholder="Tu nombre completo" required>
+                        <input type="email" placeholder="Tu correo electrónico" required>
+                        <select><option>Consulta General</option><option>Solicitar Charla / Taller</option><option>Enviar un Reporte</option></select>
+                        <textarea rows="4" placeholder="Escribí tu mensaje aquí..." required></textarea>
+                        <button type="submit">Enviar Mensaje</button>
+                        <div style="display:flex;gap:10px;justify-content:center;margin-top:4px;">
+                            <a href="#" style="display:inline-block;padding:9px 18px;background:var(--bg-body);color:var(--text-main);border-radius:30px;text-decoration:none;font-weight:700;">📷 Instagram</a>
+                            <a href="#" style="display:inline-block;padding:9px 18px;background:var(--bg-body);color:var(--text-main);border-radius:30px;text-decoration:none;font-weight:700;">▶️ YouTube</a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchView(viewId, btn) {
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (viewId === 'dashboard' && window._map) setTimeout(() => window._map.invalidateSize(), 100);
+    if (viewId === 'extension') loadIgEmbeds();
+}
+
+// Botón "Ver Pronóstico" de la pantalla de bienvenida.
+function enterForecast() {
+    switchView('dashboard', document.querySelector('.nav-btn'));
+}
+
+const WIND_ANGLES = { norte:180, noreste:225, este:270, sudeste:315, sur:0, sudoeste:45, oeste:90, noroeste:135 };
+const PERIOD_SHORT = { "mañana":"MAÑANA","tarde":"TARDE","noche":"NOCHE","madrugada":"MADRUGADA","madrugada/mañana":"MAD/MAÑ","tarde/noche":"TAR/NOCH" };
+
+window.onload = () => {
+    initMap();
+    loadCity('La Plata');
+    loadNovedades();
+};
+
+// ─── MAPA ────────────────────────────────────────────────────────────────────
+const CITIES = [
+    { name:"La Plata", coords:[-34.921,-57.955] }, { name:"Junín", coords:[-34.585,-60.944] },
+    { name:"Bolívar", coords:[-36.233,-61.116] },  { name:"Tandil", coords:[-37.321,-59.133] },
+    { name:"Mar del Plata", coords:[-38.005,-57.542] }, { name:"Bahía Blanca", coords:[-38.719,-62.272] }
+];
+
+function initMap() {
+    const std = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', maxZoom: 19 });
+    const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution:'© Esri' });
+    window._map = L.map('map', { center:[-36.5,-60.0], zoom:6, layers:[std] });
+    L.control.layers({ "Estándar":std, "Satélite":sat }).addTo(window._map);
+    window._cityMarkers = {};
+    CITIES.forEach(c => {
+        const marker = L.marker(c.coords).addTo(window._map)
+            .bindPopup(`<b style="font-family:Montserrat;">${c.name}</b>`)
+            .on('click', () => goToCity(c.name));
+        window._cityMarkers[c.name] = marker;
+    });
+}
+
+function goToCity(name) {
+    const c = CITIES.find(x => x.name === name);
+    if (!c) return;
+    if (window._map) window._map.flyTo(c.coords, 10, { animate:true, duration:1.5 });
+    const dropdown = document.getElementById('city-select-dropdown');
+    if (dropdown) dropdown.value = name;
+    loadCity(name);
+    switchView('dashboard', document.querySelector('.nav-btn'));
+    setTimeout(() => document.getElementById('data-panel').scrollIntoView({ behavior:'smooth', block:'start' }), 700);
+}
+
+function selectCityFromDropdown(name) {
+    if (!name) return;
+    goToCity(name);
+}
+
+function toggleGlossary() {
+    document.getElementById('glossary-panel').classList.toggle('open');
+    document.getElementById('glossary-btn').classList.toggle('open');
+}
+
+// ─── CIUDAD ──────────────────────────────────────────────────────────────────
+async function loadCity(city) {
+    document.getElementById('welcome-panel').classList.add('hidden');
+    document.getElementById('city-dashboard').classList.remove('hidden');
+    document.getElementById('map-extras').classList.remove('hidden');
+    document.getElementById('cd-title').innerText = city;
+    const now = new Date();
+    document.getElementById('cd-time-lbl').innerText = `Actualizado ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
+    document.getElementById('alert-section').classList.toggle('hidden', city.toLowerCase() !== 'la plata');
+    fetchForecast(city);
+}
+
+let _igEmbedsLoaded = false;
+
+// Carga los posts de Instagram con el método oficial de Meta (blockquote +
+// embed.js) la primera vez que se entra a la pestaña de Divulgación. Un
+// <iframe src="…/embed/"> armado a mano suele mostrar un cartel de error en
+// vez del video; este es el único método soportado para embeber posts.
+function loadIgEmbeds() {
+    if (_igEmbedsLoaded) { if (window.instgrm) window.instgrm.Embeds.process(); return; }
+    _igEmbedsLoaded = true;
+    const script = document.createElement('script');
+    script.src = 'https://www.instagram.com/embed.js';
+    script.async = true;
+    script.onload = () => { if (window.instgrm) window.instgrm.Embeds.process(); };
+    document.body.appendChild(script);
+}
+
+// ─── NOVEDADES (Informes Especiales / Extensión Universitaria / Divulgación) ─
+// Contenido 100% cargado desde novedades-admin.html — nada de esto queda
+// fijo en el HTML. Una sola consulta a Apps Script trae todo y acá se
+// separa por "tipo" para las tres secciones.
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.innerText = str || '';
+    return div.innerHTML;
+}
+
+// Se lee del caché estático (data/novedades.json), no en vivo de Apps Script:
+// así el tráfico del portal público no depende de los cupos de ejecuciones
+// simultáneas de Apps Script/Sheets. El caché lo actualiza GitHub Actions
+// apenas se publica algo (más corridas de respaldo programadas).
+function loadNovedades() {
+    fetch(`data/novedades.json?_t=${Date.now()}`).then(r => r.json()).then(data => {
+        const items = (data && data.items) || [];
+        renderInformes(items.filter(it => it.tipo === 'informe'));
+        renderExtension(items.filter(it => it.tipo === 'extension'));
+        renderDivulgacion(items.filter(it => it.tipo === 'divulgacion'));
+        renderAgenda(items.filter(it => it.tipo === 'agenda'));
+    }).catch(() => {
+        document.getElementById('informes-grid').innerHTML = '<div class="fcast-empty">No se pudieron cargar los informes.</div>';
+        document.getElementById('extension-cards').innerHTML = '<div class="fcast-empty">No se pudo cargar el contenido de Extensión.</div>';
+        document.getElementById('ig-embeds-grid').innerHTML = '<div class="fcast-empty">No se pudieron cargar las publicaciones.</div>';
+        document.getElementById('agenda-list').innerHTML = '<div class="fcast-empty">No se pudo cargar la agenda.</div>';
+    });
+}
+
+const AGENDA_MONTH_ABBR = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+
+function renderAgenda(items) {
+    const el = document.getElementById('agenda-list');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay eventos cargados.</div>'; return; }
+    const sorted = [...items].sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    el.innerHTML = sorted.map(it => {
+        const d = it.fecha ? new Date(it.fecha) : null;
+        const day = d && !isNaN(d) ? String(d.getUTCDate()).padStart(2, '0') : '--';
+        const mon = d && !isNaN(d) ? AGENDA_MONTH_ABBR[d.getUTCMonth()] : '';
+        const img = it.imagen_url ? `<img src="${it.imagen_url}" class="agenda-img">` : '';
+        return `<div class="agenda-item">${img}<div class="agenda-date"><span>${day}</span><small>${mon}</small></div><div class="agenda-info"><h4>${escapeHtml(it.titulo)}</h4><p>${escapeHtml(it.texto)}</p></div></div>`;
+    }).join('');
+}
+
+function renderInformes(items) {
+    const el = document.getElementById('informes-grid');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay informes publicados.</div>'; return; }
+    el.innerHTML = items.map(it => `
+        <div class="item-card">
+            ${it.imagen_url ? `<img src="${it.imagen_url}" class="item-img">` : ''}
+            <div class="item-body">
+                ${it.tag ? `<span class="item-tag">${escapeHtml(it.tag)}</span>` : ''}
+                <h3 class="item-title">${escapeHtml(it.titulo)}</h3>
+                <p class="item-text">${escapeHtml(it.texto)}</p>
+                ${it.link_url ? `<a href="${escapeHtml(it.link_url)}" target="_blank" rel="noopener" class="item-btn">${escapeHtml(it.link_label || 'Leer Informe')}</a>` : ''}
+            </div>
+        </div>`).join('');
+}
+
+function renderExtension(items) {
+    const el = document.getElementById('extension-cards');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay actividades de extensión publicadas.</div>'; return; }
+    el.innerHTML = items.map(it => `
+        <div class="item-card" style="margin-bottom:16px;">
+            ${it.imagen_url ? `<img src="${it.imagen_url}" class="item-img" style="height:140px;">` : ''}
+            <div class="item-body">
+                <h3 class="item-title">${escapeHtml(it.titulo)}</h3>
+                <p class="item-text">${escapeHtml(it.texto)}</p>
+                ${it.link_url ? `<a href="${escapeHtml(it.link_url)}" target="_blank" rel="noopener" class="item-btn">${escapeHtml(it.link_label || 'Ver más')}</a>` : ''}
+            </div>
+        </div>`).join('');
+}
+
+// Cuando hay link, es siempre un post o reel de Instagram: se arma el
+// blockquote oficial de Meta (único método que soporta forzar el embed sin
+// que Instagram muestre un cartel de error) y se reprocesa embed.js después
+// de insertarlo en el DOM. No toda Divulgación es un embed de Instagram —
+// si se cargó una foto de la actividad (con o sin link), se muestra también.
+function renderDivulgacion(items) {
+    const el = document.getElementById('ig-embeds-grid');
+    if (!items.length) { el.innerHTML = '<div class="fcast-empty">Todavía no hay publicaciones cargadas.</div>'; return; }
+    el.innerHTML = items.map(it => `
+        <div class="ig-embed-card">
+            ${it.imagen_url ? `<img src="${it.imagen_url}" class="item-img">` : ''}
+            ${(it.titulo || it.texto) ? `<div class="ig-embed-caption">
+                ${it.titulo ? `<h3 class="item-title" style="margin-bottom:4px;">${escapeHtml(it.titulo)}</h3>` : ''}
+                ${it.texto ? `<p class="item-text">${escapeHtml(it.texto)}</p>` : ''}
+            </div>` : ''}
+            ${it.link_url ? `<blockquote class="instagram-media" data-instgrm-permalink="${escapeHtml(it.link_url)}" data-instgrm-version="14"></blockquote>` : ''}
+        </div>`).join('');
+    _igEmbedsLoaded = false; // hay blockquotes nuevos: forzar que embed.js los procese
+    loadIgEmbeds();
+}
+
+// ─── FUNCIONES UI DE PRONÓSTICO ─────────────────────────────────────────────
+function thermoSVG(color) {
+    const bulb = color==='blue' ? '#00bcd4' : '#ef4444';
+    const fy   = color==='blue' ? 25 : 15;
+    const fh   = color==='blue' ? 42 : 52;
+    return `<svg style="width:22px;height:66px;flex-shrink:0;" viewBox="0 0 30 90"><path d="M15 5 C10 5,10 12,10 15 L10 55 C5 60,5 70,10 75 C15 80,20 80,25 75 C30 70,30 60,25 55 L25 15 C25 12,25 5,15 5 Z" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="${bulb}"/><rect x="12" y="${fy}" width="6" height="${fh}" rx="3" fill="${bulb}"/></svg>`;
+}
+function windArrowDark(dir, size=30) {
+    if (!dir) return '';
+    const angle = WIND_ANGLES[dir.toLowerCase()] ?? 0;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="3"/><g transform="rotate(${angle} 50 50)"><path d="M35 72 L65 72 L65 42 L82 42 L50 12 L18 42 L35 42 Z" fill="#003f6b"/></g></svg>`;
+}
+function popBadge(pop) {
+    if (!pop || pop==='0 %') return '';
+    const v = parseInt(pop); const c = v>=70?'high':v>=40?'med':'low';
+    return `<div class="pc-pop ${c}">💧 ${pop} prob.</div>`;
+}
+function gustBadge(g) { return g ? `<div class="pc-gust">💨 Ráf. ${g} km/h</div>` : ''; }
+
+function tempBlock(day, showSub=true) {
+    const mU = day.temp_min!=null ? day.temp_min+'°' : '--';
+    const xU = day.temp_max!=null ? day.temp_max+'°' : '--';
+    const mS = day.temp_min_suburban!=null ? day.temp_min_suburban+'°*' : '--*';
+    const xS = day.temp_max_suburban!=null ? day.temp_max_suburban+'°*' : '--*';
+    return `<div class="fcast-temps">
+        <div class="fcast-temp-col">${thermoSVG('blue')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÍN</div><div class="fcast-temp-urb" title="Temperatura urbana">${mU}</div>${showSub?`<div class="fcast-temp-sub" title="Temperatura suburbana">${mS}</div>`:''}</div></div>
+        <div class="fcast-temp-col">${thermoSVG('red')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÁX</div><div class="fcast-temp-urb" title="Temperatura urbana">${xU}</div>${showSub?`<div class="fcast-temp-sub" title="Temperatura suburbana">${xS}</div>`:''}</div></div>
+    </div>`;
+}
+
+function buildPeriodCol(p) {
+    const icon=p.weather_icon_code||'default', label=PERIOD_SHORT[p.period]||p.period.toUpperCase();
+    const isNight=p.period==='noche'||p.period==='madrugada';
+    const sky=p.sky_condition||p.precipitation_description||'';
+    const ang=WIND_ANGLES[p.wind_direction?.toLowerCase()]??0;
+    
+    // Función auxiliar de capitalización que faltaba
+    const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+
+    return `<div class="period-col">
+        <div class="pc-period-lbl">${label}</div>
+        <img class="pc-icon" src="images/${icon}.png" onerror="this.src='images/default.png'">
+        <div class="pc-temp ${isNight?'night':''}">${p.temperature!=null?p.temperature+'°':'--'}</div>
+        <div class="pc-sep"></div>
+        <div class="pc-wind-block">
+            <div class="wind-circle"><svg width="22" height="22" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="3"/>${p.wind_direction?`<g transform="rotate(${ang} 50 50)"><path d="M35 72 L65 72 L65 42 L82 42 L50 12 L18 42 L35 42 Z" fill="#003f6b"/></g>`:''}</svg></div>
+            <div class="pc-wind-txt">${p.wind_intensity?cap(p.wind_intensity):'--'}</div>
+        </div>
+        ${popBadge(p.probability_of_precipitation)}${gustBadge(p.wind_gusts)}
+        <div class="pc-sky">${sky?cap(sky):''}</div>
+    </div>`;
+}
+
+function buildExtCard(day, cardClass, idx=0, showSub=true) {
+    const p1=day.period_forecasts?.[0], p2=day.period_forecasts?.[1];
+    const mU=day.temp_min!=null?day.temp_min+'°':'--', xU=day.temp_max!=null?day.temp_max+'°':'--';
+    const mS=day.temp_min_suburban!=null?`${day.temp_min_suburban}°*`:'--*', xS=day.temp_max_suburban!=null?`${day.temp_max_suburban}°*`:'--*';
+    const dateStr=day.date?day.date.split('-').slice(1).reverse().join('/'):'';
+    const half=(p,lbl)=>{if(!p)return`<div class="ext-icon-half"><div class="ext-icon-lbl">${lbl}</div><div style="color:#ccc">--</div></div>`;
+        const icon=p.weather_icon_code||'default';
+        return`<div class="ext-icon-half"><div class="ext-icon-lbl">${lbl}</div><img class="ext-icon-img" src="images/${icon}.png" onerror="this.src='images/default.png'">${p.probability_of_precipitation&&p.probability_of_precipitation!=='0 %'?`<div class="ext-icon-pop">💧 ${p.probability_of_precipitation} prob.</div>`:''} ${p.wind_gusts?`<div class="ext-icon-gust">💨 Ráf. ${p.wind_gusts} km/h</div>`:''}</div>`;};
+    
+    // Funciones auxiliares internas
+    const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+    const skyDesc = p => {
+        const parts = [];
+        if (p.probability_of_precipitation && p.probability_of_precipitation!=='0 %') parts.push(p.probability_of_precipitation+' prob.');
+        if (p.precipitation_description) parts.push(p.precipitation_description);
+        else if (p.sky_condition) parts.push(p.sky_condition);
+        return parts.length ? cap(parts.join(' ')) : '--';
+    };
+    // Combina el viento de los dos tramos (madrugada/mañana y tarde/noche) en una
+    // sola frase, en vez de mostrar solo el del primer tramo. "Vientos X del Y
+    // rotando a Z del W." + una oración aparte (subrayada) si hay ráfagas.
+    const windTextCombined = (a, b) => {
+        const i1=a.wind_intensity, d1=a.wind_direction, i2=b.wind_intensity, d2=b.wind_direction;
+        let base = '';
+        if (i1 && d1 && i2 && d2) {
+            if (i1===i2 && d1===d2) base = `Vientos ${i1} del ${d1}.`;
+            else if (i1===i2) base = `Vientos ${i1} del ${d1} rotando al ${d2}.`;
+            else base = `Vientos ${i1} del ${d1} rotando a ${i2} del ${d2}.`;
+        } else if (i1 && d1) base = `Vientos ${i1} del ${d1}.`;
+        else if (i2 && d2) base = `Vientos ${i2} del ${d2}.`;
+
+        const gustsList = [...new Set([a.wind_gusts, b.wind_gusts].filter(Boolean))];
+        let gustHtml = '';
+        if (gustsList.length === 1) gustHtml = ` <u>Ráfagas de ${gustsList[0]} km/h.</u>`;
+        else if (gustsList.length === 2) gustHtml = ` <u>Ráfagas de ${gustsList[0]} km/h y de ${gustsList[1]} km/h.</u>`;
+        return base + gustHtml;
+    };
+
+    const d1=skyDesc(p1||{}), d2=skyDesc(p2||{});
+    // Si los dos tramos dicen lo mismo, una sola línea alcanza. Si difieren, se
+    // antepone a cada uno la misma etiqueta de tramo que ya tienen los íconos de
+    // arriba (MADRUGADA/MAÑANA, TARDE/NOCHE) para que no quede ambiguo a qué
+    // momento del día corresponde cada probabilidad/condición.
+    let desc=d1;
+    if(d2&&d2!=='--'&&d2!==d1){
+        desc = d1!=='--'
+            ? `<span class="ext-desc-period">Madrugada / mañana</span>${d1}<span class="ext-desc-period">Tarde / noche</span>${d2}`
+            : d2;
+    }
+    const wt=(p1||p2)?windTextCombined(p1||{}, p2||{}):'';
+    const wd1=p1?.wind_direction, wd2=p2?.wind_direction;
+    const windHtml=wt?`<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1?windArrowDark(wd1,36):''} ${wd2&&wd2!==wd1?windArrowDark(wd2,36):''}</div><div class="ext-wind-txt">${wt}</div></div>`:'';
+    
+    return `<div class="ext-card ${cardClass}" style="animation-delay:${0.2 + idx*0.1}s">
+        <div class="ext-card-hdr"><div class="ext-card-name">${day.day_name?.toUpperCase()||'--'}</div><div class="ext-card-date">${dateStr}</div></div>
+        <div class="ext-card-body">
+            <div class="ext-icons-row">${half(p1,'MADRUGADA / MAÑANA')}${half(p2,'TARDE / NOCHE')}</div>
+            <div class="ext-temps-row"><div class="ext-temp-item">${thermoSVG('blue')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÍN</div><div class="ext-temp-urb" title="Temperatura urbana">${mU}</div>${showSub?`<div class="ext-temp-sub" title="Temperatura suburbana">${mS}</div>`:''}</div></div>
+            <div class="ext-temp-item">${thermoSVG('red')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÁX</div><div class="ext-temp-urb" title="Temperatura urbana">${xU}</div>${showSub?`<div class="ext-temp-sub" title="Temperatura suburbana">${xS}</div>`:''}</div></div></div>
+            ${desc!=='--'?`<div class="ext-desc-box">${desc}</div>`:''}
+            ${windHtml}
+        </div>
+    </div>`;
+}
+
+// ─── LEER EL PRONÓSTICO ─────────────────────────────────────────────────────
+// Se lee del caché estático (data/forecasts.json, servido por GitHub Pages),
+// no en vivo de Apps Script: así el tráfico del portal público no depende de
+// los cupos de ejecuciones simultáneas de Apps Script/Sheets, que se vuelven
+// un riesgo real si entra mucha gente a la vez. El caché lo actualiza GitHub
+// Actions apenas se publica algo (más corridas de respaldo programadas).
+async function fetchForecast(city) {
+    const container = document.getElementById('forecast-container');
+    container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico...</div>`;
+
+    try {
+        const resp = await fetch(`data/forecasts.json?_t=${Date.now()}`);
+        const all = await resp.json();
+        const cityData = all && all.cities ? all.cities[city] : null;
+
+        if (!cityData || cityData.error) {
+            container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
+            document.getElementById('outdated-banner').classList.add('hidden');
+            return;
+        }
+
+        // --- RENDERIZADO VISUAL ---
+        
+        // Píldora de emisión
+        if (cityData.emission_time) {
+            let etime = String(cityData.emission_time);
+            if (etime.includes('T')) {
+                const d = new Date(etime);
+                etime = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+            } else if (etime.length >= 5) {
+                etime = etime.substring(0,5);
+            }
+            document.getElementById('cd-emission-time').innerText = etime + ' hs';
+            document.getElementById('cd-emission').classList.remove('hidden');
+        } else {
+            document.getElementById('cd-emission').classList.add('hidden');
+        }
+
+        // Si la fecha del pronóstico publicado no es la de hoy, avisamos que está
+        // desactualizado en vez de mostrarlo como si fuera el vigente sin aclaración.
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        document.getElementById('outdated-banner').classList.toggle('hidden', cityData.forecast_date === todayStr);
+
+        const f = cityData.daily_forecasts;
+        if (!f || f.length === 0) {
+             container.innerHTML = `<div class="fcast-empty">Datos incompletos para ${city}.</div>`;
+             return;
+        }
+
+        let html = '';
+        const hasSuburban = city === 'La Plata';
+
+        // Días 1 y 2
+        f.slice(0,2).forEach((day,idx)=>{
+            const label = idx === 0 ? 'HOY' : 'MAÑANA';
+            const dateStr = day.date ? day.date.split('-').slice(1).reverse().join('/') : '';
+            const periods = day.period_forecasts || [];
+            
+            html += `<div class="fcast-block" style="animation-delay:${idx*0.1}s">
+                        <div class="fcast-day-hdr d${idx}">
+                            <div>
+                                <div class="fcast-day-name">${label} — ${day.day_name?.toUpperCase()||''}</div>
+                                <div class="fcast-day-date">${dateStr}</div>
+                            </div>
+                            ${tempBlock(day, hasSuburban)}
+                        </div>
+                        ${periods.length > 0 ? `<div class="fcast-periods-wrap cols${periods.length===4?4:3}">${periods.map(p=>buildPeriodCol(p)).join('')}</div>` : '<div class="fcast-empty" style="border-radius:0 0 16px 16px;">Sin datos horarios.</div>'}
+                     </div>`;
+        });
+
+        // Extendido (Días 3 y 4)
+        const ext = f.slice(2,4);
+        if(ext.length > 0){
+            html += `<div class="fcast-ext-grid">`;
+            ext.forEach((day,i)=>{ html+=buildExtCard(day, i===0?'celeste':'oscuro', i, hasSuburban); });
+            html += `</div>`;
+        }
+
+        if (hasSuburban) html += `<div style="text-align:center;font-size:0.72rem;font-weight:700;color:var(--text-muted);padding:6px 0 2px;">* TEMPERATURA EN ZONA SUBURBANA</div>`;
+        
+        container.innerHTML = html;
+
+    } catch(err) {
+        console.error("Error crítico de compilación:", err);
+        container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">Error inesperado procesando los datos.</div>`;
+    }
+}
+</script>
+</body>
+</html>
