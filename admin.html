@@ -1436,7 +1436,7 @@
     // Renderiza la placa exactamente como sale en el archivo exportado
     // (mismo html2canvas, mismo reseteo de zoom) sin decidir qué hacer con
     // el resultado -- lo reusan tanto la descarga real como la vista previa.
-    async function renderPlacaCanvas(id) {
+    async function renderPlacaCanvas(id, scale = 4) {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         await document.fonts.ready;
         // Siempre sale a tamaño completo, sin importar el zoom de vista que
@@ -1449,7 +1449,7 @@
         await new Promise(r => setTimeout(r, 50));
         const images = el.querySelectorAll("img");
         await Promise.all([...images].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
-        const canvas = await html2canvas(el, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
+        const canvas = await html2canvas(el, { scale: scale, useCORS: true, logging: false, backgroundColor: null });
         el.classList.remove('exporting');
         viewer.style.zoom = prevZoom;
         return canvas;
@@ -1489,9 +1489,15 @@
         const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
         const ids = ['placa-1', 'placa-2'];
         for (let i = 0; i < ids.length; i++) {
-            const canvas = await renderPlacaCanvas(ids[i]);
+            // Escala 2 (2160x2700, sigue siendo más nítido que una pantalla
+            // retina normal) en vez de la 4 (4320x5400) que usa la descarga
+            // de PNG suelto, y JPEG en vez de PNG -- para una placa con
+            // fondos degradados e íconos, PNG sin comprimir pesaba varias
+            // veces más sin verse mejor. Esto es lo que hacía que el PDF
+            // pesara casi el triple que exportando lo mismo desde Canva.
+            const canvas = await renderPlacaCanvas(ids[i], 2);
             if (i > 0) doc.addPage();
-            doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
+            doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 1080, 1350);
         }
         doc.save(pdfName);
         showToast(`PDF generado exitosamente`);
