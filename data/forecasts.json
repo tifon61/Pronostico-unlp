@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-21T13:40:40.240344+00:00",
+  "generated_at": "2026-09-21T13:46:17.095760+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -705,7 +705,7 @@
       "forecast_date": "2026-09-21",
       "emission_time": "10:05:00",
       "publicado_por": "Renata",
-      "es_correccion": false,
+      "es_correccion": true,
       "daily_forecasts": [
         {
           "date": "2026-09-21",
@@ -719,7 +719,7 @@
             {
               "period": "mañana",
               "precipitation_description": "lloviznas",
-              "probability_of_precipitation": "10 a 40 %",
+              "probability_of_precipitation": "40 a 70 %",
               "sky_condition": null,
               "temperature": 8,
               "weather_icon_code": "Lloviznas_dia_viento",
