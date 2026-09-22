@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-22T10:52:33.310790+00:00",
+  "generated_at": "2026-09-22T10:59:03.792725+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -529,7 +529,7 @@
     "Tandil": {
       "city": "Tandil",
       "forecast_date": "2026-09-22",
-      "emission_time": "07:31:00",
+      "emission_time": "07:50:00",
       "publicado_por": "Victoria",
       "es_correccion": false,
       "daily_forecasts": [
@@ -672,7 +672,7 @@
           "temp_max": 20,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo ligeramente a despejado",
+          "custom_description": "Cielo ligeramente nublado a despejado",
           "period_forecasts": [
             {
               "period": "mañana",
