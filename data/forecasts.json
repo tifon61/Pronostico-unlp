@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-28T10:08:00.602221+00:00",
+  "generated_at": "2026-09-28T10:11:25.359377+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -133,7 +133,7 @@
               "probability_of_precipitation": null,
               "sky_condition": "parcialmente nublado",
               "temperature": null,
-              "weather_icon_code": "Parcialmente_nublado_noche",
+              "weather_icon_code": "Parcialmente_nublado_noche_viento",
               "wind_direction": "sudoeste",
               "wind_intensity": "leves",
               "wind_gusts": "25-30"
