@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-29T11:05:41.954914+00:00",
+  "generated_at": "2026-09-29T11:12:42.369879+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -529,7 +529,7 @@
     "Tandil": {
       "city": "Tandil",
       "forecast_date": "2026-09-29",
-      "emission_time": "07:43:00",
+      "emission_time": "08:00:00",
       "publicado_por": "Victoria",
       "es_correccion": false,
       "daily_forecasts": [
