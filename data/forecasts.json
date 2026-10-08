@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T10:50:18.490369+00:00",
+  "generated_at": "2026-10-08T10:56:25.725600+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -351,14 +351,14 @@
     },
     "Mar del Plata": {
       "city": "Mar del Plata",
-      "forecast_date": "2026-10-07",
+      "forecast_date": "2026-10-08",
       "emission_time": "07:40:00",
       "publicado_por": "Juli",
       "es_correccion": false,
       "daily_forecasts": [
         {
-          "date": "2026-10-07",
-          "day_name": "miércoles",
+          "date": "2026-10-08",
+          "day_name": "jueves",
           "temp_min": 10,
           "temp_max": 14,
           "temp_min_suburban": null,
@@ -401,8 +401,8 @@
           ]
         },
         {
-          "date": "2026-10-08",
-          "day_name": "jueves",
+          "date": "2026-10-09",
+          "day_name": "viernes",
           "temp_min": 10,
           "temp_max": 13,
           "temp_min_suburban": null,
@@ -448,7 +448,7 @@
               "probability_of_precipitation": "10 a 40 %",
               "sky_condition": null,
               "temperature": 10,
-              "weather_icon_code": "Lluvias_noche_viento",
+              "weather_icon_code": "Lluvia_noche",
               "wind_direction": "sudeste",
               "wind_intensity": "moderados",
               "wind_gusts": "45-55"
@@ -456,13 +456,13 @@
           ]
         },
         {
-          "date": "2026-10-09",
-          "day_name": "viernes",
+          "date": "2026-10-10",
+          "day_name": "sábado",
           "temp_min": 10,
           "temp_max": 13,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo parcialmente nublado con bajas probabilidades de lloviznas a la madrugada a cubierto",
+          "custom_description": "Cielo cubierto con 40-70% de probabilidad de lluvias  y lloviznas aisladas",
           "period_forecasts": [
             {
               "period": "mañana",
@@ -489,13 +489,13 @@
           ]
         },
         {
-          "date": "2026-10-10",
-          "day_name": "sábado",
+          "date": "2026-10-11",
+          "day_name": "domingo",
           "temp_min": 10,
           "temp_max": 14,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo con 40-70 % prob. de lluvias desde la madrugada.",
+          "custom_description": "Cielo cubierto con 0-10% de prob de lluvias aisldas a parcialmente nublado",
           "period_forecasts": [
             {
               "period": "mañana",
@@ -514,7 +514,7 @@
               "probability_of_precipitation": "40 a 70 %",
               "sky_condition": null,
               "temperature": null,
-              "weather_icon_code": "Lluvias_noche_viento",
+              "weather_icon_code": "Lluvia_noche",
               "wind_direction": "sur",
               "wind_intensity": "moderados",
               "wind_gusts": "20-25"
