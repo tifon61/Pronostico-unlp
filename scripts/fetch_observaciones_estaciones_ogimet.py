@@ -189,8 +189,16 @@ def parsear_filas(html_text, debug_ciudad=None):
         hh, mi = m_hora.groups()
         dt_utc = datetime.datetime(int(yyyy), int(mm), int(dd), int(hh), int(mi))
 
-        precip_mm, precip_periodo_h = parsear_precip(celdas[13] if len(celdas) > 13 else "")
+        precip_raw = celdas[13] if len(celdas) > 13 else ""
+        precip_mm, precip_periodo_h = parsear_precip(precip_raw)
         v_dir_raw = celdas[8].strip() if len(celdas) > 8 else ""
+
+        # DEBUG temporal -- solo en las filas de 00/12 UTC (las únicas con
+        # precipitación real) para diagnosticar por qué el backfill (ndays
+        # grande) parece perder precipitación que el cron diario (ndays=4)
+        # sí trae.
+        if debug_ciudad and hh in ("00", "12"):
+            print(f"  (debug-precip) {debug_ciudad}: {dt_utc} celdas[13] crudo={precip_raw!r} -> mm={precip_mm} h={precip_periodo_h}")
 
         out.append({
             "dt_utc": dt_utc,
