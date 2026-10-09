@@ -86,7 +86,7 @@ def viento_a_categoria(kmh):
 
 def hoy_ar():
     """Fecha de hoy en Argentina (UTC-3, sin horario de verano desde 2009)."""
-    return (datetime.datetime.utcnow() - datetime.timedelta(hours=3)).date()
+    return (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)).date()
 
 
 def fetch_tabla_ogimet(omm, fecha_utc_hasta):
@@ -235,7 +235,20 @@ def main():
     for ciudad, info in CIUDADES.items():
         try:
             html_text = fetch_tabla_ogimet(info["omm"], fecha_utc_hasta)
+            # Diagnóstico: si Ogimet bloqueó el pedido o devolvió otra cosa
+            # (común en sitios así con IPs de datacenter/nube como las de
+            # GitHub Actions), esto lo deja a la vista en vez de fallar en
+            # silencio como "sin datos".
+            tiene_marca = "WMO ID" in html_text or "Synop decodificados" in html_text or "gsynres" in html_text.lower()
+            print(f"{ciudad}: HTML recibido ({len(html_text)} bytes, marca esperada {'SI' if tiene_marca else 'NO -- revisar, puede estar bloqueado'}).")
+
             filas = parsear_filas(html_text)
+            if filas:
+                fechas = sorted(f["dt"] for f in filas)
+                print(f"{ciudad}: {len(filas)} filas parseadas, de {fechas[0]} a {fechas[-1]}.")
+            else:
+                print(f"{ciudad}: 0 filas parseadas -- no se encontró la tabla esperada en el HTML.")
+
             obs = armar_observacion(filas, fecha_local)
             if obs is None:
                 print(f"{ciudad}: sin datos de Ogimet para {fecha_local} (estación {info['omm']}).")
