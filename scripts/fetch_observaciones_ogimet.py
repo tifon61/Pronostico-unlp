@@ -71,15 +71,15 @@ RUMBO_16_A_8 = {
 }
 
 # Mismos umbrales que usa el importador de .lst del SMN en el navegador
-# (vientoACategoria en verificacion-admin.html) -- no hay un corte oficial
-# documentado, es una estimación razonable, mantenerlos iguales entre las
-# dos fuentes para no tener dos criterios distintos de "qué es moderado".
+# (vientoACategoria en verificacion-admin.html) -- definidos por el equipo
+# (no un estándar externo), mantenerlos iguales entre las dos fuentes para
+# no tener dos criterios distintos de "qué es moderado".
 def viento_a_categoria(kmh):
-    if kmh <= 15:
+    if kmh <= 22:
         return "LEVES"
-    if kmh <= 25:
+    if kmh <= 29:
         return "MODERADOS"
-    if kmh <= 40:
+    if kmh <= 39:
         return "REGULARES"
     return "FUERTES"
 
