@@ -114,7 +114,7 @@ def fetch_tabla_ogimet(omm, fecha_utc_hasta):
         return resp.read().decode("utf-8", errors="replace")
 
 
-def parsear_filas(html_text):
+def parsear_filas(html_text, debug_ciudad=None):
     """Devuelve una lista de dicts {dt (datetime UTC), tmax, tmin, precip_mm,
     v_dir, v_int} por cada fila de la tabla que tenga fecha reconocible.
     Las filas sin Tmax/Tmin válido igual se devuelven (hacen falta para el
@@ -127,13 +127,24 @@ def parsear_filas(html_text):
         # con la tabla que tenga más filas (la de datos, no las de layout).
         todas = soup.find_all("table")
         tablas = sorted(todas, key=lambda t: len(t.find_all("tr")), reverse=True)[:1]
+
+    if debug_ciudad and not tablas:
+        print(f"  (debug) {debug_ciudad}: no se encontró NINGÚN <table> en la página.")
+    elif debug_ciudad:
+        todas = soup.find_all("table")
+        print(f"  (debug) {debug_ciudad}: {len(todas)} tablas en la página. Filas por tabla: {[len(t.find_all('tr')) for t in todas]}")
+        primeras_filas = tablas[0].find_all("tr")[:3]
+        for i, tr in enumerate(primeras_filas):
+            celdas = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
+            print(f"  (debug) {debug_ciudad}: tabla elegida, fila {i}: {celdas}")
+
     if not tablas:
         return []
     filas_html = tablas[0].find_all("tr")
 
     out = []
     for tr in filas_html:
-        celdas = [td.get_text(strip=True) for td in tr.find_all("td")]
+        celdas = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
         if len(celdas) < 10:
             continue
         m = re.match(r"(\d{2})/(\d{2})/(\d{4})\s+(\d{2}):(\d{2})", celdas[0])
@@ -258,7 +269,7 @@ def main():
                 # en vez de intentar adivinar qué es.
                 print(f"{ciudad}: contenido completo recibido: {html_text!r}")
 
-            filas = parsear_filas(html_text)
+            filas = parsear_filas(html_text, debug_ciudad=ciudad)
             if filas:
                 fechas = sorted(f["dt"] for f in filas)
                 print(f"{ciudad}: {len(filas)} filas parseadas, de {fechas[0]} a {fechas[-1]}.")
