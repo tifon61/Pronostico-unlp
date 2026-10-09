@@ -176,6 +176,20 @@ def parsear_filas(html_text, debug_ciudad=None):
         return []
     filas_html = tablas[0].find_all("tr")
 
+    if debug_ciudad:
+        # DEBUG temporal -- Ogimet no siempre devuelve las mismas columnas
+        # para todas las estaciones (si una estación no reporta cierto dato,
+        # esa columna se saca entera de la tabla en vez de dejarla vacía,
+        # lo que corre el índice de todo lo que viene después). Esto vuelca
+        # el encabezado real y una fila de datos para confirmar qué
+        # columnas tiene ESTA estación en particular.
+        for tr in filas_html[:1]:
+            celdas_header = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
+            print(f"  (debug-cols) {debug_ciudad}: encabezado ({len(celdas_header)} cols) = {celdas_header}")
+        for tr in filas_html[1:3]:
+            celdas_fila = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
+            print(f"  (debug-cols) {debug_ciudad}: fila ({len(celdas_fila)} cols) = {celdas_fila}")
+
     out = []
     for tr in filas_html:
         celdas = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
