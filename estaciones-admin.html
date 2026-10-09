@@ -233,14 +233,13 @@
         Object.keys(charts).forEach(k => { charts[k].destroy(); delete charts[k]; });
     }
 
-    function crearLineChart(canvasId, datasets, yOpts) {
+    function crearLineChart(canvasId, labels, datasets, yOpts) {
         const ctx = document.getElementById(canvasId).getContext('2d');
         charts[canvasId] = new Chart(ctx, {
             type: 'line',
-            data: { datasets },
+            data: { labels, datasets },
             options: {
                 maintainAspectRatio: false,
-                parsing: false,
                 scales: {
                     x: { type: 'category', ticks: { maxRotation: 60, minRotation: 60, autoSkip: true, maxTicksLimit: 24 } },
                     y: Object.assign({ beginAtZero: false }, yOpts || {})
@@ -256,25 +255,25 @@
         // ordenada así (se escribe en lotes por ciudad, no se reordena).
         filas.sort((a, b) => (a.fecha + ' ' + a.hora).localeCompare(b.fecha + ' ' + b.hora));
         const labels = filas.map(f => `${f.fecha.slice(5)} ${f.hora}`);
-        const serie = (campo) => filas.map((f, i) => ({ x: labels[i], y: (f[campo] === '' || f[campo] == null) ? null : Number(f[campo]) }));
+        const serie = (campo) => filas.map(f => (f[campo] === '' || f[campo] == null) ? null : Number(f[campo]));
 
         destruirCharts();
 
-        crearLineChart('chart-temp', [
+        crearLineChart('chart-temp', labels, [
             { label: 'Temperatura', data: serie('temp'), borderColor: COLOR.temp, backgroundColor: COLOR.temp },
             { label: 'Punto de rocío', data: serie('punto_rocio'), borderColor: COLOR.rocio, backgroundColor: COLOR.rocio }
         ]);
 
-        crearLineChart('chart-extremos', [
+        crearLineChart('chart-extremos', labels, [
             { label: 'Tmáx 12h', data: serie('tmax_12h'), borderColor: COLOR.tmax, backgroundColor: COLOR.tmax },
             { label: 'Tmín 12h', data: serie('tmin_12h'), borderColor: COLOR.tmin, backgroundColor: COLOR.tmin }
         ]);
 
-        crearLineChart('chart-humedad', [
+        crearLineChart('chart-humedad', labels, [
             { label: 'Humedad relativa', data: serie('humedad'), borderColor: COLOR.humedad, backgroundColor: COLOR.humedad }
         ], { min: 0, max: 100 });
 
-        crearLineChart('chart-viento', [
+        crearLineChart('chart-viento', labels, [
             { label: 'Intensidad', data: serie('v_int_kmh'), borderColor: COLOR.viento, backgroundColor: COLOR.viento }
         ], { min: 0 });
         // Tooltip con la dirección de ESE reporte -- no tiene sentido como
@@ -289,7 +288,7 @@
         };
         charts['chart-viento'].update();
 
-        crearLineChart('chart-presion', [
+        crearLineChart('chart-presion', labels, [
             { label: 'Presión estación', data: serie('presion_estacion_hpa'), borderColor: COLOR.pEst, backgroundColor: COLOR.pEst },
             { label: 'Presión a nivel del mar', data: serie('presion_nivel_mar_hpa'), borderColor: COLOR.pMar, backgroundColor: COLOR.pMar }
         ]);
@@ -311,11 +310,11 @@
             }
         });
 
-        crearLineChart('chart-nubosidad', [
+        crearLineChart('chart-nubosidad', labels, [
             { label: 'Nubosidad total', data: serie('nubosidad_octavos'), borderColor: COLOR.nubosidad, backgroundColor: COLOR.nubosidad }
         ], { min: 0, max: 8 });
 
-        crearLineChart('chart-visibilidad', [
+        crearLineChart('chart-visibilidad', labels, [
             { label: 'Visibilidad', data: serie('visibilidad_km'), borderColor: COLOR.visibilidad, backgroundColor: COLOR.visibilidad }
         ], { min: 0 });
     }
