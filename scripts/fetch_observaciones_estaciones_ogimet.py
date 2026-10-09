@@ -158,6 +158,37 @@ def parsear_precip(precip_raw):
     return float(m.group(1)), int(m.group(2))
 
 
+# Nombres de columna EXACTOS tal como los manda Ogimet en el encabezado de
+# gsynres (decoded=yes). No todas las estaciones tienen las mismas: si una
+# estación nunca reporta ráfaga o altura de nube, Ogimet saca esa columna
+# entera en vez de dejarla vacía -- eso corre la posición de todo lo que
+# viene después (confirmado con datos reales: en Bahía Blanca "Prec" queda
+# una posición más a la derecha que en las demás por la columna "Rachkmh"
+# que las otras no tienen). Por eso NO se puede usar una posición fija:
+# cada columna se ubica por su nombre en el encabezado de esa tabla.
+COL_T = "T(C)"
+COL_TD = "Td(C)"
+COL_HR = "Hr%"
+COL_TMAX = "Tmax(C)"
+COL_TMIN = "Tmin(C)"
+COL_DDD = "ddd"
+COL_FF = "ffkmh"
+COL_P0 = "P0hPa"
+COL_PMAR = "P marhPa"
+COL_PREC = "Prec(mm)"
+COL_NT = "Nt"
+COL_VIS = "Viskm"
+COL_WW = "WW"
+
+
+def construir_indices_columnas(header_cells):
+    """Mapea nombre de columna (tal como aparece en el encabezado) a su
+    índice en una FILA DE DATOS. El encabezado tiene una celda menos que
+    los datos porque su "Fecha" cubre fecha+hora juntas, mientras que en
+    los datos vienen en dos celdas separadas -- de ahí el +1."""
+    return {nombre.strip(): i + 1 for i, nombre in enumerate(header_cells)}
+
+
 def parsear_filas(html_text, debug_ciudad=None):
     """Devuelve una lista de dicts con TODOS los campos de cada fila de la
     tabla que tenga fecha/hora reconocible (no se descartan filas sin
@@ -175,25 +206,23 @@ def parsear_filas(html_text, debug_ciudad=None):
     if not tablas:
         return []
     filas_html = tablas[0].find_all("tr")
+    if not filas_html:
+        return []
+
+    header_cells = [td.get_text(strip=True) for td in filas_html[0].find_all(["td", "th"])]
+    idx = construir_indices_columnas(header_cells)
 
     if debug_ciudad:
-        # DEBUG temporal -- Ogimet no siempre devuelve las mismas columnas
-        # para todas las estaciones (si una estación no reporta cierto dato,
-        # esa columna se saca entera de la tabla en vez de dejarla vacía,
-        # lo que corre el índice de todo lo que viene después). Esto vuelca
-        # el encabezado real y una fila de datos para confirmar qué
-        # columnas tiene ESTA estación en particular.
-        for tr in filas_html[:1]:
-            celdas_header = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
-            print(f"  (debug-cols) {debug_ciudad}: encabezado ({len(celdas_header)} cols) = {celdas_header}")
-        for tr in filas_html[1:3]:
-            celdas_fila = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
-            print(f"  (debug-cols) {debug_ciudad}: fila ({len(celdas_fila)} cols) = {celdas_fila}")
+        print(f"  (debug-cols) {debug_ciudad}: encabezado ({len(header_cells)} cols) = {header_cells}")
+
+    def val(celdas, nombre):
+        i = idx.get(nombre)
+        return celdas[i] if i is not None and i < len(celdas) else None
 
     out = []
-    for tr in filas_html:
+    for tr in filas_html[1:]:
         celdas = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
-        if len(celdas) < 14:
+        if len(celdas) < 2:
             continue
         m_fecha = re.match(r"(\d{2})/(\d{2})/(\d{4})", celdas[0])
         m_hora = re.match(r"(\d{2}):(\d{2})", celdas[1])
@@ -203,33 +232,43 @@ def parsear_filas(html_text, debug_ciudad=None):
         hh, mi = m_hora.groups()
         dt_utc = datetime.datetime(int(yyyy), int(mm), int(dd), int(hh), int(mi))
 
-        precip_raw = celdas[13] if len(celdas) > 13 else ""
+        precip_raw = val(celdas, COL_PREC) or ""
         precip_mm, precip_periodo_h = parsear_precip(precip_raw)
-        v_dir_raw = celdas[8].strip() if len(celdas) > 8 else ""
+        # Red de seguridad: si lo que cayó en la columna "Prec" no tiene
+        # pinta de precipitación (no es "X.X/Nh", "Ip..." ni un guion) pero
+        # la celda siguiente sí, es que esta fila en particular trajo una
+        # columna de más que el encabezado no reflejaba -- se usa esa en
+        # vez de adivinar en silencio con el valor equivocado (que es
+        # justo lo que pasaba antes: terminaba guardando la tendencia de
+        # presión como si fuera precipitación).
+        if precip_mm is None and precip_raw.strip() not in ("", "---", "----"):
+            i_prec = idx.get(COL_PREC)
+            siguiente = celdas[i_prec + 1] if i_prec is not None and i_prec + 1 < len(celdas) else ""
+            mm2, h2 = parsear_precip(siguiente)
+            if mm2 is not None or siguiente.strip().startswith("Ip"):
+                if debug_ciudad:
+                    print(f"  (debug-precip) {debug_ciudad}: {dt_utc} columna Prec con valor raro "
+                          f"({precip_raw!r}), se usa la siguiente ({siguiente!r}) -- fila con una columna de más.")
+                precip_raw, precip_mm, precip_periodo_h = siguiente, mm2, h2
 
-        # DEBUG temporal -- solo en las filas de 00/12 UTC (las únicas con
-        # precipitación real) para diagnosticar por qué el backfill (ndays
-        # grande) parece perder precipitación que el cron diario (ndays=4)
-        # sí trae.
-        if debug_ciudad and hh in ("00", "12"):
-            print(f"  (debug-precip) {debug_ciudad}: {dt_utc} celdas[13] crudo={precip_raw!r} -> mm={precip_mm} h={precip_periodo_h}")
+        v_dir_raw = (val(celdas, COL_DDD) or "").strip()
 
         out.append({
             "dt_utc": dt_utc,
-            "temp": num(celdas[2]) if len(celdas) > 2 else None,
-            "punto_rocio": num(celdas[3]) if len(celdas) > 3 else None,
-            "humedad": num(celdas[4]) if len(celdas) > 4 else None,
-            "tmax_12h": num(celdas[6]) if len(celdas) > 6 else None,
-            "tmin_12h": num(celdas[7]) if len(celdas) > 7 else None,
+            "temp": num(val(celdas, COL_T)),
+            "punto_rocio": num(val(celdas, COL_TD)),
+            "humedad": num(val(celdas, COL_HR)),
+            "tmax_12h": num(val(celdas, COL_TMAX)),
+            "tmin_12h": num(val(celdas, COL_TMIN)),
             "v_dir": RUMBO_16_A_8.get(v_dir_raw),
-            "v_int_kmh": num(celdas[9]) if len(celdas) > 9 else None,
-            "presion_estacion_hpa": num(celdas[10]) if len(celdas) > 10 else None,
-            "presion_nivel_mar_hpa": num(celdas[11]) if len(celdas) > 11 else None,
+            "v_int_kmh": num(val(celdas, COL_FF)),
+            "presion_estacion_hpa": num(val(celdas, COL_P0)),
+            "presion_nivel_mar_hpa": num(val(celdas, COL_PMAR)),
             "precip_mm": precip_mm,
             "precip_periodo_h": precip_periodo_h,
-            "nubosidad_octavos": num(celdas[14]) if len(celdas) > 14 else None,
-            "visibilidad_km": num(celdas[17]) if len(celdas) > 17 else None,
-            "tiempo_presente_ww": (celdas[18].strip() if len(celdas) > 18 and celdas[18].strip() not in ("", "---") else None),
+            "nubosidad_octavos": num(val(celdas, COL_NT)),
+            "visibilidad_km": num(val(celdas, COL_VIS)),
+            "tiempo_presente_ww": (lambda w: w if w and w.strip() not in ("", "---") else None)(val(celdas, COL_WW)),
         })
     return out
 
