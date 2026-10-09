@@ -715,13 +715,42 @@ function getObservacionesEstacionesSheet(ss) {
   let sheet = ss.getSheetByName("Observaciones_Estaciones");
   if (!sheet) sheet = ss.insertSheet("Observaciones_Estaciones");
   ensureHeadersFor(sheet, OBSERVACIONES_ESTACIONES_HEADERS);
+  asegurarFechaHoraTexto_(sheet);
   return sheet;
+}
+
+// Fuerza que las columnas "fecha" y "hora" sean texto plano ("@"), nunca
+// un tipo Fecha/Hora autodetectado por Sheets. Es crítico para "hora" en
+// particular: un valor de solo-hora como "04:00" queda anclado internamente
+// al 30/12/1899 (el "día cero" de Sheets/Excel), y para esa fecha la zona
+// horaria de Buenos Aires todavía no tenía el offset UTC-3 redondo de
+// ahora (era la hora media local histórica, unos 53min48s distinta) -- al
+// releerlo con getValues()/JSON.stringify() eso aparece como un timestamp
+// completamente desfigurado ("1899-12-30T04:16:48.000Z" en vez de "04:00").
+// Forzar texto evita que Sheets interprete el valor en primer lugar.
+function asegurarFechaHoraTexto_(sheet) {
+  const headers = OBSERVACIONES_ESTACIONES_HEADERS;
+  const colFecha = headers.indexOf("fecha") + 1;
+  const colHora = headers.indexOf("hora") + 1;
+  const filas = Math.max(sheet.getMaxRows(), 1000);
+  sheet.getRange(1, colFecha, filas, 1).setNumberFormat("@");
+  sheet.getRange(1, colHora, filas, 1).setNumberFormat("@");
 }
 
 // Clave de upsert: ciudad+fecha+hora (no solo ciudad+fecha, porque acá
 // puede haber varias filas por día). Mismo patrón de índice-una-vez que
 // handleImportarObservacionesLote, para que importar varios días/ciudades
 // de una corrida no sea un for lineal contra toda la hoja por cada fila.
+// Como fechaKeyStr, pero para "hora" -- en el caso (no debería pasar ya que
+// asegurarFechaHoraTexto_ fuerza texto, pero por las dudas) de que la celda
+// haya quedado como un valor de tipo Hora, se reformatea en vez de dejar
+// pasar el objeto Date crudo (eso es lo que generaba el timestamp
+// desfigurado tipo "1899-12-30T04:16:48.000Z" en la respuesta).
+function horaKeyStr(cellValue, tz) {
+  if (cellValue instanceof Date) return Utilities.formatDate(cellValue, tz, "HH:mm");
+  return String(cellValue);
+}
+
 function handleImportarObservacionesEstacion(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getObservacionesEstacionesSheet(ss);
@@ -739,7 +768,7 @@ function handleImportarObservacionesEstacion(data) {
 
     const indice = new Map();
     for (let i = 1; i < allData.length; i++) {
-      indice.set(allData[i][colCiudad] + "||" + fechaKeyStr(allData[i][colFecha], tz) + "||" + allData[i][colHora], i + 1);
+      indice.set(allData[i][colCiudad] + "||" + fechaKeyStr(allData[i][colFecha], tz) + "||" + horaKeyStr(allData[i][colHora], tz), i + 1);
     }
 
     const nuevasFilas = [];
@@ -785,6 +814,7 @@ function getObservacionesEstaciones(ciudad, desde, hasta) {
   const headers = OBSERVACIONES_ESTACIONES_HEADERS;
   const tz = ss.getSpreadsheetTimeZone();
   const colFecha = headers.indexOf("fecha");
+  const colHora = headers.indexOf("hora");
   const rows = sheet.getDataRange().getValues();
   const out = [];
   for (let i = 1; i < rows.length; i++) {
@@ -796,6 +826,7 @@ function getObservacionesEstaciones(ciudad, desde, hasta) {
     const obj = {};
     headers.forEach((h, idx) => { obj[h] = row[idx]; });
     obj.fecha = fecha;
+    obj.hora = horaKeyStr(row[colHora], tz);
     out.push(obj);
   }
   return out;
