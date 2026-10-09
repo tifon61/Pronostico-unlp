@@ -67,6 +67,11 @@
     .stats-help dt:first-child { margin-top: 0; }
     .stats-help dd { margin: 3px 0 0; color: #555; line-height: 1.4; }
 
+    .wip-banner { display: flex; align-items: center; gap: 18px; background: #fff8e1; border: 1px solid #ffd54f; border-radius: 10px; padding: 18px 22px; margin-bottom: 22px; }
+    .wip-icon { font-size: 2.2em; line-height: 1; }
+    .wip-title { font-size: 1.15em; font-weight: 900; color: #946c00; margin-bottom: 4px; }
+    .wip-banner p { margin: 0; font-size: 0.9em; color: #7a5a00; line-height: 1.4; }
+
     .city-tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
     .city-tab { border: none; background: none; padding: 10px 16px; font-family: inherit; font-weight: 800; font-size: 0.85em; color: #888; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: 0.15s; }
     .city-tab:hover { color: var(--unlp-blue); }
@@ -113,6 +118,14 @@
     <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
     <h1>✅ Verificación de pronósticos</h1>
     <p class="subtitle">Mirá el último pronóstico publicado por ciudad (quién, cuándo, con qué detalle), navegá por período, y cargá lo que realmente pasó cada día para compararlo contra lo publicado (D+1/D+2/D+3) -- reemplaza los excel sueltos que se llevaban antes por ciudad.</p>
+
+    <div class="wip-banner">
+        <div class="wip-icon">🚧</div>
+        <div>
+            <div class="wip-title">Sección en proceso</div>
+            <p>Estamos trabajando para usted.<br>Atentamente, Mauricio.</p>
+        </div>
+    </div>
 
     <div class="city-tabs" id="city-tabs">
         <button type="button" class="city-tab" data-ciudad="La Plata" onclick="seleccionarCiudad('La Plata')">La Plata</button>
