@@ -5,7 +5,16 @@ on:
     # Mismo horario que el importador del resumen diario: un rato después
     # de que el reporte de las 12 UTC ya esté publicado en Ogimet.
     - cron: '30 12 * * *'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      desde:
+        description: 'Backfill: fecha inicial YYYY-MM-DD (vacío = correr normal, solo "ayer")'
+        required: false
+        type: string
+      hasta:
+        description: 'Backfill: fecha final YYYY-MM-DD (vacío = igual a "desde")'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -26,4 +35,10 @@ jobs:
       - name: Traer de Ogimet y publicar en Observaciones_Estaciones
         env:
           TEAM_PASSWORD: ${{ secrets.TEAM_PASSWORD }}
-        run: python3 scripts/fetch_observaciones_estaciones_ogimet.py
+          DESDE: ${{ inputs.desde }}
+          HASTA: ${{ inputs.hasta }}
+        run: |
+          ARGS=""
+          if [ -n "$DESDE" ]; then ARGS="--desde $DESDE"; fi
+          if [ -n "$HASTA" ]; then ARGS="$ARGS --hasta $HASTA"; fi
+          python3 scripts/fetch_observaciones_estaciones_ogimet.py $ARGS

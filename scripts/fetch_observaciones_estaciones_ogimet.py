@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """
 Trae de Ogimet (https://www.ogimet.com/) TODOS los reportes sinópticos
-disponibles del día de "ayer" (hora Argentina) para las 6 ciudades, sin
-resumirlos a un valor por día -- a diferencia de fetch_observaciones_ogimet.py
-(que arma el resumen diario para la verificación de pronósticos), esto
-guarda cada reporte horario crudo en la hoja separada
-"Observaciones_Estaciones", pensada para un futuro visualizador de
-observaciones puras. Lo corre GitHub Actions una vez por día.
+disponibles para las 6 ciudades, sin resumirlos a un valor por día -- a
+diferencia de fetch_observaciones_ogimet.py (que arma el resumen diario
+para la verificación de pronósticos), esto guarda cada reporte horario
+crudo en la hoja separada "Observaciones_Estaciones", pensada para un
+futuro visualizador de observaciones puras.
+
+Dos modos de uso:
+  - Sin argumentos: carga el día de "ayer" (hora Argentina). Es el modo
+    que usa GitHub Actions una vez por día (ver el workflow).
+  - Con --desde (y opcionalmente --hasta): backfill manual de un rango de
+    fechas pasado, ej. `python3 fetch_observaciones_estaciones_ogimet.py
+    --desde 2026-09-01 --hasta 2026-09-30`. Pensado para cargar historial
+    de antes de que existiera esta hoja, o rellenar un día que falló.
 
 Reutiliza el mismo endpoint de Ogimet y la misma tabla de estaciones que
 fetch_observaciones_ogimet.py (ver ese archivo para más contexto sobre el
@@ -27,6 +34,7 @@ antes de confiar en ellas para el visualizador.
 No depende de fetch_observaciones_ogimet.py (está separado a propósito:
 si Ogimet cambia algo y rompe uno, no se cae el otro).
 """
+import argparse
 import datetime
 import json
 import os
@@ -68,10 +76,17 @@ def hoy_ar():
     return (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)).date()
 
 
-def fetch_tabla_ogimet(omm, fecha_utc_hasta):
+# Tamaño máximo de ventana (en días) por pedido a Ogimet. Para un rango
+# largo (backfill) no se pide todo de una -- una respuesta gigante tarda
+# más y arriesga que Ogimet corte el pedido -- se parte en pedidos de
+# a lo sumo esto, uno detrás del otro.
+CHUNK_DIAS = 20
+
+
+def fetch_tabla_ogimet(omm, fecha_utc_hasta, ndays=4):
     params = {
         "ind": omm,
-        "ndays": "4",
+        "ndays": str(ndays),
         "ano": fecha_utc_hasta.year,
         "mes": f"{fecha_utc_hasta.month:02d}",
         "day": f"{fecha_utc_hasta.day:02d}",
@@ -80,7 +95,7 @@ def fetch_tabla_ogimet(omm, fecha_utc_hasta):
     }
     url = f"https://www.ogimet.com/cgi-bin/gsynres?{urllib.parse.urlencode(params)}"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Encoding": "identity"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
+    with urllib.request.urlopen(req, timeout=60) as resp:
         print(f"  (debug) status={resp.status} content-type={resp.headers.get('Content-Type')} url={url}")
         return resp.read().decode("utf-8", errors="replace")
 
@@ -173,6 +188,35 @@ def fila_a_payload(fila, fecha_local, hora_local):
     return payload
 
 
+def fetch_rango(omm, fecha_desde, fecha_hasta, debug_ciudad=None):
+    """Todos los reportes de una estación entre fecha_desde y fecha_hasta
+    (ambas inclusive, fechas LOCALES Argentina), en uno o más pedidos a
+    Ogimet de a lo sumo CHUNK_DIAS días cada uno."""
+    payloads = []
+    cursor = fecha_desde
+    while cursor <= fecha_hasta:
+        fin_chunk = min(cursor + datetime.timedelta(days=CHUNK_DIAS - 1), fecha_hasta)
+        # Mismo criterio que el uso diario (ndays=4 para pedir 1 día): el
+        # punto final del pedido es fin_chunk+1 en UTC, con margen de +4
+        # días hacia atrás además del propio ancho del chunk.
+        fecha_utc_hasta = fin_chunk + datetime.timedelta(days=1)
+        ndays = (fin_chunk - cursor).days + 4
+        html_text = fetch_tabla_ogimet(omm, fecha_utc_hasta, ndays=ndays)
+        if debug_ciudad:
+            print(f"  (debug) {debug_ciudad}: chunk {cursor} a {fin_chunk}, HTML recibido ({len(html_text)} bytes).")
+        if len(html_text) < 500:
+            print(f"  (debug) {debug_ciudad}: contenido completo recibido: {html_text!r}")
+
+        filas = parsear_filas(html_text, debug_ciudad=debug_ciudad)
+        for f in filas:
+            dt_local = f["dt_utc"] - datetime.timedelta(hours=3)
+            if cursor <= dt_local.date() <= fin_chunk:
+                payloads.append(fila_a_payload(f, dt_local.date(), dt_local.strftime("%H:%M")))
+
+        cursor = fin_chunk + datetime.timedelta(days=1)
+    return payloads
+
+
 def publicar_lote(ciudad, filas, token):
     payload = {
         "action": "importar_observaciones_estacion",
@@ -186,45 +230,52 @@ def publicar_lote(ciudad, filas, token):
         return json.loads(resp.read().decode("utf-8"))
 
 
+def parse_args():
+    p = argparse.ArgumentParser(
+        description="Importa observaciones de estaciones desde Ogimet. "
+                     "Sin argumentos carga el día de ayer (uso normal del cron diario); "
+                     "con --desde (y opcionalmente --hasta) hace un backfill de ese rango."
+    )
+    p.add_argument("--desde", help="Fecha inicial YYYY-MM-DD (incluida). Si no se pasa, se usa 'ayer'.")
+    p.add_argument("--hasta", help="Fecha final YYYY-MM-DD (incluida). Por defecto, igual a --desde.")
+    return p.parse_args()
+
+
 def main():
     team_password = os.environ.get("TEAM_PASSWORD")
     if not team_password:
         print("Falta la variable de entorno TEAM_PASSWORD (Secret de GitHub Actions).", file=sys.stderr)
         sys.exit(1)
 
-    fecha_local = hoy_ar() - datetime.timedelta(days=1)
-    # Mismo punto final que fetch_observaciones_ogimet.py: NO un día de más
-    # margen (Ogimet rechaza con 400 si el punto final todavía es futuro
-    # para su propio reloj). El margen hacia atrás lo da "ndays".
-    fecha_utc_hasta = fecha_local + datetime.timedelta(days=1)
+    args = parse_args()
+    ayer = hoy_ar() - datetime.timedelta(days=1)
 
-    # Un reporte UTC cae en el día local `fecha_local` si, pasado a hora
-    # Argentina (UTC-3), su fecha calendario es esa.
-    def es_del_dia_local(dt_utc):
-        return (dt_utc - datetime.timedelta(hours=3)).date() == fecha_local
+    if args.desde:
+        fecha_desde = datetime.date.fromisoformat(args.desde)
+        fecha_hasta = datetime.date.fromisoformat(args.hasta) if args.hasta else fecha_desde
+    else:
+        fecha_desde = fecha_hasta = ayer
+
+    # Ogimet rechaza con 400 si se le pide un punto final todavía futuro
+    # para su propio reloj -- no se puede pedir "hoy" ni fechas posteriores.
+    if fecha_hasta > ayer:
+        print(f"--hasta ({fecha_hasta}) es hoy o futuro, se ajusta a {ayer}.", file=sys.stderr)
+        fecha_hasta = ayer
+    if fecha_desde > fecha_hasta:
+        print(f"--desde ({fecha_desde}) es posterior a --hasta ({fecha_hasta}), nada para hacer.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Importando observaciones de estaciones del {fecha_desde} al {fecha_hasta}.")
 
     for ciudad, omm in CIUDADES.items():
         try:
-            html_text = fetch_tabla_ogimet(omm, fecha_utc_hasta)
-            print(f"{ciudad}: HTML recibido ({len(html_text)} bytes).")
-            if len(html_text) < 500:
-                print(f"{ciudad}: contenido completo recibido: {html_text!r}")
-
-            filas = parsear_filas(html_text, debug_ciudad=ciudad)
-            filas_del_dia = [f for f in filas if es_del_dia_local(f["dt_utc"])]
-            print(f"{ciudad}: {len(filas)} filas totales parseadas, {len(filas_del_dia)} del {fecha_local}.")
-
-            if not filas_del_dia:
-                print(f"{ciudad}: sin reportes de Ogimet para {fecha_local} (estación {omm}).")
+            payloads = fetch_rango(omm, fecha_desde, fecha_hasta, debug_ciudad=ciudad)
+            if not payloads:
+                print(f"{ciudad}: sin reportes de Ogimet para {fecha_desde}-{fecha_hasta} (estación {omm}).")
                 continue
 
-            payloads = []
-            for f in filas_del_dia:
-                dt_local = f["dt_utc"] - datetime.timedelta(hours=3)
-                payloads.append(fila_a_payload(f, dt_local.date(), dt_local.strftime("%H:%M")))
-
             resultado = publicar_lote(ciudad, payloads, team_password)
-            print(f"{ciudad} ({fecha_local}): {len(payloads)} reportes -> {resultado}")
+            print(f"{ciudad} ({fecha_desde} a {fecha_hasta}): {len(payloads)} reportes -> {resultado}")
         except Exception as e:
             # No se corta el resto de las ciudades porque una falle.
             print(f"{ciudad}: ERROR -- {e}", file=sys.stderr)
