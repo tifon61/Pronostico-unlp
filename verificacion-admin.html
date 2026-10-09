@@ -67,6 +67,22 @@
     .stats-help dt:first-child { margin-top: 0; }
     .stats-help dd { margin: 3px 0 0; color: #555; line-height: 1.4; }
 
+    .city-tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
+    .city-tab { border: none; background: none; padding: 10px 16px; font-family: inherit; font-weight: 800; font-size: 0.85em; color: #888; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: 0.15s; }
+    .city-tab:hover { color: var(--unlp-blue); }
+    .city-tab.active { color: var(--unlp-blue); border-bottom-color: var(--unlp-blue); }
+
+    .ultimo-meta { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 16px; padding: 12px 16px; background: #f4f7fb; border-radius: 8px; font-size: 0.85em; }
+    .ultimo-meta b { color: var(--unlp-blue); }
+    .ultimo-meta .badge-correccion { background: #fff3cd; color: #946c00; font-weight: 800; padding: 2px 8px; border-radius: 10px; font-size: 0.85em; }
+    table.ultimo { width: 100%; border-collapse: collapse; font-size: 0.82em; }
+    table.ultimo th, table.ultimo td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+    table.ultimo th { color: var(--unlp-blue); font-size: 0.78em; text-transform: uppercase; }
+    table.ultimo .dia-fecha { font-weight: 800; color: #444; white-space: nowrap; }
+    table.ultimo .tramo { display: block; margin-bottom: 4px; }
+    table.ultimo .tramo:last-child { margin-bottom: 0; }
+    table.ultimo .tramo b { color: #333; text-transform: capitalize; }
+
     #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
     #access-gate.unlocked { display: none; }
     .access-gate-box { background: white; border-radius: 12px; padding: 35px 40px; width: 320px; max-width: 90vw; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
@@ -96,21 +112,38 @@
 <div class="container">
     <a href="admin.html" class="back-link">← Volver al admin de pronósticos</a>
     <h1>✅ Verificación de pronósticos</h1>
-    <p class="subtitle">Cargá acá lo que realmente pasó cada día y comparalo al instante contra los pronósticos ya publicados (D+1/D+2/D+3) para esa fecha -- reemplaza los excel sueltos que se llevaban antes por ciudad.</p>
+    <p class="subtitle">Mirá el último pronóstico publicado por ciudad (quién, cuándo, con qué detalle), navegá por período, y cargá lo que realmente pasó cada día para compararlo contra lo publicado (D+1/D+2/D+3) -- reemplaza los excel sueltos que se llevaban antes por ciudad.</p>
+
+    <div class="city-tabs" id="city-tabs">
+        <button type="button" class="city-tab" data-ciudad="La Plata" onclick="seleccionarCiudad('La Plata')">La Plata</button>
+        <button type="button" class="city-tab" data-ciudad="Junín" onclick="seleccionarCiudad('Junín')">Junín</button>
+        <button type="button" class="city-tab" data-ciudad="Mar del Plata" onclick="seleccionarCiudad('Mar del Plata')">Mar del Plata</button>
+        <button type="button" class="city-tab" data-ciudad="Bolívar" onclick="seleccionarCiudad('Bolívar')">Bolívar</button>
+        <button type="button" class="city-tab" data-ciudad="Tandil" onclick="seleccionarCiudad('Tandil')">Tandil</button>
+        <button type="button" class="city-tab" data-ciudad="Bahía Blanca" onclick="seleccionarCiudad('Bahía Blanca')">Bahía Blanca</button>
+    </div>
+    <select id="f-ciudad" style="display:none;">
+        <option value="La Plata">La Plata</option>
+        <option value="Junín">Junín</option>
+        <option value="Mar del Plata">Mar del Plata</option>
+        <option value="Bolívar">Bolívar</option>
+        <option value="Tandil">Tandil</option>
+        <option value="Bahía Blanca">Bahía Blanca</option>
+    </select>
+
+    <div class="card">
+        <h2>Último pronóstico publicado</h2>
+        <div id="ultimo-pronostico-meta"></div>
+        <div class="cmp-wrap">
+            <table class="ultimo" id="tabla-ultimo" style="display:none;">
+                <thead><tr><th>Día</th><th>Mín / Máx</th><th>Tramos</th></tr></thead>
+                <tbody id="ultimo-pronostico-body"></tbody>
+            </table>
+        </div>
+    </div>
 
     <div class="card">
         <div class="row">
-            <div class="col">
-                <label for="f-ciudad">Ciudad</label>
-                <select id="f-ciudad" onchange="onCiudadOFechaChange()">
-                    <option value="La Plata">La Plata</option>
-                    <option value="Junín">Junín</option>
-                    <option value="Mar del Plata">Mar del Plata</option>
-                    <option value="Bolívar">Bolívar</option>
-                    <option value="Tandil">Tandil</option>
-                    <option value="Bahía Blanca">Bahía Blanca</option>
-                </select>
-            </div>
             <div class="col">
                 <label for="f-fecha">Fecha (el día que se quiere verificar)</label>
                 <input type="date" id="f-fecha" onchange="onCiudadOFechaChange()">
@@ -423,10 +456,68 @@
         });
     }
 
+    function seleccionarCiudad(ciudad) {
+        document.getElementById('f-ciudad').value = ciudad;
+        document.querySelectorAll('.city-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.ciudad === ciudad));
+        onCiudadOFechaChange();
+    }
+
     function onCiudadOFechaChange() {
         const isLaPlata = document.getElementById('f-ciudad').value === 'La Plata';
         document.body.classList.toggle('single-station', !isLaPlata);
+        cargarUltimoPronostico();
         cargarTodo();
+    }
+
+    // Trae la última publicación de la ciudad elegida -- mismo endpoint que
+    // ya usa admin.html para precargar el formulario (?city=X, sin "type"),
+    // no hace falta nada nuevo en Apps Script. Da el detalle completo por
+    // tramo, no el resumen diario que guarda Verificacion_Pronostico, para
+    // poder comparar a ojo contra una fuente más fina (como el SMN).
+    async function cargarUltimoPronostico() {
+        const ciudad = document.getElementById('f-ciudad').value;
+        document.getElementById('ultimo-pronostico-meta').innerHTML = '<p class="empty-msg">Buscando...</p>';
+        document.getElementById('tabla-ultimo').style.display = 'none';
+        const data = await jsonp({ city: ciudad });
+        if (!data || data.error) {
+            document.getElementById('ultimo-pronostico-meta').innerHTML = `<p class="empty-msg">${(data && data.error) || 'Sin publicaciones para esta ciudad.'}</p>`;
+            return;
+        }
+        renderUltimoPronostico(data);
+    }
+
+    function renderUltimoPronostico(data) {
+        const meta = document.getElementById('ultimo-pronostico-meta');
+        const hora = (data.emission_time || '').substring(0, 5);
+        meta.innerHTML = `
+            <div class="ultimo-meta">
+                <span>Publicado para: <b>${data.forecast_date || '—'}</b></span>
+                <span>Hora de emisión: <b>${hora || '—'}</b></span>
+                <span>Pronosticador: <b>${data.publicado_por || '—'}</b></span>
+                ${(data.es_correccion === true || data.es_correccion === 'SI') ? '<span class="badge-correccion">Es una corrección</span>' : ''}
+            </div>`;
+
+        const tbody = document.getElementById('ultimo-pronostico-body');
+        const dias = data.daily_forecasts || [];
+        tbody.innerHTML = dias.map(dia => {
+            const isLaPlata = document.getElementById('f-ciudad').value === 'La Plata';
+            const minMax = `${fmtVal(dia.temp_min)}° / ${fmtVal(dia.temp_max)}°` +
+                (isLaPlata && (dia.temp_min_suburban != null || dia.temp_max_suburban != null)
+                    ? `<br><span style="color:var(--muted); font-size:0.9em;">sub: ${fmtVal(dia.temp_min_suburban)}° / ${fmtVal(dia.temp_max_suburban)}°</span>` : '');
+            const tramos = (dia.period_forecasts || []).map(p => {
+                const fenomeno = p.precipitation_description || p.sky_condition || '—';
+                const temp = p.temperature != null ? ` ${p.temperature}°` : '';
+                const viento = [p.wind_intensity, p.wind_direction].filter(Boolean).join(' ');
+                const rafagas = p.wind_gusts ? ` (ráf. ${p.wind_gusts})` : '';
+                return `<span class="tramo"><b>${p.period}:</b> ${fenomeno}${temp}${viento ? ' — ' + viento + rafagas : ''}${p.probability_of_precipitation ? ' — ' + p.probability_of_precipitation : ''}</span>`;
+            }).join('');
+            return `<tr>
+                <td class="dia-fecha">${dia.date || '—'}<br><span style="font-weight:400; color:var(--muted); text-transform:capitalize;">${dia.day_name || ''}</span></td>
+                <td>${minMax}</td>
+                <td>${tramos || '—'}</td>
+            </tr>`;
+        }).join('');
+        document.getElementById('tabla-ultimo').style.display = dias.length ? '' : 'none';
     }
 
     async function cargarObservacionEnFormulario() {
@@ -925,7 +1016,7 @@
     document.getElementById('f-fecha').value = todayMinus(1);
     document.getElementById('stat-desde').value = todayMinus(365);
     document.getElementById('stat-hasta').value = todayMinus(1);
-    onCiudadOFechaChange();
+    seleccionarCiudad('La Plata');
 </script>
 </body>
 </html>
