@@ -1,0 +1,31 @@
+name: Importar observaciones diarias de Ogimet
+
+on:
+  schedule:
+    # 12:30 UTC = 09:30 hora Argentina (sin horario de verano desde 2009,
+    # no hace falta ajustar por estación). Un rato después del corte de las
+    # 09:00 (12 UTC) del día meteorológico del SMN, para darle margen a
+    # Ogimet a que el reporte sinóptico de las 12 UTC ya esté publicado.
+    - cron: '30 12 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  importar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependencias
+        run: pip install --quiet beautifulsoup4 lxml
+
+      - name: Traer de Ogimet y publicar en Observaciones
+        env:
+          TEAM_PASSWORD: ${{ secrets.TEAM_PASSWORD }}
+        run: python3 scripts/fetch_observaciones_ogimet.py
