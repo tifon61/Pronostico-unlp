@@ -690,6 +690,117 @@ function getObservacion(ciudad, fecha) {
   return { error: "Sin observación cargada para " + ciudad + " " + fecha };
 }
 
+// ============================================================
+// OBSERVACIONES DE ESTACIONES (Ogimet) -- lo que reporta cada estación de
+// superficie, hora por hora, SIN resumir a un valor por día. A diferencia
+// de "Observaciones" (una fila por ciudad+fecha, para la verificación de
+// pronósticos), acá hay una fila por ciudad+fecha+hora con el reporte
+// sinóptico crudo, para poder armar más adelante un visualizador de
+// observaciones puras. La carga scripts/fetch_observaciones_ogimet.py
+// (GitHub Actions), no admite carga manual.
+//
+// Muchas estaciones no reportan todas las horas (o Ogimet no decodificó
+// ese reporte puntual): es normal y esperado que falten filas/campos para
+// una ciudad y no para otra, no es un error de carga.
+// ============================================================
+const OBSERVACIONES_ESTACIONES_HEADERS = [
+  "ciudad", "fecha", "hora", "temp", "punto_rocio", "humedad",
+  "tmax_12h", "tmin_12h", "v_dir", "v_int_kmh",
+  "presion_estacion_hpa", "presion_nivel_mar_hpa",
+  "precip_mm", "precip_periodo_h", "nubosidad_octavos", "visibilidad_km",
+  "tiempo_presente_ww", "cargado_el"
+];
+
+function getObservacionesEstacionesSheet(ss) {
+  let sheet = ss.getSheetByName("Observaciones_Estaciones");
+  if (!sheet) sheet = ss.insertSheet("Observaciones_Estaciones");
+  ensureHeadersFor(sheet, OBSERVACIONES_ESTACIONES_HEADERS);
+  return sheet;
+}
+
+// Clave de upsert: ciudad+fecha+hora (no solo ciudad+fecha, porque acá
+// puede haber varias filas por día). Mismo patrón de índice-una-vez que
+// handleImportarObservacionesLote, para que importar varios días/ciudades
+// de una corrida no sea un for lineal contra toda la hoja por cada fila.
+function handleImportarObservacionesEstacion(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = getObservacionesEstacionesSheet(ss);
+  const headers = OBSERVACIONES_ESTACIONES_HEADERS;
+  const tz = ss.getSpreadsheetTimeZone();
+  const colCiudad = headers.indexOf("ciudad");
+  const colFecha = headers.indexOf("fecha");
+  const colHora = headers.indexOf("hora");
+  const filas = data.filas || [];
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const allData = sheet.getDataRange().getValues();
+
+    const indice = new Map();
+    for (let i = 1; i < allData.length; i++) {
+      indice.set(allData[i][colCiudad] + "||" + fechaKeyStr(allData[i][colFecha], tz) + "||" + allData[i][colHora], i + 1);
+    }
+
+    const nuevasFilas = [];
+    let importadas = 0;
+
+    filas.forEach(f => {
+      if (!f.fecha || !f.hora) return;
+      const clave = data.ciudad + "||" + f.fecha + "||" + f.hora;
+      const existingRow = indice.get(clave) || -1;
+
+      const fila = headers.map(h => {
+        if (h === "ciudad") return data.ciudad;
+        if (h === "cargado_el") return new Date().toISOString();
+        const v = f[h];
+        return v === undefined || v === null ? "" : v;
+      });
+
+      if (existingRow > 0) {
+        sheet.getRange(existingRow, 1, 1, fila.length).setValues([fila]);
+      } else {
+        nuevasFilas.push(fila);
+      }
+      importadas++;
+    });
+
+    if (nuevasFilas.length > 0) {
+      const startRow = sheet.getLastRow() + 1;
+      sheet.getRange(startRow, 1, nuevasFilas.length, headers.length).setValues(nuevasFilas);
+    }
+
+    return { status: "ok", importadas: importadas };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// Para el futuro visualizador de observaciones: todas las filas de una
+// ciudad (o de todas, si no se pasa ciudad), opcionalmente acotadas a un
+// rango de fechas.
+function getObservacionesEstaciones(ciudad, desde, hasta) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = getObservacionesEstacionesSheet(ss);
+  const headers = OBSERVACIONES_ESTACIONES_HEADERS;
+  const tz = ss.getSpreadsheetTimeZone();
+  const colFecha = headers.indexOf("fecha");
+  const rows = sheet.getDataRange().getValues();
+  const out = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (ciudad && row[0] !== ciudad) continue;
+    const fecha = fechaKeyStr(row[colFecha], tz);
+    if (desde && fecha < desde) continue;
+    if (hasta && fecha > hasta) continue;
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = row[idx]; });
+    obj.fecha = fecha;
+    out.push(obj);
+  }
+  return out;
+}
+
 // Para una ciudad y un rango de fechas: cada fecha con sus 3 pronósticos
 // (plazo 1/2/3, sacados de Verificacion_Pronostico) y la observación
 // correspondiente (si ya se cargó), todo junto en una sola respuesta para
@@ -837,6 +948,14 @@ function doGet(e) {
 
   if (e.parameter.type === "verificacion_comparada") {
     const result = getVerificacionComparada(e.parameter.ciudad, e.parameter.desde, e.parameter.hasta);
+    const out = JSON.stringify(result);
+    return ContentService
+      .createTextOutput(cb ? `${cb}(${out});` : out)
+      .setMimeType(cb ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
+  }
+
+  if (e.parameter.type === "observaciones_estaciones") {
+    const result = getObservacionesEstaciones(e.parameter.ciudad, e.parameter.desde, e.parameter.hasta);
     const out = JSON.stringify(result);
     return ContentService
       .createTextOutput(cb ? `${cb}(${out});` : out)
@@ -1122,6 +1241,14 @@ function doPost(e) {
     // estación automática (verificacion-admin.html).
     if (data.action === 'importar_observaciones_lote') {
       const result = handleImportarObservacionesLote(data);
+      return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Importar reportes horarios crudos de Ogimet para una ciudad
+    // (scripts/fetch_observaciones_ogimet.py) -- hoja separada
+    // "Observaciones_Estaciones", no toca "Observaciones".
+    if (data.action === 'importar_observaciones_estacion') {
+      const result = handleImportarObservacionesEstacion(data);
       return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
     }
 

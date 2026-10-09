@@ -1,0 +1,29 @@
+name: Importar observaciones horarias de estaciones (Ogimet)
+
+on:
+  schedule:
+    # Mismo horario que el importador del resumen diario: un rato después
+    # de que el reporte de las 12 UTC ya esté publicado en Ogimet.
+    - cron: '30 12 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  importar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependencias
+        run: pip install --quiet beautifulsoup4 lxml
+
+      - name: Traer de Ogimet y publicar en Observaciones_Estaciones
+        env:
+          TEAM_PASSWORD: ${{ secrets.TEAM_PASSWORD }}
+        run: python3 scripts/fetch_observaciones_estaciones_ogimet.py
