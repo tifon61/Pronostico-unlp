@@ -212,8 +212,12 @@ def parsear_filas(html_text, debug_ciudad=None):
     header_cells = [td.get_text(strip=True) for td in filas_html[0].find_all(["td", "th"])]
     idx = construir_indices_columnas(header_cells)
 
-    if debug_ciudad:
-        print(f"  (debug-cols) {debug_ciudad}: encabezado ({len(header_cells)} cols) = {header_cells}")
+    if debug_ciudad and COL_PREC not in idx:
+        # Esto sí es señal de que algo cambió de verdad (no simplemente que
+        # esta estación no reporte ráfaga/HKm, que es normal) -- sin la
+        # columna "Prec" en el encabezado no hay de dónde sacar precipitación.
+        print(f"  (debug-cols) {debug_ciudad}: ALERTA -- no se encontró la columna 'Prec(mm)' en el "
+              f"encabezado ({len(header_cells)} cols) = {header_cells}")
 
     def val(celdas, nombre):
         i = idx.get(nombre)
