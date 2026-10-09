@@ -40,6 +40,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.parse
 import urllib.request
 
@@ -82,6 +83,27 @@ def hoy_ar():
 # a lo sumo esto, uno detrás del otro.
 CHUNK_DIAS = 20
 
+# Pausa entre pedidos a Ogimet (incluso entre ciudades) y reintentos ante
+# una respuesta que tenga pinta de bloqueo. Ogimet bloquea temporalmente
+# IPs de datacenter/nube (como las de GitHub Actions) si nota ráfagas de
+# pedidos -- confirmado en un backfill real: de ~30 pedidos casi sin pausa
+# entre ellos, varios volvieron vacíos o con "403 Forbidden" en el cuerpo
+# (con status HTTP 200 igual, no se puede confiar solo en el status code).
+PAUSA_ENTRE_PEDIDOS_SEG = 4
+REINTENTOS_MAX = 3
+PAUSA_REINTENTO_SEG = 20
+
+
+def _respuesta_valida(html_text):
+    # Una página real de gsynres decoded=yes siempre tiene estas marcas y
+    # un tamaño mínimo -- un bloqueo/error de Ogimet (visto en la práctica:
+    # "Status: 403 Forbidden" de 25 bytes, o una página vacía de 7769
+    # bytes repetida igual para estaciones distintas) no las tiene.
+    if len(html_text) < 10000:
+        return False
+    low = html_text.lower()
+    return "gsynres" in low or "wmo id" in low or "synop decodificados" in low
+
 
 def fetch_tabla_ogimet(omm, fecha_utc_hasta, ndays=4):
     params = {
@@ -95,9 +117,21 @@ def fetch_tabla_ogimet(omm, fecha_utc_hasta, ndays=4):
     }
     url = f"https://www.ogimet.com/cgi-bin/gsynres?{urllib.parse.urlencode(params)}"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Encoding": "identity"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        print(f"  (debug) status={resp.status} content-type={resp.headers.get('Content-Type')} url={url}")
-        return resp.read().decode("utf-8", errors="replace")
+
+    ultimo_texto = ""
+    for intento in range(1, REINTENTOS_MAX + 1):
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            print(f"  (debug) status={resp.status} content-type={resp.headers.get('Content-Type')} url={url}")
+            ultimo_texto = resp.read().decode("utf-8", errors="replace")
+        if _respuesta_valida(ultimo_texto):
+            return ultimo_texto
+        print(f"  (debug) respuesta sospechosa (posible bloqueo de Ogimet, {len(ultimo_texto)} bytes), "
+              f"intento {intento}/{REINTENTOS_MAX}: {ultimo_texto[:200]!r}", file=sys.stderr)
+        if intento < REINTENTOS_MAX:
+            time.sleep(PAUSA_REINTENTO_SEG)
+
+    raise RuntimeError(f"Ogimet no devolvió una respuesta válida tras {REINTENTOS_MAX} intentos "
+                        f"(ind={omm}, hasta={fecha_utc_hasta}, ndays={ndays}) -- probable bloqueo temporal.")
 
 
 def num(s):
@@ -204,8 +238,6 @@ def fetch_rango(omm, fecha_desde, fecha_hasta, debug_ciudad=None):
         html_text = fetch_tabla_ogimet(omm, fecha_utc_hasta, ndays=ndays)
         if debug_ciudad:
             print(f"  (debug) {debug_ciudad}: chunk {cursor} a {fin_chunk}, HTML recibido ({len(html_text)} bytes).")
-        if len(html_text) < 500:
-            print(f"  (debug) {debug_ciudad}: contenido completo recibido: {html_text!r}")
 
         filas = parsear_filas(html_text, debug_ciudad=debug_ciudad)
         for f in filas:
@@ -214,6 +246,8 @@ def fetch_rango(omm, fecha_desde, fecha_hasta, debug_ciudad=None):
                 payloads.append(fila_a_payload(f, dt_local.date(), dt_local.strftime("%H:%M")))
 
         cursor = fin_chunk + datetime.timedelta(days=1)
+        if cursor <= fecha_hasta:
+            time.sleep(PAUSA_ENTRE_PEDIDOS_SEG)
     return payloads
 
 
@@ -267,7 +301,8 @@ def main():
 
     print(f"Importando observaciones de estaciones del {fecha_desde} al {fecha_hasta}.")
 
-    for ciudad, omm in CIUDADES.items():
+    ciudades = list(CIUDADES.items())
+    for i, (ciudad, omm) in enumerate(ciudades):
         try:
             payloads = fetch_rango(omm, fecha_desde, fecha_hasta, debug_ciudad=ciudad)
             if not payloads:
@@ -279,6 +314,8 @@ def main():
         except Exception as e:
             # No se corta el resto de las ciudades porque una falle.
             print(f"{ciudad}: ERROR -- {e}", file=sys.stderr)
+        if i < len(ciudades) - 1:
+            time.sleep(PAUSA_ENTRE_PEDIDOS_SEG)
 
 
 if __name__ == "__main__":
