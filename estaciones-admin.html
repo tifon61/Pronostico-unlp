@@ -36,6 +36,11 @@
     .city-tab:hover { color: var(--unlp-blue); }
     .city-tab.active { color: var(--unlp-blue); border-bottom-color: var(--unlp-blue); }
 
+    .wip-banner { display: flex; align-items: center; gap: 18px; background: #fff8e1; border: 1px solid #ffd54f; border-radius: 10px; padding: 18px 22px; margin-bottom: 22px; }
+    .wip-icon { font-size: 2.2em; line-height: 1; }
+    .wip-title { font-size: 1.15em; font-weight: 900; color: #946c00; margin-bottom: 4px; }
+    .wip-banner p { margin: 0; font-size: 0.9em; color: #7a5a00; line-height: 1.4; }
+
     .meta-line { font-size: 0.85em; color: #666; margin-bottom: 18px; }
     .meta-line b { color: var(--unlp-blue); }
     .empty-msg { color: #888; font-size: 0.9em; text-align: center; padding: 30px 10px; }
@@ -70,6 +75,14 @@
     <a href="verificacion-admin.html" class="back-link">← Volver a verificación de pronósticos</a>
     <h1>📡 Observaciones de estaciones</h1>
     <p class="subtitle">Reportes sinópticos crudos de Ogimet para cada ciudad, hora por hora -- sin resumir a un valor por día. Pensado para mirar a ojo cómo viene una ciudad en estos días, no para la verificación de pronósticos (eso sigue en "Verificación de pronósticos").</p>
+
+    <div class="wip-banner">
+        <div class="wip-icon">🚧</div>
+        <div>
+            <div class="wip-title">Sección en proceso</div>
+            <p>Estamos trabajando para usted.<br>Atentamente, Mauricio.</p>
+        </div>
+    </div>
 
     <div class="city-tabs" id="city-tabs">
         <button type="button" class="city-tab" data-ciudad="La Plata" onclick="seleccionarCiudad('La Plata')">La Plata</button>
