@@ -97,8 +97,8 @@ def fetch_tabla_ogimet(omm, fecha_utc_hasta):
         "ind": omm,
         "ndays": "4",
         "ano": fecha_utc_hasta.year,
-        "mes": fecha_utc_hasta.month,
-        "day": fecha_utc_hasta.day,
+        "mes": f"{fecha_utc_hasta.month:02d}",
+        "day": f"{fecha_utc_hasta.day:02d}",
         "hora": "12",
         "decoded": "yes",
     }
@@ -236,7 +236,13 @@ def main():
         sys.exit(1)
 
     fecha_local = hoy_ar() - datetime.timedelta(days=1)
-    fecha_utc_hasta = fecha_local + datetime.timedelta(days=2)  # margen para que ndays llegue a cubrir el día siguiente completo
+    # Exactamente el día UTC cuyas filas de 00/12 hacen falta (fecha_local+1,
+    # ver el porqué al principio del archivo) -- NO un día más de margen: ese
+    # punto es el final de la ventana que se le pide a Ogimet, y pedir un
+    # día que todavía no pasó (fúturo para el propio Ogimet) es lo que
+    # tiraba "400 Bad Request". El margen hacia atrás lo da "ndays" en
+    # fetch_tabla_ogimet, no corriendo este punto final hacia adelante.
+    fecha_utc_hasta = fecha_local + datetime.timedelta(days=1)
 
     for ciudad, info in CIUDADES.items():
         try:
