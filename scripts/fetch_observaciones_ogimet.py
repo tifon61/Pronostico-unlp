@@ -103,8 +103,14 @@ def fetch_tabla_ogimet(omm, fecha_utc_hasta):
         "decoded": "yes",
     }
     url = f"https://www.ogimet.com/cgi-bin/gsynres?{urllib.parse.urlencode(params)}"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    # Accept-Encoding: identity fuerza respuesta SIN comprimir -- urllib (a
+    # diferencia de requests) no descomprime gzip solo, así que si el
+    # servidor igual decide comprimir, lo que se lee acá sale como texto
+    # ilegible/cortísimo en vez de HTML real. Mejor pedirle directo que no
+    # comprima, que andar adivinando después.
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Encoding": "identity"})
     with urllib.request.urlopen(req, timeout=30) as resp:
+        print(f"  (debug) status={resp.status} content-type={resp.headers.get('Content-Type')} content-encoding={resp.headers.get('Content-Encoding')} url={url}")
         return resp.read().decode("utf-8", errors="replace")
 
 
@@ -241,6 +247,10 @@ def main():
             # silencio como "sin datos".
             tiene_marca = "WMO ID" in html_text or "Synop decodificados" in html_text or "gsynres" in html_text.lower()
             print(f"{ciudad}: HTML recibido ({len(html_text)} bytes, marca esperada {'SI' if tiene_marca else 'NO -- revisar, puede estar bloqueado'}).")
+            if len(html_text) < 500:
+                # Muy corto para ser la página real -- lo mostramos entero
+                # en vez de intentar adivinar qué es.
+                print(f"{ciudad}: contenido completo recibido: {html_text!r}")
 
             filas = parsear_filas(html_text)
             if filas:
