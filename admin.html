@@ -776,6 +776,22 @@
         setTimeout(() => { toast.classList.remove('show'); }, 3000);
     }
 
+    // Recordatorio después de descargar una placa (PNG suelto o PDF):
+    // bajar la imagen NO publica nada en la página, es solo para redes/
+    // impresión -- hay que apretar "Publicar en API" aparte. Encadenado con
+    // un delay para que no tape al cartel de "descarga lista" antes de que
+    // dé tiempo a leerlo, y se queda más tiempo en pantalla porque es más
+    // fácil de pasar por alto que una confirmación común.
+    function recordarPublicarEnApi() {
+        setTimeout(() => {
+            const toast = document.getElementById('notification-toast');
+            toast.innerText = '📡 Recordá enviar los datos a la página también mediante el botón "Publicar en API"';
+            toast.classList.remove('error');
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 5000);
+        }, 3300);
+    }
+
     const iconMap = {
         "despejado": { dia: "soleado.png", noche: "Despejado_noche.png" },
         "ligeramente nublado": { dia: "Ligeramente_nublado_dia.png", noche: "Ligeramente_nublado_noche.png" },
@@ -1474,6 +1490,7 @@
         const canvas = await renderPlacaCanvas(id);
         const link = document.createElement("a"); link.download = getFilename(id) + `.png`; link.href = canvas.toDataURL("image/png"); link.click();
         showToast(`Placa descargada correctamente`);
+        recordarPublicarEnApi();
     }
 
     // Genera cada placa UNA A LA VEZ (en vez de tener las dos imágenes de
@@ -1501,6 +1518,7 @@
         }
         doc.save(pdfName);
         showToast(`PDF generado exitosamente`);
+        recordarPublicarEnApi();
     }
 
     function saveDraft() {
