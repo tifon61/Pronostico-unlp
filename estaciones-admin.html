@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Observaciones de estaciones | Admin UNLP</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
+<style>
+    * { box-sizing: border-box; }
+    :root { --unlp-blue: #003f6b; --unlp-accent-blue: #6ba4d6; --bg: #f4f6f8; --ok: #1a8754; --bad: #c0392b; --muted: #9aa5b1; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: #333; margin: 0; padding: 30px 20px 80px; }
+    .container { max-width: 1040px; margin: 0 auto; }
+    h1 { color: var(--unlp-blue); font-size: 1.4em; margin-bottom: 4px; }
+    .subtitle { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+    a.back-link { color: var(--unlp-blue); font-weight: 700; text-decoration: none; font-size: 0.85em; }
+    a.back-link:hover { text-decoration: underline; }
+
+    .card { background: white; border-radius: 10px; padding: 22px 24px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .card h2 { color: var(--unlp-blue); font-size: 1.05em; margin: 0 0 14px; }
+
+    label { display: block; font-size: 0.75em; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; margin: 14px 0 5px; }
+    label:first-of-type { margin-top: 0; }
+    input[type=date] { padding: 9px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95em; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+
+    button { border: none; padding: 10px 16px; border-radius: 8px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 0.85em; transition: 0.2s; }
+    .btn-primary { background: var(--unlp-blue); color: white; }
+    .btn-primary:hover { background: #002240; }
+    .btn-quick { background: #eef2f5; color: var(--unlp-blue); }
+    .btn-quick:hover { background: #dde6ec; }
+    .quick-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .city-tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
+    .city-tab { border: none; background: none; padding: 10px 16px; font-family: inherit; font-weight: 800; font-size: 0.85em; color: #888; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: 0.15s; }
+    .city-tab:hover { color: var(--unlp-blue); }
+    .city-tab.active { color: var(--unlp-blue); border-bottom-color: var(--unlp-blue); }
+
+    .meta-line { font-size: 0.85em; color: #666; margin-bottom: 18px; }
+    .meta-line b { color: var(--unlp-blue); }
+    .empty-msg { color: #888; font-size: 0.9em; text-align: center; padding: 30px 10px; }
+
+    .chart-card h2 { margin-bottom: 4px; }
+    .chart-card .chart-note { font-size: 0.78em; color: #888; margin: 0 0 12px; }
+    .chart-wrap { position: relative; height: 260px; }
+
+    #access-gate { position: fixed; inset: 0; background: var(--unlp-blue); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+    #access-gate.unlocked { display: none; }
+    .access-gate-box { background: white; border-radius: 12px; padding: 35px 40px; width: 320px; max-width: 90vw; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .access-gate-box h2 { font-size: 1.1em; color: var(--unlp-blue); margin: 0 0 8px; }
+    .access-gate-box p { font-size: 0.85em; color: #555; margin: 0 0 16px; }
+    .access-gate-box input { text-align: center; width: 100%; padding: 9px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95em; }
+    #access-error { display: none; color: #c0392b; font-size: 0.8em; margin-top: 8px; font-weight: 700; }
+    #access-error.show { display: block; }
+</style>
+</head>
+<body>
+
+<div id="access-gate">
+    <div class="access-gate-box">
+        <h2>OBSERVACIONES DE ESTACIONES</h2>
+        <p>Ingresá la clave del equipo para continuar.</p>
+        <input type="password" id="access-pw" placeholder="Clave" autocomplete="off" onkeydown="if(event.key==='Enter') checkAccess()">
+        <button type="button" class="btn-primary" style="margin-top:10px;" onclick="checkAccess()">Ingresar</button>
+        <div id="access-error">Clave incorrecta, probá de nuevo.</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="verificacion-admin.html" class="back-link">← Volver a verificación de pronósticos</a>
+    <h1>📡 Observaciones de estaciones</h1>
+    <p class="subtitle">Reportes sinópticos crudos de Ogimet para cada ciudad, hora por hora -- sin resumir a un valor por día. Pensado para mirar a ojo cómo viene una ciudad en estos días, no para la verificación de pronósticos (eso sigue en "Verificación de pronósticos").</p>
+
+    <div class="city-tabs" id="city-tabs">
+        <button type="button" class="city-tab" data-ciudad="La Plata" onclick="seleccionarCiudad('La Plata')">La Plata</button>
+        <button type="button" class="city-tab" data-ciudad="Junín" onclick="seleccionarCiudad('Junín')">Junín</button>
+        <button type="button" class="city-tab" data-ciudad="Mar del Plata" onclick="seleccionarCiudad('Mar del Plata')">Mar del Plata</button>
+        <button type="button" class="city-tab" data-ciudad="Bolívar" onclick="seleccionarCiudad('Bolívar')">Bolívar</button>
+        <button type="button" class="city-tab" data-ciudad="Tandil" onclick="seleccionarCiudad('Tandil')">Tandil</button>
+        <button type="button" class="city-tab" data-ciudad="Bahía Blanca" onclick="seleccionarCiudad('Bahía Blanca')">Bahía Blanca</button>
+    </div>
+
+    <div class="card">
+        <h2>Período</h2>
+        <div class="row">
+            <div>
+                <label>Desde</label>
+                <input type="date" id="f-desde">
+            </div>
+            <div>
+                <label>Hasta</label>
+                <input type="date" id="f-hasta">
+            </div>
+            <button type="button" class="btn-primary" onclick="cargarDatos()">Graficar</button>
+        </div>
+        <label>Accesos rápidos</label>
+        <div class="quick-row">
+            <button type="button" class="btn-quick" onclick="periodoRapido(1)">Últimas 24h</button>
+            <button type="button" class="btn-quick" onclick="periodoRapido(7)">Últimos 7 días</button>
+            <button type="button" class="btn-quick" onclick="periodoRapido(30)">Últimos 30 días</button>
+        </div>
+    </div>
+
+    <div id="meta-line" class="meta-line"></div>
+    <div id="sin-datos" class="empty-msg" style="display:none;">Sin reportes de Ogimet para esta ciudad en el período elegido.</div>
+
+    <div id="charts-wrap">
+        <div class="card chart-card">
+            <h2>Temperatura y punto de rocío (°C)</h2>
+            <p class="chart-note">Ta/Td instantáneos de cada reporte. No confundir con las Tmáx/Tmín de 12h del siguiente gráfico.</p>
+            <div class="chart-wrap"><canvas id="chart-temp"></canvas></div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Tmáx / Tmín de las 12h previas (°C)</h2>
+            <p class="chart-note">Solo tienen valor en los reportes de 00 y 12 UTC (extremos OMM de las 12h anteriores) -- el resto de las horas queda vacío, es esperado.</p>
+            <div class="chart-wrap"><canvas id="chart-extremos"></canvas></div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Humedad relativa (%)</h2>
+            <div class="chart-wrap"><canvas id="chart-humedad"></canvas></div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Viento (km/h)</h2>
+            <p class="chart-note">Pasá el mouse por un punto para ver la dirección de ese reporte.</p>
+            <div class="chart-wrap"><canvas id="chart-viento"></canvas></div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Presión (hPa)</h2>
+            <div class="chart-wrap"><canvas id="chart-presion"></canvas></div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Precipitación (mm)</h2>
+            <p class="chart-note">Cada barra es el acumulado reportado por Ogimet en ESE reporte, en la ventana que indique el tooltip (3h, 6h, 12h o 24h según la hora) -- no son todas la misma ventana.</p>
+            <div class="chart-wrap"><canvas id="chart-precip"></canvas></div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Nubosidad total (octavos)</h2>
+            <div class="chart-wrap"><canvas id="chart-nubosidad"></canvas></div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Visibilidad (km)</h2>
+            <div class="chart-wrap"><canvas id="chart-visibilidad"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mismo esquema de acceso que verificacion-admin.html: la clave real
+    // vive solo en Apps Script (Script Properties > TEAM_PASSWORD), nunca
+    // escrita acá -- se valida contra el servidor (type=verificar_clave).
+    const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
+
+    function checkAccess() {
+        const val = document.getElementById('access-pw').value;
+        const btn = document.querySelector('#access-gate button');
+        if (btn) btn.disabled = true;
+        verificarClaveEnServidor(val).then(ok => {
+            if (ok) {
+                localStorage.setItem('teamPassword', val);
+                document.getElementById('access-gate').classList.add('unlocked');
+                iniciar();
+            } else {
+                document.getElementById('access-error').classList.add('show');
+            }
+        }).finally(() => { if (btn) btn.disabled = false; });
+    }
+
+    function verificarClaveEnServidor(clave) {
+        return new Promise((resolve) => {
+            const callbackName = 'jsonp_clave_' + Math.round(100000 * Math.random());
+            window[callbackName] = function (data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                resolve(!!(data && data.ok));
+            };
+            const script = document.createElement('script');
+            script.src = `${GOOGLE_APP_URL}?type=verificar_clave&clave=${encodeURIComponent(clave)}&callback=${callbackName}&_t=${Date.now()}`;
+            document.body.appendChild(script);
+        });
+    }
+
+    function jsonp(params) {
+        return new Promise((resolve) => {
+            const callbackName = 'jsonp_est_' + Math.round(100000 * Math.random());
+            window[callbackName] = function (data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                resolve(data);
+            };
+            const qs = new URLSearchParams({ ...params, callback: callbackName, _t: Date.now() }).toString();
+            const script = document.createElement('script');
+            script.src = `${GOOGLE_APP_URL}?${qs}`;
+            document.body.appendChild(script);
+        });
+    }
+
+    function hoyMenos(dias) {
+        const d = new Date(); d.setDate(d.getDate() - dias);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function periodoRapido(dias) {
+        document.getElementById('f-desde').value = hoyMenos(dias);
+        document.getElementById('f-hasta').value = hoyMenos(0);
+        cargarDatos();
+    }
+
+    let ciudadActual = 'La Plata';
+    const charts = {};
+
+    function seleccionarCiudad(ciudad) {
+        ciudadActual = ciudad;
+        document.querySelectorAll('.city-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.ciudad === ciudad));
+        cargarDatos();
+    }
+
+    // Colores fijos por variable, nada más que para no tener que pensar la
+    // paleta cada vez que se agregue un gráfico nuevo.
+    const COLOR = {
+        temp: '#e67e22', rocio: '#16a085', tmax: '#c0392b', tmin: '#2980b9',
+        humedad: '#2980b9', viento: '#8e44ad', pEst: '#1a8754', pMar: '#003f6b',
+        precip: '#2980b9', nubosidad: '#7f8c8d', visibilidad: '#8d6e63'
+    };
+
+    function destruirCharts() {
+        Object.keys(charts).forEach(k => { charts[k].destroy(); delete charts[k]; });
+    }
+
+    function crearLineChart(canvasId, datasets, yOpts) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        charts[canvasId] = new Chart(ctx, {
+            type: 'line',
+            data: { datasets },
+            options: {
+                maintainAspectRatio: false,
+                parsing: false,
+                scales: {
+                    x: { type: 'category', ticks: { maxRotation: 60, minRotation: 60, autoSkip: true, maxTicksLimit: 24 } },
+                    y: Object.assign({ beginAtZero: false }, yOpts || {})
+                },
+                plugins: { legend: { display: datasets.length > 1 } },
+                elements: { point: { radius: 2 }, line: { tension: 0.15, spanGaps: true } }
+            }
+        });
+    }
+
+    function renderCharts(filas) {
+        // Orden cronológico explícito -- no asumir que la hoja ya vino
+        // ordenada así (se escribe en lotes por ciudad, no se reordena).
+        filas.sort((a, b) => (a.fecha + ' ' + a.hora).localeCompare(b.fecha + ' ' + b.hora));
+        const labels = filas.map(f => `${f.fecha.slice(5)} ${f.hora}`);
+        const serie = (campo) => filas.map((f, i) => ({ x: labels[i], y: (f[campo] === '' || f[campo] == null) ? null : Number(f[campo]) }));
+
+        destruirCharts();
+
+        crearLineChart('chart-temp', [
+            { label: 'Temperatura', data: serie('temp'), borderColor: COLOR.temp, backgroundColor: COLOR.temp },
+            { label: 'Punto de rocío', data: serie('punto_rocio'), borderColor: COLOR.rocio, backgroundColor: COLOR.rocio }
+        ]);
+
+        crearLineChart('chart-extremos', [
+            { label: 'Tmáx 12h', data: serie('tmax_12h'), borderColor: COLOR.tmax, backgroundColor: COLOR.tmax },
+            { label: 'Tmín 12h', data: serie('tmin_12h'), borderColor: COLOR.tmin, backgroundColor: COLOR.tmin }
+        ]);
+
+        crearLineChart('chart-humedad', [
+            { label: 'Humedad relativa', data: serie('humedad'), borderColor: COLOR.humedad, backgroundColor: COLOR.humedad }
+        ], { min: 0, max: 100 });
+
+        crearLineChart('chart-viento', [
+            { label: 'Intensidad', data: serie('v_int_kmh'), borderColor: COLOR.viento, backgroundColor: COLOR.viento }
+        ], { min: 0 });
+        // Tooltip con la dirección de ESE reporte -- no tiene sentido como
+        // otra línea en el mismo gráfico (es una categoría, no un número).
+        charts['chart-viento'].options.plugins.tooltip = {
+            callbacks: {
+                afterLabel: (ctx) => {
+                    const f = filas[ctx.dataIndex];
+                    return f && f.v_dir ? `Dirección: ${f.v_dir}` : '';
+                }
+            }
+        };
+        charts['chart-viento'].update();
+
+        crearLineChart('chart-presion', [
+            { label: 'Presión estación', data: serie('presion_estacion_hpa'), borderColor: COLOR.pEst, backgroundColor: COLOR.pEst },
+            { label: 'Presión a nivel del mar', data: serie('presion_nivel_mar_hpa'), borderColor: COLOR.pMar, backgroundColor: COLOR.pMar }
+        ]);
+
+        const ctxPrecip = document.getElementById('chart-precip').getContext('2d');
+        charts['chart-precip'] = new Chart(ctxPrecip, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Precipitación', data: filas.map(f => f.precip_mm === '' || f.precip_mm == null ? null : Number(f.precip_mm)), backgroundColor: COLOR.precip }] },
+            options: {
+                maintainAspectRatio: false,
+                scales: { x: { ticks: { maxRotation: 60, minRotation: 60, autoSkip: true, maxTicksLimit: 24 } }, y: { beginAtZero: true } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { afterLabel: (ctx) => {
+                        const f = filas[ctx.dataIndex];
+                        return f && f.precip_periodo_h ? `Ventana: ${f.precip_periodo_h}h` : '';
+                    } } }
+                }
+            }
+        });
+
+        crearLineChart('chart-nubosidad', [
+            { label: 'Nubosidad total', data: serie('nubosidad_octavos'), borderColor: COLOR.nubosidad, backgroundColor: COLOR.nubosidad }
+        ], { min: 0, max: 8 });
+
+        crearLineChart('chart-visibilidad', [
+            { label: 'Visibilidad', data: serie('visibilidad_km'), borderColor: COLOR.visibilidad, backgroundColor: COLOR.visibilidad }
+        ], { min: 0 });
+    }
+
+    async function cargarDatos() {
+        const desde = document.getElementById('f-desde').value;
+        const hasta = document.getElementById('f-hasta').value;
+        document.getElementById('meta-line').textContent = 'Cargando...';
+
+        const resp = await jsonp({ type: 'observaciones_estaciones', ciudad: ciudadActual, desde, hasta });
+        const filas = Array.isArray(resp) ? resp : [];
+
+        document.getElementById('charts-wrap').style.display = filas.length ? '' : 'none';
+        document.getElementById('sin-datos').style.display = filas.length ? 'none' : '';
+
+        if (!filas.length) {
+            document.getElementById('meta-line').textContent = '';
+            return;
+        }
+
+        renderCharts(filas);
+        const ultima = filas.slice().sort((a, b) => (a.fecha + ' ' + a.hora).localeCompare(b.fecha + ' ' + b.hora)).pop();
+        document.getElementById('meta-line').innerHTML =
+            `<b>${filas.length}</b> reportes de Ogimet para <b>${ciudadActual}</b>. Último: <b>${ultima.fecha} ${ultima.hora}</b> hora Argentina.`;
+    }
+
+    function iniciar() {
+        document.getElementById('f-desde').value = hoyMenos(7);
+        document.getElementById('f-hasta').value = hoyMenos(0);
+        seleccionarCiudad('La Plata');
+    }
+
+    if (localStorage.getItem('teamPassword')) {
+        document.getElementById('access-gate').classList.add('unlocked');
+        iniciar();
+    }
+</script>
+</body>
+</html>
