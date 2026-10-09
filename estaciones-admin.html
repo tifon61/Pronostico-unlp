@@ -45,6 +45,16 @@
     .meta-line b { color: var(--unlp-blue); }
     .empty-msg { color: #888; font-size: 0.9em; text-align: center; padding: 30px 10px; }
 
+    .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+    .btn-view { background: #eef2f5; color: var(--unlp-blue); }
+    .btn-view.active { background: var(--unlp-blue); color: white; }
+
+    .tabla-scroll { overflow-x: auto; }
+    table.datos { width: 100%; border-collapse: collapse; font-size: 0.78em; white-space: nowrap; }
+    table.datos th, table.datos td { padding: 7px 10px; text-align: center; border-bottom: 1px solid #eee; }
+    table.datos th { color: var(--unlp-blue); font-size: 0.85em; text-transform: uppercase; position: sticky; top: 0; background: white; }
+    table.datos td.vacio { color: var(--muted); }
+
     .chart-card h2 { margin-bottom: 4px; }
     .chart-card .chart-note { font-size: 0.78em; color: #888; margin: 0 0 12px; }
     .chart-wrap { position: relative; height: 260px; }
@@ -112,10 +122,39 @@
             <button type="button" class="btn-quick" onclick="periodoRapido(7)">Últimos 7 días</button>
             <button type="button" class="btn-quick" onclick="periodoRapido(30)">Últimos 30 días</button>
         </div>
+
+        <label>O un día específico</label>
+        <div class="row">
+            <div>
+                <input type="date" id="f-dia-especifico">
+            </div>
+            <button type="button" class="btn-quick" onclick="verDiaEspecifico()">Ver ese día</button>
+        </div>
     </div>
 
     <div id="meta-line" class="meta-line"></div>
     <div id="sin-datos" class="empty-msg" style="display:none;">Sin reportes de Ogimet para esta ciudad en el período elegido.</div>
+
+    <div class="view-toggle">
+        <button type="button" class="btn-view active" data-vista="charts" onclick="mostrarVista('charts')">📊 Gráficos</button>
+        <button type="button" class="btn-view" data-vista="tabla" onclick="mostrarVista('tabla')">📋 Tabla</button>
+    </div>
+
+    <div id="tabla-wrap" class="card" style="display:none;">
+        <div class="tabla-scroll">
+            <table class="datos">
+                <thead>
+                    <tr>
+                        <th>Fecha</th><th>Hora</th><th>Temp (°C)</th><th>P. rocío (°C)</th><th>Humedad (%)</th>
+                        <th>Tmáx 12h</th><th>Tmín 12h</th><th>Dir. viento</th><th>Int. viento (km/h)</th>
+                        <th>P. estación (hPa)</th><th>P. nivel mar (hPa)</th><th>Precip (mm)</th><th>Ventana (h)</th>
+                        <th>Nubosidad (8vos)</th><th>Visibilidad (km)</th><th>WW</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body"></tbody>
+            </table>
+        </div>
+    </div>
 
     <div id="charts-wrap">
         <div class="card chart-card">
@@ -225,8 +264,24 @@
         cargarDatos();
     }
 
+    function verDiaEspecifico() {
+        const dia = document.getElementById('f-dia-especifico').value;
+        if (!dia) return;
+        document.getElementById('f-desde').value = dia;
+        document.getElementById('f-hasta').value = dia;
+        cargarDatos();
+    }
+
     let ciudadActual = 'La Plata';
+    let vistaActual = 'charts';
     const charts = {};
+
+    function mostrarVista(vista) {
+        vistaActual = vista;
+        document.querySelectorAll('.btn-view').forEach(b => b.classList.toggle('active', b.dataset.vista === vista));
+        document.getElementById('charts-wrap').style.display = vista === 'charts' ? '' : 'none';
+        document.getElementById('tabla-wrap').style.display = vista === 'tabla' ? '' : 'none';
+    }
 
     function seleccionarCiudad(ciudad) {
         ciudadActual = ciudad;
@@ -332,6 +387,20 @@
         ], { min: 0 });
     }
 
+    function renderTabla(filas) {
+        const celda = (v) => (v === '' || v == null) ? '<td class="vacio">--</td>' : `<td>${v}</td>`;
+        document.getElementById('tabla-body').innerHTML = filas.map(f => `
+            <tr>
+                <td>${f.fecha}</td><td>${f.hora}</td>
+                ${celda(f.temp)}${celda(f.punto_rocio)}${celda(f.humedad)}
+                ${celda(f.tmax_12h)}${celda(f.tmin_12h)}${celda(f.v_dir)}${celda(f.v_int_kmh)}
+                ${celda(f.presion_estacion_hpa)}${celda(f.presion_nivel_mar_hpa)}
+                ${celda(f.precip_mm)}${celda(f.precip_periodo_h)}
+                ${celda(f.nubosidad_octavos)}${celda(f.visibilidad_km)}${celda(f.tiempo_presente_ww)}
+            </tr>
+        `).join('');
+    }
+
     async function cargarDatos() {
         const desde = document.getElementById('f-desde').value;
         const hasta = document.getElementById('f-hasta').value;
@@ -340,16 +409,20 @@
         const resp = await jsonp({ type: 'observaciones_estaciones', ciudad: ciudadActual, desde, hasta });
         const filas = Array.isArray(resp) ? resp : [];
 
-        document.getElementById('charts-wrap').style.display = filas.length ? '' : 'none';
+        document.querySelector('.view-toggle').style.display = filas.length ? '' : 'none';
         document.getElementById('sin-datos').style.display = filas.length ? 'none' : '';
 
         if (!filas.length) {
+            document.getElementById('charts-wrap').style.display = 'none';
+            document.getElementById('tabla-wrap').style.display = 'none';
             document.getElementById('meta-line').textContent = '';
             return;
         }
 
-        renderCharts(filas);
-        const ultima = filas.slice().sort((a, b) => (a.fecha + ' ' + a.hora).localeCompare(b.fecha + ' ' + b.hora)).pop();
+        renderCharts(filas); // ordena "filas" cronológicamente in-place
+        renderTabla(filas);
+        mostrarVista(vistaActual);
+        const ultima = filas[filas.length - 1];
         document.getElementById('meta-line').innerHTML =
             `<b>${filas.length}</b> reportes de Ogimet para <b>${ciudadActual}</b>. Último: <b>${ultima.fecha} ${ultima.hora}</b> hora Argentina.`;
     }
