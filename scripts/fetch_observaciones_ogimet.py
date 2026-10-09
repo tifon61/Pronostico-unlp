@@ -145,12 +145,18 @@ def parsear_filas(html_text, debug_ciudad=None):
     out = []
     for tr in filas_html:
         celdas = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
-        if len(celdas) < 10:
+        if len(celdas) < 14:
             continue
-        m = re.match(r"(\d{2})/(\d{2})/(\d{4})\s+(\d{2}):(\d{2})", celdas[0])
-        if not m:
+        # OJO: fecha y hora vienen en DOS celdas separadas ('09/10/2026' y
+        # '12:00'), no una sola combinada como parecía a simple vista en la
+        # tabla renderizada -- confirmado con el HTML real, no es una
+        # suposición.
+        m_fecha = re.match(r"(\d{2})/(\d{2})/(\d{4})", celdas[0])
+        m_hora = re.match(r"(\d{2}):(\d{2})", celdas[1])
+        if not m_fecha or not m_hora:
             continue
-        dd, mm, yyyy, hh, mi = m.groups()
+        dd, mm, yyyy = m_fecha.groups()
+        hh, mi = m_hora.groups()
         dt = datetime.datetime(int(yyyy), int(mm), int(dd), int(hh), int(mi))
 
         def num(s):
@@ -162,15 +168,21 @@ def parsear_filas(html_text, debug_ciudad=None):
             except ValueError:
                 return None
 
-        # Columnas según el orden de gsynres con decoded=yes:
-        # Fecha, T, Td, Hr, Ta, Tmax, Tmin, ddd, ff, P0, Pmar, PTnd, Prec, NN, h, Vis, WW, W1, W2
-        tmax = num(celdas[5]) if len(celdas) > 5 else None
-        tmin = num(celdas[6]) if len(celdas) > 6 else None
-        v_dir_raw = celdas[7].strip() if len(celdas) > 7 else ""
-        v_int_kmh = num(celdas[8]) if len(celdas) > 8 else None
-        precip_raw = celdas[12] if len(celdas) > 12 else ""
-        precip_m = re.match(r"([\d.]+)\s*/\s*24h", precip_raw)
-        precip_mm = float(precip_m.group(1)) if precip_m else None
+        # Columnas reales (confirmadas contra HTML real de gsynres con
+        # decoded=yes): Fecha, Hora, T, Td, Hr, Ta, Tmax, Tmin, ddd, ff, P0,
+        # Pmar, PTnd, Prec, Nt, Nh, HKm, Vis, WW, W1, W2.
+        tmax = num(celdas[6])
+        tmin = num(celdas[7])
+        v_dir_raw = celdas[8].strip()
+        v_int_kmh = num(celdas[9])
+        precip_raw = celdas[13]
+        # "Ip" = traza de precipitación (<0.1mm, mismo criterio que usa el
+        # SMN en el archivo .lst) -- se la cuenta como 0mm, no como "sin dato".
+        if precip_raw.startswith("Ip"):
+            precip_mm = 0.0
+        else:
+            precip_m = re.match(r"([\d.]+)\s*/\s*24h", precip_raw)
+            precip_mm = float(precip_m.group(1)) if precip_m else None
 
         out.append({
             "dt": dt, "tmax": tmax, "tmin": tmin,
