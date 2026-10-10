@@ -258,6 +258,19 @@
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
+    // Convierte "yyyy-mm-dd" (como vienen los datos) a "dd/mm/yyyy" para
+    // mostrar -- los <input type="date"> del navegador no se pueden
+    // reformatear desde la página (siguen el idioma del sistema), pero
+    // todo el texto que arma esta página sí.
+    function fechaDisplay(iso) {
+        const [y, m, d] = iso.split('-');
+        return `${d}/${m}/${y}`;
+    }
+    function fechaCorta(iso) {
+        const [, m, d] = iso.split('-');
+        return `${d}/${m}`;
+    }
+
     function periodoRapido(dias) {
         document.getElementById('f-desde').value = hoyMenos(dias);
         document.getElementById('f-hasta').value = hoyMenos(0);
@@ -322,7 +335,7 @@
         // Orden cronológico explícito -- no asumir que la hoja ya vino
         // ordenada así (se escribe en lotes por ciudad, no se reordena).
         filas.sort((a, b) => (a.fecha + ' ' + a.hora).localeCompare(b.fecha + ' ' + b.hora));
-        const labels = filas.map(f => `${f.fecha.slice(5)} ${f.hora}`);
+        const labels = filas.map(f => `${fechaCorta(f.fecha)} ${f.hora}`);
         const serie = (campo) => filas.map(f => (f[campo] === '' || f[campo] == null) ? null : Number(f[campo]));
 
         destruirCharts();
@@ -391,7 +404,7 @@
         const celda = (v) => (v === '' || v == null) ? '<td class="vacio">--</td>' : `<td>${v}</td>`;
         document.getElementById('tabla-body').innerHTML = filas.map(f => `
             <tr>
-                <td>${f.fecha}</td><td>${f.hora}</td>
+                <td>${fechaDisplay(f.fecha)}</td><td>${f.hora}</td>
                 ${celda(f.temp)}${celda(f.punto_rocio)}${celda(f.humedad)}
                 ${celda(f.tmax_12h)}${celda(f.tmin_12h)}${celda(f.v_dir)}${celda(f.v_int_kmh)}
                 ${celda(f.presion_estacion_hpa)}${celda(f.presion_nivel_mar_hpa)}
@@ -424,7 +437,7 @@
         mostrarVista(vistaActual);
         const ultima = filas[filas.length - 1];
         document.getElementById('meta-line').innerHTML =
-            `<b>${filas.length}</b> reportes de Ogimet para <b>${ciudadActual}</b>. Último: <b>${ultima.fecha} ${ultima.hora}</b> hora Argentina.`;
+            `<b>${filas.length}</b> reportes de Ogimet para <b>${ciudadActual}</b>. Último: <b>${fechaDisplay(ultima.fecha)} ${ultima.hora}</b> hora Argentina.`;
     }
 
     function iniciar() {
