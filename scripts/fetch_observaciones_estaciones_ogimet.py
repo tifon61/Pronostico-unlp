@@ -316,6 +316,23 @@ def fetch_rango(omm, fecha_desde, fecha_hasta, debug_ciudad=None):
     return payloads
 
 
+# Por default, urllib convierte un POST a GET al seguir una redirección
+# 301/302 (compatibilidad histórica con navegadores viejos) -- y Apps
+# Script a veces redirige la ejecución de un POST (hacia
+# script.googleusercontent.com). Confirmado en producción: eso hacía que
+# el cuerpo del pedido (action, datos) se perdiera, y Apps Script terminaba
+# respondiendo la ruta pública por defecto ("Sin datos para ciudad
+# desconocida") en vez de guardar nada -- sin ningún error visible, 3 de
+# 6 ciudades se "publicaron" sin publicar un solo dato. Este handler
+# mantiene el método y el cuerpo originales en cualquier redirección.
+class _PreservarMetodoAlRedirigir(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return urllib.request.Request(newurl, data=req.data, headers=req.headers, method=req.get_method())
+
+
+_OPENER_PUBLICAR = urllib.request.build_opener(_PreservarMetodoAlRedirigir)
+
+
 def publicar_lote(ciudad, filas, token):
     payload = {
         "action": "importar_observaciones_estacion",
@@ -324,9 +341,30 @@ def publicar_lote(ciudad, filas, token):
         "filas": filas,
     }
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(APPS_SCRIPT_URL, data=data, headers={"Content-Type": "text/plain"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+
+    ultimo_resultado = None
+    for intento in range(1, REINTENTOS_MAX + 1):
+        req = urllib.request.Request(APPS_SCRIPT_URL, data=data, headers={"Content-Type": "text/plain"}, method="POST")
+        try:
+            with _OPENER_PUBLICAR.open(req, timeout=60) as resp:
+                ultimo_resultado = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            print(f"  (debug) publicar_lote({ciudad}): intento {intento}/{REINTENTOS_MAX} -- {e}", file=sys.stderr)
+            if intento < REINTENTOS_MAX:
+                time.sleep(PAUSA_REINTENTO_SEG)
+                continue
+            raise
+
+        # Red de seguridad extra: si por algún motivo la respuesta no tiene
+        # la forma que devuelve handleImportarObservacionesEstacion (ej. la
+        # ruta pública por defecto), no darla por buena en silencio.
+        if ultimo_resultado.get("status") == "ok" or "importadas" in ultimo_resultado:
+            return ultimo_resultado
+        print(f"  (debug) publicar_lote({ciudad}): respuesta inesperada (intento {intento}/{REINTENTOS_MAX}): {ultimo_resultado}", file=sys.stderr)
+        if intento < REINTENTOS_MAX:
+            time.sleep(PAUSA_REINTENTO_SEG)
+
+    return ultimo_resultado
 
 
 def parse_args():

@@ -41,4 +41,4 @@ jobs:
           ARGS=""
           if [ -n "$DESDE" ]; then ARGS="--desde $DESDE"; fi
           if [ -n "$HASTA" ]; then ARGS="$ARGS --hasta $HASTA"; fi
-          python3 scripts/fetch_observaciones_estaciones_ogimet.py $ARGS
+          python3 -u scripts/fetch_observaciones_estaciones_ogimet.py $ARGS
