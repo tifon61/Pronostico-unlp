@@ -316,23 +316,21 @@ def fetch_rango(omm, fecha_desde, fecha_hasta, debug_ciudad=None):
     return payloads
 
 
-# Por default, urllib convierte un POST a GET al seguir una redirección
-# 301/302 (compatibilidad histórica con navegadores viejos) -- y Apps
-# Script a veces redirige la ejecución de un POST (hacia
-# script.googleusercontent.com). Confirmado en producción: eso hacía que
-# el cuerpo del pedido (action, datos) se perdiera, y Apps Script terminaba
-# respondiendo la ruta pública por defecto ("Sin datos para ciudad
-# desconocida") en vez de guardar nada -- sin ningún error visible, 3 de
-# 6 ciudades se "publicaron" sin publicar un solo dato. Este handler
-# mantiene el método y el cuerpo originales en cualquier redirección.
-class _PreservarMetodoAlRedirigir(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return urllib.request.Request(newurl, data=req.data, headers=req.headers, method=req.get_method())
-
-
-_OPENER_PUBLICAR = urllib.request.build_opener(_PreservarMetodoAlRedirigir)
-
-
+# Apps Script a veces redirige la ejecución de un POST (hacia
+# script.googleusercontent.com) y urllib, por default, convierte ese POST
+# a GET al seguir la redirección (compatibilidad histórica con
+# navegadores viejos) -- eso hacía que el cuerpo del pedido (action,
+# datos) se perdiera, y Apps Script terminaba respondiendo la ruta
+# pública por defecto ("Sin datos para ciudad desconocida") en vez de
+# guardar nada, sin ningún error visible. Se intentó arreglar forzando
+# que la redirección mantenga el método POST, pero ESE intento rompió
+# todo (405 Method Not Allowed en el 100% de los pedidos -- la URL de
+# redirección de Apps Script parece aceptar solo GET en ese punto). Así
+# que en vez de pelear con la redirección, la mitigación es más simple:
+# reintentar y validar la forma de la respuesta -- si salió mal una vez
+# (por la redirección u otra causa transitoria), probablemente la
+# próxima vez no redirija y ande bien, como pasó con la mitad de las
+# ciudades en la corrida real donde se encontró este problema.
 def publicar_lote(ciudad, filas, token):
     payload = {
         "action": "importar_observaciones_estacion",
@@ -344,9 +342,9 @@ def publicar_lote(ciudad, filas, token):
 
     ultimo_resultado = None
     for intento in range(1, REINTENTOS_MAX + 1):
-        req = urllib.request.Request(APPS_SCRIPT_URL, data=data, headers={"Content-Type": "text/plain"}, method="POST")
+        req = urllib.request.Request(APPS_SCRIPT_URL, data=data, headers={"Content-Type": "text/plain"})
         try:
-            with _OPENER_PUBLICAR.open(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=60) as resp:
                 ultimo_resultado = json.loads(resp.read().decode("utf-8"))
         except Exception as e:
             print(f"  (debug) publicar_lote({ciudad}): intento {intento}/{REINTENTOS_MAX} -- {e}", file=sys.stderr)

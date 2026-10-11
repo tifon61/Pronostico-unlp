@@ -231,23 +231,17 @@ REINTENTOS_MAX = 3
 PAUSA_REINTENTO_SEG = 20
 
 
-# Por default, urllib convierte un POST a GET al seguir una redirección
-# 301/302 (compatibilidad histórica con navegadores viejos) -- y Apps
-# Script a veces redirige la ejecución de un POST (hacia
-# script.googleusercontent.com). Confirmado en producción (en el script
-# hermano de este, fetch_observaciones_estaciones_ogimet.py): eso hacía
-# que el cuerpo del pedido se perdiera y Apps Script respondiera la ruta
-# pública por defecto en vez de guardar nada, sin ningún error visible.
-# Este handler mantiene el método y el cuerpo originales en cualquier
-# redirección.
-class _PreservarMetodoAlRedirigir(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return urllib.request.Request(newurl, data=req.data, headers=req.headers, method=req.get_method())
-
-
-_OPENER_PUBLICAR = urllib.request.build_opener(_PreservarMetodoAlRedirigir)
-
-
+# Apps Script a veces redirige la ejecución de un POST (hacia
+# script.googleusercontent.com) y urllib, por default, convierte ese POST
+# a GET al seguir la redirección -- eso hacía que el cuerpo del pedido se
+# perdiera y Apps Script respondiera la ruta pública por defecto en vez
+# de guardar nada, sin ningún error visible (confirmado en producción en
+# el script hermano de este, fetch_observaciones_estaciones_ogimet.py).
+# Se intentó arreglar forzando que la redirección mantenga el método
+# POST, pero ESE intento rompió todo (405 Method Not Allowed en el 100%
+# de los pedidos -- la URL de redirección de Apps Script parece aceptar
+# solo GET en ese punto). La mitigación es más simple: reintentar y
+# validar la forma de la respuesta en vez de pelear con la redirección.
 def publicar(ciudad, fecha_local, obs, campo, team_password):
     fila = {"fecha": fecha_local.isoformat()}
     if obs["tmin"] is not None:
@@ -272,9 +266,9 @@ def publicar(ciudad, fecha_local, obs, campo, team_password):
 
     ultimo_resultado = None
     for intento in range(1, REINTENTOS_MAX + 1):
-        req = urllib.request.Request(APPS_SCRIPT_URL, data=data, headers={"Content-Type": "text/plain"}, method="POST")
+        req = urllib.request.Request(APPS_SCRIPT_URL, data=data, headers={"Content-Type": "text/plain"})
         try:
-            with _OPENER_PUBLICAR.open(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=60) as resp:
                 ultimo_resultado = json.loads(resp.read().decode("utf-8"))
         except Exception as e:
             print(f"  (debug) publicar({ciudad}): intento {intento}/{REINTENTOS_MAX} -- {e}", file=sys.stderr)
