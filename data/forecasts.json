@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-12T12:37:41.043053+00:00",
+  "generated_at": "2026-10-12T12:42:33.032742+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -503,7 +503,7 @@
               "probability_of_precipitation": "10 a 40 %",
               "sky_condition": null,
               "temperature": null,
-              "weather_icon_code": "Lluvia_dia",
+              "weather_icon_code": "Lluvias_dia_viento",
               "wind_direction": "sudeste",
               "wind_intensity": "moderados",
               "wind_gusts": "35-45"
@@ -514,7 +514,7 @@
               "probability_of_precipitation": "0 a 10 %",
               "sky_condition": null,
               "temperature": null,
-              "weather_icon_code": "Lloviznas_noche",
+              "weather_icon_code": "Lloviznas_noche_viento",
               "wind_direction": "sudeste",
               "wind_intensity": "moderados",
               "wind_gusts": "35-45"
