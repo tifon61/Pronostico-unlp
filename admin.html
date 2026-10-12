@@ -330,6 +330,11 @@
             <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
                 <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
                 <label for="chk-tomorrow" style="margin: 0; cursor: pointer; color: var(--unlp-blue); font-weight: 800; font-size: 0.75em;">CREAR PARA MAÑANA (Turno noche)</label>
+                <!-- La fecha se FIJA al tildar o destildar la casilla (y al abrir la
+                     página): si la pestaña queda abierta de un día para el otro, el
+                     pronóstico sigue siendo para el día que se eligió, no "mañana"
+                     recalculado al publicar. -->
+                <span id="fecha-objetivo" style="margin-left: auto; font-weight: 800; color: var(--unlp-blue); font-size: 0.9em; white-space: nowrap;"></span>
             </div>
         </div>
         <div class="row">
@@ -952,9 +957,29 @@
         document.getElementById('dynamic-inputs').innerHTML = html;
     }
 
+    // Día para el que es el pronóstico. Se fija acá (al abrir la página y al
+    // tildar o destildar "para mañana") y se usa tal cual para la placa, el
+    // texto de redes y la publicación. Antes se recalculaba "hoy + 1" al
+    // publicar: un pronóstico armado a la noche "para mañana" y publicado a la
+    // mañana siguiente, con la pestaña abierta, salía corrido un día.
+    let fechaPronostico = null;
+
+    function hoyLocal() {
+        const d = new Date();
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function fechaLarga(d) {
+        const ds = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+        return `${ds[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+    }
+
     function recalculateDates() {
-        const today = new Date();
-        if (document.getElementById('chk-tomorrow').checked) today.setDate(today.getDate() + 1);
+        fechaPronostico = hoyLocal();
+        if (document.getElementById('chk-tomorrow').checked) fechaPronostico.setDate(fechaPronostico.getDate() + 1);
+        const etiqueta = document.getElementById('fecha-objetivo');
+        if (etiqueta) etiqueta.innerText = `Pronóstico para: ${fechaLarga(fechaPronostico).toUpperCase()}`;
+        const today = new Date(fechaPronostico);
 
         const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
         const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
@@ -1380,8 +1405,7 @@
 
     function generateSocialText() {
         if (socialTextManuallyEdited) return;
-        const today = new Date();
-        if (document.getElementById('chk-tomorrow').checked) today.setDate(today.getDate() + 1);
+        const today = new Date(fechaPronostico || hoyLocal());
         const dayAt = (offset) => {
             const d = new Date(today); d.setDate(d.getDate() + offset);
             return { name: SOCIAL_DAY_NAMES[d.getDay()], day: d.getDate(), month: SOCIAL_MONTH_NAMES[d.getMonth()] };
@@ -1607,11 +1631,42 @@
         }
     }
 
+    // Controles antes de publicar, con la fecha ya fijada. Devuelve false si
+    // no hay que publicar (todavía).
+    function confirmarFechaPronostico() {
+        if (!fechaPronostico) recalculateDates();
+        const hoy = hoyLocal();
+        const manana = new Date(hoy); manana.setDate(hoy.getDate() + 1);
+        const paraManana = document.getElementById('chk-tomorrow').checked;
+        const ahora = new Date();
+        const hora = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`;
+
+        if (fechaPronostico < hoy) {
+            // La página quedó abierta desde un día anterior y no se tocó la casilla.
+            if (confirm(`La fecha de este pronóstico (${fechaLarga(fechaPronostico)}) ya pasó: la página quedó abierta desde otro día.\n\n` +
+                        `Aceptar: pasar las fechas a HOY (${fechaLarga(hoy)}). Revisá la placa y volvé a apretar Publicar.\nCancelar: no publicar.`)) {
+                document.getElementById('chk-tomorrow').checked = false;
+                recalculateDates();
+                saveDraft();
+            }
+            return false;
+        }
+        if (paraManana && fechaPronostico.getTime() === hoy.getTime()) {
+            // Armado ayer "para mañana" con la pestaña abierta: hoy es ese día.
+            return confirm(`Este pronóstico se armó ayer "para mañana": es para HOY, ${fechaLarga(hoy)} (no para el ${fechaLarga(manana)}).\n\n¿Publicar para hoy?`);
+        }
+        if (paraManana && ahora.getHours() < 15) {
+            return confirm(`Son las ${hora} y está tildado "CREAR PARA MAÑANA": se va a publicar para el ${fechaLarga(fechaPronostico).toUpperCase()}, no para hoy.\n\n` +
+                           `Si es el pronóstico de hoy, apretá Cancelar y destildá la casilla.\n¿Publicar para el ${fechaLarga(fechaPronostico)}?`);
+        }
+        return true;
+    }
+
     async function saveToWebInner() {
         const city = document.getElementById('city-selector').value;
         const outHora = document.getElementById('in-hora-emision').value.trim();
-        const baseDate = new Date();
-        if (document.getElementById('chk-tomorrow').checked) baseDate.setDate(baseDate.getDate() + 1);
+        if (!confirmarFechaPronostico()) return;
+        const baseDate = new Date(fechaPronostico);
         const getLocalDateString = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
