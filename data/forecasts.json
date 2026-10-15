@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T11:11:54.719023+00:00",
+  "generated_at": "2026-10-15T11:14:51.143466+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -353,8 +353,8 @@
       "city": "Mar del Plata",
       "forecast_date": "2026-10-15",
       "emission_time": "07:55:00",
-      "publicado_por": "Dylan",
-      "es_correccion": false,
+      "publicado_por": "Camila",
+      "es_correccion": true,
       "daily_forecasts": [
         {
           "date": "2026-10-15",
@@ -371,7 +371,7 @@
               "probability_of_precipitation": null,
               "sky_condition": "parcialmente nublado",
               "temperature": 11,
-              "weather_icon_code": "Parcialmente_nublado_dia",
+              "weather_icon_code": "Parcialmente_nublado_dia_viento",
               "wind_direction": "sudeste",
               "wind_intensity": "leves",
               "wind_gusts": null
@@ -415,7 +415,7 @@
               "probability_of_precipitation": null,
               "sky_condition": "ligeramente nublado",
               "temperature": 10,
-              "weather_icon_code": "Ligeramente_nublado_noche_viento",
+              "weather_icon_code": "Ligeramente_nublado_noche",
               "wind_direction": "sudeste",
               "wind_intensity": "leves",
               "wind_gusts": "30-35"
@@ -462,7 +462,7 @@
           "temp_max": 11,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo parcialmente a algo nublado.",
+          "custom_description": "Cielo cubierto a parcialmente nublado.",
           "period_forecasts": [
             {
               "period": "mañana",
@@ -470,7 +470,7 @@
               "probability_of_precipitation": null,
               "sky_condition": "parcialmente nublado",
               "temperature": null,
-              "weather_icon_code": "Parcialmente_nublado_dia_viento",
+              "weather_icon_code": "Parcialmente_nublado_dia",
               "wind_direction": "sur",
               "wind_intensity": "leves",
               "wind_gusts": "30-35"
@@ -495,7 +495,7 @@
           "temp_max": 11,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo parcialmente a algo nublado.",
+          "custom_description": "Cielo algo a ligeramente nublado.",
           "period_forecasts": [
             {
               "period": "mañana",
