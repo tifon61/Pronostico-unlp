@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T11:05:38.995777+00:00",
+  "generated_at": "2026-10-15T11:07:32.171816+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -531,7 +531,7 @@
       "forecast_date": "2026-10-15",
       "emission_time": "07:40:00",
       "publicado_por": "Mate",
-      "es_correccion": false,
+      "es_correccion": true,
       "daily_forecasts": [
         {
           "date": "2026-10-15",
@@ -580,8 +580,8 @@
         {
           "date": "2026-10-16",
           "day_name": "viernes",
-          "temp_min": 12,
-          "temp_max": 8,
+          "temp_min": 8,
+          "temp_max": 12,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
           "custom_description": null,
