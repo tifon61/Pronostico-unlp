@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T15:23:46.031821+00:00",
+  "generated_at": "2026-10-15T20:04:50.271900+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -524,7 +524,7 @@
       ]
     },
     "Bolívar": {
-      "error": "Sin datos para Bolívar"
+      "error": "No se pudo consultar Bolívar: The read operation timed out"
     },
     "Tandil": {
       "city": "Tandil",
