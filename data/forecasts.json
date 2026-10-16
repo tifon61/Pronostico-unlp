@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T11:18:48.831059+00:00",
+  "generated_at": "2026-10-16T15:03:56.694853+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -350,10 +350,181 @@
       ]
     },
     "Mar del Plata": {
-      "error": "No se pudo consultar Mar del Plata: The read operation timed out"
+      "city": "Mar del Plata",
+      "forecast_date": "2026-10-16",
+      "emission_time": "07:43:00",
+      "publicado_por": "Matias",
+      "es_correccion": false,
+      "daily_forecasts": [
+        {
+          "date": "2026-10-16",
+          "day_name": "viernes",
+          "temp_min": 10,
+          "temp_max": 12,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "custom_description": null,
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": "lloviznas",
+              "probability_of_precipitation": "40 a 70 %",
+              "sky_condition": null,
+              "temperature": 11,
+              "weather_icon_code": "Lloviznas_dia",
+              "wind_direction": "sudeste",
+              "wind_intensity": "moderados",
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "algo nublado",
+              "temperature": 12,
+              "weather_icon_code": "Algo_nublado_dia",
+              "wind_direction": "sudeste",
+              "wind_intensity": "moderados",
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "parcialmente nublado",
+              "temperature": 10,
+              "weather_icon_code": "Parcialmente_nublado_noche",
+              "wind_direction": "sudeste",
+              "wind_intensity": "moderados",
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "day_name": "sábado",
+          "temp_min": 9,
+          "temp_max": 11,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "custom_description": null,
+          "period_forecasts": [
+            {
+              "period": "madrugada",
+              "precipitation_description": "lloviznas",
+              "probability_of_precipitation": "40 a 70 %",
+              "sky_condition": null,
+              "temperature": 9,
+              "weather_icon_code": "Lloviznas_noche",
+              "wind_direction": "sudeste",
+              "wind_intensity": "moderados",
+              "wind_gusts": null
+            },
+            {
+              "period": "mañana",
+              "precipitation_description": "lloviznas",
+              "probability_of_precipitation": "40 a 70 %",
+              "sky_condition": null,
+              "temperature": 10,
+              "weather_icon_code": "Lloviznas_dia",
+              "wind_direction": "sudeste",
+              "wind_intensity": "moderados",
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": "lluvias aisladas",
+              "probability_of_precipitation": "10 a 40 %",
+              "sky_condition": null,
+              "temperature": 11,
+              "weather_icon_code": "Lluvia_dia",
+              "wind_direction": "sudeste",
+              "wind_intensity": "moderados",
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": "lloviznas",
+              "probability_of_precipitation": "40 a 70 %",
+              "sky_condition": null,
+              "temperature": 10,
+              "weather_icon_code": "Lloviznas_noche",
+              "wind_direction": "sudeste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-10-18",
+          "day_name": "domingo",
+          "temp_min": 8,
+          "temp_max": 11,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "custom_description": "40-70% de prob. de lluvias por la madrugada/mañana y cielo parcialmente nublado hacia la noche. Mínima nocturna",
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": "lloviznas",
+              "probability_of_precipitation": "40 a 70 %",
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "Lloviznas_dia",
+              "wind_direction": "sudeste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "parcialmente nublado",
+              "temperature": null,
+              "weather_icon_code": "Parcialmente_nublado_noche",
+              "wind_direction": "sudeste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "day_name": "lunes",
+          "temp_min": 7,
+          "temp_max": 12,
+          "temp_min_suburban": null,
+          "temp_max_suburban": null,
+          "custom_description": "Cielo parcialmente a algo nublado.",
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "parcialmente nublado",
+              "temperature": null,
+              "weather_icon_code": "Parcialmente_nublado_dia",
+              "wind_direction": "sudeste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "algo nublado",
+              "temperature": null,
+              "weather_icon_code": "Algo_nublado_noche",
+              "wind_direction": "este",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            }
+          ]
+        }
+      ]
     },
     "Bolívar": {
-      "error": "No se pudo consultar Bolívar: HTTP Error 404: Not Found"
+      "error": "Sin datos para Bolívar"
     },
     "Tandil": {
       "city": "Tandil",
