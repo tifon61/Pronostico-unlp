@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T10:47:54.782466+00:00",
+  "generated_at": "2026-10-20T10:53:58.310914+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -178,7 +178,7 @@
     "Junín": {
       "city": "Junín",
       "forecast_date": "2026-10-20",
-      "emission_time": "07:09:00",
+      "emission_time": "07:40:00",
       "publicado_por": "Victoria",
       "es_correccion": false,
       "daily_forecasts": [
@@ -321,7 +321,7 @@
           "temp_max": 21,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo cubierto con 10-40% de prob. de lluuvias aisladas durante el comienzo de la tarde",
+          "custom_description": "Cielo cubierto con 10-40% de prob. de lluvias aisladas durante el comienzo de la tarde",
           "period_forecasts": [
             {
               "period": "mañana",
