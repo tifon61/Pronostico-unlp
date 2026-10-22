@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T11:07:32.914064+00:00",
+  "generated_at": "2026-10-22T11:08:52.724054+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -703,7 +703,7 @@
     "Bahía Blanca": {
       "city": "Bahía Blanca",
       "forecast_date": "2026-10-22",
-      "emission_time": "07:38:00",
+      "emission_time": "08:10:00",
       "publicado_por": "Victoria",
       "es_correccion": false,
       "daily_forecasts": [
