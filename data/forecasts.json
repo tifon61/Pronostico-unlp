@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-27T10:49:17.435954+00:00",
+  "generated_at": "2026-10-27T10:50:07.675818+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
       "forecast_date": "2026-10-27",
-      "emission_time": "07:08:00",
+      "emission_time": "07:50:00",
       "publicado_por": "Victoria",
       "es_correccion": false,
       "daily_forecasts": [
