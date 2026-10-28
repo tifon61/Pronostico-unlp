@@ -1,0 +1,50 @@
+name: (temporal) Corregir saldo de octubre/2026 inflado
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reenviar historial de octubre con saldoDelta corregido
+        env:
+          TEAM_PASSWORD: ${{ secrets.TEAM_PASSWORD }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, urllib.request
+
+          registros = [
+              {"pronosticador": "Dylan", "total": 8, "cuota": 6, "saldoDelta": 0.53, "laPlata": 2},
+              {"pronosticador": "Renata", "total": 8, "cuota": 9, "saldoDelta": -0.47, "laPlata": 3},
+              {"pronosticador": "Camila", "total": 8, "cuota": 7, "saldoDelta": 0.53, "laPlata": 2},
+              {"pronosticador": "Romi", "total": 8, "cuota": 10, "saldoDelta": -1.47, "laPlata": 2},
+              {"pronosticador": "Narela", "total": 8, "cuota": 8, "saldoDelta": -0.47, "laPlata": 2},
+              {"pronosticador": "Matias", "total": 8, "cuota": 7, "saldoDelta": 0.53, "laPlata": 2},
+              {"pronosticador": "Delfi", "total": 8, "cuota": 7, "saldoDelta": 0.53, "laPlata": 3},
+              {"pronosticador": "Victoria", "total": 8, "cuota": 11, "saldoDelta": -1.47, "laPlata": 2},
+              {"pronosticador": "Mate", "total": 8, "cuota": 9, "saldoDelta": -0.47, "laPlata": 2},
+              {"pronosticador": "Leo", "total": 8, "cuota": 8, "saldoDelta": -0.47, "laPlata": 2},
+              {"pronosticador": "Juli", "total": 8, "cuota": 8, "saldoDelta": -0.47, "laPlata": 3},
+              {"pronosticador": "Micaela", "total": 8, "cuota": 7, "saldoDelta": 0.53, "laPlata": 2},
+              {"pronosticador": "Gabriel", "total": 8, "cuota": 9, "saldoDelta": -0.47, "laPlata": 1},
+              {"pronosticador": "Lorenzo", "total": 8, "cuota": 6, "saldoDelta": 0.53, "laPlata": 1},
+              {"pronosticador": "Lisandro", "total": 7, "cuota": 7, "saldoDelta": -0.47, "laPlata": 2},
+          ]
+          payload = {
+              "action": "guardar_historial_turnos",
+              "team_password": os.environ["TEAM_PASSWORD"],
+              "mes": "2026-10",
+              "registros": registros,
+          }
+          data = json.dumps(payload).encode("utf-8")
+          req = urllib.request.Request(
+              "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec",
+              data=data, headers={"Content-Type": "text/plain"},
+          )
+          with urllib.request.urlopen(req, timeout=30) as resp:
+              print(resp.read().decode("utf-8"))
+          EOF
