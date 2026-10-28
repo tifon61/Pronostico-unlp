@@ -367,12 +367,23 @@
             if (!items.length) { showToast('Nadie cargó disponibilidad para este mes todavía', true); return; }
             // El historial de meses guardados dice quién quedó con saldo (hizo de
             // más o de menos respecto de la parte pareja), para darle prioridad
-            // este mes a quien le deben.
+            // este mes a quien le deben. OJO: el saldoDelta que se guarda cada mes
+            // YA ES el acumulado hasta ese mes inclusive (ver recalcStats: suma el
+            // saldoPrevio de ese momento + el delta del propio mes) -- no es el
+            // delta de ese mes solo. Por eso acá hay que quedarse con el saldoDelta
+            // del mes MÁS RECIENTE de cada persona, nunca sumar varios meses entre
+            // sí (eso contaba los meses viejos más de una vez, bug real que infló
+            // el saldo guardado de octubre/2026 -- corregido a mano ese dato).
             fetchJsonp(`${GOOGLE_APP_URL}?type=historial_turnos`, (dataHist) => {
                 const historial = (dataHist && dataHist.items) || [];
                 const saldoPrevio = {};
+                const ultimoMesPorPersona = {};
                 historial.forEach(h => {
-                    if (h.mes < mes) saldoPrevio[h.pronosticador] = (saldoPrevio[h.pronosticador] || 0) + h.saldoDelta;
+                    if (h.mes >= mes) return;
+                    if (!ultimoMesPorPersona[h.pronosticador] || h.mes > ultimoMesPorPersona[h.pronosticador]) {
+                        ultimoMesPorPersona[h.pronosticador] = h.mes;
+                        saldoPrevio[h.pronosticador] = h.saldoDelta;
+                    }
                 });
                 scheduleData = construirCronograma(mes, items, saldoPrevio);
                 renderCronograma();
@@ -723,11 +734,17 @@
             return;
         }
 
+        // "total" sí hay que sumarlo (turnos reales de cada mes, no acumulativo).
+        // "saldo" en cambio NO se suma entre meses -- el saldoDelta guardado cada
+        // mes ya es el acumulado hasta ese mes inclusive, así que el saldo actual
+        // de una persona es el del mes MÁS RECIENTE que tenga guardado, no la
+        // suma de todos (sumarlos contaba los meses viejos más de una vez).
         const porPersona = {};
         items.forEach(it => {
-            if (!porPersona[it.pronosticador]) porPersona[it.pronosticador] = { name: it.pronosticador, total: 0, saldo: 0 };
-            porPersona[it.pronosticador].total += it.total;
-            porPersona[it.pronosticador].saldo += it.saldoDelta;
+            if (!porPersona[it.pronosticador]) porPersona[it.pronosticador] = { name: it.pronosticador, total: 0, saldo: 0, ultimoMes: null };
+            const p = porPersona[it.pronosticador];
+            p.total += it.total;
+            if (!p.ultimoMes || it.mes > p.ultimoMes) { p.ultimoMes = it.mes; p.saldo = it.saldoDelta; }
         });
         const resumen = Object.values(porPersona).sort((a, b) => b.total - a.total);
 
