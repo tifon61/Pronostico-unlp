@@ -1510,7 +1510,71 @@
         if (e.key === 'Escape') closePreviewModal();
     });
 
+    // ---- ¿La placa coincide con lo publicado? ----
+    // El 28/10/2026 se publicó en la API una mínima de 14 y la placa salió con
+    // 4: el casillero se cambió entre "Publicar en API" y "Descargar placa".
+    // Al publicar se anota cómo estaba el formulario; al descargar se compara.
+    const CAMPOS_EXCLUIDOS_FIRMA = ['social-text'];
+    function firmaFormulario() {
+        const f = {};
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (!el.id || el.type === 'password' || CAMPOS_EXCLUIDOS_FIRMA.includes(el.id)) return;
+            f[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+        });
+        return f;
+    }
+    // Solo cuenta lo publicado hace menos de 6 horas y de la misma ciudad: si
+    // no, la publicación de ayer haría saltar el aviso al armar la de hoy.
+    const VIGENCIA_PUBLICADA_MS = 6 * 3600 * 1000;
+    function leerUltimaPublicada() {
+        try {
+            const u = JSON.parse(localStorage.getItem('pronoUltimaPublicada'));
+            if (!u || !u.firma || Date.now() - u.cuando > VIGENCIA_PUBLICADA_MS) return null;
+            if (u.firma['city-selector'] !== document.getElementById('city-selector').value) return null;
+            return u.firma;
+        } catch (e) { return null; }
+    }
+    function anotarPublicada() {
+        try { localStorage.setItem('pronoUltimaPublicada', JSON.stringify({ cuando: Date.now(), firma: firmaFormulario() })); } catch (e) {}
+    }
+    // Nombre legible de los casilleros de temperatura (los demás se cuentan).
+    const NOMBRE_DIA = { h: 'Día 1', m: 'Día 2', d3: 'Día 3', d4: 'Día 4' };
+    function nombreCampo(id) {
+        let m = id.match(/^in-(h|m|d3|d4)-(min|max)-(urb|sub)$/);
+        if (m) return `${NOMBRE_DIA[m[1]]} ${m[2] === 'min' ? 'mínima' : 'máxima'}${m[3] === 'sub' ? ' suburbana' : ''}`;
+        m = id.match(/^(h|m)-temp-(\d)$/);
+        if (m) return `${NOMBRE_DIA[m[1]]} temperatura del tramo ${m[2]}`;
+        return null;
+    }
+    function cambiosDesdePublicar() {
+        const antes = leerUltimaPublicada();
+        if (!antes) return null;                       // nunca se publicó desde esta compu
+        const ahora = firmaFormulario();
+        const cambios = [];
+        let otros = 0;
+        Object.keys(ahora).forEach(id => {
+            if (String(ahora[id] ?? '') === String(antes[id] ?? '')) return;
+            const nombre = nombreCampo(id);
+            if (nombre) cambios.push(`• ${nombre}: ${antes[id] === '' || antes[id] == null ? '(vacío)' : antes[id]} → ${ahora[id] === '' ? '(vacío)' : ahora[id]}`);
+            else otros++;
+        });
+        if (otros) cambios.push(`• y ${otros} ${otros === 1 ? 'dato más' : 'datos más'} (cielo, viento, textos...)`);
+        return cambios;
+    }
+    // Antes de descargar: si se publicó y después se cambió algo, avisar.
+    // Devuelve false si hay que cancelar la descarga.
+    async function controlarPlacaVsPublicado() {
+        const cambios = cambiosDesdePublicar();
+        if (!cambios || !cambios.length) return true;
+        const publicar = confirm('⚠️ Cambiaste datos DESPUÉS de "Publicar en API": la placa no va a coincidir con lo publicado en la página.\n\n' +
+                                 cambios.join('\n') +
+                                 '\n\nAceptar: publicar de nuevo con estos datos y descargar.\nCancelar: descargar igual, sin publicar.');
+        if (publicar) await saveToWeb();
+        return true;
+    }
+
     async function download(id) {
+        await controlarPlacaVsPublicado();
         const canvas = await renderPlacaCanvas(id);
         const link = document.createElement("a"); link.download = getFilename(id) + `.png`; link.href = canvas.toDataURL("image/png"); link.click();
         showToast(`Placa descargada correctamente`);
@@ -1525,6 +1589,7 @@
     // ("se me cierra Google") al armar el PDF.
     async function downloadPDF() {
         if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+        await controlarPlacaVsPublicado();
         const c = document.getElementById('city-selector').value.replace(/\s+/g, '_'), d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
         const pdfName = `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
         const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
@@ -1733,11 +1798,22 @@
             forecastPayload.daily_forecasts.push(dailyForecast);
         }
 
+        // Resumen de las temperaturas a publicar: un 14 donde iba 4 salta a la vista.
+        const t = v => (v === null || v === undefined) ? '--' : `${v}°`;
+        const resumen = forecastPayload.daily_forecasts.map((d, i) => {
+            const [, mm, dd] = d.date.split('-');
+            let linea = `${NOMBRE_DIA[dayConfigs[i].id]} (${d.day_name} ${dd}/${mm}):  mín ${t(d.temp_min)}  /  máx ${t(d.temp_max)}`;
+            if (city === 'La Plata') linea += `   (suburbana: ${t(d.temp_min_suburban)} / ${t(d.temp_max_suburban)})`;
+            return linea;
+        });
+        if (!confirm(`Vas a publicar ${city} con estas temperaturas:\n\n${resumen.join('\n')}\n\n¿Están bien?`)) return;
+
         try {
             await fetch(GOOGLE_APP_URL, {
                 method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify(forecastPayload)
             });
+            anotarPublicada();
             showToast("¡Pronóstico publicado en la base de datos con éxito!");
             // Actualizar el panel forzando la recarga para que lo muestre de inmediato
             setTimeout(() => { fetchLastPublication(city); }, 1000);
