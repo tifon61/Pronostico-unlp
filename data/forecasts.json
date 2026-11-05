@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05T10:18:35.667470+00:00",
+  "generated_at": "2026-11-05T10:26:30.132968+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -11,9 +11,9 @@
         {
           "date": "2026-11-05",
           "day_name": "jueves",
-          "temp_min": 13,
+          "temp_min": 14,
           "temp_max": 26,
-          "temp_min_suburban": 11,
+          "temp_min_suburban": 12,
           "temp_max_suburban": 25,
           "custom_description": null,
           "period_forecasts": [
