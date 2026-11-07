@@ -627,7 +627,7 @@
     const COMBINED_WEATHER_OPTS = [
         "despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado",
         "cubierto", "neblinas", "nieblas",
-        "lluvias", "lluvias aisladas", "lloviznas", "lluvias y tormentas", "lluvias y tormentas aisladas", "tormentas aisladas"
+        "lluvias", "lluvias aisladas", "lloviznas", "nublado con lluvia intermitente", "lluvias y tormentas", "lluvias y tormentas aisladas", "tormentas aisladas"
     ];
     const WIND_INT = ["leves", "moderados", "regulares", "fuertes"];
     const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
@@ -808,6 +808,9 @@
         "lluvias": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
         "lluvias aisladas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
         "lloviznas": { dia: "Lloviznas_dia.png", noche: "Lloviznas_noche.png" },
+        // Todavía no hay un ícono de noche dedicado para esta condición -- usa
+        // Lluvia_noche.png de respaldo hasta que se mande uno específico.
+        "nublado con lluvia intermitente": { dia: "Nublado_lluvia_intermitente_dia.png", noche: "Lluvia_noche.png" },
         "lluvias y tormentas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" },
         "lluvias y tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" },
         "tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" }
@@ -1708,7 +1711,7 @@
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`)?.value || null;
                 const rafagasStr = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`)?.value || "";
                 const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`)?.value || null;
-                const isRain = ["lluvias", "lluvias aisladas", "lloviznas", "lluvias y tormentas", "lluvias y tormentas aisladas", "tormentas aisladas"].includes(skyCond);
+                const isRain = ["lluvias", "lluvias aisladas", "lloviznas", "nublado con lluvia intermitente", "lluvias y tormentas", "lluvias y tormentas aisladas", "tormentas aisladas"].includes(skyCond);
                 
                 let temp = null;
                 if (conf.id === 'h' || conf.id === 'm') {
