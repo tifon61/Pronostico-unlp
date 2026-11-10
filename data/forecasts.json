@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-10T10:41:56.108332+00:00",
+  "generated_at": "2026-11-10T10:53:33.223262+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -703,9 +703,9 @@
     "Bahía Blanca": {
       "city": "Bahía Blanca",
       "forecast_date": "2026-11-10",
-      "emission_time": "07:17:00",
+      "emission_time": "07:51:00",
       "publicado_por": "Mate",
-      "es_correccion": false,
+      "es_correccion": true,
       "daily_forecasts": [
         {
           "date": "2026-11-10",
@@ -809,8 +809,8 @@
         {
           "date": "2026-11-12",
           "day_name": "jueves",
-          "temp_min": 10,
-          "temp_max": 22,
+          "temp_min": 18,
+          "temp_max": 28,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
           "custom_description": "Cielo parcialmente nublado con 40-70% prob lluvias y tormentas aisladas durante la tarde/noche",
@@ -846,7 +846,7 @@
           "temp_max": 25,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo despejado durante todo el dia",
+          "custom_description": "Cielo cubierto 10-40% prob.. lluvias y tormentas aisladas durante la madrugada mañana y 40-70% durante la tarde/noche",
           "period_forecasts": [
             {
               "period": "mañana",
