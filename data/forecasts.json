@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-11-19T10:41:19.466337+00:00",
+  "generated_at": "2026-11-19T10:44:57.747712+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
-      "forecast_date": "2026-11-18",
-      "emission_time": "07:00:00",
-      "publicado_por": "Lisandro",
+      "forecast_date": "2026-11-19",
+      "emission_time": "07:30:00",
+      "publicado_por": "Romi",
       "es_correccion": false,
       "daily_forecasts": [
         {
-          "date": "2026-11-18",
-          "day_name": "miércoles",
+          "date": "2026-11-19",
+          "day_name": "jueves",
           "temp_min": 15,
-          "temp_max": 26,
+          "temp_max": 27,
           "temp_min_suburban": 14,
-          "temp_max_suburban": 25,
+          "temp_max_suburban": 26,
           "custom_description": null,
           "period_forecasts": [
             {
@@ -22,86 +22,31 @@
               "precipitation_description": null,
               "probability_of_precipitation": null,
               "sky_condition": "ligeramente nublado",
-              "temperature": 20,
+              "temperature": 21,
               "weather_icon_code": "Ligeramente_nublado_dia",
-              "wind_direction": "oeste",
+              "wind_direction": "sudoeste",
               "wind_intensity": "leves",
               "wind_gusts": null
             },
             {
               "period": "tarde",
               "precipitation_description": "nublado con lluvia intermitente",
-              "probability_of_precipitation": "10 a 40 %",
+              "probability_of_precipitation": "0 a 10 %",
               "sky_condition": null,
-              "temperature": 26,
+              "temperature": 27,
               "weather_icon_code": "Nublado_lluvia_intermitente_dia",
-              "wind_direction": "oeste",
-              "wind_intensity": "moderados",
+              "wind_direction": "sudoeste",
+              "wind_intensity": "leves",
               "wind_gusts": null
             },
             {
               "period": "noche",
               "precipitation_description": null,
               "probability_of_precipitation": null,
-              "sky_condition": "parcialmente nublado",
+              "sky_condition": "ligeramente nublado",
               "temperature": 20,
-              "weather_icon_code": "Parcialmente_nublado_noche",
-              "wind_direction": "oeste",
-              "wind_intensity": "leves",
-              "wind_gusts": null
-            }
-          ]
-        },
-        {
-          "date": "2026-11-19",
-          "day_name": "jueves",
-          "temp_min": 15,
-          "temp_max": 28,
-          "temp_min_suburban": 14,
-          "temp_max_suburban": 27,
-          "custom_description": null,
-          "period_forecasts": [
-            {
-              "period": "madrugada",
-              "precipitation_description": null,
-              "probability_of_precipitation": null,
-              "sky_condition": "ligeramente nublado",
-              "temperature": 15,
               "weather_icon_code": "Ligeramente_nublado_noche",
-              "wind_direction": "oeste",
-              "wind_intensity": "leves",
-              "wind_gusts": null
-            },
-            {
-              "period": "mañana",
-              "precipitation_description": null,
-              "probability_of_precipitation": null,
-              "sky_condition": "ligeramente nublado",
-              "temperature": 21,
-              "weather_icon_code": "Ligeramente_nublado_dia",
-              "wind_direction": "sudoeste",
-              "wind_intensity": "leves",
-              "wind_gusts": null
-            },
-            {
-              "period": "tarde",
-              "precipitation_description": null,
-              "probability_of_precipitation": null,
-              "sky_condition": "ligeramente nublado",
-              "temperature": 28,
-              "weather_icon_code": "Ligeramente_nublado_dia",
-              "wind_direction": "sudoeste",
-              "wind_intensity": "leves",
-              "wind_gusts": null
-            },
-            {
-              "period": "noche",
-              "precipitation_description": null,
-              "probability_of_precipitation": null,
-              "sky_condition": "despejado",
-              "temperature": 21,
-              "weather_icon_code": "Despejado_noche",
-              "wind_direction": "sur",
+              "wind_direction": "sudeste",
               "wind_intensity": "leves",
               "wind_gusts": null
             }
@@ -110,31 +55,53 @@
         {
           "date": "2026-11-20",
           "day_name": "viernes",
-          "temp_min": 18,
-          "temp_max": 26,
-          "temp_min_suburban": 17,
-          "temp_max_suburban": 25,
-          "custom_description": "Cielo parcialmente nublado con algun chaparrón a cubierto con 40 a 70 % de probabilidad de lluvias y tormentas aisladas",
+          "temp_min": 16,
+          "temp_max": 23,
+          "temp_min_suburban": 15,
+          "temp_max_suburban": 22,
+          "custom_description": null,
           "period_forecasts": [
+            {
+              "period": "madrugada",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "algo nublado",
+              "temperature": 16,
+              "weather_icon_code": "Algo_nublado_noche",
+              "wind_direction": "sudeste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
             {
               "period": "mañana",
               "precipitation_description": "nublado con lluvia intermitente",
-              "probability_of_precipitation": null,
+              "probability_of_precipitation": "10 a 40 %",
               "sky_condition": null,
-              "temperature": null,
+              "temperature": 21,
               "weather_icon_code": "Nublado_lluvia_intermitente_dia",
-              "wind_direction": "noreste",
+              "wind_direction": "sudeste",
               "wind_intensity": "leves",
               "wind_gusts": null
             },
             {
               "period": "tarde",
               "precipitation_description": "lluvias y tormentas aisladas",
-              "probability_of_precipitation": null,
+              "probability_of_precipitation": "40 a 70 %",
               "sky_condition": null,
-              "temperature": null,
+              "temperature": 23,
+              "weather_icon_code": "Tormentas_dia",
+              "wind_direction": "noreste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
+            {
+              "period": "noche",
+              "precipitation_description": "lluvias y tormentas aisladas",
+              "probability_of_precipitation": "40 a 70 %",
+              "sky_condition": null,
+              "temperature": 19,
               "weather_icon_code": "Tormentas_noche",
-              "wind_direction": "noroeste",
+              "wind_direction": "sudoeste",
               "wind_intensity": "leves",
               "wind_gusts": null
             }
@@ -144,30 +111,63 @@
           "date": "2026-11-21",
           "day_name": "sábado",
           "temp_min": 16,
-          "temp_max": 25,
+          "temp_max": 26,
           "temp_min_suburban": 15,
-          "temp_max_suburban": 24,
-          "custom_description": "Cielo ligeramente nublado desmejorando hacia la noche con 0 a 10 % de probabilidad de chaparrones aislados",
+          "temp_max_suburban": 25,
+          "custom_description": "Cielo ligeramente nublado con neblinas, a parcialmente nublado",
           "period_forecasts": [
             {
               "period": "mañana",
               "precipitation_description": null,
               "probability_of_precipitation": null,
-              "sky_condition": "ligeramente nublado",
+              "sky_condition": "neblinas",
               "temperature": null,
-              "weather_icon_code": "Ligeramente_nublado_dia",
+              "weather_icon_code": "Neblina",
+              "wind_direction": "oeste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            },
+            {
+              "period": "tarde",
+              "precipitation_description": null,
+              "probability_of_precipitation": null,
+              "sky_condition": "parcialmente nublado",
+              "temperature": null,
+              "weather_icon_code": "Parcialmente_nublado_noche",
+              "wind_direction": "noreste",
+              "wind_intensity": "leves",
+              "wind_gusts": null
+            }
+          ]
+        },
+        {
+          "date": "2026-11-22",
+          "day_name": "domingo",
+          "temp_min": 16,
+          "temp_max": 26,
+          "temp_min_suburban": 15,
+          "temp_max_suburban": 25,
+          "custom_description": "Cielo cubierto con 10 a 40% prob de lluvia intermitente a parcialmente nublado",
+          "period_forecasts": [
+            {
+              "period": "mañana",
+              "precipitation_description": "nublado con lluvia intermitente",
+              "probability_of_precipitation": "10 a 40 %",
+              "sky_condition": null,
+              "temperature": null,
+              "weather_icon_code": "Nublado_lluvia_intermitente_dia",
               "wind_direction": "sudoeste",
               "wind_intensity": "leves",
               "wind_gusts": null
             },
             {
               "period": "tarde",
-              "precipitation_description": "nublado con lluvia intermitente",
+              "precipitation_description": null,
               "probability_of_precipitation": null,
-              "sky_condition": null,
+              "sky_condition": "parcialmente nublado",
               "temperature": null,
-              "weather_icon_code": "Nublado_lluvia_intermitente_noche",
-              "wind_direction": "este",
+              "weather_icon_code": "Parcialmente_nublado_noche",
+              "wind_direction": "noroeste",
               "wind_intensity": "leves",
               "wind_gusts": null
             }
