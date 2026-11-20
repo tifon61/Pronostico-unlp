@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T10:38:30.015250+00:00",
+  "generated_at": "2026-11-20T10:39:55.739744+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -545,7 +545,7 @@
             {
               "period": "mañana",
               "precipitation_description": "lluvias aisladas",
-              "probability_of_precipitation": "40 a 70 %",
+              "probability_of_precipitation": "70 a 100 %",
               "sky_condition": null,
               "temperature": 14,
               "weather_icon_code": "Lluvia_dia",
