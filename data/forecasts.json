@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T12:21:43.164170+00:00",
+  "generated_at": "2026-11-24T12:23:04.663739+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
@@ -531,7 +531,7 @@
       "forecast_date": "2026-11-24",
       "emission_time": "09:19:00",
       "publicado_por": "Lorenzo",
-      "es_correccion": false,
+      "es_correccion": true,
       "daily_forecasts": [
         {
           "date": "2026-11-24",
@@ -639,7 +639,7 @@
           "temp_max": 25,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": "Cielo despejado con baja probabilidad de neblinas durante la madrugada.",
+          "custom_description": "Cielo despejado con baja probabilidad de neblinas durante la madrugada",
           "period_forecasts": [
             {
               "period": "mañana",
@@ -672,7 +672,7 @@
           "temp_max": 31,
           "temp_min_suburban": null,
           "temp_max_suburban": null,
-          "custom_description": null,
+          "custom_description": "Cielo despejado a algo nublado",
           "period_forecasts": [
             {
               "period": "mañana",
