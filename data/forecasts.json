@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-11-25T10:45:15.267231+00:00",
+  "generated_at": "2026-11-25T10:46:12.336922+00:00",
   "cities": {
     "La Plata": {
       "city": "La Plata",
       "forecast_date": "2026-11-25",
       "emission_time": "07:45:00",
       "publicado_por": "Leo",
-      "es_correccion": false,
+      "es_correccion": true,
       "daily_forecasts": [
         {
           "date": "2026-11-25",
@@ -169,7 +169,7 @@
               "weather_icon_code": "Ligeramente_nublado_noche",
               "wind_direction": "norte",
               "wind_intensity": "leves",
-              "wind_gusts": null
+              "wind_gusts": "45"
             }
           ]
         }
